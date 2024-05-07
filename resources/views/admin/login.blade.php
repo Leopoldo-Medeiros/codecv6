@@ -14,7 +14,7 @@
                         <!-- TITLE -->
                         <div class="col-md-12">
                             <div class="register-form-title">
-                                <h3 class="s-32 w-700">Log in to Martex</h3>
+                                <h3 class="s-32 w-700">Log in to CODECV</h3>
                             </div>
                         </div>
 
