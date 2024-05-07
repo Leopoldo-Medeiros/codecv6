@@ -25,7 +25,7 @@
                             <!-- Google Button -->
                             <div class="col-md-12">
                                 <a  href="#" class="btn btn-google ico-left">
-                                    <img src="images/png_icons/google.png" alt="google-icon"> Sign in with Google
+                                    <img src="{{ asset('images/png_icons/google.png') }}" alt="google-icon"> Sign in with Google
                                 </a>
                             </div>
 
