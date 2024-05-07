@@ -1,0 +1,28 @@
+name: codecv6
+recipe: laravel
+config:
+  php: '8.3'
+  webroot: public
+  via: nginx
+  database: mysql:8.0
+services:
+  appserver:
+    type: php:8.3
+tooling:
+  setup:
+    cmd:
+      - appserver: composer install --no-cache
+      - appserver: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - appserver: php artisan key:generate
+      - appserver: php artisan migrate --seed
+  tinker:
+    service: appserver
+    cmd: php artisan tinker
+  migrate:
+    service: appserver
+    cmd: php artisan migrate
+  rollback:
+    service: appserver
+    cmd: php artisan migrate:rollback --step=1
+
+

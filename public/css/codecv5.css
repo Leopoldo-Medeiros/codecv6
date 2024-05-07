@@ -1,0 +1,29 @@
+@import url('flaticon.css');
+
+.navbar-light .wsmenu > .wsmenu-list > li > a.h-link {
+    color: #090808;
+}
+
+.desktoplogo {
+    margin: 15px 0 0 -95px;
+}
+
+.scroll .logo-black img{
+    width: 185px;
+    margin-bottom: 20px;
+}
+
+.desktoplogo img {
+    max-width: inherit;
+    max-height: 140px;
+}
+
+img.footer-logo,
+img.footer-logo-dark {
+    max-width: inherit;
+    max-height: 140px;
+}
+
+.footer-info img {
+    width: 215px;
+}
