@@ -6,15 +6,29 @@ config:
   via: nginx
   database: mysql:8.0
 services:
+  node:
+    type: node:20
+    ssl: 3000
+    healthcheck: false
   appserver:
     type: php:8.3
 tooling:
+  install:
+    cmd:
+      - appserver: composer install --no-cache
+      - appserver: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - appserver: php artisan key:generate
+      - appserver: php artisan migrate --seed
+      - node: npm install
+      - appserver: php artisan storage:link
   setup:
     cmd:
       - appserver: composer install --no-cache
       - appserver: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - appserver: php artisan key:generate
       - appserver: php artisan migrate --seed
+      - node: npm install
+      - appserver: php artisan storage:link
   tinker:
     service: appserver
     cmd: php artisan tinker
