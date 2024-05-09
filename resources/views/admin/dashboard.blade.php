@@ -20,7 +20,7 @@
                     </li>
                 @else
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.signout') }}">Logout</a>
+                        <a class="nav-link" href="{{ route('admin.logout') }}">Logout</a>
                     </li>
                 @endguest
             </ul>

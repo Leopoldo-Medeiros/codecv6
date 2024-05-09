@@ -35,6 +35,18 @@
                                 <div class="separator-line">Or, sign in with your email</div>
                             </div>
 
+                            @if ($errors->any())
+                                <div class="col-md-12 text-center">
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li class="text-danger">{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            @endif
+
                             <!-- Form Input -->
                             <div class="col-md-12">
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
