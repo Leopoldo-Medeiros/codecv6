@@ -20,7 +20,8 @@
 
 
                         <!-- LOGIN FORM -->
-                        <form name="signinform" class="row sign-in-form">
+                        <form name="signinform" method="POST" class="row sign-in-form" action="{{ route('admin.login.post') }}">
+                            @csrf
 
                             <!-- Google Button -->
                             <div class="col-md-12">
@@ -36,7 +37,7 @@
 
                             <!-- Form Input -->
                             <div class="col-md-12">
-                                <p class="p-sm input-header">Email address</p>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
                                 <input class="form-control email" type="email" name="email" placeholder="example@example.com">
                             </div>
 
