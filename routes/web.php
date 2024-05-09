@@ -19,12 +19,13 @@ Route::get('/home', function () {
 //    return view('faqs');
 //})->name('faqs');
 
-Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
+Route::get('/admin/login', [AdminController::class, 'index'])->name('login');
 Route::post('/admin/login', [AdminController::class, 'customLogin'])->name('admin.login.post');
-Route::post('/admin/logout', [AdminController::class, 'signOut'])->name('admin.logout');
+Route::get('/admin/logout', [AdminController::class, 'signOut'])->name('admin.logout');
 Route::get('/dashboard', function () {
     // Only authenticated users may enter...
-})->middleware('auth');
+    return view('admin.dashboard');
+})->middleware('auth')->name('dashboard');
 
 Route::get('/', function () {
     return view('welcome');

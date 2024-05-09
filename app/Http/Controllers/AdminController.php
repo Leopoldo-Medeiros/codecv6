@@ -24,11 +24,10 @@ class AdminController extends Controller
 
         $credentials = $request->only('email', 'password');
         if(Auth::attempt($credentials)) {
-            return redirect()->intended('dashboard')
-                ->withSuccess('Signed in');
+            return redirect('dashboard')->withSuccess('Signed in');
         }
 
-        return redirect('admin/login')->withSuccess('Login details are not valid');
+        return redirect('admin/login')->withErrors('Login details are not valid');
     }
 
     public function create(array $data)
