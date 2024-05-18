@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class AdminController extends Controller
 {
@@ -24,6 +26,9 @@ class AdminController extends Controller
 
         $credentials = $request->only('email', 'password');
         if(Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $user->assignRole('admin'); //Assigning role to user
+            $user->givePermissionTo('edit articles');
             return redirect('dashboard')->withSuccess('Signed in');
         }
 
@@ -41,7 +46,7 @@ class AdminController extends Controller
     public function dashboard()
     {
         if(Auth::check()) {
-            return view('dashboard');
+            return view('admin.dashboard');
         }
         return redirect('admin/login')->withSuccess('You are not allowed to access');
     }
