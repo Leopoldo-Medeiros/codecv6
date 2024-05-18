@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/home', function () {
     return view('home');
 })->name('home');
-//
+
+// Comentadas para simplificar o exemplo
 //Route::get('/about-us', function () {
 //    return view('about-us');
 //})->name('about-us');
@@ -22,11 +23,14 @@ Route::get('/home', function () {
 Route::get('/admin/login', [AdminController::class, 'index'])->name('login');
 Route::post('/admin/login', [AdminController::class, 'customLogin'])->name('admin.login.post');
 Route::get('/admin/logout', [AdminController::class, 'signOut'])->name('admin.logout');
-Route::get('/dashboard', function () {
-    // Only authenticated users may enter...
-    return view('admin.dashboard');
-})->middleware('auth')->name('dashboard');
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Admin roles
+// Esta rota garante que apenas usuários autenticados com o papel de admin
+// possam acessar o dashboard
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
 });

@@ -67,7 +67,7 @@
     <link href="{{ asset('css/responsive.css') }}" rel="stylesheet">
 
     <!-- CODECV CSS -->
-    <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">
+{{--    <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">--}}
 
 </head>
 <!-- ... Rest of your HTML ... -->
