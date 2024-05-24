@@ -8,22 +8,18 @@
         <div class="row">
             <div class="col-md-3">
                 @role('admin')
-                <div class="menu-admin">
-                    <ul>
-                        <li><a href="#">Link 1</a></li>
-                        <li><a href="#">Link 2</a></li>
-                        <li><a href="#">Link 3</a></li>
+                <!-- Menu Admin -->
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="{{ route('admin.page') }}">Area Admin</a></li>
+                    <li class="list-group-item"><a href="{{ route('admin.logout') }}">Logout</a></li>
+                </ul>
+                @endrole
+                @role('client')
+                    <!-- Menu Client -->
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="{{ route('client.page') }}">Area Client</a></li>
                     </ul>
-                </div>
-                @else
-                    <div class="menu-users">
-                        <ul>
-                            <li><a href="#">User Link 1</a></li>
-                            <li><a href="#">User Link 2</a></li>
-                            <li><a href="#">User Link 3</a></li>
-                        </ul>
-                    </div>
-                    @endrole
+                @endrole
             </div>
             <div class="col-md-9">
                 <h1>Dashboard</h1>

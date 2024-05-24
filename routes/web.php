@@ -34,3 +34,11 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 });
+Route::get('/logout', [AdminController::class, 'logout'])->name('logout');
+// Admin page
+Route::get('/admin/page', function () {
+})->name('admin.page');
+
+// Client page
+Route::get('/client/page', function () {
+})->name('client.page');

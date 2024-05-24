@@ -26,9 +26,6 @@ class AdminController extends Controller
 
         $credentials = $request->only('email', 'password');
         if(Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $user->assignRole('admin'); //Assigning role to user
-            $user->givePermissionTo('edit articles');
             return redirect('dashboard')->withSuccess('Signed in');
         }
 
