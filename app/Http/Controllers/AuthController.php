@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-class AdminController extends Controller
+class AuthController extends Controller
 {
     public function index()
     {
@@ -30,14 +30,6 @@ class AdminController extends Controller
         }
 
         return redirect('admin/login')->withErrors('Login details are not valid');
-    }
-
-    public function create(array $data)
-    {
-        return User::create([
-            'email' => $data['email'],
-            'password' => Hash::make($data['password'])
-        ]);
     }
 
     public function dashboard()
