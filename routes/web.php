@@ -8,31 +8,18 @@ Route::get('/home', function () {
     return view('home');
 })->name('home');
 
-// Comentadas para simplificar o exemplo
-//Route::get('/about-us', function () {
-//    return view('about-us');
-//})->name('about-us');
-//
-//Route::get('/pricing', function () {
-//    return view('pricing');
-//})->name('pricing');
-//
-//Route::get('/faqs', function () {
-//    return view('faqs');
-//})->name('faqs');
-
 // Admin controllers
 Route::get('/admin/login', [AuthController::class, 'index'])->name('login');
-Route::post('/admin/login', [AuthController::class, 'customLogin'])->name('admin.login.post');
-Route::get('/admin/logout', [AuthController::class, 'signOut'])->name('admin.logout');
+Route::post('/admin/login', [AuthController::class, 'customLogin'])->name('login.post');
+Route::get('/admin/logout', [AuthController::class, 'signOut'])->name('logout');
 
 // User controllers
-Route::get('/user/{$id}', [UserController::class, 'show'])->name('user.show');
-Route::post('/user/create', [UserController::class, 'create'])->name('user.create');
-Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
-Route::post('/user/{id}/update', [UserController::class, 'update'])->name('user.update');
-Route::delete('/user/{id}', [UserController::class, 'delete'])->name('user.delete');
-Route::get('/users', [UserController::class, 'index'])->name('user.index');
+Route::get('/user/{$id}', [UserController::class, 'show'])->name('show');
+Route::post('/user/create', [UserController::class, 'create'])->name('create');
+Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('edit');
+Route::post('/user/{id}/update', [UserController::class, 'update'])->name('update');
+Route::delete('/user/{id}', [UserController::class, 'delete'])->name('delete');
+Route::get('/users', [UserController::class, 'index'])->name('index');
 
 Route::get('/', function () {
     return view('welcome');
