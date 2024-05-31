@@ -26,19 +26,20 @@ class AuthController extends Controller
         }
     }
 
+    public function showLoginForm() {
+        return view('admin.login');
+    }
+
     public function dashboard()
     {
         if (Auth::check()) {
             return view('admin.dashboard');
         }
-        return redirect('admin/login')->withSuccess('You are not allowed to access');
+        return redirect('admin/login')->with('You are not allowed to access');
     }
 
-    public function signOut()
-    {
-        Session::flush();
+    public function signOut() {
         Auth::logout();
-
-        return Redirect('admin/login');
+        return redirect()->route('admin.login');
     }
 }

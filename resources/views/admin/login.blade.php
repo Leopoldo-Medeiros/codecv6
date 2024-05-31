@@ -20,7 +20,7 @@
 
 
                         <!-- LOGIN FORM -->
-                        <form name="signinform" method="POST" class="row sign-in-form" action="{{ route('admin.login.post') }}">
+                        <form name="signinform" method="POST" class="row sign-in-form" action="{{ route('login.post') }}">
                             @csrf
 
                             <!-- Google Button -->

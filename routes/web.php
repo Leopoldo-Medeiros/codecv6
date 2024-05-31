@@ -11,13 +11,22 @@ Route::get('/home', function () {
 // User controllers
 // Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
-    Route::get('/user/{$id}', [UserController::class, 'show'])->name('show');
+    Route::get('/user/{id}', [UserController::class, 'show'])->name('show');
     Route::post('/user/create', [UserController::class, 'create'])->name('create');
     Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('edit');
     Route::post('/user/{id}/update', [UserController::class, 'update'])->name('update');
     Route::delete('/user/{id}', [UserController::class, 'delete'])->name('delete');
     Route::get('/users', [UserController::class, 'index'])->name('index');
 });
+
+// Auth controllers
+Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
+Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
+Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
+
+Route::get('/client', [UserController::class, 'index'])->name('client');
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,5 +38,3 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
 });
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-abstract class UserController
+class UserController extends Controller
 {
     public function create(array $data)
     {
@@ -17,7 +17,7 @@ abstract class UserController
 
     public function show($id)
     {
-        $user = User::findOrFail($id); // Isso irá gerar uma ModelNotFoundException se o usuário não for encontrado
+        $user = User::findOrFail($id);
         return view('user.show', compact('user'));
     }
 
@@ -29,11 +29,6 @@ abstract class UserController
 
     public function update($request, $id)
     {
-        // Validação dos dados
-        // Se não utilizar a validacao, estaria atualizando o usuário com todos os dados recebidos na requisição HTTP.
-        // Isso poderia ser perigoso se a requisição tiver campos indesejados ou maliciosos.
-        // Utilizei a validação para garantir que apenas os campos esperados sejam atualizados.
-
         $validateData = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
@@ -53,6 +48,7 @@ abstract class UserController
     public function index()
     {
         $users = User::all();
-        return view('user.index', compact('users'));
+        return view('admin.dashboard', compact('users'));
     }
+
 }
