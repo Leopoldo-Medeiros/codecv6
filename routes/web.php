@@ -20,11 +20,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Auth controllers
+Route::get('/login', [AuthController::class, 'customLogin'])->name('login.post');
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
 Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
 
 Route::get('/client', [UserController::class, 'index'])->name('client');
 
