@@ -9,7 +9,7 @@ Route::get('/home', function () {
     return view('home');
 })->name('home');
 
-// User controllers
+// USER CONTROLLERS
 // Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show'])->name('show');
@@ -20,13 +20,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('index');
 });
 
-// Auth controllers
-Route::get('/login', [AuthController::class, 'customLogin'])->name('login.get');
+// AUTH CONTROLLERS
+// Exibe o formulário de login
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.get');
+// Processa o formulário de login
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
 Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
+
 Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
 
 // Client controllers
 Route::get('/client', [UserController::class, 'index'])->name('client');

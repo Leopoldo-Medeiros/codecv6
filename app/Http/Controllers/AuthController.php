@@ -24,6 +24,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             return redirect('dashboard')->withSuccess('Signed in');
         }
+        return back()->withErrors('Login details are not valid');
     }
 
     public function showLoginForm() {
@@ -40,6 +41,6 @@ class AuthController extends Controller
 
     public function signOut() {
         Auth::logout();
-        return redirect()->route('login.post');
+        return redirect()->route('login.get');
     }
 }
