@@ -22,7 +22,7 @@ Route::middleware(['auth'])->group(function () {
 
 // AUTH CONTROLLERS
 // Exibe o formulário de login
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.get');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 // Processa o formulário de login
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
 Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
