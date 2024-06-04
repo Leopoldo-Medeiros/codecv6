@@ -25,9 +25,6 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 // Processa o formulário de login
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
-
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
 Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
 
 // Client controllers
