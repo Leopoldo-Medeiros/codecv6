@@ -37,5 +37,5 @@ Route::get('/', function () {
 // Esta rota garante que apenas usuários autenticados com o papel de admin
 // possam acessar o dashboard
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 });

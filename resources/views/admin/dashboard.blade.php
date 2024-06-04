@@ -10,7 +10,7 @@
                 @role('admin')
                 <!-- Menu Admin -->
                 <ul class="list-group">
-                    <li class="list-group-item"><a href="{{ route('admin') }}">Area Admin</a></li>
+                    <li class="list-group-item"><a href="{{ route('dashboard') }}">Area Admin</a></li>
                     <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
                 </ul>
                 @endrole
@@ -18,6 +18,7 @@
                     <!-- Menu Client -->
                     <ul class="list-group">
                         <li class="list-group-item"><a href="{{ route('client') }}">Area Client</a></li>
+                        <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
                     </ul>
                 @endrole
             </div>
