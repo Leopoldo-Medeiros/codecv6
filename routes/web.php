@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/home', function () {
@@ -25,15 +24,11 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 // Processa o formulário de login
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
+Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
 Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
 
 // Client controllers
 Route::get('/client', [UserController::class, 'index'])->name('client');
-
-// Admin controllers
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('clients', [AdminController::class, 'clients'])->name('clients');
-});
 
 Route::get('/', function () {
     return view('welcome');
