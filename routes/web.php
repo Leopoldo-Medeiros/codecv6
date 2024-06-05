@@ -1,50 +1,28 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/home', function () {
-    return view('home');
-})->name('home');
-
-// User controllers
-// Estas rotas estão protegidas pelo middleware de autenticação
-Route::middleware(['auth'])->group(function () {
-    Route::get('/user/{id}', [UserController::class, 'show'])->name('show');
-    Route::post('/user/create', [UserController::class, 'create'])->name('create');
-    Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('edit');
-    Route::post('/user/{id}/update', [UserController::class, 'update'])->name('update');
-    Route::delete('/user/{id}', [UserController::class, 'delete'])->name('delete');
-    Route::get('/users', [UserController::class, 'index'])->name('index');
-});
-
-// Auth controllers
-Route::get('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
-Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
-
-Route::get('/client', [UserController::class, 'index'])->name('client');
-
-// Admin controllers
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/clients', [AdminController::class, 'showClients'])->name('clients');
-    Route::get('/admin/courses', [AdminController::class, 'showCourses'])->name('courses');
-    Route::get('/admin/paths', [AdminController::class, 'showPaths'])->name('paths');
-    Route::get('/admin/steps', [AdminController::class, 'showSteps'])->name('steps');
-});
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Admin roles
-// Esta rota garante que apenas usuários autenticados com o papel de admin
-// possam acessar o dashboard
+// Authentication routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
+Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
+
+// Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
+
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
+
+    //gorup middleware role admin
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('users', UsersController::class);
+        //  Route::resource('courses', CoursesController::class);
+        //  Route::resource('paths', PathsController::class);
+        //  Route::resource('steps', StepsController::class);
+    });
 });
