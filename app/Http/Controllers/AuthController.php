@@ -8,9 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function index()
-    {
-        return view('admin.login');
+    public function showLoginForm() {
+        return view('login');
     }
 
     public function customLogin(Request $request)
@@ -24,10 +23,8 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             return redirect('dashboard')->withSuccess('Signed in');
         }
-    }
 
-    public function showLoginForm() {
-        return view('admin.login');
+        return redirect('login')->withErrors('Login details are not valid');
     }
 
     public function dashboard()
@@ -35,11 +32,11 @@ class AuthController extends Controller
         if (Auth::check()) {
             return view('admin.dashboard');
         }
-        return redirect('admin/login')->withErrors('You are not allowed to access');
+        return redirect('login')->withErrors('You are not allowed to access');
     }
 
     public function signOut() {
         Auth::logout();
-        return redirect()->route('login.post');
+        return redirect()->route('login');
     }
 }
