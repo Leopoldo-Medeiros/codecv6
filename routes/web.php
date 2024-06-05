@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,14 @@ Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
 Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
 
 Route::get('/client', [UserController::class, 'index'])->name('client');
+
+// Admin controllers
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/clients', [AdminController::class, 'showClients'])->name('clients');
+    Route::get('/admin/courses', [AdminController::class, 'showCourses'])->name('courses');
+    Route::get('/admin/paths', [AdminController::class, 'showPaths'])->name('paths');
+    Route::get('/admin/steps', [AdminController::class, 'showSteps'])->name('steps');
+});
 
 Route::get('/', function () {
     return view('welcome');
