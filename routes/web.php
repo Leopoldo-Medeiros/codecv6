@@ -9,7 +9,7 @@ Route::get('/home', function () {
     return view('home');
 })->name('home');
 
-// User controllers
+// USER CONTROLLERS
 // Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show'])->name('show');
@@ -20,14 +20,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('index');
 });
 
-// Auth controllers
-Route::get('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
+// AUTH CONTROLLERS
+// Exibe o formulário de login
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::get('/admin', [AuthController::class, 'dashboard'])->name('admin');
+// Processa o formulário de login
+Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
 Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
 
+// Client controllers
 Route::get('/client', [UserController::class, 'index'])->name('client');
 
 // Admin controllers
@@ -46,5 +46,5 @@ Route::get('/', function () {
 // Esta rota garante que apenas usuários autenticados com o papel de admin
 // possam acessar o dashboard
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 });
