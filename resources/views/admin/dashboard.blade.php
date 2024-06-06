@@ -7,7 +7,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                @if(auth()->user()->hasRole('admin'))
+                @if(Auth()->user()->hasRole('admin'))
                     <!-- Menu Admin -->
                     <ul class="list-group">
                         <li class="list-group-item"><a href="{{ route('users.index') }}">Clients</a></li>
@@ -16,7 +16,8 @@
                         <li class="list-group-item"><a href="#">Steps</a></li>
                         <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
                     </ul>
-                @elseif(auth()->user()->hasRole('client'))
+                @endif
+                @if(auth()->user()->hasRole('client'))
                     <!-- Menu Client -->
                     <ul class="list-group">
                         <li class="list-group-item"><a href="{{ route('users.index') }}">My Courses</a></li>
