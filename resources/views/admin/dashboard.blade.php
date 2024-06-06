@@ -7,22 +7,25 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                @role('admin')
-                <!-- Menu Admin -->
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="{{ route('users.index') }}">Clients</a></li>
-                    <li class="list-group-item"><a href="#">Courses</a></li>
-                    <li class="list-group-item"><a href="#">Paths</a></li>
-                    <li class="list-group-item"><a href="#">Steps</a></li>
-                    <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
-                </ul>
-                @endrole
-                @role('client')
+                @if(auth()->user()->hasRole('admin'))
+                    <!-- Menu Admin -->
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="{{ route('users.index') }}">Clients</a></li>
+                        <li class="list-group-item"><a href="#">Courses</a></li>
+                        <li class="list-group-item"><a href="#">Paths</a></li>
+                        <li class="list-group-item"><a href="#">Steps</a></li>
+                        <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
+                    </ul>
+                @elseif(auth()->user()->hasRole('client'))
                     <!-- Menu Client -->
                     <ul class="list-group">
-                        <li class="list-group-item"><a href="#">Area Client</a></li>
+                        <li class="list-group-item"><a href="{{ route('users.index') }}">My Courses</a></li>
+                        <li class="list-group-item"><a href="#">My Paths</a></li>
+                        <li class="list-group-item"><a href="#">My CV</a></li>
+                        <li class="list-group-item"><a href="#">My Files</a></li>
+                        <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
                     </ul>
-                @endrole
+                @endif
             </div>
             <div class="col-md-9">
                 <h1>Dashboard</h1>
