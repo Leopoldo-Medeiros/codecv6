@@ -18,7 +18,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
 
-    //gorup middleware role admin
+    // Group middleware role admin
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
         //  Route::resource('courses', CoursesController::class);
