@@ -16,7 +16,6 @@
 
     <!-- SITE TITLE -->
     <title>CODECV- @yield('title')</title>
-    @vite('resources/js/app.js')
 
     <!-- FAVICON AND TOUCH ICONS -->
     <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('images/apple-icon-57x57.png') }}">
