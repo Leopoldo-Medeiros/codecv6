@@ -44,9 +44,6 @@
     <!-- BOOTSTRAP CSS -->
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
 
-    <!-- TAILWIND CSS -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
     <!-- FONT ICONS -->
     <link href="{{ asset('css/flaticon.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
