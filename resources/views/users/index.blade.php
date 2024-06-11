@@ -2,9 +2,24 @@
 
 @section('content')
     <h1>Users</h1>
-    <ul>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
         @foreach ($users as $user)
-            <li><a href="users/{{ $user->id }}">Edit</a> {{ $user->id }} -> {{ $user->name }}</li>
+            <tr>
+                <td>{{ $user->id }}</td>
+                <td>{{ $user->name }}</td>
+                <td>
+                    <a href="{{ route('users.edit', $user) }}" class="btn btn-primary">Edit</a>
+                </td>
+            </tr>
         @endforeach
-    </ul>
+        </tbody>
+    </table>
 @endsection
