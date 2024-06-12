@@ -26,6 +26,4 @@ Route::middleware(['auth'])->group(function () {
         //  Route::resource('paths', PathsController::class);
         //  Route::resource('steps', StepsController::class);
     });
-
-    Route::get('/users/{user}/courses', [CoursesController::class, 'index'])->name('users.courses');
 });
