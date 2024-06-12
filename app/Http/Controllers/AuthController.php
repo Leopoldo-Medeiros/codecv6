@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-
     public function customLogin(Request $request)
     {
         $request->validate([
@@ -20,11 +19,12 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             return redirect('dashboard')->withSuccess('Signed in');
         }
-        return back()->withErrors('Login details are not valid');
+
+        return redirect('login')->withErrors('Login details are not valid');
     }
 
     public function showLoginForm() {
-        return view('admin.login');
+        return view('login');
     }
 
     public function dashboard()
@@ -32,7 +32,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return view('admin.dashboard');
         }
-        return redirect('admin/login')->withErrors('You are not allowed to access');
+        return redirect('login')->withErrors('You are not allowed to access');
     }
 
     public function signOut() {
