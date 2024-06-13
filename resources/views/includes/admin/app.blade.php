@@ -74,7 +74,7 @@
 
 <body>
 
-@include('layouts.site.header')
+@include('layouts.admin.header')
 
 <!-- PRELOADER SPINNER
 		============================================= -->
@@ -134,7 +134,7 @@
     <!-- ... (Continue with the rest of your content) ... -->
     @yield('content')
 
-    @include('layouts.site.footer')
+    @include('layouts.admin.footer')
 
 </div>
 
