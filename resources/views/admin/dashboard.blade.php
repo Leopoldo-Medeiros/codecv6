@@ -1,5 +1,5 @@
 {{-- resources/views/admin/dashboard.blade.php --}}
-@extends('layouts.app')
+@extends('layouts.site.app')
 
 @section('title', 'Dashboard')
 
@@ -20,7 +20,9 @@
                 @if(auth()->user()->hasRole('client'))
                     <!-- Menu Client -->
                     <ul class="list-group">
-                        <li class="list-group-item"><a href="{{ route('users.courses', auth()->user()) }}">My Courses</a></li>                        <li class="list-group-item"><a href="#">My Paths</a></li>
+                        <li class="list-group-item"><a href="#">My Courses</a></li>
+{{--                        <li class="list-group-item"><a href="{{ route('users.courses', auth()->user()) }}">My Courses</a></li>--}}
+                        <li class="list-group-item"><a href="#">My Paths</a></li>
                         <li class="list-group-item"><a href="#">My CV</a></li>
                         <li class="list-group-item"><a href="#">My Files</a></li>
                         <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>

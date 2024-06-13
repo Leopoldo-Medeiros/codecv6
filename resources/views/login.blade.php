@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.site.app')
 @section('title', 'Login')
 
 @section('content')
@@ -20,13 +20,15 @@
 
 
                         <!-- LOGIN FORM -->
-                        <form name="signinform" method="POST" class="row sign-in-form" action="{{ route('login.post') }}">
+                        <form name="signinform" method="POST" class="row sign-in-form"
+                              action="{{ route('login.post') }}">
                             @csrf
 
                             <!-- Google Button -->
                             <div class="col-md-12">
-                                <a  href="#" class="btn btn-google ico-left">
-                                    <img src="{{ asset('images/png_icons/google.png') }}" alt="google-icon"> Sign in with Google
+                                <a href="#" class="btn btn-google ico-left">
+                                    <img src="{{ asset('images/png_icons/google.png') }}" alt="google-icon"> Sign in
+                                    with Google
                                 </a>
                             </div>
 
@@ -50,38 +52,41 @@
                             <!-- Form Input -->
                             <div class="col-md-12">
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
-                                <input class="form-control email" type="email" name="email" placeholder="example@example.com">
+                                <input class="form-control email" type="email" name="email"
+                                       placeholder="example@example.com">
                             </div>
 
                             <!-- Form Input -->
                             <div class="col-md-12">
                                 <p class="p-sm input-header">Password</p>
                                 <div class="wrap-input">
-                                    <span class="btn-show-pass ico-20"><span class="flaticon-visibility eye-pass"></span></span>
-                                    <input class="form-control password" type="password" name="password" placeholder="* * * * * * * * *">
+                                    <span class="btn-show-pass ico-20"><span
+                                            class="flaticon-visibility eye-pass"></span></span>
+                                    <input class="form-control password" type="password" name="password"
+                                           placeholder="* * * * * * * * *">
                                 </div>
                             </div>
 
                             <!-- Reset Password Link -->
-{{--                            <div class="col-md-12">--}}
-{{--                                <div class="reset-password-link">--}}
-{{--                                    <p class="p-sm"><a href="reset-password.html" class="color--theme">Forgot your password?</a></p>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
+                            {{--                            <div class="col-md-12">--}}
+                            {{--                                <div class="reset-password-link">--}}
+                            {{--                                    <p class="p-sm"><a href="reset-password.html" class="color--theme">Forgot your password?</a></p>--}}
+                            {{--                                </div>--}}
+                            {{--                            </div>--}}
 
                             <!-- Form Submit Button -->
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn--theme hover--theme submit">Log In</button>
                             </div>
 
-                        </form>	<!-- END LOGIN FORM -->
+                        </form>    <!-- END LOGIN FORM -->
 
 
                     </div>
                 </div>
-            </div>	   <!-- End row -->
-        </div>	   <!-- End container -->
-    </div>	<!-- END LOGIN PAGE -->
+            </div>       <!-- End row -->
+        </div>       <!-- End container -->
+    </div>    <!-- END LOGIN PAGE -->
 
-</div>	<!-- END PAGE CONTENT -->
+    </div>    <!-- END PAGE CONTENT -->
 @endsection
