@@ -1,84 +1,84 @@
 <header>
     <!-- Navigation bar -->
-    <nav class="relative container mx-auto p-6">
-        <!-- Flex container -->
-        <div class="flex flex-auto items-center justify-between">
-            <!-- Logo -->
-            <a class="logo" href="/">
-                <div class="pt-2">
-                    <span class="text-3xl font-bold text-gray-600">code</span>
-                    <span class="text-3xl font-bold text-orange-600">CV</span>
-                </div>
-            </a>
-            <!-- Menu Items -->
-            <div class="hidden space-x-6 md:flex">
-                <a class="hover:text-darkGrayishBlue" href="/">Home</a>
-                <a class="hover:text-darkGrayishBlue" href="/services">Services</a>
-                <a class="hover:text-darkGrayishBlue" href="/testimonial">Testimonials</a>
-                <a class="hover:text-darkGrayishBlue" href="/about">About</a>
-                <!--            <a href="#" class="hover:text-darkGrayishBlue">Careers</a>-->
-                <!--            <a href="#" class="hover:text-darkGrayishBlue">Community</a>-->
-            </div>
-        </div>
+{{--    <nav class="relative container mx-auto p-6">--}}
+{{--        <!-- Flex container -->--}}
+{{--        <div class="flex flex-auto items-center justify-between">--}}
+{{--            <!-- Logo -->--}}
+{{--            <a class="logo" href="/">--}}
+{{--                <div class="pt-2">--}}
+{{--                    <span class="text-3xl font-bold text-gray-600">code</span>--}}
+{{--                    <span class="text-3xl font-bold text-orange-600">CV</span>--}}
+{{--                </div>--}}
+{{--            </a>--}}
+{{--            <!-- Menu Items -->--}}
+{{--            <div class="hidden space-x-6 md:flex">--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/">Home</a>--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/services">Services</a>--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/testimonial">Testimonials</a>--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/about">About</a>--}}
+{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Careers</a>-->--}}
+{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Community</a>-->--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
-        <!-- Hamburger Icon-->
-        <div class="flex justify-end">
-            <button id="menu-btn" class="block hamburger md:hidden focus:outline-none">
-                <span class="hamburger-top"></span>
-                <span class="hamburger-middle"></span>
-                <span class="hamburger-bottom"></span>
-            </button>
-        </div>
+{{--        <!-- Hamburger Icon-->--}}
+{{--        <div class="flex justify-end">--}}
+{{--            <button id="menu-btn" class="block hamburger md:hidden focus:outline-none">--}}
+{{--                <span class="hamburger-top"></span>--}}
+{{--                <span class="hamburger-middle"></span>--}}
+{{--                <span class="hamburger-bottom"></span>--}}
+{{--            </button>--}}
+{{--        </div>--}}
 
-        <!-- Mobile Menu -->
-        <div class="md:hidden">
-            <div id="menu" class="absolute flex-col items-center hidden self-end py-8 mt-10 space-y-6 font-bold bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md">
-                <a class="hover:text-darkGrayishBlue" href="/">Home</a>
-                <a class="hover:text-darkGrayishBlue" href="/services">Services</a>
-                <a class="hover:text-darkGrayishBlue" href="/testimonial">Testimonials</a>
-                <a class="hover:text-darkGrayishBlue" href="/about">About</a>
-                <!--            <a href="#" class="hover:text-darkGrayishBlue">About Us</a>-->
-                <!--            <a href="#" class="hover:text-darkGrayishBlue">Careers</a>-->
-                <!--            <a href="#" class="hover:text-darkGrayishBlue">Community</a>-->
-            </div>
-        </div>
+{{--        <!-- Mobile Menu -->--}}
+{{--        <div class="md:hidden">--}}
+{{--            <div id="menu" class="absolute flex-col items-center hidden self-end py-8 mt-10 space-y-6 font-bold bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md">--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/">Home</a>--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/services">Services</a>--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/testimonial">Testimonials</a>--}}
+{{--                <a class="hover:text-darkGrayishBlue" href="/about">About</a>--}}
+{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">About Us</a>-->--}}
+{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Careers</a>-->--}}
+{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Community</a>-->--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
-        <!-- Login section -->
-        <div class="navigation">
-            @php
-                use Illuminate\Support\Facades\Auth;
-            @endphp
+{{--        <!-- Login section -->--}}
+{{--        <div class="navigation">--}}
+{{--            @php--}}
+{{--                use Illuminate\Support\Facades\Auth;--}}
+{{--            @endphp--}}
 
-            @if (Auth::check())
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-            @else
-                <a href="{{ route('login') }}">Login</a>
-            @endif
-        </div>
-        <!-- End Login -->
+{{--            @if (Auth::check())--}}
+{{--                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>--}}
+{{--                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">--}}
+{{--                    @csrf--}}
+{{--                </form>--}}
+{{--            @else--}}
+{{--                <a href="{{ route('login') }}">Login</a>--}}
+{{--            @endif--}}
+{{--        </div>--}}
+{{--        <!-- End Login -->--}}
 
-        <!-- Register section -->
-        <div class="navigation">
-            @php
-                use Illuminate\Http\Request;
-            @endphp
+{{--        <!-- Register section -->--}}
+{{--        <div class="navigation">--}}
+{{--            @php--}}
+{{--                use Illuminate\Http\Request;--}}
+{{--            @endphp--}}
 
-            @if (Auth::check())
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    Logout
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-            @else
-                <a href="{{ route('register') }}">Register</a>
-            @endif
-        </div>
-        <!-- End Register -->
-    </nav>
+{{--            @if (Auth::check())--}}
+{{--                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">--}}
+{{--                    Logout--}}
+{{--                </a>--}}
+{{--                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">--}}
+{{--                    @csrf--}}
+{{--                </form>--}}
+{{--            @else--}}
+{{--                <a href="{{ route('register') }}">Register</a>--}}
+{{--            @endif--}}
+{{--        </div>--}}
+{{--        <!-- End Register -->--}}
+{{--    </nav>--}}
 </header>
 
 {{--    <nav class="relative flex w-full items-center justify-between bg-white py-2 text-neutral-600 shadow-lg hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600 dark:text-neutral-200 md:flex-wrap md:justify-start"--}}

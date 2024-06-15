@@ -1,7 +1,8 @@
-@extends('layouts.site.app')
+@extends('layouts.site')
+
 @section('title', 'Login')
 
-@section('content')
+@section('menu')
     <!-- LOGIN PAGE
     ============================================= -->
     <div id="login" class="bg--fixed login-1 login-section division">
@@ -27,8 +28,7 @@
                             <!-- Google Button -->
                             <div class="col-md-12">
                                 <a href="#" class="btn btn-google ico-left">
-                                    <img src="{{ asset('images/png_icons/google.png') }}" alt="google-icon"> Sign in
-                                    with Google
+                                    <img src="{{ asset('images/png_icons/google.png') }}" alt="google-icon"> Sign in with Google
                                 </a>
                             </div>
 
@@ -52,18 +52,15 @@
                             <!-- Form Input -->
                             <div class="col-md-12">
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
-                                <input class="form-control email" type="email" name="email"
-                                       placeholder="example@example.com">
+                                <input class="form-control email" type="email" name="email" placeholder="example@example.com">
                             </div>
 
                             <!-- Form Input -->
                             <div class="col-md-12">
                                 <p class="p-sm input-header">Password</p>
                                 <div class="wrap-input">
-                                    <span class="btn-show-pass ico-20"><span
-                                            class="flaticon-visibility eye-pass"></span></span>
-                                    <input class="form-control password" type="password" name="password"
-                                           placeholder="* * * * * * * * *">
+                                    <span class="btn-show-pass ico-20"><span class="flaticon-visibility eye-pass"></span></span>
+                                    <input class="form-control password" type="password" name="password" placeholder="* * * * * * * * *">
                                 </div>
                             </div>
 
