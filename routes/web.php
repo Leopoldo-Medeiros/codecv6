@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +22,7 @@ Route::middleware(['auth'])->group(function () {
     // Group middleware role admin
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
-        //  Route::resource('courses', CoursesController::class);
+        Route::resource('courses', CoursesController::class);
         //  Route::resource('paths', PathsController::class);
         //  Route::resource('steps', StepsController::class);
     });

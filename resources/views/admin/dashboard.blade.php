@@ -3,7 +3,7 @@
 
 @section('title', 'Dashboard')
 
-@section('content')
+@section('menu')
     <div class="container">
         <div class="row">
             <div class="col-md-3">
@@ -20,8 +20,7 @@
                 @if(auth()->user()->hasRole('client'))
                     <!-- Menu Client -->
                     <ul class="list-group">
-                        <li class="list-group-item"><a href="{{ route('users.index') }}">My Courses</a></li>
-                        <li class="list-group-item"><a href="#">My Paths</a></li>
+                        <li class="list-group-item"><a href="{{ route('users.courses', auth()->user()) }}">My Courses</a></li>                        <li class="list-group-item"><a href="#">My Paths</a></li>
                         <li class="list-group-item"><a href="#">My CV</a></li>
                         <li class="list-group-item"><a href="#">My Files</a></li>
                         <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li>
