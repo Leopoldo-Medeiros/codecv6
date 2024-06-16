@@ -1,7 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.site')
+
 @section('title', 'Login')
 
-@section('content')
+@section('menu')
     <!-- LOGIN PAGE
     ============================================= -->
     <div id="login" class="bg--fixed login-1 login-section division">
@@ -20,12 +21,13 @@
 
 
                         <!-- LOGIN FORM -->
-                        <form name="signinform" method="POST" class="row sign-in-form" action="{{ route('login.post') }}">
+                        <form name="signinform" method="POST" class="row sign-in-form"
+                              action="{{ route('login.post') }}">
                             @csrf
 
                             <!-- Google Button -->
                             <div class="col-md-12">
-                                <a  href="#" class="btn btn-google ico-left">
+                                <a href="#" class="btn btn-google ico-left">
                                     <img src="{{ asset('images/png_icons/google.png') }}" alt="google-icon"> Sign in with Google
                                 </a>
                             </div>
@@ -63,25 +65,25 @@
                             </div>
 
                             <!-- Reset Password Link -->
-{{--                            <div class="col-md-12">--}}
-{{--                                <div class="reset-password-link">--}}
-{{--                                    <p class="p-sm"><a href="reset-password.html" class="color--theme">Forgot your password?</a></p>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
+                            {{--                            <div class="col-md-12">--}}
+                            {{--                                <div class="reset-password-link">--}}
+                            {{--                                    <p class="p-sm"><a href="reset-password.html" class="color--theme">Forgot your password?</a></p>--}}
+                            {{--                                </div>--}}
+                            {{--                            </div>--}}
 
                             <!-- Form Submit Button -->
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn--theme hover--theme submit">Log In</button>
                             </div>
 
-                        </form>	<!-- END LOGIN FORM -->
+                        </form>    <!-- END LOGIN FORM -->
 
 
                     </div>
                 </div>
-            </div>	   <!-- End row -->
-        </div>	   <!-- End container -->
-    </div>	<!-- END LOGIN PAGE -->
+            </div>       <!-- End row -->
+        </div>       <!-- End container -->
+    </div>    <!-- END LOGIN PAGE -->
 
-</div>	<!-- END PAGE CONTENT -->
+    </div>    <!-- END PAGE CONTENT -->
 @endsection

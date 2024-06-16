@@ -1,7 +1,10 @@
 <!doctype html>
-<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
-<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if lt IE 7 ]>
+<html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>
+<html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>
+<html class="ie ie8" lang="en"> <![endif]-->
 <!--[if (gte IE 9)|!(IE)]><!-->
 <html lang="en">
 
@@ -11,7 +14,6 @@
     <meta name="author" content="DSAThemes">
 
     <meta name="description" content="CODECV - IT Consultancy Career">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- SITE TITLE -->
@@ -27,7 +29,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('images/apple-icon-144x144.png') }}">
     <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('images/apple-icon-152x152.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-icon-180x180.png') }}">
-    <link rel="icon" type="image/png" sizes="192x192"  href="{{ asset('images/android-icon-192x192.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/android-icon-192x192.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/favicon-96x96.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
@@ -37,9 +39,12 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- GOOGLE FONTS -->
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&amp;display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+          rel="stylesheet">
 
     <!-- BOOTSTRAP CSS -->
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
@@ -65,12 +70,14 @@
 
 
     <!-- CODECV CSS -->
-{{--    <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">--}}
+    {{--    <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">--}}
 
 </head>
 <!-- ... Rest of your HTML ... -->
 
 <body>
+
+@include('includes.site.header')
 
 <!-- PRELOADER SPINNER
 		============================================= -->
@@ -93,16 +100,16 @@
                 <div class="wsmainwp clearfix">
 
 
-{{--                    <!-- HEADER BLACK LOGO -->--}}
-{{--                    <div class="desktoplogo">--}}
-{{--                        <a href="{{ route('home') }}" class="logo-black"><img src="{{ asset('images/codecv-logo-258x79.png') }}" alt="logo"></a>--}}
-{{--                    </div>--}}
+                    {{--                    <!-- HEADER BLACK LOGO -->--}}
+                    {{--                    <div class="desktoplogo">--}}
+                    {{--                        <a href="{{ route('home') }}" class="logo-black"><img src="{{ asset('images/codecv-logo-258x79.png') }}" alt="logo"></a>--}}
+                    {{--                    </div>--}}
 
 
-{{--                    <!-- HEADER WHITE LOGO -->--}}
-{{--                    <div class="desktoplogo">--}}
-{{--                        <a href="{{ route('home') }}" class="logo-white"><img src="{{ asset('images/codecv-logo-258x79.png') }}" alt="logo"></a>--}}
-{{--                    </div>--}}
+                    {{--                    <!-- HEADER WHITE LOGO -->--}}
+                    {{--                    <div class="desktoplogo">--}}
+                    {{--                        <a href="{{ route('home') }}" class="logo-white"><img src="{{ asset('images/codecv-logo-258x79.png') }}" alt="logo"></a>--}}
+                    {{--                    </div>--}}
 
 
                     <!-- MAIN MENU -->
@@ -110,27 +117,27 @@
                         <ul class="wsmenu-list nav-theme">
 
                             <!-- SIMPLE NAVIGATION LINK -->
-{{--                            <li class="nl-simple" aria-haspopup="true"><a href="{{ route('pricing') }}" class="h-link">Pricing</a></li>--}}
+                            {{--                            <li class="nl-simple" aria-haspopup="true"><a href="{{ route('pricing') }}" class="h-link">Pricing</a></li>--}}
 
 
                             <!-- SIMPLE NAVIGATION LINK -->
-{{--                            <li class="nl-simple" aria-haspopup="true"><a href="{{ route('faqs') }}" class="h-link">FAQs</a></li>--}}
+                            {{--                            <li class="nl-simple" aria-haspopup="true"><a href="{{ route('faqs') }}" class="h-link">FAQs</a></li>--}}
 
                         </ul>
-                    </nav>	<!-- END MAIN MENU -->
+                    </nav>    <!-- END MAIN MENU -->
 
 
                 </div>
-            </div>	<!-- END NAVIGATION MENU -->
+            </div>    <!-- END NAVIGATION MENU -->
 
 
         </div>     <!-- End header-wrapper -->
-    </header>	<!-- END HEADER -->
+    </header>    <!-- END HEADER -->
 
     <!-- ... (Continue with the rest of your content) ... -->
-    @yield('content')
+    @yield('menu')
 
-    @include('layouts.footer')
+    @include('includes.site.footer')
 
 </div>
 
