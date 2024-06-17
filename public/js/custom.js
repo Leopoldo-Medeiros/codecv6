@@ -2,13 +2,13 @@
 
 
 	$(window).on('load', function() {
-	
+
 		"use strict";
 
 		/*----------------------------------------------------*/
 		/*	Preloader
 		/*----------------------------------------------------*/
-		
+
 		var preloader = $('#loading'),
 			loader = preloader.find('#loading-center');
 			loader.fadeOut();
@@ -18,35 +18,35 @@
 		/*----------------------------------------------------*/
 		/*	Modal Window
 		/*----------------------------------------------------*/
-			
+
 		setTimeout(function () {
 		    $(".modal:not(.auto-off)").modal("show");
 		},3600);
-				
+
 	});
 
 
 	$(window).on('scroll', function() {
-		
+
 		"use strict";
-					
+
 		/*----------------------------------------------------*/
 		/*	Navigtion Menu Scroll
-		/*----------------------------------------------------*/	
-		
+		/*----------------------------------------------------*/
+
 		var b = $(window).scrollTop();
-		
-		if( b > 80 ){		
+
+		if( b > 80 ){
 			$(".wsmainfull").addClass("scroll");
 		} else {
 			$(".wsmainfull").removeClass("scroll");
-		}				
+		}
 
 	});
 
 
 	$(document).ready(function() {
-			
+
 		"use strict";
 
 
@@ -58,19 +58,19 @@
 		/*----------------------------------------------------*/
 
 		if ( $(window).outerWidth() < 992 ) {
-			$('.wsmenu-list li.nl-simple, .wsmegamenu li, .sub-menu li').on('click', function() {				
-				 $('body').removeClass("wsactive");	
+			$('.wsmenu-list li.nl-simple, .wsmegamenu li, .sub-menu li').on('click', function() {
+				 $('body').removeClass("wsactive");
 				 $('.sub-menu').slideUp('slow');
-     			 $('.wsmegamenu').slideUp('slow');	
+     			 $('.wsmegamenu').slideUp('slow');
      			 $('.wsmenu-click').removeClass("ws-activearrow");
         		 $('.wsmenu-click02 > i').removeClass("wsmenu-rotate");
 			});
 		}
 
 		if ( $(window).outerWidth() < 992 ) {
-			$('.wsanimated-arrow').on('click', function() {				
+			$('.wsanimated-arrow').on('click', function() {
 				 $('.sub-menu').slideUp('slow');
-     			 $('.wsmegamenu').slideUp('slow');	
+     			 $('.wsmegamenu').slideUp('slow');
      			 $('.wsmenu-click').removeClass("ws-activearrow");
         		 $('.wsmenu-click02 > i').removeClass("wsmenu-rotate");
 			});
@@ -82,7 +82,7 @@
 		/*----------------------------------------------------*/
 
 		$(".accordion > .accordion-item.is-active").children(".accordion-panel").slideDown();
-				
+
 		$(".accordion > .accordion-item").on('click', function() {
 			$(this).siblings(".accordion-item").removeClass("is-active").children(".accordion-panel").slideUp();
 			$(this).toggleClass("is-active").children(".accordion-panel").slideToggle("ease-out");
@@ -107,67 +107,67 @@
 		/*----------------------------------------------------*/
 		/*	Single Image Lightbox
 		/*----------------------------------------------------*/
-				
+
 		$('.image-link').magnificPopup({
 		  type: 'image'
-		});	
+		});
 
 
 		/*----------------------------------------------------*/
 		/*	Video Link #1 Lightbox
 		/*----------------------------------------------------*/
-		
+
 		$('.video-popup1').magnificPopup({
-		    type: 'iframe',		  	  
+		    type: 'iframe',
 				iframe: {
 					patterns: {
-						youtube: {			   
+						youtube: {
 							index: 'youtube.com',
-							src: 'https://www.youtube.com/embed/SZEflIVnhH8'				
+							src: 'https://www.youtube.com/embed/SZEflIVnhH8'
 								}
 							}
-						}		  		  
+						}
 		});
 
 
 		/*----------------------------------------------------*/
 		/*	Video Link #2 Lightbox
 		/*----------------------------------------------------*/
-		
+
 		$('.video-popup2').magnificPopup({
-		    type: 'iframe',		  	  
+		    type: 'iframe',
 				iframe: {
 					patterns: {
-						youtube: {			   
+						youtube: {
 							index: 'youtube.com',
-							src: 'https://www.youtube.com/embed/7e90gBu4pas'				
+							src: 'https://www.youtube.com/embed/7e90gBu4pas'
 								}
 							}
-						}		  		  
+						}
 		});
 
 
 		/*----------------------------------------------------*/
 		/*	Video Link #3 Lightbox
 		/*----------------------------------------------------*/
-		
+
 		$('.video-popup3').magnificPopup({
-		    type: 'iframe',		  	  
+		    type: 'iframe',
 				iframe: {
 					patterns: {
-						youtube: {			   
+						youtube: {
 							index: 'youtube.com',
-							src: 'https://www.youtube.com/embed/0gv7OC9L2s8'					
+							src: 'https://www.youtube.com/embed/0gv7OC9L2s8'
 								}
 							}
-						}		  		  
+						}
 		});
 
 
 		/*----------------------------------------------------*/
 		/*	Statistic Counter
 		/*----------------------------------------------------*/
-	
+
 		$('.count-element').each(function () {
 			$(this).appear(function() {
 				$(this).prop('Counter',0).animate({
@@ -186,7 +186,7 @@
 		/*----------------------------------------------------*/
 		/*	Testimonials Rotator
 		/*----------------------------------------------------*/
-	
+
 		var owl = $('.reviews-1-wrapper');
 			owl.owlCarousel({
 				items: 3,
@@ -219,7 +219,7 @@
 		/*----------------------------------------------------*/
 		/*	Brands Logo Rotator
 		/*----------------------------------------------------*/
-	
+
 		var owl = $('.brands-carousel-5');
 			owl.owlCarousel({
 				items: 5,
@@ -245,7 +245,7 @@
 					},
 					991:{
 						items:6
-					},				
+					},
 					1000:{
 						items:5
 					}
@@ -256,7 +256,7 @@
 		/*----------------------------------------------------*/
 		/*	Brands Logo Rotator
 		/*----------------------------------------------------*/
-	
+
 		var owl = $('.brands-carousel-6');
 			owl.owlCarousel({
 				items: 5,
@@ -282,7 +282,7 @@
 					},
 					991:{
 						items:6
-					},				
+					},
 					1000:{
 						items:6
 					}
@@ -308,14 +308,14 @@
 	            $(this).find('span.eye-pass').removeClass('flaticon-invisible');
 	            showPass = 0;
 	        }
-	        
+
 	    });
 
 
 		/*----------------------------------------------------*/
 		/*	Newsletter Subscribe Form
 		/*----------------------------------------------------*/
-	
+
 		$('.newsletter-form').ajaxChimp({
         language: 'cm',
         url: 'https://dsathemes.us3.list-manage.com/subscribe/post?u=af1a6c0b23340d7b339c085b4&id=344a494a6e'
@@ -330,7 +330,16 @@
 			3: 'The domain portion of the email address is invalid (the portion after the @: )',
 			4: 'The username portion of the email address is invalid (the portion before the @: )',
 			5: 'This email address looks fake or invalid. Please enter a real email address'
-		};	
+		};
 
 
 	});
+
+/* global bootstrap: false */
+(function () {
+    'use strict'
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+})()
