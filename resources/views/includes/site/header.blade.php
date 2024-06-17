@@ -1,163 +1,75 @@
-<header>
-    <!-- Navigation bar -->
-{{--    <nav class="relative container mx-auto p-6">--}}
-{{--        <!-- Flex container -->--}}
-{{--        <div class="flex flex-auto items-center justify-between">--}}
-{{--            <!-- Logo -->--}}
-{{--            <a class="logo" href="/">--}}
-{{--                <div class="pt-2">--}}
-{{--                    <span class="text-3xl font-bold text-gray-600">code</span>--}}
-{{--                    <span class="text-3xl font-bold text-orange-600">CV</span>--}}
-{{--                </div>--}}
-{{--            </a>--}}
-{{--            <!-- Menu Items -->--}}
-{{--            <div class="hidden space-x-6 md:flex">--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/">Home</a>--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/services">Services</a>--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/testimonial">Testimonials</a>--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/about">About</a>--}}
-{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Careers</a>-->--}}
-{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Community</a>-->--}}
-{{--            </div>--}}
-{{--        </div>--}}
+<!doctype html>
+<!--[if lt IE 7 ]>
+<html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>
+<html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>
+<html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html lang="en">
 
-{{--        <!-- Hamburger Icon-->--}}
-{{--        <div class="flex justify-end">--}}
-{{--            <button id="menu-btn" class="block hamburger md:hidden focus:outline-none">--}}
-{{--                <span class="hamburger-top"></span>--}}
-{{--                <span class="hamburger-middle"></span>--}}
-{{--                <span class="hamburger-bottom"></span>--}}
-{{--            </button>--}}
-{{--        </div>--}}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="DSAThemes">
 
-{{--        <!-- Mobile Menu -->--}}
-{{--        <div class="md:hidden">--}}
-{{--            <div id="menu" class="absolute flex-col items-center hidden self-end py-8 mt-10 space-y-6 font-bold bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md">--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/">Home</a>--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/services">Services</a>--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/testimonial">Testimonials</a>--}}
-{{--                <a class="hover:text-darkGrayishBlue" href="/about">About</a>--}}
-{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">About Us</a>-->--}}
-{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Careers</a>-->--}}
-{{--                <!--            <a href="#" class="hover:text-darkGrayishBlue">Community</a>-->--}}
-{{--            </div>--}}
-{{--        </div>--}}
+    <meta name="description" content="CODECV - IT Consultancy Career">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{{--        <!-- Login section -->--}}
-{{--        <div class="navigation">--}}
-{{--            @php--}}
-{{--                use Illuminate\Support\Facades\Auth;--}}
-{{--            @endphp--}}
+    <!-- SITE TITLE -->
+    <title>CODECV - @yield('title')</title>
 
-{{--            @if (Auth::check())--}}
-{{--                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>--}}
-{{--                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">--}}
-{{--                    @csrf--}}
-{{--                </form>--}}
-{{--            @else--}}
-{{--                <a href="{{ route('login') }}">Login</a>--}}
-{{--            @endif--}}
-{{--        </div>--}}
-{{--        <!-- End Login -->--}}
+    <!-- FAVICON AND TOUCH ICONS -->
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('images/apple-icon-57x57.png') }}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('images/apple-icon-60x60.png') }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('images/apple-icon-72x72.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('images/apple-icon-76x76.png') }}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('images/apple-icon-114x114.png') }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('images/apple-icon-120x120.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('images/apple-icon-144x144.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('images/apple-icon-152x152.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-icon-180x180.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/android-icon-192x192.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/favicon-96x96.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('images/manifest.json') }}">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="{{ asset('images/ms-icon-144x144.png') }}">
+    <meta name="theme-color" content="#ffffff">
 
-{{--        <!-- Register section -->--}}
-{{--        <div class="navigation">--}}
-{{--            @php--}}
-{{--                use Illuminate\Http\Request;--}}
-{{--            @endphp--}}
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 
-{{--            @if (Auth::check())--}}
-{{--                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">--}}
-{{--                    Logout--}}
-{{--                </a>--}}
-{{--                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">--}}
-{{--                    @csrf--}}
-{{--                </form>--}}
-{{--            @else--}}
-{{--                <a href="{{ route('register') }}">Register</a>--}}
-{{--            @endif--}}
-{{--        </div>--}}
-{{--        <!-- End Register -->--}}
-{{--    </nav>--}}
-</header>
+    <!-- BOOTSTRAP CSS -->
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
 
-{{--    <nav class="relative flex w-full items-center justify-between bg-white py-2 text-neutral-600 shadow-lg hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600 dark:text-neutral-200 md:flex-wrap md:justify-start"--}}
-{{--        data-te-navbar-ref>--}}
-{{--        <div class="flex w-full flex-wrap items-center justify-between px-3">--}}
-{{--            <div class="flex items-center">--}}
-{{--                <!-- Hamburger menu button -->--}}
-{{--                <button--}}
-{{--                    class="border-0 bg-transparent px-2 text-xl leading-none transition-shadow duration-150 ease-in-out hover:text-neutral-700 focus:text-neutral-700 dark:hover:text-white dark:focus:text-white lg:hidden"--}}
-{{--                    type="button"--}}
-{{--                    data-te-collapse-init--}}
-{{--                    data-te-target="#navbarSupportedContentY"--}}
-{{--                    aria-controls="navbarSupportedContentY"--}}
-{{--                    aria-expanded="false"--}}
-{{--                    aria-label="Toggle navigation">--}}
-{{--                    <!-- Hamburger menu icon -->--}}
-{{--                    <span class="[&>svg]:w-5">--}}
-{{--            <svg--}}
-{{--                xmlns="http://www.w3.org/2000/svg"--}}
-{{--                fill="none"--}}
-{{--                viewBox="0 0 24 24"--}}
-{{--                stroke-width="1.5"--}}
-{{--                stroke="currentColor"--}}
-{{--                class="h-7 w-7">--}}
-{{--              <path--}}
-{{--                  stroke-linecap="round"--}}
-{{--                  stroke-linejoin="round"--}}
-{{--                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />--}}
-{{--            </svg>--}}
-{{--          </span>--}}
-{{--                </button>--}}
-{{--            </div>--}}
+    <!-- FONT ICONS -->
+    <link href="{{ asset('css/flaticon.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-{{--            <!-- Navigation links -->--}}
-{{--            <div--}}
-{{--                class="!visible hidden grow basis-[100%] items-center lg:!flex lg:basis-auto"--}}
-{{--                id="navbarSupportedContentY"--}}
-{{--                data-te-collapse-item>--}}
-{{--                <ul--}}
-{{--                    class="mr-auto flex flex-col lg:flex-row"--}}
-{{--                    data-te-navbar-nav-ref>--}}
-{{--                    <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>--}}
-{{--                        <a class="block transition duration-150 ease-in-out hover:text-neutral-700 focus:text-neutral-700 disabled:text-black/30 dark:hover:text-white dark:focus:text-white lg:p-2 [&.active]:text-black/90"--}}
-{{--                            href="/"--}}
-{{--                            data-te-nav-link-ref--}}
-{{--                            data-te-ripple-init--}}
-{{--                            data-te-ripple-color="light"--}}
-{{--                        >Home</a>--}}
-{{--                    </li>--}}
-{{--                    <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>--}}
-{{--                        <a class="block transition duration-150 ease-in-out hover:text-neutral-700 focus:text-neutral-700 disabled:text-black/30 dark:hover:text-white dark:focus:text-white lg:p-2 [&.active]:text-black/90"--}}
-{{--                            href="/services"--}}
-{{--                            data-te-nav-link-ref--}}
-{{--                            data-te-ripple-init--}}
-{{--                            data-te-ripple-color="light"--}}
-{{--                        >Services</a>--}}
-{{--                    </li>--}}
-{{--                    <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>--}}
-{{--                        <a--}}
-{{--                            class="block transition duration-150 ease-in-out hover:text-neutral-700 focus:text-neutral-700 disabled:text-black/30 dark:hover:text-white dark:focus:text-white lg:p-2 [&.active]:text-black/90"--}}
-{{--                            href="/testimonial"--}}
-{{--                            data-te-nav-link-ref--}}
-{{--                            data-te-ripple-init--}}
-{{--                            data-te-ripple-color="light"--}}
-{{--                        >Testimonials</a--}}
-{{--                        >--}}
-{{--                    </li>--}}
-{{--                    <li class="mb-2 lg:mb-0 lg:pr-2" data-te-nav-item-ref>--}}
-{{--                        <a--}}
-{{--                            class="block transition duration-150 ease-in-out hover:text-neutral-700 focus:text-neutral-700 disabled:text-black/30 dark:hover:text-white dark:focus:text-white lg:p-2 [&.active]:text-black/90"--}}
-{{--                            href="/about"--}}
-{{--                            data-te-nav-link-ref--}}
-{{--                            data-te-ripple-init--}}
-{{--                            data-te-ripple-color="light"--}}
-{{--                        >About</a--}}
-{{--                        >--}}
-{{--                    </li>--}}
-{{--                </ul>--}}
-{{--            </div>--}}
+    <!-- PLUGINS STYLESHEET -->
+    <link href="{{ asset('css/menu.css') }}" rel="stylesheet">
+    <link id="effect" href="{{ asset('css/dropdown-effects/fade-down.css') }}" media="all" rel="stylesheet">
+    <link href="{{ asset('css/magnific-popup.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/owl.carousel.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/owl.theme.default.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/lunar.css') }}" rel="stylesheet">
 
-{{--    </nav>--}}
-</header>
+    <!-- ON SCROLL ANIMATION -->
+    <link href="{{ asset('css/animate.css') }}" rel="stylesheet">
+
+    <!-- TEMPLATE CSS -->
+    <link href="{{ asset('css/pink-theme.css') }}" rel="stylesheet">
+
+
+    <!-- CODECV CSS -->
+    <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">
+
+</head>
+<!-- ... Rest of your HTML ... -->
+
+<body>
+

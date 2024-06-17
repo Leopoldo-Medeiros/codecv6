@@ -17,6 +17,14 @@ Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/pricing', function () {
+    return view('welcome');
+})->name('pricing');
+
+Route::get('/about-us', function () {
+    return view('welcome');
+})->name('about-us');
+
 // Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
 
