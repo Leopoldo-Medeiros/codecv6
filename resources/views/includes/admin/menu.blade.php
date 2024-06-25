@@ -1,7 +1,4 @@
-<div class="d-flex flex-column flex-shrink-0 text-white bg-dark py-3">
-    <div class="px-4">
-        <span class="fs-4">Menu</span>
-    </div>
+<div class="d-flex flex-column flex-shrink-0 text-black py-3">
     @if(Auth()->user()->hasRole('admin'))
         @include('includes.admin.menu.admin')
     @endif
