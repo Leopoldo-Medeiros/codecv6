@@ -28,7 +28,7 @@ Route::get('/about-us', function () {
 // Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
     // Group middleware role admin
     Route::middleware(['role:admin'])->group(function () {
