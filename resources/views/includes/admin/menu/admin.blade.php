@@ -1,22 +1,34 @@
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<link href="{{ asset('../css/app.css') }}" rel="stylesheet">
-
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item dropdown">
-        <a class="btn btn--blue-400 dropdown-toggle px-4" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            MENU
-        </a>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item hover--blue-200" href="{{ route('users.index') }}">Clients</a></li>
-            <li><a class="dropdown-item hover--blue-200" href="#">Courses</a></li>
-            <li><a class="dropdown-item hover--blue-200" href="#">Paths</a></li>
-            <li><a class="dropdown-item hover--blue-200" href="#">Steps</a></li>
-            <li><a class="dropdown-item hover--blue-200" href="{{ route('logout') }}">Logout</a></li>
-        </ul>
-    </li>
-</ul>
+<div id="sidebar">
+    <div class="sidebar-header">
+        <h3 class="text-center mt-2">Menu</h3>
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="{{ route('users.index') }}"
+               class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
+                <i class="fas fa-users mt-3 mr-2"></i>
+                Clients
+            </a>
+        </li>
+        <li><a href="#" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
+                <i class="fas fa-book mr-2"></i>
+                Courses
+            </a>
+        </li>
+        <li><a href="#" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
+                <i class="fas fa-map-signs mr-2"></i>
+                Paths
+            </a>
+        </li>
+        <li><a href="#" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
+                <i class="fas fa-tasks mr-2"></i>
+                Steps
+            </a>
+        </li>
+        <li><a href="{{ route('logout') }}"
+               class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Logout
+            </a>
+        </li>
+    </ul>
+</div>

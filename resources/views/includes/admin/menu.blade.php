@@ -1,4 +1,4 @@
-<div class="d-flex flex-column flex-shrink-0 text-black py-3">
+<div class="d-inline-flex py-3 px-3">
     @if(Auth()->user()->hasRole('admin'))
         @include('includes.admin.menu.admin')
     @endif

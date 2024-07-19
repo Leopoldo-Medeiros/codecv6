@@ -57,13 +57,13 @@
     <link href="{{ asset('css/owl.carousel.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/owl.theme.default.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/lunar.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <!-- ON SCROLL ANIMATION -->
     <link href="{{ asset('css/animate.css') }}" rel="stylesheet">
 
     <!-- TEMPLATE CSS -->
     <link href="{{ asset('css/pink-theme.css') }}" rel="stylesheet">
-
 
     <!-- CODECV CSS -->
     <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">
