@@ -13,7 +13,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
 Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
 
-
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -39,8 +38,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
-        });
-        //  Route::resource('courses', CoursesController::class);
-        //  Route::resource('paths', PathsController::class);
-        //  Route::resource('steps', StepsController::class);
     });
+
+
+    // Rota para o menu de Admin
+    Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
+});

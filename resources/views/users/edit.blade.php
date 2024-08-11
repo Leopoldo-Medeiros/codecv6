@@ -1,22 +1,28 @@
 @extends('layouts.admin')
 
 @section('content')
-    <h1>Edit user</h1>
-    <form action="{{ route('users.update') }}" method="PUT">
+    <h1>{{ isset($user) ? 'Edit User' : 'Create User' }}</h1>
+    <form action="{{ isset($user) ? route('users.update', $user) : route('users.store') }}" method="POST">
         @csrf
-        @method('PUT')
+        @if(isset($user))
+            @method('PUT')
+        @endif
         <div class="form-group">
             <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" value="{{ $user->name }}" required>
+            <input type="text" name="name" class="form-control" value="{{ $user->name ?? '' }}" required>
         </div>
         <div class="form-group">
-            <label for="name">Email</label>
-            <input type="email" class="form-control" id="email" value="{{ $user->email }}" required>
+            <label for="email">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ $user->email ?? '' }}" required>
         </div>
         <div class="form-group">
-            <label for="name">Password</label>
-            <input type="password" class="form-control" id="password" value="{{ $user->password }}" required>
+            <label for="birthdate">Birthdate</label>
+            <input type="date" name="birthdate" class="form-control" value="{{ $user->profile->birthdate ?? '' }}">
         </div>
-        <button type="submit" class="btn btn-primary">Update</button>
+        <div class="form-group">
+            <label for="profession">Profession</label>
+            <input type="text" name="profession" class="form-control" value="{{ $user->profile->profession ?? '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">{{ isset($user) ? 'Update' : 'Create' }}</button>
     </form>
 @endsection

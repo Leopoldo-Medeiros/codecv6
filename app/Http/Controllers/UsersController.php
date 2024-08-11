@@ -12,7 +12,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::with('profile')->get();
         return view('users.index', compact('users'));
     }
 
@@ -79,5 +79,4 @@ class UsersController extends Controller
         User::findOrFail($id)->delete();
         return redirect()->route('users.index');
     }
-
 }
