@@ -1,0 +1,11 @@
+/* public/css/custom.css */
+.btn {
+    background-color: #007bff; /* Default button color */
+    color: white; /* Text color */
+}
+
+.btn:hover {
+    background-color: #007bff; /* Same as default button color */
+    color: white; /* Same as default text color */
+}
+
