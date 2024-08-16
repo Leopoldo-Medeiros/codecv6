@@ -50,4 +50,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class);
     }
+
+    /**
+     * Get the role attribute for the user.
+     *
+     * @return string
+     */
+    public function getRoleAttribute()
+    {
+        return $this->profile->role ?? 'user';
+    }
 }

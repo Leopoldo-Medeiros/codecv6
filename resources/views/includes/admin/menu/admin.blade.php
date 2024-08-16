@@ -1,3 +1,4 @@
+<!-- resources/views/includes/admin/menu.blade.php -->
 <div id="sidebar">
     <div class="sidebar-header">
         <h3 class="text-center mt-2">Menu</h3>

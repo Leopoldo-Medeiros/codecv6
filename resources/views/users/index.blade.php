@@ -1,33 +1,43 @@
+<!-- resources/views/users/index.blade.php -->
 @extends('layouts.admin')
 
 @section('content')
     <h1>Users</h1>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Birthdate</th>
-            <th>Profession</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach ($users as $user)
+    @if($users->isEmpty())
+        <p>No users found.</p>
+    @else
+        <table class="table">
+            <thead>
             <tr>
-                <td>{{ $user->id }}</td>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->email }}</td>
-                <td>{{ $user->profile->birthdate ?? 'N/A' }}</td>
-                <td>{{ $user->profile->profession ?? 'N/A' }}</td>
-                <td>
-                    <a href="{{ route('users.edit', $user) }}" class="btn btn-primary">Edit</a>
-                </td>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Birthdate</th>
+                <th>Role</th>
+                <th>Actions</th>
             </tr>
-        @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @foreach ($users as $user)
+                <tr>
+                    <td>{{ $user->id }}</td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
+                    <td>{{ $user->profile->role ?? 'N/A' }}</td>
+                    <td>
+                        <a href="{{ route('users.edit', $user) }}" class="btn btn-primary">Edit</a>
+                        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    @endif
 @endsection
 
 @section('header')

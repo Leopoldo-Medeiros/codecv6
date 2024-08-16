@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
+    // Other methods...
+
     /**
      * Display a listing of the resource.
      */
@@ -16,46 +18,16 @@ class UsersController extends Controller
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show($id)
     {
-        return view('users.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|email',
-            'password' => 'required|min:8',
-        ]);
-        $user = User::create($validated);
-        return redirect()->route('users.index');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $user = User::findOrFail($id);
+        $user = User::with('profile')->findOrFail($id);
         return view('users.show', compact('user'));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit($id)
     {
         $user = User::findOrFail($id);
         return view('users.edit', compact('user'));
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -64,19 +36,43 @@ class UsersController extends Controller
         $validated = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|email',
-            'password' => 'required|min:8',
+            'password' => 'nullable|min:8',
+            'birth_date' => 'nullable|date',
+            'role' => 'nullable|string|max:255',
         ]);
+
         $user = User::findOrFail($id);
-        $user->update($validated);
-        return redirect()->route('users.show', $user);
+
+        // Update user fields
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (!empty($validated['password'])) {
+            $user->password = \Hash::make($validated['password']);
+        }
+
+        // Update profile fields if any
+        if ($user->profile) {
+            $user->profile->birth_date = $validated['birth_date'] ?? '';
+            $user->profile->role = $validated['role'] ??  '';
+            $user->profile->save();
+        } else {
+            // Create profile if it doesn't exist
+            $user->profile()->create([
+                'birth_date' => $validated['birth_date'] ?? '1970-01-01', // Default value
+                'role' => $validated['role'] ?? '',
+            ]);
+        }
+
+        $user->save();
+
+        return redirect()->route('users.show', $user->id)->with('success', 'Profile updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        User::findOrFail($id)->delete();
-        return redirect()->route('users.index');
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

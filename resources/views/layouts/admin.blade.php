@@ -2,6 +2,9 @@
 
 @include('includes.admin.menu.navbar')
 
+<!-- resources/views/layouts/admin.blade.php -->
+<link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+
 <!-- Begin page content -->
 <div class="container-fluid p-0 flex-shrink-0">
     <div class="d-grid gap-6" style="grid-template-columns: 1fr 5fr;">
@@ -13,8 +16,6 @@
 </div>
 
 @include('includes.admin.footer')
-
-</body>
 
 <!-- EXTERNAL SCRIPTS
 ============================================= -->
