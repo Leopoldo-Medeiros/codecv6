@@ -1,9 +1,13 @@
 <?php
 
+// app/Http/Controllers/UsersController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash; // Adicionar esta linha
 
 class UsersController extends Controller
 {
@@ -14,8 +18,13 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = User::with('profile')->get();
-        return view('users.index', compact('users'));
+        $user = Auth::user();
+        if ($user->hasRole('admin')) {
+            $users = User::with('profile')->get();
+            return view('users.index', compact('users'));
+        } else {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to view users.');
+        }
     }
 
     public function show($id)
@@ -23,11 +32,13 @@ class UsersController extends Controller
         $user = User::with('profile')->findOrFail($id);
         return view('users.show', compact('user'));
     }
+
     public function edit($id)
     {
         $user = User::findOrFail($id);
         return view('users.edit', compact('user'));
     }
+
     /**
      * Update the specified resource in storage.
      */
@@ -47,7 +58,7 @@ class UsersController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         if (!empty($validated['password'])) {
-            $user->password = \Hash::make($validated['password']);
+            $user->password = Hash::make($validated['password']);
         }
 
         // Update profile fields if any
