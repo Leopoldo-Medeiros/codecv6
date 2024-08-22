@@ -7,7 +7,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; // Adicionar esta linha
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
@@ -36,7 +37,8 @@ class UsersController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        return view('users.edit', compact('user'));
+        $roles = Role::all(); // Carregar todas as roles disponíveis
+        return view('users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -49,7 +51,7 @@ class UsersController extends Controller
             'email' => 'required|email',
             'password' => 'nullable|min:8',
             'birth_date' => 'nullable|date',
-            'role' => 'nullable|string|max:255',
+            'role' => 'nullable|exists:roles,id', // Validar a role
         ]);
 
         $user = User::findOrFail($id);
@@ -61,17 +63,16 @@ class UsersController extends Controller
             $user->password = Hash::make($validated['password']);
         }
 
-        // Update profile fields if any
-        if ($user->profile) {
-            $user->profile->birth_date = $validated['birth_date'] ?? '';
-            $user->profile->role = $validated['role'] ??  '';
-            $user->profile->save();
-        } else {
-            // Create profile if it doesn't exist
-            $user->profile()->create([
-                'birth_date' => $validated['birth_date'] ?? '1970-01-01', // Default value
-                'role' => $validated['role'] ?? '',
-            ]);
+        // Update or create profile
+        $user->profile()->updateOrCreate(['user_id' => $user->id], [
+            'birth_date' => $validated['birth_date'] ?? null,
+            'role' => $validated['role'] ?? ''
+        ]);
+
+        // Update user role
+        if (!empty($validated['role'])) {
+            $role = Role::findById($validated['role']);
+            $user->syncRoles($role);
         }
 
         $user->save();
@@ -79,6 +80,9 @@ class UsersController extends Controller
         return redirect()->route('users.show', $user->id)->with('success', 'Profile updated successfully.');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy($id)
     {
         $user = User::findOrFail($id);

@@ -32,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
     // Group middleware role admin
     Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
+        Route::delete('users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
     });
 
     // Rota para o menu de Admin

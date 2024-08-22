@@ -26,11 +26,13 @@
                     <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
                     <td>{{ $user->profile->role ?? 'N/A' }}</td>
                     <td>
-                        <a href="{{ route('users.edit', $user) }}" class="btn btn-primary">Edit</a>
-                        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
+                        <a href="{{ route('users.edit', $user) }}" class="btn btn-primary-custom">Edit</a>
+                        <a href="{{ route('users.destroy', $user) }}" class="btn btn-danger-custom" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">
+                            Delete
+                        </a>
+                        <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST" style="display: none;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -38,25 +40,4 @@
             </tbody>
         </table>
     @endif
-@endsection
-
-@section('header')
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.index') }}">Admin</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 @endsection

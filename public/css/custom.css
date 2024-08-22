@@ -1,11 +1,32 @@
 /* public/css/custom.css */
-.btn {
-    background-color: #007bff; /* Default button color */
-    color: white; /* Text color */
+.btn-primary-custom, .btn-danger-custom {
+    display: inline-block !important; /* Ensure buttons are displayed */
+    background-color: #007bff !important; /* Blue for edit */
+    border-color: #007bff !important;
+    color: white !important;
 }
 
-.btn:hover {
-    background-color: #007bff; /* Same as default button color */
-    color: white; /* Same as default text color */
+.btn-primary {
+    display: inline-block !important; /* Ensure button is displayed */
+    background-color: #007bff !important; /* Blue for update */
+    border-color: #007bff !important;
+    color: white !important;
 }
 
+.btn-primary:hover {
+    background-color: #0056b3 !important; /* Darker shade for hover */
+    border-color: #0056b3 !important;
+    color: white !important;
+}
+
+.btn-danger-custom {
+    background-color: red !important; /* Red for delete */
+    border-color: red !important;
+    color: white !important;
+}
+
+.btn-danger-custom:hover {
+    background-color: darkred !important; /* Darker shade for hover */
+    border-color: darkred !important;
+    color: white !important;
+}

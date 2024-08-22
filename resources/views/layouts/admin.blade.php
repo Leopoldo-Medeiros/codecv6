@@ -1,3 +1,5 @@
+<!-- resources/views/layouts/admin.blade.php -->
+
 @include('includes.admin.header')
 
 @include('includes.admin.menu.navbar')
@@ -17,8 +19,7 @@
 
 @include('includes.admin.footer')
 
-<!-- EXTERNAL SCRIPTS
-============================================= -->
+<!-- EXTERNAL SCRIPTS -->
 <script src="{{ asset('js/jquery-3.7.0.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/modernizr.custom.js') }}"></script>
@@ -34,6 +35,10 @@
 <script src="{{ asset('js/lunar.js') }}"></script>
 <script src="{{ asset('js/wow.js') }}"></script>
 
+<script src="{{ asset('js/jquery-3.7.0.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/custom.js') }}"></script>
+
 <script src="{{ asset('js/jquery-3.7.0.slim.min.js') }}"></script>
 <script src="{{ asset('js/popper.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
@@ -44,4 +49,3 @@
 <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/app.js') }}"></script>
 <script src="{{ asset('js/popper.min.js') }}"></script>
-
