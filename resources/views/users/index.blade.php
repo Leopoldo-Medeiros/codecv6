@@ -13,7 +13,6 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Birthdate</th>
-                <th>Role</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -24,7 +23,6 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
-                    <td>{{ $user->profile->role ?? 'N/A' }}</td>
                     <td>
                         <a href="{{ route('users.edit', $user) }}" class="btn btn-primary-custom">Edit</a>
                         <a href="{{ route('users.destroy', $user) }}" class="btn btn-danger-custom" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">

@@ -51,7 +51,6 @@ class UsersController extends Controller
             'email' => 'required|email',
             'password' => 'nullable|min:8',
             'birth_date' => 'nullable|date',
-            'role' => 'nullable|exists:roles,id', // Validar a role
         ]);
 
         $user = User::findOrFail($id);
@@ -66,20 +65,13 @@ class UsersController extends Controller
         // Update or create profile
         $user->profile()->updateOrCreate(['user_id' => $user->id], [
             'birth_date' => $validated['birth_date'] ?? null,
-            'role' => $validated['role'] ?? ''
+            'profession' => $validated['profession'] ?? null,
         ]);
-
-        // Update user role
-        if (!empty($validated['role'])) {
-            $role = Role::findById($validated['role']);
-            $user->syncRoles($role);
-        }
 
         $user->save();
 
         return redirect()->route('users.show', $user->id)->with('success', 'Profile updated successfully.');
     }
-
     /**
      * Remove the specified resource from storage.
      */
