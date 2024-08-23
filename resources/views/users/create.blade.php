@@ -9,23 +9,29 @@
         @endif
         <div class="form-group">
             <label for="name">Name</label>
-            <input type="text" name="name" class="form-control" value="{{ $user->name ?? '' }}" required>
+            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}" required>
         </div>
         <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" name="email" class="form-control" value="{{ $user->email ?? '' }}" required>
+            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" required>
         </div>
         <div class="form-group">
-            <label for="birthdate">Birthdate</label>
-            <input type="date" name="birthdate" class="form-control" value="{{ $user->profile->birthdate ?? '' }}">
+            <label for="birth_date">Birthdate</label>
+            <input type="date" name="birth_date" class="form-control" value="{{ old('birth_date', $user->profile->birth_date ?? '') }}">
         </div>
         <div class="form-group">
             <label for="profession">Profession</label>
-            <input type="text" name="profession" class="form-control" value="{{ $user->profile->profession ?? '' }}">
+            <input type="text" name="profession" class="form-control" value="{{ old('profession', $user->profile->profession ?? '') }}">
         </div>
         <div class="form-group">
             <label for="role">Role</label>
-            <input type="text" name="role" class="form-control" value="{{ $user->role ?? '' }}">
+            <select name="role" class="form-control">
+                @foreach($roles as $role)
+                    <option value="{{ $role->id }}" {{ old('role', isset($user) && $user->roles->contains($role->id) ? $role->id : '') == $role->id ? 'selected' : '' }}>
+                        {{ $role->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
         <button type="submit" class="btn btn-primary">{{ isset($user) ? 'Update' : 'Create' }}</button>
     </form>

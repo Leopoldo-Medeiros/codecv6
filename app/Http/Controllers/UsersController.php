@@ -39,6 +39,8 @@ class UsersController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    // app/Http/Controllers/UsersController.php
+
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
@@ -62,8 +64,16 @@ class UsersController extends Controller
         $user->profile()->updateOrCreate(['user_id' => $user->id], [
             'birth_date' => $validated['birth_date'] ?? null,
             'profession' => $validated['profession'] ?? null,
-            'role' => $validated['role'] ?? null,
         ]);
+
+        // Update user role
+        if (!empty($validated['role'])) {
+            $role = Role::findById($validated['role']);
+            $user->syncRoles($role);
+        }
+
+        // Assign the role to the user
+//        $user->assignRole($validated['role']);
 
         $user->save();
 

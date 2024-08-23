@@ -6,7 +6,7 @@
     @if($users->isEmpty())
         <p>No users found.</p>
     @else
-        <table class="table">
+        <table class="table mt-3">
             <thead>
             <tr>
                 <th>ID</th>
@@ -25,9 +25,6 @@
                     <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
                     <td>
                         <a href="{{ route('users.edit', $user) }}" class="btn btn-primary-custom">Edit</a>
-                        <a href="#" class="btn btn-danger-custom" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">
-                            Delete
-                        </a>
                         <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
