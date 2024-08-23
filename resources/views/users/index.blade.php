@@ -25,12 +25,13 @@
                     <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
                     <td>
                         <a href="{{ route('users.edit', $user) }}" class="btn btn-primary-custom">Edit</a>
-                        <a href="{{ route('users.destroy', $user) }}" class="btn btn-danger-custom" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">
+                        <a href="#" class="btn btn-danger-custom" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">
                             Delete
                         </a>
-                        <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST" style="display: none;">
+                        <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>

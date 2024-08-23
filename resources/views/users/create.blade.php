@@ -23,6 +23,10 @@
             <label for="profession">Profession</label>
             <input type="text" name="profession" class="form-control" value="{{ $user->profile->profession ?? '' }}">
         </div>
+        <div class="form-group">
+            <label for="role">Role</label>
+            <input type="text" name="role" class="form-control" value="{{ $user->role ?? '' }}">
+        </div>
         <button type="submit" class="btn btn-primary">{{ isset($user) ? 'Update' : 'Create' }}</button>
     </form>
 @endsection

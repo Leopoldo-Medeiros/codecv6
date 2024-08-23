@@ -17,7 +17,6 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Birthdate</th>
-                <th>Role</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -28,13 +27,14 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
-                    <td>{{ $user->profile->role ?? 'N/A' }}</td>
                     <td>
                         <a href="{{ route('users.edit', $user) }}" class="btn btn-primary">Edit</a>
-                        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
+                        <a href="#" class="btn btn-danger" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">
+                            Delete
+                        </a>
+                        <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:none;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -42,4 +42,17 @@
             </tbody>
         </table>
     @endif
+@endsection
+
+@section('scripts')
+    <script>
+        function confirmDelete(event, userId, userName) {
+            const loggedInUserId = {{ Auth::id() }};
+            if (userId === loggedInUserId) {
+                alert('You cannot delete yourself.');
+                return false;
+            }
+            return confirm(`Are you sure you want to delete ${userName}?`);
+        }
+    </script>
 @endsection

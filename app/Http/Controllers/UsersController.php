@@ -19,13 +19,8 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        if ($user->hasRole('admin')) {
-            $users = User::with('profile')->get();
-            return view('users.index', compact('users'));
-        } else {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to view users.');
-        }
+        $users = User::with('profile')->get();
+        return view('users.index', compact('users'));
     }
 
     public function show($id)
@@ -51,6 +46,7 @@ class UsersController extends Controller
             'email' => 'required|email',
             'password' => 'nullable|min:8',
             'birth_date' => 'nullable|date',
+            'role' => 'nullable|exists:roles,id',
         ]);
 
         $user = User::findOrFail($id);
@@ -66,6 +62,7 @@ class UsersController extends Controller
         $user->profile()->updateOrCreate(['user_id' => $user->id], [
             'birth_date' => $validated['birth_date'] ?? null,
             'profession' => $validated['profession'] ?? null,
+            'role' => $validated['role'] ?? null,
         ]);
 
         $user->save();
@@ -78,6 +75,23 @@ class UsersController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+
+        // Nessa parte evita de auto deletar o user
+        // Nesse if statement ele ta verificando se o user é o mesmo que está logado [Auth::id()]
+        if ($user->id === Auth::id()) {
+            return redirect()->route('users.index')->with('error', 'You cannot delete yourself.');
+        }
+
+        // Aqui verifica se o user é admin ou não
+        if ($user->hasRole('admin')) {
+            // Conta quantos admins existem
+            $adminCount = User::role('admin')->count();
+
+            // Evita deletar se for o único admin
+            if ($adminCount <= 1) {
+                return redirect()->route('users.index')->with('error', 'You cannot delete the only admin.');
+            }
+        }
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');

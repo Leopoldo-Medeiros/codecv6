@@ -19,13 +19,14 @@
     color: white !important;
 }
 
-.btn-danger-custom {
+.btn-danger-custom, .btn-danger {
+    display: inline-block !important; /* Ensure button is displayed */
     background-color: red !important; /* Red for delete */
     border-color: red !important;
     color: white !important;
 }
 
-.btn-danger-custom:hover {
+.btn-danger-custom:hover, .btn-danger:hover {
     background-color: darkred !important; /* Darker shade for hover */
     border-color: darkred !important;
     color: white !important;
