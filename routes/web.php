@@ -13,7 +13,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
 Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
 
-
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -28,13 +27,14 @@ Route::get('/about-us', function () {
 // Estas rotas estão protegidas pelo middleware de autenticação
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
     // Group middleware role admin
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
-        //  Route::resource('courses', CoursesController::class);
-        //  Route::resource('paths', PathsController::class);
-        //  Route::resource('steps', StepsController::class);
+        Route::delete('users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
     });
+
+    // Rota para o menu de Admin
+    Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
 });

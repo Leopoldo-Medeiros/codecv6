@@ -1,49 +1,3 @@
-<!-- BANNER-3
-			============================================= -->
-{{--<section id="banner-3" class="pt-100 banner-section">--}}
-{{--    <div class="container">--}}
-
-
-        <!-- BANNER-3 WRAPPER -->
-{{--        <div class="banner-3-wrapper bg--03 bg--scroll r-16">--}}
-{{--            <div class="banner-overlay">--}}
-{{--                <div class="row">--}}
-
-{{--    </div>     <!-- End container -->--}}
-
-
-{{--<!-- MODAL WINDOW (REQUEST FORM)--}}
-{{--============================================= -->--}}
-{{--<div id="modal-3" class="modal auto-off fade" tabindex="-1" role="dialog" aria-labelledby="modal-3">--}}
-{{--    <div class="modal-dialog modal-xl modal-dialog-centered">--}}
-{{--        <div class="modal-content">--}}
-
-
-{{--            <!-- CLOSE BUTTON -->--}}
-{{--            <button type="button" class="btn-close ico-10 white-color" data-bs-dismiss="modal" aria-label="Close">--}}
-{{--                <span class="flaticon-cancel"></span>--}}
-{{--            </button>--}}
-
-
-{{--            <!-- MODAL CONTENT -->--}}
-{{--            <div class="modal-body">--}}
-{{--                <div class="container">--}}
-{{--                    <div class="row">--}}
-
-
-{{--                        <!-- BACKGROUND IMAGE -->--}}
-{{--                        <div class="col-md-5 bg-img d-none d-sm-flex align-items-end"></div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>	<!-- END MODAL CONTENT -->--}}
-
-
-{{--        </div>--}}
-{{--    </div>--}}
-{{--</div>	<!-- MODAL WINDOW (REQUEST FORM) -->--}}
-
-{{--<!-- FOOTER-3 ============================================= -->--}}
-
 <footer id="footer-3" class="pt-100 footer ft-3-ntr">
     <div class="container">
         <!-- FOOTER CONTENT -->
@@ -118,4 +72,6 @@
         </div>
     </div>     <!-- End container -->
 </footer>   <!-- END FOOTER-3 -->
+
+
 

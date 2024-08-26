@@ -57,13 +57,13 @@
     <link href="{{ asset('css/owl.carousel.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/owl.theme.default.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/lunar.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <!-- ON SCROLL ANIMATION -->
     <link href="{{ asset('css/animate.css') }}" rel="stylesheet">
 
     <!-- TEMPLATE CSS -->
     <link href="{{ asset('css/pink-theme.css') }}" rel="stylesheet">
-
 
     <!-- CODECV CSS -->
     <link href="{{ asset('css/codecv5.css') }}" rel="stylesheet">
@@ -72,3 +72,22 @@
 <!-- ... Rest of your HTML ... -->
 
 <body class="d-flex flex-column h-100">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Admin</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.index') }}">Admin</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

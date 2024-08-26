@@ -1,6 +1,11 @@
+<!-- resources/views/layouts/admin.blade.php -->
+
 @include('includes.admin.header')
 
 @include('includes.admin.menu.navbar')
+
+<!-- resources/views/layouts/admin.blade.php -->
+<link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
 <!-- Begin page content -->
 <div class="container-fluid p-0 flex-shrink-0">
@@ -14,10 +19,7 @@
 
 @include('includes.admin.footer')
 
-</body>
-
-<!-- EXTERNAL SCRIPTS
-============================================= -->
+<!-- EXTERNAL SCRIPTS -->
 <script src="{{ asset('js/jquery-3.7.0.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/modernizr.custom.js') }}"></script>
@@ -33,8 +35,17 @@
 <script src="{{ asset('js/lunar.js') }}"></script>
 <script src="{{ asset('js/wow.js') }}"></script>
 
+<script src="{{ asset('js/jquery-3.7.0.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/custom.js') }}"></script>
+
+<script src="{{ asset('js/jquery-3.7.0.slim.min.js') }}"></script>
+<script src="{{ asset('js/popper.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+
 <!-- Custom Script -->
 <script src="{{ asset('js/custom.js') }}"></script>
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-
-</html>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/popper.min.js') }}"></script>

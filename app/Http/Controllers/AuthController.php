@@ -29,7 +29,8 @@ class AuthController extends Controller
     public function dashboard()
     {
         if (Auth::check()) {
-            return view('admin.dashboard');
+            $users = \App\Models\User::with('profile')->get();
+            return view('admin.dashboard', compact('users'));
         }
         return redirect('login')->withErrors('You are not allowed to access');
     }
