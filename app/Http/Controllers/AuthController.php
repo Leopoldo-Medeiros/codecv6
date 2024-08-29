@@ -30,7 +30,10 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             $users = \App\Models\User::with('profile')->get();
-            return view('admin.dashboard', compact('users'));
+            $totalUsers = $users->count(); // Contando o total de usuários
+            $totalAdmins = \App\Models\User::where('role', 'admin')->count(); // Contando o total de administradores
+
+            return view('admin.dashboard', compact('users', 'totalUsers', 'totalAdmins')); // Passando a variável totalAdmins
         }
         return redirect('login')->withErrors('You are not allowed to access');
     }

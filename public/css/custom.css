@@ -31,3 +31,82 @@
     border-color: darkred !important;
     color: white !important;
 }
+
+.btn-success {
+    display: inline-block !important; /* Ensure button is displayed */
+    background-color: #28a745 !important; /* Green for create */
+    border-color: #28a745 !important;
+    color: white !important;
+    visibility: visible !important; /* Ensure button is always visible */
+}
+
+.btn-success:hover {
+    background-color: #218838 !important; /* Darker shade for hover */
+    border-color: #1e7e34 !important;
+    color: white !important;
+}
+
+.float-right {
+    float: right;
+    margin-right: 60px;
+}
+
+/* public/css/custom.css */
+.custom-table {
+    border-collapse: separate;
+    border-spacing: 0 15px;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+.custom-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.custom-table th, .custom-table td {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.custom-table tbody tr {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.btn-primary-custom {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+    margin-right: 5px;
+}
+
+.btn-primary-custom:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.btn-danger {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: darkred;
+    border-color: darkred;
+    color: white;
+}
+
+.float-right {
+    float: right;
+    margin-right: 60px;
+}

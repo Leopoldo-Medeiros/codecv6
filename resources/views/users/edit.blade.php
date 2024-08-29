@@ -31,11 +31,6 @@
         </div>
 
         <div class="form-group">
-            <label for="birth_date">Birth Date</label>
-            <input type="date" name="birth_date" id="birth_date" class="form-control mb-2" value="{{ old('birth_date', $user->profile->birth_date ?? '') }}">
-        </div>
-
-        <div class="form-group">
             <label for="role">Role</label>
             <select name="role" id="role" class="form-control">
                 @foreach($roles as $role)

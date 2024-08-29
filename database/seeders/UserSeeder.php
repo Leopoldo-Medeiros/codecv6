@@ -17,13 +17,21 @@ class UserSeeder extends Seeder
         // Criando o usuário administrador
         $adminUser = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
-            ['name' => 'Admin', 'password' => Hash::make('admin_password')]
+            [
+                'name' => 'Admin',
+                'role' => 'admin', // Ensure role is included
+                'password' => Hash::make('admin_password')
+            ]
         );
 
         // Criando o usuário 'client'
         $clientUser = User::updateOrCreate(
             ['email' => 'client@client.com'],
-            ['name' => 'Client', 'password' => hash::make('client_password')]
+            [
+                'name' => 'Client',
+                'role' => 'client', // Ensure role is included
+                'password' => Hash::make('client_password')
+            ]
         );
 
         // Atribuindo a role de administrador ao usuário 'admin'

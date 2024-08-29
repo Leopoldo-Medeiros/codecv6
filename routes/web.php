@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -25,16 +26,17 @@ Route::get('/about-us', function () {
 })->name('about-us');
 
 // Estas rotas estão protegidas pelo middleware de autenticação
+// routes/web.php
+
 Route::middleware(['auth'])->group(function () {
-
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Group middleware role admin
-    Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
         Route::delete('users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
+        Route::get('users/create', [UsersController::class, 'create'])->name('users.create');
     });
 
-    // Rota para o menu de Admin
-    Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 });

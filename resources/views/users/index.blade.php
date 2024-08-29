@@ -3,17 +3,18 @@
 
 @section('content')
     <h1>Users</h1>
+    <a href="{{ route('users.create') }}" class="btn btn-success mb-3 float-right">Create User</a>
     @if($users->isEmpty())
         <p>No users found.</p>
     @else
         <table class="table mt-3">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Birthdate</th>
-                <th>Actions</th>
+                <th><i class="fas fa-id-badge"></i> ID</th>
+                <th><i class="fas fa-user"></i> Name</th>
+                <th><i class="fas fa-user-tag"></i> Role</th>
+                <th><i class="fas fa-envelope"></i> Email</th>
+                <th><i class="fas fa-cogs"></i> Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -21,8 +22,8 @@
                 <tr>
                     <td>{{ $user->id }}</td>
                     <td>{{ $user->name }}</td>
+                    <td>{{ $user->role }}</td>
                     <td>{{ $user->email }}</td>
-                    <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
                     <td>
                         <a href="{{ route('users.edit', $user) }}" class="btn btn-primary-custom">Edit</a>
                         <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">

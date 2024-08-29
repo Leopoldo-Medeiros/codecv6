@@ -12,7 +12,11 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    // Other methods...
+    public function create()
+    {
+        $roles = \Spatie\Permission\Models\Role::all();
+        return view('users.create', compact('roles'));
+    }
 
     /**
      * Display a listing of the resource.
@@ -37,9 +41,28 @@ class UsersController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Store a newly created resource in storage.
      */
-    // app/Http/Controllers/UsersController.php
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role' => 'required|exists:roles,id',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        $role = Role::findById($validated['role']);
+        $user->assignRole($role);
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
+    }
 
     public function update(Request $request, string $id)
     {
