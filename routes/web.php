@@ -25,18 +25,24 @@ Route::get('/about-us', function () {
     return view('welcome');
 })->name('about-us');
 
-// Estas rotas estão protegidas pelo middleware de autenticação
-// routes/web.php
-
+// Protected routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::middleware(['role:admin'])->group(function () {
-        Route::resource('users', UsersController::class);
+        Route::resource('users', UsersController::class)->except(['index', 'show']);
+        Route::get('users', [UsersController::class, 'index'])->name('users.index');
+        Route::get('users/{user}', [UsersController::class, 'show'])->name('users.show');
         Route::delete('users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
         Route::get('users/create', [UsersController::class, 'create'])->name('users.create');
+        Route::get('users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
     });
 
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+
+    // Client routes
+    Route::middleware(['role:client|admin'])->group(function () {
+        Route::get('/clients', [UsersController::class, 'index'])->name('clients.index');
+    });
 });

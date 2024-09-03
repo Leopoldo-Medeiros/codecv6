@@ -1,32 +1,39 @@
-<!-- resources/views/users/index.blade.php -->
 @extends('layouts.admin')
 
 @section('content')
-    <h1>Users</h1>
-    <a href="{{ route('users.create') }}" class="btn btn-success mb-3 float-right">Create User</a>
-    @if($users->isEmpty())
-        <p>No users found.</p>
-    @else
-        <table class="table mt-3">
+    <div class="container mt-4">
+        <h1 class="mb-4">Users List</h1>
+
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <div class="float-right mb-3">
+            <a href="{{ route('users.create') }}" class="btn btn-success">Create User</a>
+        </div>
+
+        <table class="table">
             <thead>
             <tr>
-                <th><i class="fas fa-id-badge"></i> ID</th>
-                <th><i class="fas fa-user"></i> Name</th>
-                <th><i class="fas fa-user-tag"></i> Role</th>
-                <th><i class="fas fa-envelope"></i> Email</th>
-                <th><i class="fas fa-cogs"></i> Actions</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
-            @foreach ($users as $user)
+            @foreach($users as $user)
                 <tr>
-                    <td>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->role }}</td>
+                    <td>{{ $user->fullname }}</td>
                     <td>{{ $user->email }}</td>
+
+                    {{-- pluck() method is used to get the values of a given key from a collection.--}}
+                    <td>{{ $user->roles->pluck('name')->map('ucfirst')->join(', ') }}</td>
                     <td>
-                        <a href="{{ route('users.edit', $user) }}" class="btn btn-primary-custom">Edit</a>
-                        <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
+                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning">Edit</a>
+                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -36,5 +43,5 @@
             @endforeach
             </tbody>
         </table>
-    @endif
+    </div>
 @endsection

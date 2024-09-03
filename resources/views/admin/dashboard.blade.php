@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container mt-4">
-        <h1 class="mb-4">Dashboard</h1> <!-- Removido o text-center para alinhar à esquerda -->
+        <h1 class="mb-4">Dashboard</h1>
         <div class="row">
             <div class="col-md-6">
                 <div class="card text-white bg-primary mb-3">
@@ -25,4 +25,3 @@
         </div>
     </div>
 @endsection
-

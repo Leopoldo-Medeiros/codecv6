@@ -1,7 +1,5 @@
-<!-- resources/views/layouts/admin.blade.php -->
-
+<!-- resources/views/layouts/admin.blade.php --
 @include('includes.admin.header')
-
 @include('includes.admin.menu.navbar')
 
 <!-- resources/views/layouts/admin.blade.php -->

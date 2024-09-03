@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/UsersController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -12,15 +10,6 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function create()
-    {
-        $roles = \Spatie\Permission\Models\Role::all();
-        return view('users.create', compact('roles'));
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $users = User::with('profile')->get();
@@ -33,41 +22,45 @@ class UsersController extends Controller
         return view('users.show', compact('user'));
     }
 
-    public function edit($id)
+    public function create()
     {
-        $user = User::findOrFail($id);
-        $roles = Role::all(); // Carregar todas as roles disponíveis
-        return view('users.edit', compact('user', 'roles'));
+        $roles = \Spatie\Permission\Models\Role::all();
+        return view('users.create', compact('roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|max:255',
+            'fullname' => 'required|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'role' => 'required|exists:roles,id',
+            'password' => 'required|min:6|confirmed',
+            'role' => 'required|in:user,admin,client', // Ensure the validation allows 'admin' and 'client'
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
+            'fullname' => $validated['fullname'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role' => $validated['role'], // Assign the role here
         ]);
 
-        $role = Role::findById($validated['role']);
-        $user->assignRole($role);
+        $role = Role::where('name', $validated['role'])->first();
+        $user->assignRole($role); // Assign the role to the user
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
+    }
+
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        $roles = Role::all();
+        return view('users.edit', compact('user', 'roles'));
     }
 
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => 'required|max:255',
+            'fullname' => 'required|max:255',
             'email' => 'required|email',
             'password' => 'nullable|min:8',
             'birth_date' => 'nullable|date',
@@ -76,55 +69,47 @@ class UsersController extends Controller
 
         $user = User::findOrFail($id);
 
-        // Update user fields
-        $user->name = $validated['name'];
+        $user->fullname = $validated['fullname'];
         $user->email = $validated['email'];
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
 
-        // Update or create profile
         $user->profile()->updateOrCreate(['user_id' => $user->id], [
             'birth_date' => $validated['birth_date'] ?? null,
             'profession' => $validated['profession'] ?? null,
         ]);
 
-        // Update user role
         if (!empty($validated['role'])) {
             $role = Role::findById($validated['role']);
-            $user->syncRoles($role);
+            $user->syncRoles($role->name);
         }
-
-        // Assign the role to the user
-//        $user->assignRole($validated['role']);
 
         $user->save();
 
         return redirect()->route('users.show', $user->id)->with('success', 'Profile updated successfully.');
     }
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy($id)
     {
         $user = User::findOrFail($id);
 
-        // Nessa parte evita de auto deletar o user
-        // Nesse if statement ele ta verificando se o user é o mesmo que está logado [Auth::id()]
         if ($user->id === Auth::id()) {
             return redirect()->route('users.index')->with('error', 'You cannot delete yourself.');
         }
 
-        // Aqui verifica se o user é admin ou não
         if ($user->hasRole('admin')) {
-            // Conta quantos admins existem
             $adminCount = User::role('admin')->count();
 
-            // Evita deletar se for o único admin
             if ($adminCount <= 1) {
                 return redirect()->route('users.index')->with('error', 'You cannot delete the only admin.');
             }
         }
+
+        if ($user->profile) {
+            $user->profile->delete();
+        }
+
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');

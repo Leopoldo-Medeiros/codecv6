@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -10,34 +9,30 @@ use Illuminate\Support\Facades\Hash;
 class UserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      */
     public function run(): void
     {
-        // Criando o usuário administrador
-        $adminUser = User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
             [
-                'name' => 'Admin',
-                'role' => 'admin', // Ensure role is included
-                'password' => Hash::make('admin_password')
+                'fullname' => 'Admin User',
+                'password' => Hash::make('password'), // Only set the password
+                'role' => 'admin' // Set the role as well
             ]
         );
 
-        // Criando o usuário 'client'
-        $clientUser = User::updateOrCreate(
+        $client = User::updateOrCreate(
             ['email' => 'client@client.com'],
             [
-                'name' => 'Client',
-                'role' => 'client', // Ensure role is included
-                'password' => Hash::make('client_password')
+                'fullname' => 'Client User',
+                'password' => Hash::make('password'), // Only set the password
+                'role' => 'client' // Set the role as well
             ]
         );
 
-        // Atribuindo a role de administrador ao usuário 'admin'
-        $adminUser->assignRole('admin');
-
-        // Atribuindo a role de usuário ao usuário 'client'
-        $clientUser->assignRole('client');
+        // Assign roles if you are using Spatie Permission
+        $admin->assignRole('admin');
+        $client->assignRole('client');
     }
 }

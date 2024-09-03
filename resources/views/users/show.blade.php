@@ -15,9 +15,8 @@
         <div class="card-body">
             <h5 class="card-title">{{ $user->name }}</h5>
             <p class="card-text"><strong>Email:</strong> {{ $user->email }}</p>
-            <p class="card-text"><strong>Birthdate:</strong> {{ $user->profile->birthdate }}</p>
-            <!-- Aqui basicamente estou pegando o primeiro nome da role do usuário -->
-            <p class="card-text"><strong>Role:</strong> {{ $user->getRoleNames()->first() }}</p>
+            <p class="card-text"><strong>Birthdate:</strong> {{ $user->profile->birthdate ?? 'N/A' }}</p>
+            <p class="card-text"><strong>Role:</strong> {{ ucfirst($user->getRoleNames()->first()) }}</p>
         </div>
     </div>
 @endsection

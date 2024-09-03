@@ -110,3 +110,21 @@
     float: right;
     margin-right: 60px;
 }
+
+.btn-warning {
+    display: inline-block !important; /* Ensure button is displayed */
+    background-color: #ffc107 !important; /* Yellow for edit */
+    border-color: #ffc107 !important;
+    color: black !important;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800 !important; /* Darker shade for hover */
+    border-color: #d39e00 !important;
+    color: black !important;
+}
+
+/* Referente ao form-control da pagina Edit*/
+.custom-width {
+    width: 50%;
+}
