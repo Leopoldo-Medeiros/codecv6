@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function customLogin(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required',
@@ -22,23 +22,11 @@ class AuthController extends Controller
         return redirect('login')->withErrors('Login details are not valid');
     }
 
-    public function showLoginForm() {
+    public function loginForm() {
         return view('login');
     }
 
-    public function dashboard()
-    {
-        if (Auth::check()) {
-            $users = \App\Models\User::with('profile')->get();
-            $totalUsers = $users->count(); // Contando o total de usuários
-            $totalAdmins = \App\Models\User::where('role', 'admin')->count(); // Contando o total de administradores
-
-            return view('admin.dashboard', compact('users', 'totalUsers', 'totalAdmins')); // Passando a variável totalAdmins
-        }
-        return redirect('login')->withErrors('You are not allowed to access');
-    }
-
-    public function signOut() {
+    public function logOut() {
         Auth::logout();
         return redirect()->route('login');
     }

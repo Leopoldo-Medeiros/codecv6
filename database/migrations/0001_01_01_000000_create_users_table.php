@@ -16,7 +16,6 @@ return new class extends Migration {
             $table->string('fullname');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('role')->nullable(); // Ensure the column is defined correctly
             $table->rememberToken();
             $table->timestamps();
         });

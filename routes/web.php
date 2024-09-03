@@ -10,9 +10,9 @@ Route::get('/', function () {
 });
 
 // Authentication routes
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'customLogin'])->name('login.post');
-Route::get('/logout', [AuthController::class, 'signOut'])->name('logout');
+Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::get('/logout', [AuthController::class, 'logOut'])->name('logout');
 
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
@@ -27,8 +27,7 @@ Route::get('/about-us', function () {
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class)->except(['index', 'show']);
@@ -39,10 +38,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
     });
 
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-
     // Client routes
     Route::middleware(['role:client|admin'])->group(function () {
-        Route::get('/clients', [UsersController::class, 'index'])->name('clients.index');
+        // NO ROUTES FOR CLIENTS YET
     });
 });

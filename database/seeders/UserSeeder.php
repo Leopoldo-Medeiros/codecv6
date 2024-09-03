@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
             [
                 'fullname' => 'Admin User',
                 'password' => Hash::make('password'), // Only set the password
-                'role' => 'admin' // Set the role as well
             ]
         );
 
@@ -27,7 +26,6 @@ class UserSeeder extends Seeder
             [
                 'fullname' => 'Client User',
                 'password' => Hash::make('password'), // Only set the password
-                'role' => 'client' // Set the role as well
             ]
         );
 
