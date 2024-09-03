@@ -14,6 +14,7 @@
     <div class="card mt-3">
         <div class="card-body">
             <h5 class="card-title">{{ $user->name }}</h5>
+            <p class="card-text"><strong>Full name:</strong> {{ $user->fullname }}</p>
             <p class="card-text"><strong>Email:</strong> {{ $user->email }}</p>
             <p class="card-text"><strong>Birthdate:</strong> {{ $user->profile->birthdate ?? 'N/A' }}</p>
             <p class="card-text"><strong>Role:</strong> {{ ucfirst($user->getRoleNames()->first()) }}</p>

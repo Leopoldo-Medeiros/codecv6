@@ -34,7 +34,7 @@ class UsersController extends Controller
             'fullname' => 'required|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
-            'role' => 'required|in:user,admin,client', // Ensure the validation allows 'admin' and 'client'
+            'role' => 'required|exists:roles,id', // Ensure the validation allows 'admin' and 'client'
         ]);
 
         $user = User::create([
@@ -64,7 +64,7 @@ class UsersController extends Controller
             'email' => 'required|email',
             'password' => 'nullable|min:8',
             'birth_date' => 'nullable|date',
-            'role' => 'nullable|exists:roles,id',
+            'role' => 'required|exists:roles,id',
         ]);
 
         $user = User::findOrFail($id);

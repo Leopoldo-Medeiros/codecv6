@@ -38,7 +38,7 @@
                 <label for="role">Role</label>
                 <select class="form-control custom-width" id="role" name="role" required>
                     @foreach($roles as $role)
-                        <option value="{{ $role->name }}">{{ $role->name }}</option> <!-- Use o nome da função -->
+                        <option value="{{ $role->id }}">{{ $role->name }}</option> <!-- Use o nome da função -->
                     @endforeach
                 </select>
             </div>
