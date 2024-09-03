@@ -24,7 +24,7 @@ class UsersController extends Controller
 
     public function create()
     {
-        $roles = \Spatie\Permission\Models\Role::all();
+        $roles = Role::all();
         return view('users.create', compact('roles'));
     }
 
