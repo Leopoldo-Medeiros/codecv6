@@ -44,8 +44,14 @@ class UsersController extends Controller
             'role' => $validated['role'], // Assign the role here
         ]);
 
-        $role = Role::where('name', $validated['role'])->first();
-        $user->assignRole($role); // Assign the role to the user
+        if ($validated['role'] === 1) {
+            if (Auth::user()->hasRole('admin')) {
+                $role = Role::findById($validated['role']);
+                $user->assignRole($role); // Assign the role to the user
+            } else {
+                return redirect()->route('users.index')->with('error', 'You cannot create an admin user.');
+            }
+        }
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -81,8 +87,14 @@ class UsersController extends Controller
         ]);
 
         if (!empty($validated['role'])) {
-            $role = Role::findById($validated['role']);
-            $user->syncRoles($role->name);
+            if ($validated['role'] === 1) {
+                if (Auth::user()->hasRole('admin')) {
+                    $role = Role::findById($validated['role']);
+                    $user->syncRoles($role->name);
+                } else {
+                    return redirect()->route('users.index')->with('error', 'You cannot create an admin user.');
+                }
+            }
         }
 
         $user->save();
