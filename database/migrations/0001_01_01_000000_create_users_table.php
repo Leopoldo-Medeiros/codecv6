@@ -1,5 +1,4 @@
 <?php
-// database/migrations/0001_01_01_000000_create_users_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,6 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Drop the table if it already exists
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('password_reset_tokens');
+
+        // Create the users table
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('fullname');
@@ -20,6 +24,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
+        // Create the password_reset_tokens table
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
