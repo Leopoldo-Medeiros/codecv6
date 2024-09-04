@@ -44,8 +44,17 @@ class UsersController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $role = Role::findOrFail($validated['role']);
-        $user->assignRole($role->name); // Assign the role to the user
+        if ($validated['role'] === 1) {
+            if (Auth::user()->hasRole('admin')) {
+                $role = Role::findById($validated['role']);
+                $user->assignRole($role); // Assign the role to the user
+            } else {
+                return redirect()->route('users.index')->with('error', 'You cannot create an admin user.');
+            }
+        } else {
+            $role = Role::findOrFail($validated['role']);
+            $user->assignRole($role->name); // Assign the role to the user
+        }
 
         // Debugging statement
         if ($user->hasRole($role->name)) {
