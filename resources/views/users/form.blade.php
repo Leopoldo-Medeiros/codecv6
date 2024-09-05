@@ -16,7 +16,7 @@
 
         <form action="{{ isset($user) ? route('users.update', $user->id) : route('users.store') }}" method="POST" onsubmit="return validateFullName()">
             @csrf
-            @if(!empty($user->id))
+            @if(isset($user))
                 @method('PUT')
             @endif
 
