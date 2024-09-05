@@ -128,3 +128,16 @@
 .custom-width {
     width: 50%;
 }
+
+/* pagination */
+/* Highlighted Button Styling */
+.highlighted-btn {
+    background-color: #ffc107; /* Highlight color */
+    color: black;
+    border-color: #ffc107;
+}
+
+.highlighted-btn:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}

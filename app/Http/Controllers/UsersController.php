@@ -13,7 +13,7 @@ class UsersController extends Controller
 {
     public function index()
     {
-        $users = User::with('profile')->get();
+        $users = User::with('profile')->simplePaginate(5);
         return view('users.index', compact('users'));
     }
 
