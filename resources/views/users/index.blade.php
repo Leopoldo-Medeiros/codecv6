@@ -26,10 +26,8 @@
             <tbody>
             @foreach($users as $user)
                 <tr>
-                    <td>{{ $user->fullname }}</td>
+                    <td><a href="{{ route('users.show', $user->id) }}">{{ $user->fullname }}</a></td>
                     <td>{{ $user->email }}</td>
-
-                    {{-- pluck() method is used to get the values of a given key from a collection.--}}
                     <td>{{ $user->roles->pluck('name')->map('ucfirst')->join(', ') }}</td>
                     <td>
                         <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning">Edit</a>

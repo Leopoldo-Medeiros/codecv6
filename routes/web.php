@@ -30,12 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
     Route::middleware(['role:admin'])->group(function () {
-        Route::resource('users', UsersController::class)->except(['index', 'show']);
-        Route::get('users', [UsersController::class, 'index'])->name('users.index');
-        Route::get('users/{user}', [UsersController::class, 'show'])->name('users.show');
-        Route::delete('users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
-        Route::get('users/create', [UsersController::class, 'create'])->name('users.create');
-        Route::get('users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
+        Route::resource('users', UsersController::class);
     });
 
     // Client routes

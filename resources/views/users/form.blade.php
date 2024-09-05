@@ -16,7 +16,7 @@
 
         <form action="{{ isset($user) ? route('users.update', $user->id) : route('users.store') }}" method="POST" onsubmit="return validateFullName()">
             @csrf
-            @if(isset($user))
+            @if(!empty($user->id))
                 @method('PUT')
             @endif
 
@@ -29,6 +29,16 @@
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" class="form-control mb-3" id="email" name="email" value="{{ old('email', isset($user) ? $user->email : '') }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="profile[birth_date]">Birth Date</label>
+                <input type="date" class="form-control mb-3" id="profile[birth_date]" name="profile[birth_date]" value="{{ old('profile.birth_date', isset($user) ? $user->profile->birth_date : '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="profile[profession]">Profession</label>
+                <input type="text" class="form-control mb-3" id="profile[profession]" name="profile[profession]" value="{{ old('profile.profession', isset($user) ? $user->profile->profession : '') }}">
             </div>
 
             <div class="form-group">
