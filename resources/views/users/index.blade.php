@@ -26,7 +26,7 @@
             <tbody>
             @foreach($users as $user)
                 <tr>
-                    <td data-label="FULL NAME">{{ $user->fullname }}</td>
+                    <td data-label="FULL NAME"><a href="{{ route('users.show', $user->id) }}">{{ $user->fullname }}</a></td>
                     <td data-label="EMAIL">{{ $user->email }}</td>
                     <td data-label="ROLE">{{ $user->roles->pluck('name')->map('ucfirst')->join(', ') }}</td>
                     <td data-label="ACTIONS">

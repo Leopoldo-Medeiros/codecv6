@@ -17,6 +17,8 @@
             <p class="card-text"><strong>Full name:</strong> {{ $user->fullname }}</p>
             <p class="card-text"><strong>Email:</strong> {{ $user->email }}</p>
             <p class="card-text"><strong>Role:</strong> {{ ucfirst($user->getRoleNames()->first()) }}</p>
+            <p class="card-text"><strong>Birth date:</strong> {{ $user->profile->birth_date }}</p>
+            <p class="card-text"><strong>Profession:</strong> {{ $user->profile->profession }}</p>
         </div>
     </div>
 @endsection
