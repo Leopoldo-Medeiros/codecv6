@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Profile;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +22,10 @@ class UserSeeder extends Seeder
             ]
         );
 
+        Profile::factory()->create([
+            'user_id' => $admin->id
+        ]);
+
         $client = User::updateOrCreate(
             ['email' => 'client@client.com'],
             [
@@ -28,6 +33,10 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'), // Only set the password
             ]
         );
+
+        Profile::factory()->create([
+            'user_id' => $client->id
+        ]);
 
         // Assign roles if you are using Spatie Permission
         $admin->assignRole('admin');
