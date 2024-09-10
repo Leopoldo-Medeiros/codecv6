@@ -6,7 +6,7 @@
     <ul class="sidebar-nav">
         <li><a href="{{ route('users.index') }}"
                class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-users mt-3 mr-2"></i>
+                <i class="fas fa-users mr-2"></i>
                 Clients
             </a>
         </li>

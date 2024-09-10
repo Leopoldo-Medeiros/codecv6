@@ -1,38 +1,42 @@
-<!-- resources/views/includes/admin/menu.blade.php -->
-<div id="sidebar">
+<!-- resources/views/includes/admin/menu/admin.blade.php -->
+<div id="sidebar" class="ms-3 custom-menu-bg">
     <div class="sidebar-header">
-        <h3 class="text-center mt-2">Menu</h3>
+        <h3 class="mt-3 fw-bold ms-4">MENU</h3>
     </div>
-    <ul class="sidebar-nav">
-        <li><a href="{{ route('users.index') }}"
-               class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-users mt-3 mr-2"></i>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a href="{{ route('users.index') }}" class="nav-link text-dark large-font">
+                <i class="fas fa-users me-2"></i>
                 Clients
             </a>
         </li>
-        <li><a href="#" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-book mr-2"></i>
+        <li class="nav-item">
+            <a href="#" class="nav-link text-dark large-font">
+                <i class="fas fa-book me-2"></i>
                 Courses
             </a>
         </li>
-        <li><a href="#" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-map-signs mr-2"></i>
+        <li class="nav-item">
+            <a href="#" class="nav-link text-dark large-font">
+                <i class="fas fa-map-signs me-2"></i>
                 Paths
             </a>
         </li>
-        <li><a href="#" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-tasks mr-2"></i>
+        <li class="nav-item">
+            <a href="#" class="nav-link text-dark large-font">
+                <i class="fas fa-tasks me-2"></i>
                 Steps
             </a>
         </li>
-        <li><a href="{{ route('dashboard') }}" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-tachometer-alt mr-2"></i>
+        <li class="nav-item">
+            <a href="{{ route('dashboard') }}" class="nav-link text-dark large-font">
+                <i class="fas fa-tachometer-alt me-2"></i>
                 Dashboard
             </a>
         </li>
-        <li><a href="{{ route('logout') }}"
-               class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                <i class="fas fa-sign-out-alt mr-2"></i>
+        <li class="nav-item">
+            <a href="{{ route('logout') }}" class="nav-link text-dark large-font">
+                <i class="fas fa-sign-out-alt me-2"></i>
                 Logout
             </a>
         </li>

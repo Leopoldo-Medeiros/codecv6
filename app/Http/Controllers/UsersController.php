@@ -13,11 +13,11 @@ class UsersController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
     public function index()
     {
-        $users = User::with('profile')->simplePaginate(5);
+        $users = User::paginate(10); // Adjust the number as needed
         return view('users.index', compact('users'));
     }
 

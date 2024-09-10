@@ -1,45 +1,11 @@
-/* public/css/custom.css */
-.btn-primary-custom, .btn-danger-custom {
-    display: inline-block !important; /* Ensure buttons are displayed */
-    background-color: #007bff !important; /* Blue for edit */
-    border-color: #007bff !important;
-    color: white !important;
+.user-list tbody td>img {
+    position: relative;
+    max-width: 30px; /* Adjust the size as needed */
+    float: left;
+    margin-right: 15px;
 }
 
-.btn-primary {
-    display: inline-block !important; /* Ensure button is displayed */
-    background-color: #007bff !important; /* Blue for update */
-    border-color: #007bff !important;
-    color: white !important;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3 !important; /* Darker shade for hover */
-    border-color: #0056b3 !important;
-    color: white !important;
-}
-
-.btn-danger-custom, .btn-danger {
-    display: inline-block !important; /* Ensure button is displayed */
-    background-color: red !important; /* Red for delete */
-    border-color: red !important;
-    color: white !important;
-}
-
-.btn-danger-custom:hover, .btn-danger:hover {
-    background-color: darkred !important; /* Darker shade for hover */
-    border-color: darkred !important;
-    color: white !important;
-}
-
-.btn-success {
-    display: inline-block !important; /* Ensure button is displayed */
-    background-color: #28a745 !important; /* Green for create */
-    border-color: #28a745 !important;
-    color: white !important;
-    visibility: visible !important; /* Ensure button is always visible */
-}
-
+/* Other existing CSS rules */
 .btn-success:hover {
     background-color: #218838 !important; /* Darker shade for hover */
     border-color: #1e7e34 !important;
@@ -57,8 +23,12 @@
     border-spacing: 0 15px;
     width: 100%;
     margin: 20px 0;
-    font-size: 18px;
+    font-size: 1.5rem; /* Adjusted font size */
     text-align: left;
+}
+
+.large-font {
+    font-size: 1.5rem; /* Adjust the size as needed */
 }
 
 .custom-table thead {
@@ -71,6 +41,9 @@
     text-align: left;
     vertical-align: middle;
 }
+body, h1, h2, h3, h4, h5, h6, .table, .user-link, .user-subhead, .label {
+    font-family: 'Roboto', sans-serif;
+}
 
 .custom-table tbody tr {
     background-color: #f8f9fa;
@@ -80,6 +53,22 @@
 
 .custom-table tbody tr:hover {
     background-color: #e9ecef;
+}
+
+
+/* Ensure the "Edit" button is always visible */
+.btn-primary-custom, .btn-primary {
+    display: inline-block !important; /* Ensure button is displayed */
+    background-color: #007bff !important; /* Blue for edit */
+    border-color: #007bff !important;
+    color: white !important;
+    visibility: visible !important; /* Ensure button is always visible */
+}
+
+.btn-primary-custom:hover, .btn-primary:hover {
+    background-color: #0056b3 !important; /* Darker shade for hover */
+    border-color: #004085 !important;
+    color: white !important;
 }
 
 .btn-primary-custom {
@@ -140,4 +129,172 @@
 .highlighted-btn:hover {
     background-color: #e0a800;
     border-color: #d39e00;
+}
+/* custom.css */
+.panel-table .panel-body{
+    padding:0;
+}
+
+.panel-table .panel-body .table-bordered{
+    border-style: none;
+    margin:0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type {
+    text-align:center;
+    width: 100px;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:last-of-type,
+.panel-table .panel-body .table-bordered > tbody > tr > td:last-of-type {
+    border-right: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type,
+.panel-table .panel-body .table-bordered > tbody > tr > td:first-of-type {
+    border-left: 0;
+}
+
+.panel-table .panel-body .table-bordered > tbody > tr:first-of-type > td{
+    border-bottom: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr:first-of-type > th{
+    border-top: 0;
+}
+
+.panel-table .panel-footer .pagination{
+    margin:0;
+}
+
+.panel-table .panel-footer .col{
+    line-height: 34px;
+    height: 34px;
+}
+
+.panel-table .panel-heading .col h3{
+    line-height: 30px;
+    height: 30px;
+}
+
+.panel-table .panel-body .table-bordered > tbody > tr > td{
+    line-height: 34px;
+}
+
+header .dropdown img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.custom-menu-bg {
+    background-color: #f8f9fa; /* Replace with your desired color */
+}
+
+body{
+    background:#eee;
+}
+.main-box.no-header {
+    padding-top: 20px;
+}
+.main-box {
+    background: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -moz-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -o-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -ms-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    box-shadow: 1px 1px 2px 0 #CCCCCC;
+    margin-bottom: 16px;
+    -webikt-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.table a.table-link.danger {
+    color: #e74c3c;
+}
+.label {
+    border-radius: 3px;
+    font-size: 1.5rem; /* Adjusted font size */
+    font-weight: 600;
+}
+.user-list tbody td .user-subhead {
+    font-size: 1.5rem; /* Adjusted font size */
+    font-style: italic;
+}
+.user-list tbody td .user-link {
+    display: block;
+    font-size: 1.5rem; /* Adjusted font size */
+    padding-top: 3px;
+    margin-left: 60px;
+}
+a {
+    color: #3498db;
+    outline: none!important;
+}
+.user-list tbody td>img {
+    position: relative;
+    max-width: 50px;
+    float: left;
+    margin-right: 15px;
+}
+
+.table thead tr th {
+    text-transform: uppercase;
+    font-size: 1.5rem; /* Adjusted font size */
+}
+.table thead tr th {
+    border-bottom: 2px solid #e7ebee;
+}
+.table tbody tr td:first-child {
+    font-size: 1.25rem; /* Adjusted font size */
+    font-weight: 300;
+}
+.table tbody tr td {
+    font-size: 1.5rem; /* Adjusted font size */
+    vertical-align: middle;
+    border-top: 1px solid #e7ebee;
+    padding: 12px 8px;
+}
+a:hover{
+    text-decoration:none;
+}
+
+/* Adjusting font sizes for form elements in form.blade.php */
+.form-label {
+    font-size: 1.5rem; /* Adjust the size as needed */
+}
+
+.form-control {
+    font-size: 1.5rem; /* Adjust the size as needed */
+}
+
+.input-group-text {
+    font-size: 1.5rem; /* Adjust the size as needed */
+}
+
+.btn-lg {
+    font-size: 1.5rem; /* Adjust the size as needed */
+    padding: 0.75rem 1.25rem;
+    line-height: 1.5;
+    border-radius: 0.3rem;
+}
+
+/* Adjusting font sizes for sidebar elements */
+#sidebar .nav-link {
+    font-size: 1.5rem; /* Adjust the size as needed */
+}
+
+#sidebar .sidebar-header h3 {
+    font-size: 1.5rem; /* Adjust the size as needed */
+}
+
+/* Create Button*/
+.btn-lg {
+    font-size: 1.5rem; /* Adjust the size as needed */
+    padding: 0.75rem 1.25rem;
+    line-height: 1.5;
+    border-radius: 0.3rem;
+}
+/* Adjusting font sizes for navbar elements */
+.navbar, .navbar a, .navbar .navbar-brand, .navbar .nav-link {
+    font-size: 1.5rem; /* Adjusted font size */
 }
