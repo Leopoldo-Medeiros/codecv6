@@ -2,12 +2,12 @@
 
 @section('content')
     <div class="container bootstrap snippets bootdey">
-        <div class="row mb-3">
+        <div class="row">
             <div class="col-lg-6">
-                <h1 class="text-sm fw-bold">Users List</h1>
+                <h1 class="text-xl fw-bold large-text">Users List</h1>
             </div>
             <div class="col-lg-6 text-end">
-                <a href="{{ route('users.create') }}" class="btn btn-primary fw-bold btn-lg">Create User</a> <!-- Create User button -->
+                <a href="{{ route('users.create') }}" class="btn btn-primary fw-bold btn-lg">Create User</a>
             </div>
         </div>
         <div class="row">
@@ -39,25 +39,25 @@
                                         </td>
                                         <td class="align-middle" style="width: 20%;">
                                             <a href="{{ route('users.show', $user->id) }}" class="table-link text-warning">
-                                                <span class="fa-stack">
-                                                    <i class="fa fa-square fa-stack-2x"></i>
-                                                    <i class="fa fa-search-plus fa-stack-1x fa-inverse"></i>
-                                                </span>
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-square fa-stack-2x"></i>
+                                                        <i class="fa fa-search-plus fa-stack-1x fa-inverse"></i>
+                                                    </span>
                                             </a>
                                             <a href="{{ route('users.edit', $user->id) }}" class="table-link text-info">
-                                                <span class="fa-stack">
-                                                    <i class="fa fa-square fa-stack-2x"></i>
-                                                    <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
-                                                </span>
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-square fa-stack-2x"></i>
+                                                        <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
+                                                    </span>
                                             </a>
                                             <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="table-link danger" style="border: none; background: none;">
-                                                    <span class="fa-stack">
-                                                        <i class="fa fa-square fa-stack-2x"></i>
-                                                        <i class="fa fa-trash-o fa-stack-1x fa-inverse"></i>
-                                                    </span>
+                                                        <span class="fa-stack">
+                                                            <i class="fa fa-square fa-stack-2x"></i>
+                                                            <i class="fa fa-trash-o fa-stack-1x fa-inverse"></i>
+                                                        </span>
                                                 </button>
                                             </form>
                                         </td>

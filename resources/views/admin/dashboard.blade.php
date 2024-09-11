@@ -3,8 +3,10 @@
 @section('content')
     <div class="container mt-4">
         @role('admin')
-        <h2 class="mb-4 fw-bold">Admin Dashboard</h2>
-        <div class="row">
+        <div class="col-lg-6">
+            <h1 class="text-xl fw-bold large-text">Admin Dashboard</h1>
+        </div>
+        <div class="row mt-5">
             <div class="col-md-6">
                 <div class="card text-white bg-primary mb-3">
                     <div class="card-header large-font"><b>Total Users</b></div>
