@@ -1,58 +1,42 @@
-<!-- resources/views/admin/dashboard.blade.php -->
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
-
 @section('content')
-    <h1>Dashboard</h1>
-    <p>Welcome to the admin dashboard</p>
-
-    @if(isset($users) && $users->isEmpty())
-        <p>No users found.</p>
-    @elseif(isset($users))
-        <table class="table">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Birthdate</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach ($users as $user)
-                <tr>
-                    <td>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->profile->birth_date ?? 'N/A' }}</td>
-                    <td>
-                        <a href="{{ route('users.edit', $user) }}" class="btn btn-primary">Edit</a>
-                        <a href="#" class="btn btn-danger" data-user-id="{{ $user->id }}" onclick="event.preventDefault(); document.getElementById('delete-form-{{ $user->id }}').submit();">
-                            Delete
-                        </a>
-                        <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    @endif
-@endsection
-
-@section('scripts')
-    <script>
-        function confirmDelete(event, userId, userName) {
-            const loggedInUserId = {{ Auth::id() }};
-            if (userId === loggedInUserId) {
-                alert('You cannot delete yourself.');
-                return false;
-            }
-            return confirm(`Are you sure you want to delete ${userName}?`);
-        }
-    </script>
+    <div class="container mt-4">
+        @role('admin')
+        <div class="col-lg-6">
+            <h1 class="text-xl fw-bold large-text">Admin Dashboard</h1>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-header large-font"><b>Total Users</b></div>
+                    <div class="card-body">
+                        <h5 class="card-title large-font">{{ $totalUsers }}</h5>
+                        <p class="card-text large-font">Total registered users on the platform</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-header large-font"><b>Total Admins</b></div>
+                    <div class="card-body">
+                        <h5 class="card-title large-font">{{ $totalAdmins }}</h5>
+                        <p class="card-text large-font">Total active admins</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @else
+            <h2 class="mb-4 fw-bold">Client Dashboard</h2>
+            <div class="col-md-12">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-header large-font"><b>Client Dashboard</b></div>
+                    <div class="card-body">
+                        <h5 class="card-title large-font">Welcome, {{ Auth::user()->name }}</h5>
+                        <p class="card-text large-font">This is your client dashboard</p>
+                    </div>
+                </div>
+            </div>
+            @endrole
+    </div>
 @endsection

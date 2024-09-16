@@ -1,33 +1,323 @@
-/* public/css/custom.css */
-.btn-primary-custom, .btn-danger-custom {
-    display: inline-block !important; /* Ensure buttons are displayed */
+/* Base Styles */
+body {
+    font-size: 1rem !important; /* 12px if the browser default is 16px */
+    font-family: 'Open Sans', sans-serif !important;
+    background-color: #f0f0f0; /* Set your desired background color */
+    background: #eee;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6, .table, .user-link, .user-subhead, .label {
+    font-size: 0.875rem !important; /* 14px */
+}
+
+.large-font, .form-label, .form-control, .input-group-text, .btn-lg, .navbar, .navbar a, .navbar .navbar-brand, .navbar .nav-link, #sidebar .nav-link, #sidebar .sidebar-header h3 {
+    font-size: 1rem !important; /* 12px */
+}
+
+/* Table Styles */
+.custom-table {
+    font-size: 1rem !important; /* 12px */
+    border-collapse: separate;
+    border-spacing: 0 15px;
+    width: 100%;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.custom-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.custom-table th, .custom-table td {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.custom-table tbody tr {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.table thead tr th {
+    font-size: 1rem !important; /* 12px */
+    text-transform: uppercase;
+    border-bottom: 2px solid #e7ebee;
+}
+
+.table tbody tr td:first-child {
+    font-size: 1rem !important; /* 12px */
+    font-weight: 300;
+}
+
+.table tbody tr td {
+    font-size: 1rem !important; /* 12px */
+    vertical-align: middle;
+    border-top: 1px solid #e7ebee;
+    padding: 12px 8px;
+}
+
+/* Button Styles */
+.btn-primary-custom, .btn-primary {
+    display: inline-block !important; /* Ensure button is displayed */
     background-color: #007bff !important; /* Blue for edit */
     border-color: #007bff !important;
     color: white !important;
+    visibility: visible !important; /* Ensure button is always visible */
 }
 
-.btn-primary {
-    display: inline-block !important; /* Ensure button is displayed */
-    background-color: #007bff !important; /* Blue for update */
-    border-color: #007bff !important;
-    color: white !important;
-}
-
-.btn-primary:hover {
+.btn-primary-custom:hover, .btn-primary:hover {
     background-color: #0056b3 !important; /* Darker shade for hover */
-    border-color: #0056b3 !important;
+    border-color: #004085 !important;
     color: white !important;
 }
 
-.btn-danger-custom, .btn-danger {
+.btn-primary-custom {
+    margin-right: 5px;
+}
+
+.btn-danger {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: darkred;
+    border-color: darkred;
+    color: white;
+}
+
+.btn-warning {
     display: inline-block !important; /* Ensure button is displayed */
-    background-color: red !important; /* Red for delete */
-    border-color: red !important;
-    color: white !important;
+    background-color: #ffc107 !important; /* Yellow for edit */
+    border-color: #ffc107 !important;
+    color: black !important;
 }
 
-.btn-danger-custom:hover, .btn-danger:hover {
-    background-color: darkred !important; /* Darker shade for hover */
-    border-color: darkred !important;
+.btn-warning:hover {
+    background-color: #e0a800 !important; /* Darker shade for hover */
+    border-color: #d39e00 !important;
+    color: black !important;
+}
+
+.highlighted-btn {
+    background-color: #ffc107; /* Highlight color */
+    color: black;
+    border-color: #ffc107;
+}
+
+.highlighted-btn:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* Float and Width Utilities */
+.float-right {
+    float: right;
+    margin-right: 60px;
+}
+
+.custom-width {
+    width: 50%;
+}
+
+/* Panel Table Styles */
+.panel-table .panel-body {
+    padding: 0;
+}
+
+.panel-table .panel-body .table-bordered {
+    border-style: none;
+    margin: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type {
+    text-align: center;
+    width: 100px;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:last-of-type,
+.panel-table .panel-body .table-bordered > tbody > tr > td:last-of-type {
+    border-right: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type,
+.panel-table .panel-body .table-bordered > tbody > tr > td:first-of-type {
+    border-left: 0;
+}
+
+.panel-table .panel-body .table-bordered > tbody > tr:first-of-type > td {
+    border-bottom: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr:first-of-type > th {
+    border-top: 0;
+}
+
+.panel-table .panel-footer .pagination {
+    margin: 0;
+}
+
+.panel-table .panel-footer .col {
+    line-height: 34px;
+    height: 34px;
+}
+
+.panel-table .panel-heading .col h3 {
+    line-height: 30px;
+    height: 30px;
+}
+
+.panel-table .panel-body .table-bordered > tbody > tr > td {
+    line-height: 34px;
+}
+
+/* Header Styles */
+header .dropdown img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Sidebar Styles */
+.custom-menu-bg {
+    background-color: #f8f9fa; /* Replace with your desired color */
+}
+
+/* Main Box Styles */
+.main-box.no-header {
+    padding-top: 20px;
+}
+
+.main-box {
+    background: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -moz-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -o-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -ms-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    box-shadow: 1px 1px 2px 0 #CCCCCC;
+    margin-bottom: 16px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+/* User List Styles */
+.user-list tbody td>img {
+    position: relative;
+    max-width: 30px; /* Adjust the size as needed */
+    float: left;
+    margin-right: 15px;
+}
+
+.user-list tbody td .user-subhead {
+    font-style: italic;
+}
+
+.user-list tbody td .user-link {
+    display: block;
+    padding-top: 3px;
+    margin-left: 60px;
+}
+
+/* Link Styles */
+a {
+    color: #3498db;
+    outline: none !important;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.table a.table-link.danger {
+    color: #e74c3c;
+}
+
+/* Label Styles */
+.label {
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+/* Profile Icon Styles */
+.profile-icon {
+    width: 40px; /* Set the desired width */
+    height: 40px; /* Set the desired height */
+    border-radius: 40%; /* Make it a circle */
+    object-fit: cover; /* Ensure the image covers the area */
+}
+
+/* Button Hover Styles */
+.btn-success:hover {
+    background-color: #218838 !important; /* Darker shade for hover */
+    border-color: #1e7e34 !important;
     color: white !important;
+}
+/* Ensure table cells align middle */
+td.align-middle {
+    vertical-align: middle !important;
+}
+
+/* Style for user image */
+td.align-middle img.rounded-circle {
+    max-width: 50px; /* Adjust the size as needed */
+    float: left;
+    margin-right: 15px;
+}
+
+/* Style for user link */
+td.align-middle .user-link {
+    display: block;
+    padding-top: 3px;
+    margin-left: 60px;
+}
+
+/* Style for user subhead */
+td.align-middle .user-subhead {
+    display: block;
+    font-style: italic;
+    margin-left: 60px;
+}
+
+.large-text {
+    font-size: 2rem !important; /* Adjust the size as needed */
+}
+.logo-background {
+    background-color: #dae7f3; /* Replace with your desired background color */
+    padding: 5px; /* Optional: Adjust padding for better spacing */
+    height: 80px; /* Adjust the height as needed */
+}
+
+.logo-img {
+    width: 160px; /* Adjust the size as needed */
+    height: 120px; /* Adjust the size as needed */
+}
+
+.small-avatar {
+    width: 34px !important; /* Adjust the size as needed */
+    height: 34px !important; /* Adjust the size as needed */
+}
+
+.small-user-link {
+    font-size: 0.875rem; /* Adjust the size as needed */
+}
+.rounded-circle-img {
+    width: 180px !important; /* Set a fixed width */
+    height: 180px !important; /* Set a fixed height */
+    border-radius: 100% !important; /* Make it a circle */
+    object-fit: cover !important; /* Ensure the image covers the area */
+}
+.profile-image {
+    width: 150px; /* Adjust the width as needed */
+    height: 150px; /* Adjust the height as needed */
+    border-radius: 50%; /* Make it a circle */
+    object-fit: cover; /* Ensure the image covers the area */
 }
