@@ -22,47 +22,16 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
+        $userId = $this->route('user'); // Get the User ID from the route
+
+        return [
             'fullname' => 'required|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-            'profile'  => 'required|array',
+            'email' => 'required|email|unique:users,email,' . $userId,
+            'password' => 'nullable|min:6|confirmed',
             'profile.birth_date' => 'nullable|date',
             'profile.profession' => 'nullable|string',
             'role' => 'required|exists:roles,id',
         ];
-
-        $user = 0;
-        if (!empty($this->route('user'))) {
-            $user = $this->route('user')->id;
-        }
-
-        switch($this->method())
-        {
-            case 'GET':
-            case 'DELETE':
-            {
-                return [];
-            }
-            case 'POST':
-            {
-                $rules = [
-                    ...$rules,
-                ];
-            }
-            case 'PATCH':
-            case 'PUT':
-            {
-                $rules = [
-                    ...$rules,
-                    'email' => 'required|email|unique:users,email,'. $user,
-                    'password' => 'nullable|min:6|confirmed',
-                ];
-            }
-            default:break;
-        }
-
-        return $rules;
     }
 
     protected function prepareForValidation()
@@ -72,7 +41,7 @@ class UserRequest extends FormRequest
         }
     }
 
-    //after validation
+    // After validation
     public function validated($key = null, $default = null)
     {
         $validated = parent::validated();

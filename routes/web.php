@@ -29,8 +29,14 @@ Route::get('/about-us', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
+    Route::get('/profile', [UsersController::class, 'profile'])->name('profile');
+    Route::put('/profile/{id}', [UsersController::class, 'update'])->name('profile.update');
+    Route::get('/profile/edit/{id}', [UsersController::class, 'edit'])->name('profile.edit');
+
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
+        Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
+        Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update'); // Add this line
     });
 
     // Client routes

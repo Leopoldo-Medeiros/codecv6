@@ -1,3 +1,5 @@
+<!-- resources/views/profile.blade.php -->
+
 @extends('layouts.admin')
 
 @section('content')
@@ -19,11 +21,16 @@
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-body text-center">
-                            <img src="{{ $user->profile->profile_image ? Storage::url($user->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">                            <p class="text-muted mb-1">{{ $user->profile->profession }}</p>
+                            <img src="{{ $user->profile->profile_image ? Storage::url($user->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" class="rounded-circle img-fluid profile-image">
+                            <p class="text-muted mb-1">{{ $user->profile->profession }}</p>
                             <p class="text-muted mb-4">{{ $user->profile->location }}</p>
                             <div class="d-flex justify-content-center mb-2">
-                                <button type="button" class="btn btn-primary">Follow</button>
-                                <button type="button" class="btn btn-outline-primary ms-1">Message</button>
+                                <button type="button" class="btn btn-outline-primary">
+                                    <i class="fas fa-envelope me-1"></i> Message
+                                </button>
+                                <a href="{{ route('profile.edit', $user->id) }}" class="btn btn-warning ms-2">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </a>
                             </div>
                         </div>
                     </div>

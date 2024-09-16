@@ -5,7 +5,7 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12 col-lg-8 col-xl-6">
-                    <h3 class="fs-4 text-secondary mb-3 text-uppercase text-center fw-bold">{{ isset($user) ? 'Edit User' : 'Create User' }}</h3>
+                    <h3 class="fs-4 text-secondary mb-3 text-uppercase text-center">{{ isset($user) ? 'Edit User' : 'Create User' }}</h3>
                     <hr class="w-40 mx-auto mb-4 border-dark-subtle">
                 </div>
             </div>
@@ -16,14 +16,14 @@
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
-                                    @foreach ($errors->all() as $error)
+                                    @foreach ($errors->all() as  $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
                             </div>
                         @endif
 
-                        <form class="login100-form validate-form" action="{{ isset($user) ? route('users.update', $user->id) : route('users.store') }}" method="POST" onsubmit="return validateFullName()">
+                        <form class="login100-form validate-form" action="{{ isset($user) ? route('users.update', ['user' => $user->id]) : route('users.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateFullName()">
                             @csrf
                             @if(isset($user))
                                 @method('PUT')
@@ -67,6 +67,16 @@
                                             <i class="bi bi-briefcase"></i>
                                         </span>
                                         <input type="text" class="form-control" id="profile[profession]" name="profile[profession]" value="{{ old('profile.profession', isset($user) ? $user->profile->profession : '') }}" required>
+                                    </div>
+                                </div>
+                                <div class="w-100"></div>
+                                <div class="col-10">
+                                    <label for="profile_image" class="form-label">Profile Image</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-image"></i>
+                                        </span>
+                                        <input type="file" class="form-control" id="profile_image" name="profile_image">
                                     </div>
                                 </div>
                                 <div class="w-100"></div>

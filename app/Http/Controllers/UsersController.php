@@ -4,32 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
     public function index()
     {
         $users = User::paginate(10); // Adjust the number as needed
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(User $user)
     {
-        $user = $user->load('profile');
+        $user->load('profile');
         return view('users.show', compact('user'));
     }
 
@@ -41,40 +31,57 @@ class UsersController extends Controller
 
     public function store(UserRequest $request)
     {
-        $validated = $request->validated();
-        $user = User::create($validated);
-        $this->updateCreateProfile($user, $validated['profile']);
+        $user = User::create([
+            'fullname' => $request->fullname,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
 
-        if (!empty($validated['role'])) {
-            $this->updateRole($user, $request->validated());
+        $profileData = $request->only(['profile.birth_date', 'profile.profession']);
+        if ($request->hasFile('profile_image')) {
+            $profileData['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
         }
+
+        $user->profile()->create($profileData);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function update(UserRequest $request, $id)
     {
-        $user = $user->load('profile');
-        $roles = Role::all();
+        $user = User::findOrFail($id); // Ensure $user is an object
+        $user->update([
+            'fullname' => $request->fullname,
+            'email' => $request->email,
+        ]);
+
+        $profileData = $request->only(['profile.birth_date', 'profile.profession']);
+        if ($request->hasFile('profile_image')) {
+            $profileData['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
+        }
+
+        // Update individual profile fields
+        $user->profile()->update([
+            'birth_date' => $profileData['profile.birth_date'] ?? null,
+            'profession' => $profileData['profile.profession'] ?? null,
+            'profile_image' => $profileData['profile_image'] ?? $user->profile->profile_image,
+        ]);
+
+        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
+    }
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        $roles = Role::all(); // Assuming you have roles to pass
         return view('users.form', compact('user', 'roles'));
     }
 
-    public function update(UserRequest $request, User $user)
+    public function profile()
     {
-        $validated = $request->validated();
-        $user->update($validated);
-        $this->updateCreateProfile($user, $validated['profile']);
-
-        if (!empty($validated['role'])) {
-            $this->updateRole($user, $request->validated());
-        }
-
-        return redirect()->route('users.show', $user->id)->with('success', 'Profile updated successfully.');
+        $user = Auth::user();
+        return view('profile', compact('user'));
     }
 
-    /**
-     * Remove user from the system
-     */
     public function destroy(User $user)
     {
         if ($user->id === Auth::id()) {
@@ -132,5 +139,4 @@ class UsersController extends Controller
             $validated
         );
     }
-
 }

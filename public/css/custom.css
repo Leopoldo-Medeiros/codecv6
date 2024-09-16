@@ -300,3 +300,24 @@ td.align-middle .user-subhead {
     width: 160px; /* Adjust the size as needed */
     height: 120px; /* Adjust the size as needed */
 }
+
+.small-avatar {
+    width: 34px !important; /* Adjust the size as needed */
+    height: 34px !important; /* Adjust the size as needed */
+}
+
+.small-user-link {
+    font-size: 0.875rem; /* Adjust the size as needed */
+}
+.rounded-circle-img {
+    width: 180px !important; /* Set a fixed width */
+    height: 180px !important; /* Set a fixed height */
+    border-radius: 100% !important; /* Make it a circle */
+    object-fit: cover !important; /* Ensure the image covers the area */
+}
+.profile-image {
+    width: 150px; /* Adjust the width as needed */
+    height: 150px; /* Adjust the height as needed */
+    border-radius: 50%; /* Make it a circle */
+    object-fit: cover; /* Ensure the image covers the area */
+}

@@ -7,13 +7,13 @@
                 <h1 class="text-xl fw-bold large-text">Users List</h1>
             </div>
             <div class="col-lg-6 text-end">
-                <a href="{{ route('users.create') }}" class="btn btn-primary fw-bold btn-lg">Create User</a>
+                <a href="{{ route('users.create') }}" class="btn btn-primary btn-sm mb-4">Create User</a>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <div class="main-box no-header clearfix">
-                    <div class="main-box-body clearfix">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table user-list mt-3">
                                 <thead>
@@ -29,8 +29,12 @@
                                 @foreach($users as $user)
                                     <tr>
                                         <td class="align-middle">
-                                            <img src="https://mdbootstrap.com/img/new/avatars/8.jpg" alt="" class="rounded-circle">
-                                            <a href="#" class="user-link">{{ $user->fullname }}</a>
+                                            @if ($user->profile->profile_image)
+                                                <img src="{{ Storage::url($user->profile->profile_image) }}" alt="Profile Image" class="rounded-circle small-avatar">
+                                            @else
+                                                <img src="{{ asset('images/team-13.jpg') }}" alt="Default Image" class="rounded-circle small-avatar">
+                                            @endif
+                                            <a href="{{ route('users.show', $user->id) }}" class="user-link small-user-link">{{ $user->fullname }}</a>
                                             <span class="user-subhead">{{ $user->roles->pluck('name')->map('ucfirst')->join(', ') }}</span>
                                         </td>
                                         <td class="align-middle">{{ $user->created_at->format('Y/m/d') }}</td>
@@ -56,7 +60,7 @@
                                                 <button type="submit" class="table-link danger" style="border: none; background: none;">
                                                         <span class="fa-stack">
                                                             <i class="fa fa-square fa-stack-2x"></i>
-                                                            <i class="fa fa-trash-o fa-stack-1x fa-inverse"></i>
+                                                            <i class="fa fa-trash fa-stack-1x fa-inverse"></i>
                                                         </span>
                                                 </button>
                                             </form>
