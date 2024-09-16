@@ -13,6 +13,7 @@ class Profile extends Model
         'user_id',
         'birth_date',
         'profession',
+        'profile_image', // Add this line
     ];
 
     public function user()
