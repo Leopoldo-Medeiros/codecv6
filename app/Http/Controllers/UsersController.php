@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
@@ -31,55 +32,37 @@ class UsersController extends Controller
 
     public function store(UserRequest $request)
     {
-        $user = User::create([
-            'fullname' => $request->fullname,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        $validated = $request->validated();
+        $user = User::create($validated);
 
-        $profileData = $request->only(['profile.birth_date', 'profile.profession']);
-        if ($request->hasFile('profile_image')) {
-            $profileData['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
-        }
+        // Update individual profile fields
+        $this->updateCreateProfile($user, $request);
 
-        $user->profile()->create($profileData);
+        // update roles
+        $this->updateRole($user, $validated);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function update(UserRequest $request, $id)
+    public function edit(User $user)
     {
-        $user = User::findOrFail($id); // Ensure $user is an object
-        $user->update([
-            'fullname' => $request->fullname,
-            'email' => $request->email,
-        ]);
-
-        $profileData = $request->only(['profile.birth_date', 'profile.profession']);
-        if ($request->hasFile('profile_image')) {
-            $profileData['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
-        }
-
-        // Update individual profile fields
-        $user->profile()->update([
-            'birth_date' => $profileData['profile.birth_date'] ?? null,
-            'profession' => $profileData['profile.profession'] ?? null,
-            'profile_image' => $profileData['profile_image'] ?? $user->profile->profile_image,
-        ]);
-
-        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
-    }
-    public function edit($id)
-    {
-        $user = User::findOrFail($id);
+        $user = $user->load('profile');
         $roles = Role::all(); // Assuming you have roles to pass
         return view('users.form', compact('user', 'roles'));
     }
 
-    public function profile()
+    public function update(UserRequest $request, User $user)
     {
-        $user = Auth::user();
-        return view('profile', compact('user'));
+        $validated = $request->validated();
+        $user->update($validated);
+
+        // Update individual profile fields
+        $this->updateCreateProfile($user, $request);
+
+        // update roles
+        $this->updateRole($user, $validated);
+
+        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
@@ -103,6 +86,12 @@ class UsersController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('profile', compact('user'));
     }
 
     public function updateRole(User $user, $validated)
@@ -129,14 +118,24 @@ class UsersController extends Controller
         return true;
     }
 
-    private function updateCreateProfile(User $user, $validated)
+    private function updateCreateProfile(User $user, UserRequest $request)
     {
+        $validated = $request->validated();
+        if ($request->hasFile('profile_image')) {
+            if($user->profile && $user->profile->profile_image) {
+                if(Storage::exists($user->profile->profile_image)) {
+                    Storage::delete($user->profile->profile_image);
+                }
+            }
+            $validated['profile']['profile_image'] = $request->file('profile_image')->store('profile_images', config('filesystems.default'));
+        }
+
         // Update or create profile
         $user->profile()->updateOrCreate(
             [
                 'user_id' => $user->id
             ],
-            $validated
+            $validated['profile']
         );
     }
 }
