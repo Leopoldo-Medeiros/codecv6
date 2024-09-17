@@ -35,8 +35,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
-        Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
-        Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update'); // Add this line
     });
 
     // Client routes
