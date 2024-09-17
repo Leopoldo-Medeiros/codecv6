@@ -22,16 +22,48 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $userId = $this->route('user'); // Get the User ID from the route
-
-        return [
+        $rules = [
             'fullname' => 'required|max:255',
-            'email' => 'required|email|unique:users,email,' . $userId,
-            'password' => 'nullable|min:6|confirmed',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+            'profile'  => 'required|array',
             'profile.birth_date' => 'nullable|date',
             'profile.profession' => 'nullable|string',
+            'profile.profile_image' => 'nullable|file|size:2048|mimes:jpeg,jpg,png',
             'role' => 'required|exists:roles,id',
         ];
+
+        $user = 0;
+        if (!empty($this->route('user'))) {
+            $user = $this->route('user')->id;
+        }
+
+        switch($this->method())
+        {
+            case 'GET':
+            case 'DELETE':
+            {
+                return [];
+            }
+            case 'POST':
+            {
+                $rules = [
+                    ...$rules,
+                ];
+            }
+            case 'PATCH':
+            case 'PUT':
+            {
+                $rules = [
+                    ...$rules,
+                    'email' => 'required|email|unique:users,email,'. $user,
+                    'password' => 'nullable|min:6|confirmed',
+                ];
+            }
+            default:break;
+        }
+
+        return $rules;
     }
 
     protected function prepareForValidation()
