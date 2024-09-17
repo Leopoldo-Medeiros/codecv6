@@ -332,7 +332,6 @@
 			5: 'This email address looks fake or invalid. Please enter a real email address'
 		};
 
-
 	});
 
 /* global bootstrap: false */

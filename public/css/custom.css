@@ -321,3 +321,12 @@ td.align-middle .user-subhead {
     border-radius: 50%; /* Make it a circle */
     object-fit: cover; /* Ensure the image covers the area */
 }
+
+.vh-90 {
+    height: 100vh;
+}
+
+.row {
+    margin-right: 0px;
+    margin-left: 0px;
+}
