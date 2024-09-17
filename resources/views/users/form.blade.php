@@ -72,12 +72,14 @@
                                 <div class="w-100"></div>
                                 <div class="col-10">
                                     <label for="profile_image" class="form-label">Profile Image</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="bi bi-image"></i>
-                                        </span>
-                                        <input type="file" class="form-control" id="profile_image" name="profile_image">
+                                    <div class="avatar-wrapper">
+                                        <img class="profile-pic" src="{{ old('profile.profile_image', empty($user->profile->profile_image) ? '' : Storage::url($user->profile->profile_image)) }}" />
+                                        <div class="upload-button">
+                                            <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+                                        </div>
+                                        <input class="file-upload" type="file" name="profile_image" accept="image/*"/>
                                     </div>
+                                    <div class="feedback"><br/>Use square images. <br/>E.g. 75x75px or 150x150px for better perspective</div>
                                 </div>
                                 <div class="w-100"></div>
                                 <div class="col-10">
@@ -147,5 +149,27 @@
             }
             return true;
         }
+        $(document).ready(function() {
+
+            var readURL = function(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('.profile-pic').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            $(".file-upload").on('change', function(){
+                readURL(this);
+            });
+
+            $(".upload-button").on('click', function() {
+                $(".file-upload").click();
+            });
+        });
     </script>
 @endsection
