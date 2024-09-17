@@ -2,27 +2,26 @@
 @include('includes.admin.header')
 @include('includes.admin.menu.navbar')
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Stylesheets -->
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
-<script src="{{ asset('js/jquery-3.7.0.min.js') }}"></script>
-
 <!-- Begin page content -->
 <div class="container-fluid p-0 flex-shrink-0">
-    <div class="d-grid gap-6" style="grid-template-columns: 1fr 5fr;">
-        @role('client')
-        @include('includes.admin.menu.client')
-        @else
-            @include('includes.admin.menu.admin')
-            @endrole
-            <div class="p-3">
-                @yield('content')
+    <div class="row flex-nowrap">
+        <div class="col-auto col-md-3 col-xl-2 pr-sm-2 px-0 pl-0">
+            <div id="sidebar" class="custom-menu-bg custom-sidebar-width d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white vh-90">
+                <div class="sidebar-header d-flex justify-content-center align-items-center logo-background w-100">
+                    <img src="{{ asset('images/logo/codecv.png') }}" alt="Logo" class="logo-img">
+                </div>
+                <ul class="nav flex-column">
+                    @role('client')
+                        @include('includes.admin.menu.client')
+                    @else
+                        @include('includes.admin.menu.admin')
+                    @endrole
+                </ul>
             </div>
+        </div>
+        <div class="col py-3">
+            @yield('content')
+        </div>
     </div>
 </div>
 
@@ -36,3 +35,6 @@
 <script src="{{ asset('js/jquery.ajaxchimp.min.js') }}"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
 <script src="{{ asset('js/popper.min.js') }}"></script>
+
+</body>
+</html>
