@@ -4,7 +4,7 @@
     <div class="container mt-4">
         @role('admin')
         <div class="col-lg-6">
-            <h1 class="text-xl fw-bold large-text">Admin Dashboard</h1>
+            <h1 class="text-xl fw-bold large-text">GIT FDP</h1>
         </div>
         <div class="row mt-5">
             <div class="col-md-6">
