@@ -1,5 +1,9 @@
 @extends('layouts.admin')
-
+@if(isset($user))
+    @section('title', 'Edit user')
+@else
+    @section('title', 'Add user')
+@endif
 @section('content')
     <section class="bg-light py-3 py-md-5 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
         <div class="container">

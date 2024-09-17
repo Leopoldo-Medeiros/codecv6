@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-
+@section('title', 'Users Show')
 @section('content')
     <section style="background-color: #eee;">
         <div class="container py-5">

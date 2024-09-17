@@ -18,7 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- SITE TITLE -->
-    <title>CODECV Admin - @yield('title')</title>
+    <title>CODECV Admin @hasSection('title') - @yield('title') @endif</title>
 
     <!-- FAVICON AND TOUCH ICONS -->
     <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('images/apple-icon-57x57.png') }}">
