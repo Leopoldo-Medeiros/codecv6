@@ -67,3 +67,5 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=Leopoldo-Medeiros&show_icons=true&theme=tokyonight)
 
+## Removing Vercel
+
