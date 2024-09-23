@@ -14,6 +14,12 @@
             <div class="col-lg-12">
                 <div class="card shadow mb-4">
                     <div class="card-body">
+                        <!-- Search Bar -->
+                        <div class="input-group mb-3">
+                            <input type="text" id="search" placeholder="Search by name or email" class="form-control" value="{{ request('search') }}">
+                            <button id="searchButton" class="btn btn-primary" type="button">Search</button>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table user-list mt-3">
                                 <thead>
@@ -43,25 +49,25 @@
                                         </td>
                                         <td class="align-middle" style="width: 20%;">
                                             <a href="{{ route('users.show', $user->id) }}" class="table-link text-warning">
-                                                    <span class="fa-stack">
-                                                        <i class="fa fa-square fa-stack-2x"></i>
-                                                        <i class="fa fa-search-plus fa-stack-1x fa-inverse"></i>
-                                                    </span>
+                                                <span class="fa-stack">
+                                                    <i class="fa fa-square fa-stack-2x"></i>
+                                                    <i class="fa fa-search-plus fa-stack-1x fa-inverse"></i>
+                                                </span>
                                             </a>
                                             <a href="{{ route('users.edit', $user->id) }}" class="table-link text-info">
-                                                    <span class="fa-stack">
-                                                        <i class="fa fa-square fa-stack-2x"></i>
-                                                        <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
-                                                    </span>
+                                                <span class="fa-stack">
+                                                    <i class="fa fa-square fa-stack-2x"></i>
+                                                    <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
+                                                </span>
                                             </a>
                                             <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="table-link danger" style="border: none; background: none;">
-                                                        <span class="fa-stack">
-                                                            <i class="fa fa-square fa-stack-2x"></i>
-                                                            <i class="fa fa-trash fa-stack-1x fa-inverse"></i>
-                                                        </span>
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-square fa-stack-2x"></i>
+                                                        <i class="fa fa-trash fa-stack-1x fa-inverse"></i>
+                                                    </span>
                                                 </button>
                                             </form>
                                         </td>
@@ -70,13 +76,29 @@
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Pagination Links -->
-                        <div class="d-flex justify-content-center">
-                            {{ $users->links('vendor.pagination.bootstrap-5') }}
-                        </div>
+
+
+
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
+
+    <!-- JavaScript for Search Functionality -->
+    <script type="text/javascript">
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchValue = document.getElementById('search').value;
+            window.location.href = "{{ route('users.index') }}?search=" + encodeURIComponent(searchValue);
+        });
+
+        // Optional: Trigger search on enter key press
+        document.getElementById('search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchButton').click();
+            }
+        });
+    </script>
+
 @endsection

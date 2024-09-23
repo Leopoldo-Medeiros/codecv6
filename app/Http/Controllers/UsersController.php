@@ -12,9 +12,13 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(10); // Adjust the number as needed
+        $search = $request->input('search');
+
+        // Use Scout's search method
+        $users = User::search($search)->get('paginate', 10);
+
         return view('users.index', compact('users'));
     }
 
