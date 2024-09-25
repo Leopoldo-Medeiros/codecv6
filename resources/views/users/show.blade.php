@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-
+@section('title', 'Users Show')
 @section('content')
     @if(session('success'))
         <div class="alert alert-success">
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <a href="javascript:history.back()" class="btn btn-primary btn-sm fw-bold mt-4">
+                        <a href="{{ url()->previous() }}" class="btn btn-primary btn-sm fw-bold mt-4">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>
                     </div>

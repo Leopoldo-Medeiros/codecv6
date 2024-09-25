@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-
+@section('title', 'Users List')
 @section('content')
 
     @if(session('success'))
@@ -9,6 +9,9 @@
     @endif
 
     <div class="container bootstrap snippets bootdey">
+    
+    <div class="px-2">
+
         <div class="row">
             <div class="col-lg-6">
                 <h1 class="text-xl fw-bold large-text">Users List</h1>
@@ -18,7 +21,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col">
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <!-- Search Bar -->

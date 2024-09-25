@@ -321,6 +321,7 @@ td.align-middle .user-subhead {
     border-radius: 50%; /* Make it a circle */
     object-fit: cover; /* Ensure the image covers the area */
 }
+
 .align-sidebar {
     margin-left: 10px; /* Adjust the margin as needed */
     display: flex;
@@ -386,4 +387,13 @@ body.dark-mode #sidebar .nav-link i {
 
 body.dark-mode #sidebar .nav-link:hover {
     background-color: #444444; /* Darker background on hover */
+
+.vh-90 {
+    height: 100vh;
+}
+
+.row {
+    margin-right: 0px;
+    margin-left: 0px;
+
 }
