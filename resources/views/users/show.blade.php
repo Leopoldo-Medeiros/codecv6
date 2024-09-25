@@ -1,6 +1,12 @@
 @extends('layouts.admin')
 
 @section('content')
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <section style="background-color: #eee;">
         <div class="container py-5">
             <div class="row">
@@ -19,7 +25,8 @@
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-body text-center">
-                            <img src="{{ $user->profile->profile_image ? Storage::url($user->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">                            <p class="text-muted mb-1">{{ $user->profile->profession }}</p>
+                            <img src="{{ $user->profile->profile_image ? Storage::url($user->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">
+                            <p class="text-muted mb-1">{{ $user->profile->profession }}</p>
                             <p class="text-muted mb-4">{{ $user->profile->location }}</p>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-primary">Follow</button>

@@ -14,12 +14,18 @@ class UsersController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user(); // Assuming you are using Laravel's Auth system
         $search = $request->input('search');
+        $query = User::query();
 
-        // Use Scout's search method
-        $users = User::search($search)->get('paginate', 10);
+        if ($search) {
+            $query->where('fullname', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        }
 
-        return view('users.index', compact('users'));
+        $users = $query->simplePaginate(10); // Adjust the number of items per page as needed
+
+        return view('users.index', compact('user', 'users'));
     }
 
     public function show(User $user)

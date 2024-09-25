@@ -1,6 +1,13 @@
 @extends('layouts.admin')
 
 @section('content')
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="container bootstrap snippets bootdey">
         <div class="row">
             <div class="col-lg-6">
@@ -76,14 +83,16 @@
                                 </tbody>
                             </table>
                         </div>
-
-
-
                     </div>
                 </div>
             </div>
         </div>
-
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+                {!! $users->links() !!}
+            </nav>
+        </div>
     </div>
 
     <!-- JavaScript for Search Functionality -->
@@ -100,5 +109,4 @@
             }
         });
     </script>
-
 @endsection

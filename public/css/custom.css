@@ -2,8 +2,8 @@
 body {
     font-size: 1rem !important; /* 12px if the browser default is 16px */
     font-family: 'Open Sans', sans-serif !important;
-    background-color: #f0f0f0; /* Set your desired background color */
-    background: #eee;
+    /* Set your desired background color */
+    background-color: #eee;
 }
 
 /* Typography */
@@ -320,4 +320,70 @@ td.align-middle .user-subhead {
     height: 150px; /* Adjust the height as needed */
     border-radius: 50%; /* Make it a circle */
     object-fit: cover; /* Ensure the image covers the area */
+}
+.align-sidebar {
+    margin-left: 10px; /* Adjust the margin as needed */
+    display: flex;
+    align-items: center;
+    position: absolute; /* Position it absolutely */
+    top: 20px; /* Adjust the top position as needed */
+    left: 20px; /* Adjust the left position as needed */
+}
+
+.mode-switch .btn {
+    width: 40px; /* Adjust the size as needed */
+    height: 40px; /* Adjust the size as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.mode-switch .btn {
+    width: 40px; /* Adjust the size as needed */
+    height: 40px; /* Adjust the size as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    border: 2px solid transparent;
+}
+
+.mode-switch .btn:hover {
+    background-color: #67a7ee; /* Light blue background on hover */
+    color: #fff; /* White text color on hover */
+    transform: scale(1.1); /* Slightly enlarge the button on hover */
+    border-color: #0056b3; /* Border color on hover */
+}
+
+.mode-switch .btn:active {
+    transform: scale(0.9); /* Slightly shrink the button on click */
+}
+
+.mode-switch .btn i {
+    font-size: 1.2rem; /* Adjust the icon size as needed */
+}
+
+.custom-icon {
+    width: 20px; /* Adjust the size as needed */
+    height: 20px; /* Adjust the size as needed */
+    object-fit: cover; /* Ensure the image covers the area */
+}
+
+/* Dark Mode Styles */
+body.dark-mode #sidebar {
+    background-color: #333333; /* Dark background for sidebar */
+    color: #ffffff; /* White color for text */
+}
+
+body.dark-mode #sidebar .nav-link {
+    color: #ffffff !important; /* White color for text */
+}
+
+body.dark-mode #sidebar .nav-link i {
+    color: #ffffff !important; /* White color for icons */
+}
+
+body.dark-mode #sidebar .nav-link:hover {
+    background-color: #444444; /* Darker background on hover */
 }

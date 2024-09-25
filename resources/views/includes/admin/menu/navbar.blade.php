@@ -1,8 +1,17 @@
-<nav class="navbar navbar-expand navbar-light bg-white topbar mb-2 static-top shadow">
-    <div class="container-fluid border-bottom px-2">
+<!-- resources/views/includes/admin/menu/navbar.blade.php -->
+<nav class="navbar navbar-expand navbar-light bg-white topbar static-top shadow">
+    <div class="container-fluid border-bottom">
         <div class="container d-flex justify-content-between align-items-center">
             <!-- Profile Section -->
-            <div class="dropdown ms-auto">
+            <div class="dropdown ms-auto d-flex align-items-center">
+                <div class="mode-switch d-flex align-items-center p-2 me-3">
+                    <button title="Use dark mode" id="darkModeSwitch" class="btn btn-sm btn-outline-secondary rounded-circle mb-2">
+                        <img src="{{ asset('images/custom-moon-icon.svg') }}" alt="Dark Mode" class="custom-icon">
+                    </button>
+                    <button title="Use light mode" id="lightModeSwitch" class="btn btn-sm btn-outline-secondary rounded-circle mb-2">
+                        <img src="{{ asset('images/custom-sun-icon.svg') }}" alt="Light Mode" class="custom-icon">
+                    </button>
+                </div>
                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle mb-2" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="{{ $user->profile->profile_image ? Storage::url($user->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" width="32" height="32" class="rounded-circle">
                 </a>
