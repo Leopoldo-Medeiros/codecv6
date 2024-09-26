@@ -1,5 +1,4 @@
 <!-- resources/views/profile.blade.php -->
-
 @extends('layouts.admin')
 
 @section('content')

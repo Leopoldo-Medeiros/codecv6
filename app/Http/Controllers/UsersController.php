@@ -23,7 +23,9 @@ class UsersController extends Controller
                 ->orWhere('email', 'like', "%{$search}%");
         }
 
-        $users = $query->simplePaginate(10); // Adjust the number of items per page as needed
+        $users = $query->paginate(10); // Adjust the number of items per page as needed
+
+        // dd ($users->links('vendor.pagination.bootstrap-5'));
 
         return view('users.index', compact('user', 'users'));
     }
