@@ -129,7 +129,7 @@
                                     </div>
                                 </div>
                                 <div class="col-12 mt-3">
-                                    <a href="javascript:history.back()" class="btn btn-secondary btn-lg fw-bold mt-4">
+                                    <a href="{{ url()->previous() }}" class="btn btn-secondary btn-lg fw-bold mt-4">
                                         <i class="fas fa-arrow-left me-2"></i>Back
                                     </a> <!-- Back button -->
                                 </div>

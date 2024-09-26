@@ -12,10 +12,22 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(10); // Adjust the number as needed
-        return view('users.index', compact('users'));
+        $user = Auth::user(); // Assuming you are using Laravel's Auth system
+        $search = $request->input('search');
+        $query = User::query();
+
+        if ($search) {
+            $query->where('fullname', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        $users = $query->paginate(10); // Adjust the number of items per page as needed
+
+        // dd ($users->links('vendor.pagination.bootstrap-5'));
+
+        return view('users.index', compact('user', 'users'));
     }
 
     public function show(User $user)
