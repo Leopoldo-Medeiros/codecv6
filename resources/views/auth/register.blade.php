@@ -29,8 +29,7 @@
                         </div>
 
                         <!-- REGISTER FORM -->
-                        <form name="registerform" method="POST" class="row register-form"
-                              action="{{ route('register') }}">
+                        <form name="registerform" method="POST" class="row register-form" action="{{ route('register') }}">
                             @csrf
 
                             <!-- Google Button -->
