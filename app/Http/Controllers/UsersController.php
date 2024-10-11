@@ -25,8 +25,6 @@ class UsersController extends Controller
 
         $users = $query->paginate(10); // Adjust the number of items per page as needed
 
-        // dd ($users->links('vendor.pagination.bootstrap-5'));
-
         return view('users.index', compact('user', 'users'));
     }
 
@@ -74,7 +72,7 @@ class UsersController extends Controller
         // update roles
         $this->updateRole($user, $validated);
 
-        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('show', $user->id)->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)

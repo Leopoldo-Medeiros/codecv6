@@ -45,7 +45,7 @@
                                         @foreach($users as $user)
                                             <tr>
                                                 <td class="align-middle">
-                                                    @if ($user->profile->profile_image)
+                                                    @if ($user->profile && $user->profile->profile_image)
                                                         <img src="{{ Storage::url($user->profile->profile_image) }}" alt="Profile Image" class="rounded-circle small-avatar">
                                                     @else
                                                         <img src="{{ asset('images/team-13.jpg') }}" alt="Default Image" class="rounded-circle small-avatar">
@@ -111,4 +111,5 @@
             }
         });
     </script>
+
 @endsection

@@ -10,6 +10,7 @@
         "algolia/scout-extended": "^3.0",
         "laravel/framework": "^11.0",
         "laravel/scout": "^10.11",
+        "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "spatie/laravel-permission": "^6.7"
     },

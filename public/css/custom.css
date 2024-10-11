@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6, .table, .user-link, .user-subhead, .label {
 }
 
 .custom-table tbody tr {
-    background-color: #f8f9fa;
+    background-color: #67a7ee;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
@@ -188,7 +188,7 @@ header .dropdown img {
 
 /* Sidebar Styles */
 .custom-menu-bg {
-    background-color: #f8f9fa; /* Replace with your desired color */
+    background-color: #abcbf1; /* Replace with your desired color */
 }
 
 /* Main Box Styles */
@@ -261,6 +261,7 @@ a:hover {
     border-color: #1e7e34 !important;
     color: white !important;
 }
+
 /* Ensure table cells align middle */
 td.align-middle {
     vertical-align: middle !important;
@@ -290,8 +291,9 @@ td.align-middle .user-subhead {
 .large-text {
     font-size: 2rem !important; /* Adjust the size as needed */
 }
+
 .logo-background {
-    background-color: #dae7f3; /* Replace with your desired background color */
+    background-color: #abcbf1; /* Replace with your desired background color */
     padding: 5px; /* Optional: Adjust padding for better spacing */
     height: 80px; /* Adjust the height as needed */
 }
@@ -309,12 +311,14 @@ td.align-middle .user-subhead {
 .small-user-link {
     font-size: 0.875rem; /* Adjust the size as needed */
 }
+
 .rounded-circle-img {
     width: 180px !important; /* Set a fixed width */
     height: 180px !important; /* Set a fixed height */
     border-radius: 100% !important; /* Make it a circle */
     object-fit: cover !important; /* Ensure the image covers the area */
 }
+
 .profile-image {
     width: 150px; /* Adjust the width as needed */
     height: 150px; /* Adjust the height as needed */
@@ -337,17 +341,9 @@ td.align-middle .user-subhead {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.mode-switch .btn {
-    width: 40px; /* Adjust the size as needed */
-    height: 40px; /* Adjust the size as needed */
-    display: flex;
-    justify-content: center;
-    align-items: center;
     transition: background-color 0.3s, color 0.3s, transform 0.3s;
     border: 2px solid transparent;
+    background-color: transparent; /* Ensure background is transparent */
 }
 
 .mode-switch .btn:hover {
@@ -371,29 +367,129 @@ td.align-middle .user-subhead {
     object-fit: cover; /* Ensure the image covers the area */
 }
 
-/* Dark Mode Styles */
-body.dark-mode #sidebar {
-    background-color: #333333; /* Dark background for sidebar */
-    color: #ffffff; /* White color for text */
+/* Dark mode styles */
+[data-bs-theme="dark"] .mode-switch .btn:hover {
+    background-color: #67a7ee; /* Light blue background on hover */
+    color: #fff; /* White text color on hover */
+    border-color: #0056b3; /* Border color on hover */
 }
 
-body.dark-mode #sidebar .nav-link {
-    color: #ffffff !important; /* White color for text */
+[data-bs-theme="dark"] .custom-menu-bg,
+[data-bs-theme="dark"] .sidebar-header,
+[data-bs-theme="dark"] .form-create {
+    background-color: #1f1f1f; /* Dark background for sidebar and form */
 }
 
-body.dark-mode #sidebar .nav-link i {
-    color: #ffffff !important; /* White color for icons */
+[data-bs-theme="dark"] .nav-link,
+[data-bs-theme="dark"] .form-label,
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .btn,
+[data-bs-theme="dark"] .sidebar-header h3 {
+    color: #ffffff; /* Light text color */
 }
 
-body.dark-mode #sidebar .nav-link:hover {
-    background-color: #444444; /* Darker background on hover */
-
-.vh-90 {
-    height: 100vh;
+[data-bs-theme="dark"] .nav-link:hover {
+    background-color: #333333; /* Darker background on hover */
 }
 
-.row {
-    margin-right: 0px;
-    margin-left: 0px;
+[data-bs-theme="dark"] .form-control {
+    background-color: #333333; /* Dark background for input fields */
+    border-color: #444444; /* Dark border color for input fields */
+}
 
+[data-bs-theme="dark"] .btn:hover {
+    background-color: #555555; /* Darker background on hover */
+    border-color: #666666; /* Darker border color on hover */
+}
+
+[data-bs-theme="dark"] .fas {
+    color: #ffffff; /* Light color for FontAwesome icons */
+}
+
+[data-bs-theme="dark"] .nav-link {
+    color: #ffffff !important; /* Light text color for navigation links */
+}
+
+[data-bs-theme="dark"] .nav-link:hover {
+    background-color: #333333; /* Darker background on hover */
+    color: #ffffff !important; /* Ensure text remains white on hover */
+}
+
+/* Keep the original background for the logo */
+[data-bs-theme="dark"] .logo-background {
+    background-color: #dae7f3; /* Original background color */
+}
+
+.nav-link:hover {
+    background-color: #65a3e6; /* Change to your desired hover color */
+    color: white; /* Ensure text color is white on hover */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] body {
+    background-color: #121212; /* Dark background for the entire page */
+    color: white; /* White text color */
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: #343a40 !important; /* Dark background for light sections */
+}
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: #343a40 !important; /* Dark background for white sections */
+}
+
+[data-bs-theme="dark"] .text-secondary {
+    color: #b0b0b0 !important; /* Light gray text color */
+}
+
+[data-bs-theme="dark"] .border-dark-subtle {
+    border-color: #6c757d !important; /* Dark border color */
+}
+
+[data-bs-theme="dark"] .form-container {
+    background-color: #343a40; /* Dark background for the form container */
+    color: white; /* White text color */
+    padding: 20px; /* Optional: Add padding for better spacing */
+    border-radius: 5px; /* Optional: Add rounded corners */
+}
+
+[data-bs-theme="dark"] .form-container .form-label,
+[data-bs-theme="dark"] .form-container .input-group-text,
+[data-bs-theme="dark"] .form-container .form-control,
+[data-bs-theme="dark"] .form-container .btn {
+}
+
+[data-bs-theme="dark"] .form-container .form-control:focus {
+    background-color: #495057; /* Keep dark background on focus */
+    color: white; /* Keep white text color on focus */
+    border-color: #80bdff; /* Optional: Change border color on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Optional: Add box shadow on focus */
+}
+
+/* Define CSS variables for light and dark themes */
+:root {
+    --font-color: #000000;
+}
+
+[data-theme="dark"] {
+    --font-color: #ffffff;
+}
+
+/* Apply the variables to your form */
+body {
+    color: var(--font-color);
+}
+
+input, select, button, label, .form-label, .input-group-text, .btn, .text-danger, .form-check-label {
+    color: var(--font-color);
+}
+
+[data-bs-theme="dark"] .form-check-label {
+    color: #ffffff; /* White text color */
+}
+
+[data-bs-theme="dark"] p.text-center.h1.fw-bold {
+    color: #ffffff; /* White text color */
 }
