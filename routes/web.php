@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,7 +32,7 @@ Route::middleware(['auth'])->group(function () {
     // Rotas específicas para clientes
     Route::middleware(['role:client'])->group(function () {
         Route::get('/client/dashboard', function () {
-            return 'Welcome to the client dashboard!';
+            return 'Bem-vindo ao painel do cliente';
         })->name('client.dashboard');
         // Adicione outras rotas específicas de cliente aqui
     });
