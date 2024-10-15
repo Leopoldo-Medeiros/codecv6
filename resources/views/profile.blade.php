@@ -25,8 +25,8 @@
                             @else
                                 <img src="{{ asset('images/team-13.jpg') }}" alt="avatar" class="rounded-circle img-fluid profile-image">
                             @endif
-                            <p class="text-muted mb-1">{{ $user->profile ? $user->profile->profession : 'N/A' }}</p>
-                            <p class="text-muted mb-4">{{ $user->profile ? $user->profile->location : 'N/A' }}</p>
+                            <p class="text-muted mb-1">{{ $user->profile->profession ?? 'N/A' }}</p>
+                            <p class="text-muted mb-4">{{ $user->profile->location ?? 'N/A' }}</p>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-outline-primary">
                                     <i class="fas fa-envelope me-1"></i> Message
@@ -42,23 +42,23 @@
                             <ul class="list-group list-group-flush rounded-3">
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fas fa-globe fa-lg text-warning"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->website : 'N/A' }}</p>
+                                    <p class="mb-0">{{ $user->profile->website ?? 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-github fa-lg text-body"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->github : 'N/A' }}</p>
+                                    <p class="mb-0">{{ $user->profile->github ?? 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->twitter : 'N/A' }}</p>
+                                    <p class="mb-0">{{ $user->profile->twitter ?? 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->instagram : 'N/A' }}</p>
+                                    <p class="mb-0">{{ $user->profile->instagram ?? 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->facebook : 'N/A' }}</p>
+                                    <p class="mb-0">{{ $user->profile->facebook ?? 'N/A' }}</p>
                                 </li>
                             </ul>
                         </div>
