@@ -1,5 +1,5 @@
 <!-- HEADER
-			============================================= -->
+            ============================================= -->
 <header id="header" class="tra-menu navbar-light white-scroll">
     <div class="header-wrapper">
 
@@ -65,7 +65,7 @@
 
                         <!-- SIGN UP BUTTON -->
                         <li class="nl-simple" aria-haspopup="true">
-                            <a href="#" class="btn r-04 btn--theme hover--tra-white last-link">Sign up</a>
+                            <a href="{{ route('register') }}" class="btn r-04 btn--theme hover--tra-white last-link">Sign up</a>
                         </li>
 
 

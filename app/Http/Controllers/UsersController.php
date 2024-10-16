@@ -12,15 +12,25 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(10); // Adjust the number as needed
-        return view('users.index', compact('users'));
+        $user = Auth::user(); // Assuming you are using Laravel's Auth system
+        $search = $request->input('search');
+        $query = User::query();
+
+        if ($search) {
+            $query->where('fullname', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        $users = $query->paginate(10); // Adjust the number of items per page as needed
+
+        return view('users.index', compact('user', 'users'));
     }
 
     public function show(User $user)
     {
-        $user->load('profile');
+        $user = $user->load('profile');
         return view('users.show', compact('user'));
     }
 
@@ -62,7 +72,7 @@ class UsersController extends Controller
         // update roles
         $this->updateRole($user, $validated);
 
-        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('show', $user->id)->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
@@ -90,7 +100,7 @@ class UsersController extends Controller
 
     public function profile()
     {
-        $user = Auth::user();
+        $user = auth()->user()->load('profile');
         return view('profile', compact('user'));
     }
 

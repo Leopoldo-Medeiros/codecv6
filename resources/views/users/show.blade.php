@@ -1,6 +1,12 @@
 @extends('layouts.admin')
 @section('title', 'Users Show')
 @section('content')
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <section style="background-color: #eee;">
         <div class="container py-5">
             <div class="row">
@@ -19,8 +25,13 @@
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-body text-center">
-                            <img src="{{ $user->profile->profile_image ? Storage::url($user->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">                            <p class="text-muted mb-1">{{ $user->profile->profession }}</p>
-                            <p class="text-muted mb-4">{{ $user->profile->location }}</p>
+                            @if ($user->profile && $user->profile->profile_image)
+                                <img src="{{ Storage::url($user->profile->profile_image) }}" alt="avatar" class="profile-image">
+                            @else
+                                <img src="{{ asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">
+                            @endif
+                                <p class="text-muted mb-1">{{ $user->profile ? $user->profile->profession : 'N/A' }}</p>
+                                <p class="text-muted mb-4">{{ $user->profile ? $user->location : 'N/A' }}</p>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-primary">Follow</button>
                                 <button type="button" class="btn btn-outline-primary ms-1">Message</button>
@@ -32,23 +43,23 @@
                             <ul class="list-group list-group-flush rounded-3">
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fas fa-globe fa-lg text-warning"></i>
-                                    <p class="mb-0">{{ $user->profile->website }}</p>
+                                    <p class="mb-0">{{ $user->profile ? $user->profile->website : 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-github fa-lg text-body"></i>
-                                    <p class="mb-0">{{ $user->profile->github }}</p>
+                                    <p class="mb-0">{{ $user->profile ? $user->profile->github : 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
-                                    <p class="mb-0">{{ $user->profile->twitter }}</p>
+                                    <p class="mb-0">{{ $user->profile ? $user->profile->twitter : 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                                    <p class="mb-0">{{ $user->profile->instagram }}</p>
+                                    <p class="mb-0">{{ $user->profile ? $user->profile->instagram : 'N/A' }}</p>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                                    <p class="mb-0">{{ $user->profile->facebook }}</p>
+                                    <p class="mb-0">{{ $user->profile ? $user->profile->facebook : 'N/A' }}</p>
                                 </li>
                             </ul>
                         </div>

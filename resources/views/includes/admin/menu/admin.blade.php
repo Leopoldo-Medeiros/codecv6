@@ -1,3 +1,5 @@
+<!-- resources/views/includes/admin/menu/admin.blade.php -->
+
 <li class="nav-item">
     <a href="{{ route('users.index') }}" class="nav-link text-dark large-font">
         <i class="fas fa-users me-2"></i>Clients
@@ -33,4 +35,3 @@
         Logout
     </a>
 </li>
-
