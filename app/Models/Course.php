@@ -16,4 +16,10 @@ class Course extends Model
         'description',
         'user_id',
     ];
+
+    // It defines the relationship between the Course and User models
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -2,56 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CourseRequest;
 use App\Models\Course;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::all(); // It gets all courses//
-        return response()->json($courses);
+        $search = $request->input('search'); // It gets the value of the search field, if it exists
+        $courses = Course::when($search, function ($query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                         ->orWhere('description', 'like', '%' . $search . '%');
+        })->paginate(10);
+
+        return view('courses.index', compact('courses'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CourseRequest $request): JsonResponse
+    public function create()
     {
-        $course = Course::create($request->validated());
-        return response()->json($course, 201);
+        return view('courses.form');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): JsonResponse
+    public function store(Request $request)
     {
-        $course = Course::findOrFail($id); // It finds the course or fail if it doesn't exist
-        return response()->json($course);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        // Cria o curso com o user_id do usuário autenticado
+        Course::create([
+            'name' => $request->name,
+            'slug' => $request->slug,
+            'description' => $request->description,
+            'user_id' => auth()->id(), // Define o user_id como o id do usuário autenticado
+        ]);
+
+        return redirect()->route('courses.index')->with('success', 'Course created successfully!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(CourseRequest $request, string $id): JsonResponse
+
+    public function show(Course $course)
     {
-        $course = Course::findOrFail($id); // It finds the course or fail if it doesn't exist
-        $course->update($request->validated()); // Updates the course with validated data
-        return response()->json($course);
+        return view('courses.show', compact('course'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id): JsonResponse
+    public function edit(Course $course)
     {
-        $course = Course::findOrFail($id); // Finds the course or fails if it doesn't exist
-        $course->delete(); // Deletes the course
-        return response()->json(null, 204); // Returns response without content
+        return view('courses.form', compact('course'));
+    }
+
+    public function update(Request $request, Course $course)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' => 'required|unique:courses,slug,' . $course->id,
+            'description' => 'required',
+        ]);
+
+        $course->update($request->all());
+        return redirect()->route('courses.index')->with('success', 'Course updated successfully!');
+    }
+
+    public function destroy(Course $course)
+    {
+        $course->delete();
+        return redirect()->route('courses.index')->with('success', 'Course deleted successfully!');
     }
 }
