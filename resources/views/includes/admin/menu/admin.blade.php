@@ -6,7 +6,7 @@
     </a>
 </li>
 <li class="nav-item">
-    <a href="#" class="nav-link text-dark large-font">
+    <a href="{{ route('courses.index') }}" class="nav-link text-dark large-font">
         <i class="fas fa-book me-2"></i>
         Courses
     </a>

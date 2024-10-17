@@ -14,12 +14,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            CoursesTableSeeder::class,
         ]);
 
-        $fakeClientes = $this->command->askWithCompletion('Do you want add fake clients', ['yes',
-            'no'], 'no');
+        $fakeClientes = $this->command->askWithCompletion('Do you want add fake clients', ['yes', 'no'], 'no');
 
-        if($fakeClientes === 'yes') {
+        if ($fakeClientes === 'yes') {
             $this->call([
                 ClientsSeeder::class,
             ]);
