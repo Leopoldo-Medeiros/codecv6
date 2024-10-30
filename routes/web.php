@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/{id}', [UsersController::class, 'show'])->name('profile.show');
 
     // Route courses
-    Route::resource('courses', CourseController::class);
+    Route::resource('courses', CourseController::class)->middleware('role:admin');
 
     // Routes specific for Admins (only for admin)
     Route::middleware(['role:admin'])->group(function () {

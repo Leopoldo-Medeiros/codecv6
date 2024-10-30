@@ -25,7 +25,6 @@ class CourseRequest extends FormRequest
             'name' => 'required|max:255',
             'slug' => 'required|string|max:255|unique:courses,slug', //If the 'url' is not unique, the validation will fail
             'description' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
         ];
 
         // It verifies the HTTP method and adjusts the rules

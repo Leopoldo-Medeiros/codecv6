@@ -33,7 +33,6 @@ class CourseController extends Controller
             'name' => $validatedData['name'],
             'slug' => $validatedData['slug'],
             'description' => $validatedData['description'],
-            'user_id' => auth()->id(), // Define o user_id como o id do usuário autenticado
         ]);
 
         return redirect()->route('courses.index')->with('success', 'Course created successfully!');
