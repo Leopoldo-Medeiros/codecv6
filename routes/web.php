@@ -29,33 +29,33 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Routes protected by authentication
 Route::middleware(['auth'])->group(function () {
 
-// Panel of Admin (only for admin)
+    // Panel of Admin (only for admin)
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-// Routes Profile (Only for authenticated users)
+    // Routes Profile (Only for authenticated users)
     Route::get('/profile', [UsersController::class, 'profile'])->name('profile');
     Route::get('/profile/edit', [UsersController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [UsersController::class, 'update'])->name('profile.update');
     Route::get('/profile/{id}', [UsersController::class, 'show'])->name('profile.show');
 
-// Route courses
-Route::resource('courses', CourseController::class);
+    // Route courses
+    Route::resource('courses', CourseController::class);
 
-// Routes specific for Admins (only for admin)
+    // Routes specific for Admins (only for admin)
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
     });
 
-// Routes specific for clients (only for clients)
+    // Routes specific for clients (only for clients)
     Route::middleware(['role:client'])->group(function () {
         Route::get('/client/dashboard', function () {
-            return 'Bem-vindo ao painel do cliente';
+            return 'Welcome to the client dashboard!';
         })->name('client.dashboard');
-        // Adicione outras rotas específicas de cliente aqui
+        // Add other client-specific routes here
     });
 
     // Route for both (Admin and client)
     Route::middleware(['role:client|admin'])->group(function () {
-        // Adicione suas rotas comuns aqui, se necessário
+        // Add common routes here, if necessary
     });
 });

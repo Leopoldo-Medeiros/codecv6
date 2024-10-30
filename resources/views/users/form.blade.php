@@ -27,13 +27,13 @@
                             </div>
                         @endif
 
-                            <form class="login100-form validate-form"
-                                  action="{{ isset($user) && $user->id ? route('users.update', ['user' => $user->id]) : route('users.store') }}"
-                                  method="POST" enctype="multipart/form-data" onsubmit="return validateFullName()">
-                                @csrf
-                                @if(isset($user) && $user->id)
-                                    @method('PUT')
-                                @endif
+                        <form class="login100-form validate-form"
+                              action="{{ isset($user) && $user->id ? route('users.update', ['user' => $user->id]) : route('users.store') }}"
+                              method="POST" enctype="multipart/form-data" onsubmit="return validateFullName()">
+                            @csrf
+                            @if(isset($user) && $user->id)
+                                @method('PUT')
+                            @endif
 
                             <div class="row gy-2 gy-xl-3">
                                 <div class="col-10">

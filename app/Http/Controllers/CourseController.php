@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CourseRequest;
 use App\Models\Course;
 use Illuminate\Http\Request;
 
@@ -23,19 +24,15 @@ class CourseController extends Controller
         return view('courses.form');
     }
 
-    public function store(Request $request)
+    public function store(CourseRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
-            'description' => 'required|string',
-        ]);
+        $validatedData = $request->validated();
 
         // Cria o curso com o user_id do usuário autenticado
         Course::create([
-            'name' => $request->name,
-            'slug' => $request->slug,
-            'description' => $request->description,
+            'name' => $validatedData['name'],
+            'slug' => $validatedData['slug'],
+            'description' => $validatedData['description'],
             'user_id' => auth()->id(), // Define o user_id como o id do usuário autenticado
         ]);
 
@@ -53,15 +50,11 @@ class CourseController extends Controller
         return view('courses.form', compact('course'));
     }
 
-    public function update(Request $request, Course $course)
+    public function update(CourseRequest $request, Course $course)
     {
-        $request->validate([
-            'name' => 'required',
-            'slug' => 'required|unique:courses,slug,' . $course->id,
-            'description' => 'required',
-        ]);
+        $validatedData = $request->validated();
 
-        $course->update($request->all());
+        $course->update($validatedData);
         return redirect()->route('courses.index')->with('success', 'Course updated successfully!');
     }
 

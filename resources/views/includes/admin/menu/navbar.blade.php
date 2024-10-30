@@ -62,11 +62,11 @@
 
         function updateIcon(theme) {
             if (theme === 'dark') {
-                themeIcon.classList.remove('bi-sun');
-                themeIcon.classList.add('bi-moon');
-            } else {
                 themeIcon.classList.remove('bi-moon');
                 themeIcon.classList.add('bi-sun');
+            } else {
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon');
             }
         }
     });

@@ -28,9 +28,8 @@ class UsersController extends Controller
         return view('users.index', compact('user', 'users'));
     }
 
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::with('profile')->findOrFail($id);
         return view('users.show', compact('user'));
     }
 
@@ -72,7 +71,7 @@ class UsersController extends Controller
         // update roles
         $this->updateRole($user, $validated);
 
-        return redirect()->route('show', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
