@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class CourseRequest extends FormRequest
 {
@@ -25,6 +26,7 @@ class CourseRequest extends FormRequest
             'name' => 'required|max:255',
             'slug' => 'required|string|max:255|unique:courses,slug', //If the 'url' is not unique, the validation will fail
             'description' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
         ];
 
         // It verifies the HTTP method and adjusts the rules
@@ -43,5 +45,24 @@ class CourseRequest extends FormRequest
             default:
                 return [];
         }
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * Notes for myself:
+     *
+     * The prepareForValidation method in Laravel form requests is used to modify or add data to the request before
+     * the validation rules are applied.
+     * This method allows you to manipulate the request data,
+     * such as merging additional fields or transforming existing fields,
+     * ensuring that the data is in the correct format for validation.
+     */
+    protected function prepareForValidation()
+    {
+        // Add the user_id of the authenticated user to the request data
+        $this->merge([
+            'user_id' => Auth::id(),
+        ]);
     }
 }

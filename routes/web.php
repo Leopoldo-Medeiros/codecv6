@@ -38,12 +38,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [UsersController::class, 'update'])->name('profile.update');
     Route::get('/profile/{id}', [UsersController::class, 'show'])->name('profile.show');
 
-    // Route courses
-    Route::resource('courses', CourseController::class)->middleware('role:admin');
-
     // Routes specific for Admins (only for admin)
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
+        Route::resource('courses', CourseController::class); // Moved inside the admin group
     });
 
     // Routes specific for clients (only for clients)
