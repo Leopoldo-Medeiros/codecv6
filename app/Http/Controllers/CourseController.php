@@ -27,8 +27,6 @@ class CourseController extends Controller
     public function store(CourseRequest $request)
     {
         $validatedData = $request->validated();
-        $validatedData['user_id'] = auth()->id(); // Adiciona o user_id do usuário autenticado
-
         Course::create($validatedData);
 
         return redirect()->route('courses.index')->with('success', 'Course created successfully!');
