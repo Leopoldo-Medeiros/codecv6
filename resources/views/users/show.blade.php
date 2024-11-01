@@ -30,8 +30,8 @@
                             @else
                                 <img src="{{ asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">
                             @endif
-                                <p class="text-muted mb-1">{{ $user->profile ? $user->profile->profession : 'N/A' }}</p>
-                                <p class="text-muted mb-4">{{ $user->profile ? $user->location : 'N/A' }}</p>
+                            <p class="text-muted mb-1">{{ $user->profile ? $user->profile->profession : 'N/A' }}</p>
+                            <p class="text-muted mb-4">{{ $user->profile ? $user->location : 'N/A' }}</p>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-primary">Follow</button>
                                 <button type="button" class="btn btn-outline-primary ms-1">Message</button>

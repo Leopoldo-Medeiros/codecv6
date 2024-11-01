@@ -72,7 +72,7 @@ class UsersController extends Controller
         // update roles
         $this->updateRole($user, $validated);
 
-        return redirect()->route('show', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
