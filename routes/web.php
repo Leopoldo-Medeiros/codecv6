@@ -13,7 +13,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/pricing', function () {
-    return view('welcome');
+    return view('pricing');
 })->name('pricing');
 
 Route::get('/about-us', function () {

@@ -27,3 +27,21 @@ img.footer-logo-dark {
 .footer-info img {
     width: 215px;
 }
+
+.btn-primary {
+    display: inline-block; /* Ensure the button is displayed */
+    background-color: #007bff; /* Primary color */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+td.ico-20.color--theme .flaticon-check.text-success {
+    color: #28a745 !important; /* Ensure the color is applied */
+}
+
+
+

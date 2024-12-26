@@ -1,14 +1,14 @@
 @include('includes.site.header')
 
-<!-- PRELOADER SPINNER
-		============================================= -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{{ asset('css/codecv5.css') }}">
+<!-- PRELOADER SPINNER ============================================= --><!-- PRELOADER SPINNER ============================================= -->
 <div id="loading" class="loading--theme">
     <div id="loading-center"><span class="loader"></span>
     </div>
 </div>
 
-<!-- PAGE CONTENT
-============================================= -->
+<!-- PAGE CONTENT ============================================= -->
 <div id="page" class="page font--jakarta">
 
     @include('includes.site.menu')
@@ -17,7 +17,6 @@
     @yield('content')
 
 </div>
-
 @include('includes.site.footer')
 
 <!-- EXTERNAL SCRIPTS
@@ -40,7 +39,3 @@
 
 <!-- Custom Script -->
 <script src="{{ asset('js/custom.js') }}"></script>
-
-</body>
-
-</html>
