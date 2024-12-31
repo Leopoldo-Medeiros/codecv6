@@ -8,21 +8,25 @@
     <div id="page" class="page font--jakarta">
 
 
-
-
         <!-- HEADER
         ============================================= -->
         <header id="header" class="tra-menu navbar-dark light-hero-header white-scroll">
             <div class="header-wrapper">
 
-
                 <!-- MOBILE HEADER -->
                 <div class="wsmobileheader clearfix">
-{{--                    <span class="smllogo"><img src="images/logo-blue.png" alt="mobile-logo"></span>--}}
+                    <a href="{{ url('/') }}" class="small-logo">
+                        <img src="{{ asset('images/codecv.png') }}" alt="mobile-logo">                    </a>
                     <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
                 </div>
 
-
+                <!-- DESKTOP HEADER -->
+                <div class="wsdesktopheader clearfix">
+                    <a href="{{ url('/') }}" class="smllogo">
+                        <img src="{{ asset('images/codecv.png') }}" alt="desktop-logo">
+                    </a>
+                    <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
+                </div>
 
 
             </div>     <!-- End header-wrapper -->
@@ -371,8 +375,6 @@
         </section>	<!-- END TEXT CONTENT -->
 
 
-
-
         <!-- TEXT CONTENT
         ============================================= -->
         <section class="py-100 ct-01 content-section division">
@@ -452,64 +454,6 @@
             </div>	   <!-- End container -->
         </section>	<!-- END TEXT CONTENT -->
 
-
-
-
-        <!-- TEXT CONTENT
-        ============================================= -->
-        <section class="bg--white-300 py-100 ct-02 content-section division">
-            <div class="container">
-
-
-                <!-- SECTION CONTENT (ROW) -->
-                <div class="row d-flex align-items-center">
-
-
-                    <!-- IMAGE BLOCK -->
-                    <div class="col-md-6">
-                        <div class="img-block left-column wow fadeInRight">
-                            <img class="img-fluid" src="images/img-02.png" alt="content-image">
-                        </div>
-                    </div>
-
-
-                    <!-- TEXT BLOCK -->
-                    <div class="col-md-6">
-                        <div class="txt-block right-column wow fadeInLeft">
-
-                            <!-- Section ID -->
-                            <span class="section-id color--grey">Easy Integration</span>
-
-                            <!-- Title -->
-                            <h2 class="s-46 w-700">Plug your essential tools in few clicks</h2>
-
-                            <!-- List -->
-                            <ul class="simple-list">
-
-                                <li class="list-item">
-                                    <p>Cursus purus suscipit vitae cubilia magnis volute egestas vitae sapien turpis
-                                        sodales magna undo aoreet primis
-                                    </p>
-                                </li>
-
-                                <li class="list-item">
-                                    <p class="mb-0">Tempor sapien quaerat an ipsum laoreet purus and sapien dolor an
-                                        ultrice ipsum aliquam undo congue dolor cursus purus congue and ipsum purus sapien
-                                        a blandit
-                                    </p>
-                                </li>
-
-                            </ul>
-
-                        </div>
-                    </div>	<!-- END TEXT BLOCK -->
-
-
-                </div>	<!-- END SECTION CONTENT (ROW) -->
-
-
-            </div>	   <!-- End container -->
-        </section>	<!-- END TEXT CONTENT -->
 
 
 
@@ -757,72 +701,14 @@
         </section>	<!-- END FEATURES-13 -->
 
 
-
-
         <!-- FEATURES-5
         ============================================= -->
         <section id="features-5" class="pt-100 features-section division">
             <div class="container">
 
-
-                <!-- SECTION TITLE -->
-                <div class="row justify-content-center">
-                    <div class="col-md-10 col-lg-9">
-                        <div class="section-title mb-70">
-
-                            <!-- Title -->
-                            <h2 class="s-50 w-700">Reach your audience through social media marketing</h2>
-
-                            <!-- Text -->
-                            <p class="s-21 color--grey">Ligula risus auctor tempus magna feugiat lacinia.</p>
-
-                        </div>
-                    </div>
-                </div>
-
-
                 <!-- FEATURES-5 WRAPPER -->
                 <div class="fbox-wrapper text-center">
                     <div class="row d-flex align-items-center">
-
-
-                        <!-- FEATURE BOX #1 -->
-                        <div class="col-md-6">
-                            <div class="fbox-5 fb-1 gr--smoke r-16 wow fadeInUp">
-
-                                <!-- Text -->
-                                <div class="fbox-txt order-last order-md-2">
-                                    <h5 class="s-26 w-700">Marketing Integrations</h5>
-                                    <p>Aliquam a augue suscipit luctus diam neque purus ipsum neque and dolor primis libero</p>
-                                </div>
-
-                                <!-- Image -->
-                                <div class="fbox-5-img order-first order-md-2">
-                                    <img class="img-fluid" src="images/f_06.png" alt="feature-image">
-                                </div>
-
-                            </div>
-                        </div>	<!-- END FEATURE BOX #1 -->
-
-
-                        <!-- FEATURE BOX #2 -->
-                        <div class="col-md-6">
-                            <div class="fbox-5 fb-2 gr--smoke r-16 wow fadeInUp">
-
-                                <!-- Image -->
-                                <div class="fbox-5-img">
-                                    <img class="img-fluid" src="images/f_04.png" alt="feature-image">
-                                </div>
-
-                                <!-- Text -->
-                                <div class="fbox-txt">
-                                    <h5 class="s-26 w-700">Productivity Focused</h5>
-                                    <p>Aliquam a augue suscipit luctus diam neque purus ipsum neque and dolor primis libero</p>
-                                </div>
-
-                            </div>
-                        </div>	<!-- END FEATURE BOX #2 -->
-
 
                     </div>  <!-- End row -->
                 </div>	<!-- END FEATURES-5 WRAPPER -->
@@ -944,68 +830,6 @@
         </section>	<!-- END TEXT CONTENT -->
 
 
-
-
-        <!-- IMAGE CONTENT
-        ============================================= -->
-        <section class="pt-100 ct-08 content-section division">
-            <div class="container">
-
-
-                <!-- SECTION TITLE -->
-                <div class="row justify-content-center">
-                    <div class="col-md-10 col-lg-9">
-                        <div class="section-title mb-70">
-
-                            <!-- Title -->
-                            <h2 class="s-50 w-700">Discover insights across all your data with Martex</h2>
-
-                            <!-- Text -->
-                            <p class="s-21">Ligula risus auctor tempus magna feugiat lacinia.</p>
-
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- IMAGE BLOCK -->
-                <div class="row">
-                    <div class="col">
-                        <div class="img-block wow fadeInUp">
-                            <img class="img-fluid" src="images/img-19.png" alt="video-preview">
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- ACTION BUTTON -->
-                <div class="row">
-                    <div class="col">
-                        <div class="img-block-btn text-center wow fadeInUp">
-
-                            <!-- Button -->
-                            <a href="#integrations-1" class="btn r-04 btn--tra-black hover--theme">Monitor your activity</a>
-
-                            <!-- Advantages List -->
-                            <ul class="advantages ico-15 clearfix">
-                                <li><p>Free 14 days trial</p></li>
-                                <li class="advantages-links-divider"><p><span class="flaticon-minus"></span></p></li>
-                                <li><p>Exclusive Support</p></li>
-                                <li class="advantages-links-divider"><p><span class="flaticon-minus"></span></p></li>
-                                <li><p>No Fees</p></li>
-                            </ul>
-
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>	   <!-- End container -->
-        </section>	<!-- END IMAGE CONTENT -->
-
-
-
-
         <!-- TEXT CONTENT
         ============================================= -->
         <section class="pt-100 ct-03 content-section division">
@@ -1056,248 +880,11 @@
             </div>	   <!-- End container -->
         </section>	<!-- END TEXT CONTENT -->
 
-
-
-
-        <!-- INTEGRATIONS-1
-        ============================================= -->
-        <section id="integrations-1" class="py-100 integrations-section">
-            <div class="container">
-
-
-                <!-- SECTION TITLE -->
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="section-title mb-70">
-
-                            <!-- Title -->
-                            <h2 class="s-50 w-700">Automate your workflow with our integrations</h2>
-
-                            <!-- Text -->
-                            <p class="s-21 color--grey">Ligula risus auctor tempus magna feugiat lacinia.</p>
-
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- INTEGRATIONS-1 WRAPPER -->
-                <div class="integrations-1-wrapper">
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 rows-2">
-
-
-                        <!-- TOOL #1 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-1 r-12 mb-30 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-1.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Zapier</h6>
-                                    <p class="p-sm">Share findings</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #1 -->
-
-
-                        <!-- TOOL #2 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-2 r-12 mb-30 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-2.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Google Analytics</h6>
-                                    <p class="p-sm">Share findings</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #2 -->
-
-
-                        <!-- TOOL #3 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-3 r-12 mb-30 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-3.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Amplitude</h6>
-                                    <p class="p-sm">Share findings</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #3 -->
-
-
-                        <!-- TOOL #4 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-4 r-12 mb-30 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-4.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Hubspot</h6>
-                                    <p class="p-sm">Share findings</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #4 -->
-
-
-                        <!-- TOOL #5 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-5 r-12 mb-30 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-5.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">MailChimp</h6>
-                                    <p class="p-sm">Import data</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #5 -->
-
-
-                        <!-- TOOL #6 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-6 r-12 mb-30 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-6.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Slack</h6>
-                                    <p class="p-sm">Share findings</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #6 -->
-
-
-                        <!-- TOOL #7 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-7 r-12 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-7.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Dropbox</h6>
-                                    <p class="p-sm">Import data</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #7 -->
-
-
-                        <!-- TOOL #8 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-8 r-12 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-8.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Trello</h6>
-                                    <p class="p-sm">Share findings</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #8 -->
-
-
-                        <!-- TOOL #9 -->
-                        <div class="col">
-                            <a href="#" class="in_tool it-9 r-12 wow fadeInUp">
-
-                                <!-- Icon -->
-                                <div class="in_tool-logo-wrap">
-                                    <div class="in_tool-logo ico-60">
-                                        <img class="img-fluid" src="images/png_icons/tool-9.png" alt="brand-logo">
-                                    </div>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="in_tool-txt">
-                                    <h6 class="s-20 w-700">Google Drive</h6>
-                                    <p class="p-sm">Import data</p>
-                                </div>
-
-                            </a>
-                        </div>	<!-- END FEATURE BOX #9 -->
-
-
-                    </div>
-                </div>	<!-- END INTEGRATIONS-1 WRAPPER -->
-
-
-                <!-- MORE BUTTON -->
-                <div class="row">
-                    <div class="col">
-                        <div class="more-btn text-center mt-60 wow fadeInUp">
-                            <a href="integrations.html" class="btn btn--tra-black hover--theme">View all integrations</a>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>     <!-- End container -->
-        </section>	<!-- END INTEGRATIONS-1 -->
-
-
-
+        <hr class="divider">
 
         <!-- TESTIMONIALS-1
         ============================================= -->
-        <section id="reviews-1" class="py-100 shape--06 shape--gr-whitesmoke reviews-section">
+        <section id="reviews-1" class="py-100 shape--06 shape--gr-whitesmoke reviews-section mt-20">
             <div class="container">
 
 
@@ -1634,7 +1221,7 @@
                                 <div class="banner-7-txt text-center">
 
                                     <!-- Title -->
-                                    <h2 class="s-50 w-700">Starting with Martex is easy, fast and free</h2>
+                                    <h2 class="s-50 w-700">Starting with <span class="color--theme">CODECV</span> is easy and fast</h2>
 
                                     <!-- Buttons -->
                                     <div class="btns-group">

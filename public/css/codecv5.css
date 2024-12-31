@@ -8,14 +8,14 @@
     margin: 15px 0 0 -95px;
 }
 
-.scroll .logo-black img{
-    width: 185px;
-    margin-bottom: 20px;
+.scroll .logo-black img {
+    width: 100px; /* Adjust the width as needed */
+    margin-bottom: 0; /* Remove margin if not needed */
 }
 
 .desktoplogo img {
-    max-width: inherit;
-    max-height: 140px;
+    max-width: 100px; /* Adjust the width as needed */
+    max-height: 40px; /* Adjust the height as needed */
 }
 
 img.footer-logo,
@@ -43,5 +43,26 @@ td.ico-20.color--theme .flaticon-check.text-success {
     color: #28a745 !important; /* Ensure the color is applied */
 }
 
+/* logo codecv */
+.small-logo img {
+    max-width: 100px; /* Adjust the width as needed */
+    max-height: 40px; /* Adjust the height as needed */
+    margin-left: 80px;
+    margin-bottom: 16px;
+}
 
+/* public/css/codecv5.css */
+.list-unstyled {
+    text-align: left; /* Align the list to the left */
+    padding-left: 0; /* Remove default padding */
+}
 
+.list-unstyled li {
+    display: flex;
+    align-items: center;
+}
+
+/* icons */
+.icon-green {
+    color: green;
+}

@@ -4,117 +4,302 @@
 @section('content')
 
     <!-- pricing ============================================= -->
-    <section id="pricing" class="gr--whitesmoke pb-40 inner-page-hero pricing-section">
-        <div class="container">
+{{--    <section id="pricing" class="gr--whitesmoke pb-40 inner-page-hero pricing-section">--}}
+{{--        <div class="container">--}}
 
-            <!-- SECTION TITLE -->
-            <div class="row justify-content-center">
-                <div class="col-md-10 col-lg-8">
-                    <div class="section-title mb-70">
+{{--            <!-- SECTION TITLE -->--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-md-10 col-lg-8">--}}
+{{--                    <div class="section-title mb-70">--}}
 
-                        <!-- Title -->
-                        <h2 class="s-52 w-700">Faster and smarter ways to land your next job</h2>
+{{--                        <!-- Title -->--}}
+{{--                        <h2 class="s-52 w-700">Faster and smarter ways to land your next job</h2>--}}
 
-                    </div>
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>	<!-- END SECTION TITLE -->--}}
+
+
+{{--            <!-- PRICING TABLES -->--}}
+{{--            <div class="pricing-wrapper container">--}}
+{{--                <div class="row row-cols-1 row-cols-md-3 g-4">--}}
+{{--                    <!-- BASIC PLAN -->--}}
+{{--                    <div class="col">--}}
+{{--                        <div class="card h-100 shadow-sm">--}}
+{{--                            <div class="card-header bg-white text-center border-0">--}}
+{{--                                <h5 class="my-2 fw-bold">Basic</h5>--}}
+{{--                                <div class="price">--}}
+{{--                                    <span class="h1 fw-bold">€99</span>--}}
+{{--                                    <p class="text-muted mt-2">For professionals getting started with smaller projects.</p>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="card-body">--}}
+{{--                                <ul class="list-unstyled">--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter writing</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~5 Days</li>--}}
+{{--                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>Video Call (30min)</li>--}}
+{{--                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>LinkedIn Profile</li>--}}
+{{--                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>--}}
+{{--                                </ul>--}}
+{{--                                <div class="d-grid mt-4">--}}
+{{--                                    <button class="btn btn-primary btn-lg">Buy Now</button>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+
+{{--                    <!-- STANDARD PLAN -->--}}
+{{--                    <div class="col">--}}
+{{--                        <div class="card h-100 shadow-sm">--}}
+{{--                            <div class="card-header bg-white text-center border-0">--}}
+{{--                                <h5 class="my-2 fw-bold">Standard</h5>--}}
+{{--                                <div class="price">--}}
+{{--                                    <span class="h1 fw-bold">€199</span>--}}
+{{--                                    <p class="text-muted mt-2">For personal use or small teams with simple workflows.</p>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="card-body">--}}
+{{--                                <ul class="list-unstyled">--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter writing</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~5 Days</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Video Call (30min)</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>LinkedIn Profile</li>--}}
+{{--                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>--}}
+{{--                                </ul>--}}
+{{--                                <div class="d-grid mt-4">--}}
+{{--                                    <button class="btn btn-primary btn-sm">Buy Now</button>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+
+{{--                    <!-- PREMIUM PLAN -->--}}
+{{--                    <div class="col">--}}
+{{--                        <div class="card h-100 shadow-sm">--}}
+{{--                            <div class="card-header bg-white text-center border-0">--}}
+{{--                                <h5 class="my-2 fw-bold">Premium</h5>--}}
+{{--                                <div class="price">--}}
+{{--                                    <span class="h1 fw-bold">€249</span>--}}
+{{--                                    <p class="text-muted mt-2">For growing teams that need more services and flexibility.</p>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="card-body">--}}
+{{--                                <ul class="list-unstyled">--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter writing</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~10 Days</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Video Call (30min)</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>LinkedIn Profile</li>--}}
+{{--                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Interview Preparation</li>--}}
+{{--                                </ul>--}}
+{{--                                <div class="d-grid mt-4">--}}
+{{--                                    <button class="btn btn-primary btn-lg">Buy Now</button>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <!-- PRICING TABLES -->--}}
+
+{{--        </div>	   <!-- End container -->--}}
+{{--    </section>	<!-- END pricing -->--}}
+
+    <section>
+        <!-- HEADER
+			============================================= -->
+
+                <!-- MOBILE HEADER -->
+                <div class="wsmobileheader small-logo">
+                    <span class="small-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
+                    <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
                 </div>
-            </div>	<!-- END SECTION TITLE -->
 
+                <!-- DESKTOP HEADER -->
+                <div class="wsdesktopheader clearfix">
+                    <!-- NAVIGATION MENU -->
+                    <div class="wsmainfull menu clearfix">
+                        <div class="wsmainwp clearfix">
 
-            <!-- PRICING TABLES -->
-            <div class="pricing-wrapper container">
-                <div class="row row-cols-1 row-cols-md-3 g-4">
-                    <!-- BASIC PLAN -->
-                    <div class="col">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-header bg-white text-center border-0">
-                                <h5 class="my-2 fw-bold">Basic</h5>
-                                <div class="price">
-                                    <span class="h1 fw-bold">€79.99</span>
-                                    <p class="text-muted mt-2">For professionals getting started with smaller projects.</p>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter writing</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~5 Days</li>
-                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>Video Call (30min)</li>
-                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>LinkedIn Profile</li>
-                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>
-                                </ul>
-                                <div class="d-grid mt-4">
-                                    <button class="btn btn-primary btn-lg">Buy Now</button>
-                                </div>
+                            <!-- HEADER BLACK LOGO -->
+                            <div class="desktoplogo small-logo">
+                                <a href="{{ route('home') }}" class="logo-black">
+                                    <img src="{{ asset('images/codecv.png') }}" alt="logo">
+                                </a>
                             </div>
                         </div>
-                    </div>
+                    </div>	<!-- END NAVIGATION MENU -->
 
-                    <!-- STANDARD PLAN -->
-                    <div class="col">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-header bg-white text-center border-0">
-                                <h5 class="my-2 fw-bold">Standard</h5>
-                                <div class="price">
-                                    <span class="h1 fw-bold">€149.99</span>
-                                    <p class="text-muted mt-2">For personal use or small teams with simple workflows.</p>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter writing</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~5 Days</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Video Call (30min)</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>LinkedIn Profile</li>
-                                    <li class="mb-2 text-muted"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>
-                                </ul>
-                                <div class="d-grid mt-4">
-                                    <button class="btn btn-primary btn-sm">Buy Now</button>
-                                </div>
-                            </div>
+
+            </div>     <!-- End header-wrapper -->
+
+        <!-- PRICING-3
+        ============================================= -->
+        <section id="pricing-3" class="gr--whitesmoke inner-page-hero pb-60 pricing-section">
+            <div class="container">
+
+
+                <!-- SECTION TITLE -->
+                <div class="row justify-content-center">
+                    <div class="col-md-10 col-lg-8">
+                        <div class="section-title text-center mb-60">
+
+                            <h2 class="s-52 w-700">Simple, Flexible Pricing</h2>
+
                         </div>
                     </div>
+                </div>	<!-- END SECTION TITLE -->
 
-                    <!-- PREMIUM PLAN -->
-                    <div class="col">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-header bg-white text-center border-0">
-                                <h5 class="my-2 fw-bold">Premium</h5>
-                                <div class="price">
-                                    <span class="h1 fw-bold">€199.99</span>
-                                    <p class="text-muted mt-2">For growing teams that need more services and flexibility.</p>
-                                </div>
+
+                <!-- PRICING TABLES -->
+                <div class="pricing-3-wrapper text-center">
+                    <div class="row row-cols-1 row-cols-md-3">
+
+
+                        <!-- FREE PLAN -->
+                        <div class="col">
+                            <div id="pt-3-1" class="p-table pricing-3-table bg--white-100 block-shadow r-12 wow fadeInUp">
+
+                                <!-- TABLE HEADER -->
+                                <div class="pricing-table-header">
+
+                                    <!-- Title -->
+                                    <h4 class="s-32">Basic</h4>
+
+                                    <!-- Price -->
+                                    <div class="price mt-25">
+                                        <sup class="color--black">€</sup>
+                                        <span class="color--black">99</span>
+                                    </div>
+
+                                    <!-- Features List -->
+                                    <ul class="list-unstyled mt-3">
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter Writing</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>
+                                        <li class="mb-2"><i class="bi bi-people me-2 icon-green"></i>Referral Networking</li>
+                                        <li class="mb-2"><i class="bi bi-whatsapp me-2 icon-green"></i>WhatsApp QA</li>
+                                        <li class="mb-2"><i class="bi bi-calendar me-2 icon-green"></i>Deadline: ~5 Days</li>
+                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Video Call (30min)</li>
+                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>LinkedIn Profile</li>
+                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>
+                                    </ul>
+
+                                </div>	<!-- END TABLE HEADER -->
+
+                                <!-- BUTTON -->
+                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+
                             </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter writing</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~10 Days</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Video Call (30min)</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>LinkedIn Profile</li>
-                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Interview Preparation</li>
-                                </ul>
-                                <div class="d-grid mt-4">
-                                    <button class="btn btn-primary btn-lg">Buy Now</button>
-                                </div>
+                        </div>	<!-- END FREE PLAN -->
+
+
+                        <!-- PLUS PLAN -->
+                        <div class="col">
+                            <div id="pt-3-2" class="p-table pricing-3-table bg--white-100 block-shadow r-12 wow fadeInUp">
+
+
+                                <!-- TABLE HEADER -->
+                                <div class="pricing-table-header">
+
+                                    <!-- Title -->
+                                    <h4 class="s-32">Standard</h4>
+
+                                    <div class="pricing-table-header">
+
+                                        <!-- Price -->
+                                        <div class="price mt-25">
+                                            <sup class="color--black">€</sup>
+                                            <span class="color--black">199</span>
+                                        </div>
+
+                                        <!-- Features List -->
+                                        <ul class="list-unstyled mt-3">
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter Writing</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>
+                                            <li class="mb-2"><i class="bi bi-people me-2 icon-green"></i>Referral Networking</li>
+                                            <li class="mb-2"><i class="bi bi-whatsapp me-2 icon-green"></i>WhatsApp QA</li>
+                                            <li class="mb-2"><i class="bi bi-calendar me-2 icon-green"></i>Deadline: ~5 Days</li>
+                                            <li class="mb-2"><i class="bi bi-camera text-success me-2"></i>Video Call (30min)</li>
+                                            <li class="mb-2"><i class="bi bi-linkedin text-success me-2"></i>LinkedIn Profile</li>
+                                            <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>
+                                        </ul>
+
+                                    </div>	<!-- END TABLE HEADER -->
+
+                                </div>	<!-- END TABLE HEADER -->
+
+
+                                <!-- BUTTON -->
+                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+
                             </div>
-                        </div>
+                        </div>	<!-- END PLUS PLAN -->
+
+
+                        <!-- PRO PLAN -->
+                        <div class="col">
+                            <div id="pt-3-3" class="p-table pricing-3-table bg--white-100 block-shadow r-12 wow fadeInUp">
+
+
+                                <!-- TABLE HEADER -->
+                                <div class="pricing-table-header">
+
+                                    <!-- Title -->
+                                    <h4 class="s-32">Premium</h4>
+
+                                    <div class="pricing-table-header">
+
+                                        <!-- Price -->
+                                        <div class="price mt-25">
+                                            <sup class="color--black">€</sup>
+                                            <span class="color--black">249</span>
+                                        </div>
+
+                                        <!-- Features List -->
+                                        <ul class="list-unstyled mt-3">
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cover Letter Writing</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Adjustment</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>CV Grammar Review</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Referral Networking</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>WhatsApp QA</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deadline: ~10 Days</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Video Call (30min)</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>LinkedIn Profile</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Interview Preparation</li>
+                                        </ul>
+
+                                    </div>	<!-- END TABLE HEADER -->
+
+                                </div>	<!-- END TABLE HEADER -->
+
+
+                                <!-- BUTTON -->
+                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+
+                            </div>
+                        </div>	<!-- END PRO PLAN -->
+
+
                     </div>
-                </div>
-            </div>
-            <!-- PRICING TABLES -->
+                </div>	<!-- PRICING TABLES -->
 
-        </div>	   <!-- End container -->
-    </section>	<!-- END pricing -->
+
+            </div>	   <!-- End container -->
+        </section>	<!-- END PRICING-3 -->
+    </section>
 
     <!-- DIVIDER LINE -->
     <hr class="divider">
