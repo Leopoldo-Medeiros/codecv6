@@ -12,11 +12,11 @@
         ============================================= -->
         <header id="header" class="tra-menu navbar-dark light-hero-header white-scroll">
             <div class="header-wrapper">
-
                 <!-- MOBILE HEADER -->
                 <div class="wsmobileheader clearfix">
                     <a href="{{ url('/') }}" class="small-logo">
-                        <img src="{{ asset('images/codecv.png') }}" alt="mobile-logo">                    </a>
+                        <img src="{{ asset('images/codecv.png') }}" alt="mobile-logo">
+                    </a>
                     <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
                 </div>
 
@@ -25,12 +25,9 @@
                     <a href="{{ url('/') }}" class="smllogo">
                         <img src="{{ asset('images/codecv.png') }}" alt="desktop-logo">
                     </a>
-                    <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
                 </div>
-
-
-            </div>     <!-- End header-wrapper -->
-        </header>	<!-- END HEADER -->
+            </div>
+        </header>
 
 
         <!-- HERO-5

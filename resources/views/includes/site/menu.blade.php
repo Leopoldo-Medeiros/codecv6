@@ -1,5 +1,4 @@
-<!-- HEADER
-            ============================================= -->
+<!-- HEADER ============================================= -->
 <header id="header" class="tra-menu navbar-light white-scroll">
     <div class="header-wrapper">
 
@@ -15,7 +14,7 @@
 
 
                         <!-- DROPDOWN SUB MENU -->
-                        <li aria-haspopup="true"><a href="#" class="h-link">About <span class="wsarrow"></span></a></li>
+                        <li aria-haspopup="true"><a href="{{ route('about-us') }}" class="h-link">About <span class="wsarrow"></span></a></li>
 
                         <!-- SIMPLE NAVIGATION LINK -->
                         <li class="nl-simple" aria-haspopup="true"><a href="{{ route('pricing') }}" class="h-link">Pricing</a></li>

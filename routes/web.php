@@ -17,7 +17,7 @@ Route::get('/pricing', function () {
 })->name('pricing');
 
 Route::get('/about-us', function () {
-    return view('welcome');
+    return view('about-us');
 })->name('about-us');
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

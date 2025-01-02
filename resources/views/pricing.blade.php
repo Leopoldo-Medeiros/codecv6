@@ -5,30 +5,32 @@
 
     <section>
         <!-- HEADER ============================================= -->
+        <header id="header" class="tra-menu navbar-dark light-hero-header white-scroll">
+            <div class="header-wrapper">
 
-        <!-- MOBILE HEADER -->
-        <div class="wsmobileheader small-logo">
-            <span class="small-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
-            <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
-        </div>
+                <!-- MOBILE HEADER -->
+                <div class="wsmobileheader small-logo">
+                    <span class="small-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
+                </div>
 
-        <!-- DESKTOP HEADER -->
-        <div class="wsdesktopheader clearfix">
-            <!-- NAVIGATION MENU -->
-            <div class="wsmainfull menu clearfix">
-                <div class="wsmainwp clearfix">
+                <!-- DESKTOP HEADER -->
+                <div class="wsdesktopheader clearfix">
 
-                    <!-- HEADER BLACK LOGO -->
-                    <div class="desktoplogo small-logo">
-                        <a href="{{ route('home') }}" class="logo-black">
-                            <img src="{{ asset('images/codecv.png') }}" alt="logo">
-                        </a>
+                    <!-- NAVIGATION MENU -->
+                    <div class="wsmainfull menu clearfix">
+                        <div class="wsmainwp clearfix">
+
+                            <!-- HEADER BLACK LOGO -->
+                            <div class="desktoplogo small-logo">
+                                <a href="{{ route('home') }}" class="logo-black">
+                                    <img src="{{ asset('images/codecv.png') }}" alt="logo">
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>    <!-- END NAVIGATION MENU -->
-
-
-        </div>     <!-- End header-wrapper -->
+            </div>
+        </header>
 
         <!-- PRICING-3 ============================================= -->
         <section id="pricing-3" class="gr--whitesmoke inner-page-hero pb-60 pricing-section">
@@ -220,7 +222,8 @@
                                 </div>    <!-- END TABLE HEADER -->
 
                                 <!-- BUTTON -->
-                                <a href="javascript:void(0);" class="pt-btn btn btn--theme hover--theme" id="openModalBtn">Buy it</a>
+                                <a href="javascript:void(0);" class="pt-btn btn btn--theme hover--theme"
+                                   id="openModalBtn">Buy it</a>
 
                             </div>
                         </div>    <!-- END PRO PLAN -->
@@ -231,18 +234,17 @@
                 <!-- Modal Structure -->
                 <div id="buyModal" style="display: none;">
                     <div class="modal-content">
-                        <span class="close">&times;</span>
+                        <span class="close" onclick="closeModal()">&times;</span>
                         <img src="{{ asset('images/Bank.png') }}" alt="Popup Image" class="popup-image">
                     </div>
                 </div>
-
 
             </div>       <!-- End container -->
         </section>    <!-- END PRICING-3 -->
     </section>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Get modal element
             var modal = document.getElementById("buyModal");
 
