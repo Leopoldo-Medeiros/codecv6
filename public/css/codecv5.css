@@ -2,28 +2,53 @@
 
 .navbar-light .wsmenu > .wsmenu-list > li > a.h-link {
     color: #090808;
+    font-weight: 600;
+    padding: 10px 15px;
 }
 
-.desktoplogo {
-    margin: 15px 0 0 -95px;
+.navbar-light .wsmenu > .wsmenu-list > li > a.h-link:hover {
+    color: #007bff;
 }
 
-.scroll .logo-black img{
-    width: 185px;
-    margin-bottom: 20px;
+.desktoplogo, .small-logo {
+    margin: 15px 0 0 0;
+    position: relative;
+    z-index: 10;
 }
 
-.desktoplogo img {
-    max-width: inherit;
-    max-height: 140px;
+.desktoplogo img, .small-logo img {
+    max-width: 100px;
+    max-height: 40px;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
-img.footer-logo,
-img.footer-logo-dark {
-    max-width: inherit;
-    max-height: 140px;
+.scroll .logo-black img {
+    width: 100px;
+    margin-bottom: 0;
 }
 
-.footer-info img {
-    width: 215px;
+.header-wrapper {
+    padding: 10px 0;
 }
+
+.wsmenu {
+    margin-top: 10px;
+}
+
+#wsnavtoggle {
+    z-index: 1000;
+    position: relative;
+    cursor: pointer;
+}
+
+@media (max-width: 991px) {
+    .wsmobileheader {
+        display: block;
+    }
+    .wsdesktopheader {
+        display: none;
+    }
+}
+
+/* Rest of the CSS remains unchanged */

@@ -17,8 +17,6 @@ class UserRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -26,60 +24,59 @@ class UserRequest extends FormRequest
             'fullname' => 'required|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
-            'profile'  => 'required|array',
+            'profile' => 'required|array',
             'profile.birth_date' => 'nullable|date',
             'profile.profession' => 'nullable|string',
-            'profile.profile_image' => 'nullable|file|size:2048|mimes:jpeg,jpg,png',
+            'profile.profile_image' => 'nullable|file|max:2048|mimes:jpeg,jpg,png',
             'role' => 'required|exists:roles,id',
         ];
 
-        $user = 0;
-        if (!empty($this->route('user'))) {
-            $user = $this->route('user')->id;
-        }
+        $userId = $this->route('user')?->id ?? 0;
 
-        switch($this->method())
-        {
-            case 'GET':
-            case 'DELETE':
-            {
-                return [];
-            }
-            case 'POST':
-            {
-                $rules = [
-                    ...$rules,
-                ];
-            }
+        switch ($this->method()) {
             case 'PATCH':
             case 'PUT':
-            {
-                $rules = [
-                    ...$rules,
-                    'email' => 'required|email|unique:users,email,'. $user,
-                    'password' => 'nullable|min:6|confirmed',
-                ];
-            }
-            default:break;
+                $rules['email'] = 'required|email|unique:users,email,' . $userId;
+                $rules['password'] = 'nullable|min:6|confirmed';
+                break;
+
+            case 'POST':
+                // Nada adicional para POST
+                break;
         }
 
         return $rules;
     }
 
+    /**
+     * Prepare the data for validation.
+     */
     protected function prepareForValidation()
     {
         if (is_null($this->password)) {
             $this->request->remove('password');
         }
+
+        if (!is_array($this->profile)) {
+            $this->merge(['profile' => []]);
+        }
     }
 
-    // After validation
+    /**
+     * After validation, modify the data.
+     */
     public function validated($key = null, $default = null)
     {
         $validated = parent::validated();
+
+        // Hash da senha, se fornecida
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         }
+
+        // Garante que o perfil esteja presente como array
+        $validated['profile'] = $validated['profile'] ?? [];
+
         return $validated;
     }
 }

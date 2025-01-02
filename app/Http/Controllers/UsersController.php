@@ -130,22 +130,28 @@ class UsersController extends Controller
 
     private function updateCreateProfile(User $user, UserRequest $request)
     {
+        // Inicializa o array validated se não estiver definido
         $validated = $request->validated();
+
+        // Verifica se há um arquivo para a imagem de perfil
         if ($request->hasFile('profile_image')) {
-            if($user->profile && $user->profile->profile_image) {
-                if(Storage::exists($user->profile->profile_image)) {
+            // Remove a imagem antiga se existir
+            if ($user->profile && $user->profile->profile_image) {
+                if (Storage::exists($user->profile->profile_image)) {
                     Storage::delete($user->profile->profile_image);
                 }
             }
-            $validated['profile']['profile_image'] = $request->file('profile_image')->store('profile_images', config('filesystems.default'));
+
+            // Salva a nova imagem e atualiza o array validated
+            $path = $request->file('profile_image')->store('profile_images', 'public');
+            $validated['profile']['profile_image'] = $path;
         }
 
-        // Update or create profile
+        // Atualiza ou cria o perfil com os dados validados
         $user->profile()->updateOrCreate(
-            [
-                'user_id' => $user->id
-            ],
-            $validated['profile']
+            ['user_id' => $user->id],
+            $validated['profile'] ?? [] // Garante que $validated['profile'] existe
         );
     }
+
 }

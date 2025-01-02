@@ -21,7 +21,7 @@
                     <div class="card mb-4">
                         <div class="card-body text-center">
                             @if ($user->profile && $user->profile->profile_image)
-                                <img src="{{ Storage::url($user->profile->profile_image) }}" alt="avatar" class="rounded-circle img-fluid profile-image">
+                                <img src="{{ asset('storage/' . $user->profile->profile_image) }}" alt="avatar" class="rounded-circle img-fluid profile-image">
                             @else
                                 <img src="{{ asset('images/team-13.jpg') }}" alt="avatar" class="rounded-circle img-fluid profile-image">
                             @endif
@@ -31,7 +31,7 @@
                                 <button type="button" class="btn btn-outline-primary">
                                     <i class="fas fa-envelope me-1"></i> Message
                                 </button>
-                                <a href="{{ route('edit', $user->id) }}" class="btn btn-warning ms-2">
+                                <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning ms-2">
                                     <i class="fas fa-edit me-1"></i> Edit
                                 </a>
                             </div>

@@ -1,34 +1,41 @@
 name: codecv6
 recipe: laravel
 config:
-  php: '8.3'
+  php: "8.3"
   webroot: public
   via: nginx
   database: mysql:8.0
 services:
-  node:
-    type: node:20
-    ssl: 3000
-    healthcheck: false
   appserver:
     type: php:8.3
+    build:
+      - apt-get update -y
+      - apt-get install -y nodejs npm
+    environment:
+      MYSQL_VERSION: "8"
+  node:
+    type: node:20
+    ssl: true
+    healthcheck: false
 tooling:
   install:
+    service: appserver
     cmd:
-      - appserver: composer install --no-cache
-      - appserver: php -r "file_exists('.env') || copy('.env.example', '.env');"
-      - appserver: php artisan key:generate
-      - appserver: php artisan migrate --seed
-      - node: npm install
-      - appserver: php artisan storage:link
+      - composer install --no-cache
+      - php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - php artisan key:generate
+      - php artisan migrate --seed
+      - npm install
+      - php artisan storage:link
   setup:
+    service: appserver
     cmd:
-      - appserver: composer install --no-cache
-      - appserver: php -r "file_exists('.env') || copy('.env.example', '.env');"
-      - appserver: php artisan key:generate
-      - appserver: php artisan migrate --seed
-      - node: npm install
-      - appserver: php artisan storage:link
+      - composer install --no-cache
+      - php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - php artisan key:generate
+      - php artisan migrate --seed
+      - npm install
+      - php artisan storage:link
   tinker:
     service: appserver
     cmd: php artisan tinker
@@ -38,5 +45,3 @@ tooling:
   rollback:
     service: appserver
     cmd: php artisan migrate:rollback --step=1
-
-

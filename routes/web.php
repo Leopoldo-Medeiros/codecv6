@@ -13,11 +13,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/pricing', function () {
-    return view('welcome');
+    return view('pricing');
 })->name('pricing');
 
 Route::get('/about-us', function () {
-    return view('welcome');
+    return view('about-us');
 })->name('about-us');
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
