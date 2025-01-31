@@ -10,14 +10,14 @@
     color: #007bff;
 }
 
-.desktoplogo, .small-logo {
-    margin: 15px 0 0 0;
+.desktoplogo, .smll-logo {
+    margin: 10px 0 0 -90px;
     position: relative;
     z-index: 10;
 }
 
-.desktoplogo img, .small-logo img {
-    max-width: 100px;
+.desktoplogo img, .smll-logo img {
+    max-width: 150px;
     max-height: 40px;
     pointer-events: auto;
     cursor: pointer;

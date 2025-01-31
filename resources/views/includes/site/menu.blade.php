@@ -20,7 +20,7 @@
                         <li class="nl-simple" aria-haspopup="true"><a href="{{ route('pricing') }}" class="h-link">Pricing</a></li>
 
                         <!-- SIMPLE NAVIGATION LINK -->
-                        <li class="nl-simple" aria-haspopup="true"><a href="#faqs-3" class="h-link">FAQs</a></li>
+                        <li class="nl-simple" aria-haspopup="true"><a href="{{ route('faqs') }}" class="h-link">FAQs</a></li>
 
 
                         @if (Auth::check())

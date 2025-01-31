@@ -9,7 +9,7 @@
             <div class="header-wrapper">
 
                 <!-- MOBILE HEADER -->
-                <div class="wsmobileheader small-logo">
+                <div class="wsmobileheader smll-logo">
                     <span class="small-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
                 </div>
 
@@ -21,7 +21,7 @@
                         <div class="wsmainwp clearfix">
 
                             <!-- HEADER BLACK LOGO -->
-                            <div class="desktoplogo small-logo">
+                            <div class="desktoplogo smll-logo">
                                 <a href="{{ route('home') }}" class="logo-black">
                                     <img src="{{ asset('images/codecv.png') }}" alt="logo">
                                 </a>
@@ -663,9 +663,6 @@
 
         </div>       <!-- End container -->
     </section>    <!-- END FAQs-3 -->
-
-
-
 
     <!-- BANNER-1
     ============================================= -->
