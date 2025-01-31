@@ -2,11 +2,24 @@
 <header id="header" class="tra-menu navbar-light white-scroll">
     <div class="header-wrapper">
 
-
         <!-- NAVIGATION MENU -->
         <div class="wsmainfull menu clearfix">
             <div class="wsmainwp clearfix">
 
+                <!-- MOBILE HEADER -->
+                <div class="wsmobileheader clearfix">
+                    <a href="{{ url('/') }}" class="small-logo">
+                        <img src="{{ asset('images/codecv.png') }}" alt="mobile-logo">
+                    </a>
+                    <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
+                </div>
+
+                <!-- DESKTOP HEADER -->
+                <div class="wsdesktopheader clearfix float-start ps-sm-5">
+                    <a href="{{ url('/') }}" class="smllogo">
+                        <img src="{{ asset('images/codecv.png') }}" alt="desktop-logo">
+                    </a>
+                </div>
 
                 <!-- MAIN MENU -->
                 <nav class="wsmenu clearfix">

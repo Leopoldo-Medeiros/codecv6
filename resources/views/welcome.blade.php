@@ -7,37 +7,6 @@
 		============================================= -->
     <div id="page" class="page font--jakarta">
 
-
-        <!-- HEADER
-        ============================================= -->
-        <header id="header" class="tra-menu navbar-dark light-hero-header white-scroll">
-            <div class="header-wrapper">
-
-                <!-- MOBILE HEADER -->
-                <div class="wsmobileheader smll-logo">
-                    <span class="smll-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
-                </div>
-
-                <!-- DESKTOP HEADER -->
-                <div class="wsdesktopheader clearfix">
-
-                    <!-- NAVIGATION MENU -->
-                    <div class="wsmainfull menu clearfix">
-                        <div class="wsmainwp clearfix">
-
-                            <!-- HEADER BLACK LOGO -->
-                            <div class="desktoplogo smll-logo">
-                                <a href="{{ route('home') }}" class="logo-black">
-                                    <img src="{{ asset('images/codecv.png') }}" alt="logo">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-
         <!-- HERO-5
         ============================================= -->
         <section id="hero-5" class="bg--scroll hero-section">
