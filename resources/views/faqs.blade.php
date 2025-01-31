@@ -9,3 +9,5 @@
             <h1 class="page-title">FAQs</h1>
         </div>
     </section>	<!-- END PAGE TITLE -->
+
+@endsection

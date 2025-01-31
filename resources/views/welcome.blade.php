@@ -15,7 +15,7 @@
 
                 <!-- MOBILE HEADER -->
                 <div class="wsmobileheader smll-logo">
-                    <span class="small-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
+                    <span class="smll-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
                 </div>
 
                 <!-- DESKTOP HEADER -->

@@ -9,3 +9,5 @@
             <h1 class="page-title">About Us</h1>
         </div>
     </section>	<!-- END PAGE TITLE -->
+
+@endsection
