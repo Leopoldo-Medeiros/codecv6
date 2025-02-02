@@ -11,14 +11,14 @@
 }
 
 .desktoplogo, .smll-logo {
-    margin: 10px 0 0 -90px;
+    margin: 30px 0 0 -140px; /* Move more to the left */
     position: relative;
     z-index: 10;
 }
 
 .desktoplogo img, .smll-logo img {
-    max-width: 150px;
-    max-height: 40px;
+    max-width: 170px;
+    max-height: 170px;
     pointer-events: auto;
     cursor: pointer;
 }

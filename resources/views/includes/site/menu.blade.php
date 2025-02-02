@@ -8,15 +8,15 @@
 
                 <!-- MOBILE HEADER -->
                 <div class="wsmobileheader clearfix">
-                    <a href="{{ url('/') }}" class="small-logo">
+                    <a href="{{ url('/') }}" class="smll-logo">
                         <img src="{{ asset('images/codecv.png') }}" alt="mobile-logo">
                     </a>
                     <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
                 </div>
 
                 <!-- DESKTOP HEADER -->
-                <div class="wsdesktopheader clearfix float-start ps-sm-5">
-                    <a href="{{ url('/') }}" class="smllogo">
+                <div class="wsdesktopheader clearfix float-start ps-sm-5 mt-20">
+                    <a href="{{ url('/') }}" class="smll-logo">
                         <img src="{{ asset('images/codecv.png') }}" alt="desktop-logo">
                     </a>
                 </div>
@@ -27,7 +27,7 @@
 
 
                         <!-- DROPDOWN SUB MENU -->
-                        <li aria-haspopup="true"><a href="{{ route('about-us') }}" class="h-link">About <span class="wsarrow"></span></a></li>
+                        <li aria-haspopup="true"><a href="{{ route('about-us') }}" class="h-link">About </a></li>
 
                         <!-- SIMPLE NAVIGATION LINK -->
                         <li class="nl-simple" aria-haspopup="true"><a href="{{ route('pricing') }}" class="h-link">Pricing</a></li>
