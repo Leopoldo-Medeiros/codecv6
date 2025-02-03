@@ -4,33 +4,6 @@
 @section('content')
 
     <section>
-        <!-- HEADER ============================================= -->
-        <header id="header" class="tra-menu navbar-dark light-hero-header white-scroll">
-            <div class="header-wrapper">
-
-                <!-- MOBILE HEADER -->
-                <div class="wsmobileheader small-logo">
-                    <span class="small-logo"><img src="{{ asset('images/codecv.png') }}" alt="mobile-logo"></span>
-                </div>
-
-                <!-- DESKTOP HEADER -->
-                <div class="wsdesktopheader clearfix">
-
-                    <!-- NAVIGATION MENU -->
-                    <div class="wsmainfull menu clearfix">
-                        <div class="wsmainwp clearfix">
-
-                            <!-- HEADER BLACK LOGO -->
-                            <div class="desktoplogo small-logo">
-                                <a href="{{ route('home') }}" class="logo-black">
-                                    <img src="{{ asset('images/codecv.png') }}" alt="logo">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
 
         <!-- PRICING-3 ============================================= -->
         <section id="pricing-3" class="gr--whitesmoke inner-page-hero pb-60 pricing-section">
@@ -663,9 +636,6 @@
 
         </div>       <!-- End container -->
     </section>    <!-- END FAQs-3 -->
-
-
-
 
     <!-- BANNER-1
     ============================================= -->

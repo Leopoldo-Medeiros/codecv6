@@ -7,29 +7,6 @@
 		============================================= -->
     <div id="page" class="page font--jakarta">
 
-
-        <!-- HEADER
-        ============================================= -->
-        <header id="header" class="tra-menu navbar-dark light-hero-header white-scroll">
-            <div class="header-wrapper">
-                <!-- MOBILE HEADER -->
-                <div class="wsmobileheader clearfix">
-                    <a href="{{ url('/') }}" class="small-logo">
-                        <img src="{{ asset('images/codecv.png') }}" alt="mobile-logo">
-                    </a>
-                    <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>
-                </div>
-
-                <!-- DESKTOP HEADER -->
-                <div class="wsdesktopheader clearfix">
-                    <a href="{{ url('/') }}" class="smllogo">
-                        <img src="{{ asset('images/codecv.png') }}" alt="desktop-logo">
-                    </a>
-                </div>
-            </div>
-        </header>
-
-
         <!-- HERO-5
         ============================================= -->
         <section id="hero-5" class="bg--scroll hero-section">
@@ -59,7 +36,7 @@
                     <!-- HERO IMAGE -->
                     <div class="col-md-6">
                         <div class="hero-5-img wow fadeInLeft">
-                            <img class="img-fluid" src="images/img-18.png" alt="hero-image">
+                            <img class="img-fluid" src="{{ asset('images/img-18.png') }}" alt="hero-image">
                         </div>
                     </div>
 
@@ -328,10 +305,8 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6">
                         <div class="img-block left-column wow fadeInRight">
-                            <img class="img-fluid" src="images/img-07.png" alt="content-image">
-                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-07.png') }}" alt="content-image">                        </div>
                     </div>
-
 
                     <!-- TEXT BLOCK -->
                     <div class="col-md-6">
@@ -440,8 +415,7 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6 order-first order-md-2">
                         <div class="img-block right-column wow fadeInLeft">
-                            <img class="img-fluid" src="images/img-06.png" alt="content-image">
-                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-06.png') }}" alt="content-image">                        </div>
                     </div>
 
 
@@ -511,8 +485,7 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6 order-first order-md-2">
                         <div class="img-block right-column wow fadeInLeft">
-                            <img class="img-fluid" src="images/img-05.png" alt="content-image">
-                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-05.png') }}" alt="content-image">                        </div>
                     </div>
 
 
@@ -746,8 +719,7 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6">
                         <div class="img-block left-column wow fadeInRight">
-                            <img class="img-fluid" src="images/img-03.png" alt="content-image">
-                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-03.png') }}" alt="content-image">                        </div>
                     </div>
 
 
@@ -868,8 +840,7 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6 col-lg-7 order-first order-md-2">
                         <div class="img-block right-column wow fadeInLeft">
-                            <img class="img-fluid" src="images/img-14.png" alt="content-image">
-                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-14.png') }}" alt="content-image">                        </div>
                     </div>
 
 
@@ -926,7 +897,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-1.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-1.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -962,7 +933,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-2.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-2.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -997,7 +968,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-3.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-3.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -1032,7 +1003,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-4.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-4.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -1068,7 +1039,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-5.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-5.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -1103,7 +1074,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-6.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-6.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -1139,7 +1110,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-7.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-7.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -1174,7 +1145,7 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="images/review-author-8.jpg" alt="review-avatar">
+                                            <img src="{{ asset('images/review-author-8.jpg') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
@@ -1218,17 +1189,13 @@
                                 <div class="banner-7-txt text-center">
 
                                     <!-- Title -->
-                                    <h2 class="s-50 w-700">Starting with <span class="color--theme">CODECV</span> is easy and fast</h2>
+                                    <h2 class="s-45 w-700">Starting with <span class="color--theme">CODECV</span> is easy and fast</h2>
 
                                     <!-- Buttons -->
                                     <div class="btns-group">
                                         <a href="signup-1.html" class="btn r-04 btn--theme hover--theme">Get srarted - it's free
                                         </a>
-                                        <a href="faqs.html" class="btn r-04 btn--tra-black hover--theme">Read the FAQs</a>
-                                    </div>
-
-                                    <!-- Button Text -->
-                                    <p class="btn-txt ico-15">Free for 14 days - no credit card required.</p>
+                                        <a href="{{ route('faqs') }}" class="btn r-04 btn--tra-black hover--theme">Read the FAQs</a>                                    </div>
 
                                 </div>
                             </div>
