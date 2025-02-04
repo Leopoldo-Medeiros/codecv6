@@ -51,4 +51,6 @@
     }
 }
 
-/* Rest of the CSS remains unchanged */
+.color--theme .text-success {
+    color: green !important;
+}
