@@ -22,8 +22,7 @@
                             <h2 class="s-58 w-700">The growth accelerator for your career</h2>
 
                             <!-- Text -->
-                            <p class="p-lg">Mauris donec turpis suscipit sapien ociis sagittis sapien tempor a volute
-                                ligula and aliquet tortor
+                            <p class="p-lg">We help IT professionals like you define, plan, and achieve their career aspirations.
                             </p>
 
                             <!-- Button -->
@@ -70,10 +69,7 @@
                         <div class="section-title mb-70">
 
                             <!-- Title -->
-                            <h2 class="s-50 w-700">Empowering IT Professionals, Elevating Careers</h2>
-
-                            <!-- Text -->
-                            <p class="s-21 color--grey">Ligula risus auctor tempus magna feugiat lacinia.</p>
+                            <h2 class="s-45 w-700">Empowering IT Professionals, Elevating Careers</h2>
 
                         </div>
                     </div>
@@ -319,14 +315,14 @@
                             <h2 class="s-46 w-700">Right strategies & implementations</h2>
 
                             <!-- Text -->
-                            <p>Sodales tempor sapien quaerat ipsum undo congue laoreet turpis neque auctor turpis
-                                vitae dolor luctus placerat magna and ligula cursus purus vitae purus an ipsum suscipit
+                            <p>In this program, we equip IT professionals with actionable strategies and proven methodologies for career acceleration.
+                                From the identification of growth opportunities through to the implementation of a customized career plan,
+                                this program ensures that you are equipped to remain competitive in today's truly fluid tech environment.
                             </p>
 
                             <!-- Text -->
-                            <p class="mb-0">Nemo ipsam egestas volute turpis egestas ipsum and purus sapien ultrice
-                                an aliquam quaerat ipsum augue turpis sapien cursus congue magna purus quaerat at ligula
-                                purus egestas magna cursus undo varius purus magnis sapien quaerat
+                            <p class="mb-0">Our approach combines deep industry insights with practical tools to help you achieve your goals effectively and confidently.
+                                Let me know if you'd like further refinements!
                             </p>
 
                             <!-- Link -->
@@ -369,8 +365,10 @@
                                 <h5 class="s-24 w-700">Solution that grows with you</h5>
 
                                 <!-- Text -->
-                                <p>Sodales tempor sapien quaerat ipsum undo congue laoreet turpis neque auctor turpis
-                                    vitae dolor luctus placerat magna and ligula cursus purus vitae purus an ipsum suscipit
+                                <p>Our career guidance progresses with your development. We provide adaptive strategies and
+                                    continuous support to align with evolving needs throughout your IT career journey.
+                                    Our solutions cater to every stage-from entry-level to the uppermost senior roles-so that your ambitions and
+                                    aspirations coordinate with any stage of your growth with confidence and awesome clarity.
                                 </p>
 
                             </div>	<!-- END TEXT BOX -->
@@ -383,25 +381,25 @@
                                 <h5 class="s-24 w-700">Connect your data sources</h5>
 
                                 <!-- Text -->
-                                <p>Tempor sapien sodales quaerat ipsum undo congue laoreet turpis neque auctor turpis
-                                    vitae dolor luctus placerat magna and ligula cursus purus an ipsum vitae suscipit
-                                    purus
+                                <p class="text-justify">Here, we look forward to helping you embark on a cohesive strategy that assembles skills and
+                                    experience and sets goals into pieces that foster success.
                                 </p>
 
                                 <!-- List -->
                                 <ul class="simple-list">
 
                                     <li class="list-item">
-                                        <p>Tempor sapien quaerat an ipsum laoreet purus and sapien dolor an ultrice ipsum
-                                            aliquam undo congue dolor cursus
+                                        <p class="text-justify">Identify your strengths as required in the IT industry, which gives you a clear route.
                                         </p>
                                     </li>
 
                                     <li class="list-item">
-                                        <p class="mb-0">Cursus purus suscipit vitae cubilia magnis volute egestas vitae
-                                            sapien turpis ultrice auctor congue magna placerat
+                                        <p class="text-justify mb-2">Make data-informed career choices, skill acquisition, and growth plans.
                                         </p>
                                     </li>
+
+                                    <p class="text-justify">With our help, you connect your present and your future self by ensuring that every step taken is efficacious.
+                                    </p>
 
                                 </ul>
 

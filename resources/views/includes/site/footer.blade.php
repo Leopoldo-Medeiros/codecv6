@@ -37,12 +37,10 @@
             <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                 <!-- Links -->
                 <h6 class="s-17 w-700">Contact</h6>
-                <hr class="mb-4 mt-0 d-inline-block mx-auto"
-                    style="width: 60px; background-color: #7c4dff; height: 2px"
-                />
+                <hr class="mb-4 mt-0 d-inline-block mx-auto" />
                 <p><i class="fas fa-home mr-3"></i> Dublin, Ireland</p>
-                <p><i class="fas fa-envelope mr-3"></i> codecvinfo@gmail.com</p>
-                <p><i class="fas fa-phone mr-3"></i> +353 89 405 0730 </p>
+                <p><i class="fas fa-envelope mr-3"></i>codecvinfo@gmail.com</p>
+                <p><i class="fas fa-phone mr-3"></i> +353 89 405 0730</p>
             </div>
             <!-- Grid column -->
 

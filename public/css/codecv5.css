@@ -1,3 +1,4 @@
+/* Existing CSS */
 @import url('flaticon.css');
 
 .navbar-light .wsmenu > .wsmenu-list > li > a.h-link {
@@ -11,9 +12,11 @@
 }
 
 .desktoplogo, .smll-logo {
-    margin: 30px 0 0 -140px; /* Move more to the left */
+    margin: 0 0 0 -60px;
     position: relative;
     z-index: 10;
+    display: flex;
+    justify-content: center; /* Center the logo */
 }
 
 .desktoplogo img, .smll-logo img {
@@ -51,6 +54,30 @@
     }
 }
 
-.color--theme .text-success {
-    color: green !important;
+/* New CSS for responsive logo */
+@media (max-width: 1200px) {
+    .desktoplogo img, .smll-logo img, .logo-img {
+        max-width: 150px;
+        max-height: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .desktoplogo img, .smll-logo img, .logo-img {
+        max-width: 120px;
+        max-height: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .desktoplogo img, .smll-logo img, .logo-img {
+        max-width: 100px;
+        max-height: 100px;
+    }
+}
+
+/* Default logo size */
+.logo-img {
+    max-width: 100%;
+    height: auto;
 }
