@@ -81,3 +81,12 @@
     max-width: 100%;
     height: auto;
 }
+
+/* Add this to your CSS file */
+.ico-20 .text-success {
+    color: green !important;
+}
+
+.ico-15 .text-danger {
+    color: red !important;
+}
