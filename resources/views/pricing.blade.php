@@ -45,35 +45,22 @@
                                     </div>
 
                                     <!-- Features List -->
-                                    <ul class="list-unstyled mt-3">
-                                        <li class="mb-2"><i class="bi bi-envelope text-success me-2"></i>Cover Letter
-                                            Writing
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-file-earmark-text text-success me-2"></i>CV
-                                            Adjustment
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-pencil-square text-success me-2"></i>CV Grammar
-                                            Review
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-people me-2 icon-green"></i>Referral Networking
-                                        </li>
+                                    <ul class="list-unstyled mt-3 text-start">
+                                        <li class="mb-2"><i class="bi bi-envelope text-success me-2"></i>Cover Letter Writing</li>
+                                        <li class="mb-2"><i class="bi bi-file-earmark-text text-success me-2"></i>CV Adjustment</li>
+                                        <li class="mb-2"><i class="bi bi-pencil-square text-success me-2"></i>CV Grammar Review</li>
+                                        <li class="mb-2"><i class="bi bi-people me-2 icon-green"></i>Referral Networking</li>
                                         <li class="mb-2"><i class="bi bi-whatsapp me-2 icon-green"></i>WhatsApp QA</li>
-                                        <li class="mb-2"><i class="bi bi-calendar me-2 icon-green"></i>Deadline: ~5 Days
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Video Call
-                                            (30min)
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>LinkedIn Profile
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Interview
-                                            Preparation
-                                        </li>
+                                        <li class="mb-2"><i class="bi bi-calendar me-2 icon-green"></i>Deadline: ~5 Days</li>
+                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Video Call (30min)</li>
+                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>LinkedIn Profile</li>
+                                        <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>Interview Preparation</li>
                                     </ul>
 
                                 </div>    <!-- END TABLE HEADER -->
 
                                 <!-- BUTTON -->
-                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+                                <a href="{{ route('payment', ['plan' => 'Basic', 'price' => 99]) }}" class="pt-btn btn btn--theme hover--theme">Buy it</a>
 
                             </div>
                         </div>    <!-- END FREE PLAN -->
@@ -100,7 +87,7 @@
                                         </div>
 
                                         <!-- Features List -->
-                                        <ul class="list-unstyled mt-3">
+                                        <ul class="list-unstyled mt-3 text-start">
                                             <li class="mb-2"><i class="bi bi-envelope text-success me-2"></i>Cover
                                                 Letter Writing
                                             </li>
@@ -135,7 +122,7 @@
 
 
                                 <!-- BUTTON -->
-                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+                                <a href="{{ route('payment', ['plan' => 'Standard', 'price' => 199]) }}" class="pt-btn btn btn--theme hover--theme">Buy it</a>
 
                             </div>
                         </div>    <!-- END PLUS PLAN -->
@@ -162,7 +149,7 @@
                                         </div>
 
                                         <!-- Features List -->
-                                        <ul class="list-unstyled mt-3">
+                                        <ul class="list-unstyled mt-3 text-start">
                                             <li class="mb-2"><i class="bi bi-envelope text-success me-2"></i>Cover
                                                 Letter Writing
                                             </li>
@@ -195,8 +182,7 @@
                                 </div>    <!-- END TABLE HEADER -->
 
                                 <!-- BUTTON -->
-                                <a href="javascript:void(0);" class="pt-btn btn btn--theme hover--theme"
-                                   id="openModalBtn">Buy it</a>
+                                <a href="{{ route('payment', ['plan' => 'Premium', 'price' => 249]) }}" class="pt-btn btn btn--theme hover--theme">Buy it</a>
 
                             </div>
                         </div>    <!-- END PRO PLAN -->
@@ -204,50 +190,9 @@
                     </div>
                 </div>    <!-- PRICING TABLES -->
 
-                <!-- Modal Structure -->
-                <div id="buyModal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <img src="{{ asset('images/Bank.png') }}" alt="Popup Image" class="popup-image">
-                    </div>
-                </div>
-
             </div>       <!-- End container -->
         </section>    <!-- END PRICING-3 -->
     </section>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get modal element
-            var modal = document.getElementById("buyModal");
-
-            // Get all buttons that open the modal
-            var btns = document.querySelectorAll(".pt-btn");
-
-            // Get the <span> element that closes the modal
-            var span = document.getElementsByClassName("close")[0];
-
-            // When any button is clicked, open the modal
-            btns.forEach(btn =>
-                btn.onclick = event => {
-                    event.preventDefault(); // Prevent default anchor behavior
-                    modal.style.display = "block"; // Show the modal
-                    $(modal).addClass('modal')
-                });
-
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = () => modal.style.display = "none"; // Hide the modal
-
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = event => {
-                if (event.target == modal) {
-                    modal.style.display = "none"; // Hide the modal
-                }
-            }
-
-        });
-    </script>
-
 
     <!-- DIVIDER LINE -->
     <hr class="divider">
@@ -294,73 +239,53 @@
 
                                 <tr>
                                     <th scope="row" class="text-start">CV writing in EN or PT</th>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
                                     <th scope="row" class="text-start">CV Adjustment</th>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
                                     <th scope="row" class="text-start">CV Grammar Review</th>
                                     {{--                                    <td class="ico-15 disabled-option"><span class="flaticon-cancel"></span></td>--}}
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
                                     <th scope="row" class="text-start">Referral Networking</th>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
                                     <th scope="row" class="text-start">WhatsApp QA</th>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
                                     <th scope="row" class="text-start">Deadline: ~5 Days</th>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
                                     <th scope="row" class="text-start">LinkedIn Profile</th>
                                     <td class="ico-15 disabled-option"><span class="flaticon-cancel text-danger"></span>
                                     </td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 <tr>
@@ -369,8 +294,7 @@
                                     </td>
                                     <td class="ico-15 disabled-option"><span class="flaticon-cancel text-danger"></span>
                                     </td>
-                                    <td class="ico-20 color--theme"><span
-                                            class="flaticon-check text-success me-2"></span></td>
+                                    <td class="ico-20 color--theme"><span class="flaticon-check text-success me-2"></span></td>
                                 </tr>
 
                                 </tbody>

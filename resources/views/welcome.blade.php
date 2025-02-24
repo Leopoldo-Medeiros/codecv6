@@ -22,14 +22,15 @@
                             <h2 class="s-58 w-700">The growth accelerator for your career</h2>
 
                             <!-- Text -->
-                            <p class="p-lg">We help IT professionals like you define, plan, and achieve their career aspirations.
+                            <p class="p-lg">We help IT professionals like you define, plan, and achieve their career
+                                aspirations.
                             </p>
 
                             <!-- Button -->
                             <a href="#banner-7" class="btn r-04 btn--theme hover--theme">Get started for free</a>
 
                         </div>
-                    </div>	<!-- END HERO TEXT -->
+                    </div>    <!-- END HERO TEXT -->
 
 
                     <!-- HERO IMAGE -->
@@ -41,16 +42,19 @@
 
 
                 </div>    <!-- End row -->
-            </div>	   <!-- End container -->
+            </div>       <!-- End container -->
 
 
             <!-- WAVE SHAPE BOTTOM -->
             <div class="wave-shape-bottom">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 170"><path fill-opacity="1" d="M0,160L120,160C240,160,480,160,720,138.7C960,117,1200,75,1320,53.3L1440,32L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 170">
+                    <path fill-opacity="1"
+                          d="M0,160L120,160C240,160,480,160,720,138.7C960,117,1200,75,1320,53.3L1440,32L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path>
+                </svg>
             </div>
 
 
-        </section>	<!-- END HERO-5 -->
+        </section>    <!-- END HERO-5 -->
 
 
         <!-- DIVIDER LINE -->
@@ -95,23 +99,28 @@
 
                                             <!-- Shape -->
                                             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
+                                                <path
+                                                    d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z"
+                                                    transform="translate(100 100)"/>
                                             </svg>
 
                                         </div>
                                     </div>
-                                </div>	<!-- End Icon -->
+                                </div>    <!-- End Icon -->
 
                                 <!-- Text -->
                                 <div class="fbox-txt">
                                     <h6 class="s-22 w-700">Affordable Prices</h6>
-                                    <p>Our CV design service in Ireland is tailored to meet the needs of applicants on a budget.
-                                        We provide high-quality CV writing services at competitive prices, ensuring that everyone has the opportunity to present their best selves to potential employers.
+                                    <p>Our CV design service in Ireland is tailored to meet the needs of applicants on a
+                                        budget.
+                                        We provide high-quality CV writing services at competitive prices, ensuring that
+                                        everyone has the opportunity to present their best selves to potential
+                                        employers.
                                     </p>
                                 </div>
 
                             </div>
-                        </div>	<!-- END FEATURE BOX #1 -->
+                        </div>    <!-- END FEATURE BOX #1 -->
 
 
                         <!-- FEATURE BOX #2 -->
@@ -128,22 +137,25 @@
 
                                             <!-- Shape -->
                                             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
+                                                <path
+                                                    d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z"
+                                                    transform="translate(100 100)"/>
                                             </svg>
 
                                         </div>
                                     </div>
-                                </div>	<!-- End Icon -->
+                                </div>    <!-- End Icon -->
 
                                 <!-- Text -->
                                 <div class="fbox-txt">
                                     <h6 class="s-22 w-700">Interview Preparation</h6>
-                                    <p>We provide straightforward and effective one-on-one interview coaching designed to elevate your performance in job interviews.
+                                    <p>We provide straightforward and effective one-on-one interview coaching designed
+                                        to elevate your performance in job interviews.
                                     </p>
                                 </div>
 
                             </div>
-                        </div>	<!-- END FEATURE BOX #2 -->
+                        </div>    <!-- END FEATURE BOX #2 -->
 
 
                         <!-- FEATURE BOX #3 -->
@@ -160,23 +172,27 @@
 
                                             <!-- Shape -->
                                             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
+                                                <path
+                                                    d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z"
+                                                    transform="translate(100 100)"/>
                                             </svg>
 
                                         </div>
                                     </div>
-                                </div>	<!-- End Icon -->
+                                </div>    <!-- End Icon -->
 
                                 <!-- Text -->
                                 <div class="fbox-txt">
                                     <h6 class="s-22 w-700">Elevate Your Career Potential</h6>
-                                    <p>Our CV writing and coaching services elevate the quality of your professional presentation.
-                                        By highlighting your unique skills and experiences, we help you stand out in the competitive IT job market.
+                                    <p>Our CV writing and coaching services elevate the quality of your professional
+                                        presentation.
+                                        By highlighting your unique skills and experiences, we help you stand out in the
+                                        competitive IT job market.
                                     </p>
                                 </div>
 
                             </div>
-                        </div>	<!-- END FEATURE BOX #3 -->
+                        </div>    <!-- END FEATURE BOX #3 -->
 
 
                         <!-- FEATURE BOX #4 -->
@@ -193,23 +209,26 @@
 
                                             <!-- Shape -->
                                             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
+                                                <path
+                                                    d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z"
+                                                    transform="translate(100 100)"/>
                                             </svg>
 
                                         </div>
                                     </div>
-                                </div>	<!-- End Icon -->
+                                </div>    <!-- End Icon -->
 
                                 <!-- Text -->
                                 <div class="fbox-txt">
                                     <h6 class="s-22 w-700">Linkedin Training</h6>
-                                    <p>We create standout LinkedIn profiles and offer essential strategies to enhance your online visibility.
+                                    <p>We create standout LinkedIn profiles and offer essential strategies to enhance
+                                        your online visibility.
                                         Let us help you make a lasting impression in the digital professional landscape!
                                     </p>
                                 </div>
 
                             </div>
-                        </div>	<!-- END FEATURE BOX #4 -->
+                        </div>    <!-- END FEATURE BOX #4 -->
 
 
                         <!-- FEATURE BOX #5 -->
@@ -226,23 +245,26 @@
 
                                             <!-- Shape -->
                                             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
+                                                <path
+                                                    d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z"
+                                                    transform="translate(100 100)"/>
                                             </svg>
 
                                         </div>
                                     </div>
-                                </div>	<!-- End Icon -->
+                                </div>    <!-- End Icon -->
 
                                 <!-- Text -->
                                 <div class="fbox-txt">
                                     <h6 class="s-22 w-700">Executive CV Writing</h6>
                                     <p>In today's competitive job market, standing out is essential!
-                                        Leverage our expertise in crafting compelling CVs that capture attention and highlight your unique strengths.
+                                        Leverage our expertise in crafting compelling CVs that capture attention and
+                                        highlight your unique strengths.
                                     </p>
                                 </div>
 
                             </div>
-                        </div>	<!-- END FEATURE BOX #5 -->
+                        </div>    <!-- END FEATURE BOX #5 -->
 
 
                         <!-- FEATURE BOX #6 -->
@@ -259,31 +281,35 @@
 
                                             <!-- Shape -->
                                             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
+                                                <path
+                                                    d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z"
+                                                    transform="translate(100 100)"/>
                                             </svg>
 
                                         </div>
                                     </div>
-                                </div>	<!-- End Icon -->
+                                </div>    <!-- End Icon -->
 
                                 <!-- Text -->
                                 <div class="fbox-txt mb-20">
                                     <h6 class="s-22 w-700">Job Search Strategies</h6>
-                                    <p>Discover effective techniques to boost your visibility and tap into the hidden job market.
-                                        Master smart strategies to effectively target advertised positions and enhance your job search success!
+                                    <p>Discover effective techniques to boost your visibility and tap into the hidden
+                                        job market.
+                                        Master smart strategies to effectively target advertised positions and enhance
+                                        your job search success!
                                     </p>
                                 </div>
 
                             </div>
-                        </div>	<!-- END FEATURE BOX #6 -->
+                        </div>    <!-- END FEATURE BOX #6 -->
 
 
                     </div>  <!-- End row -->
-                </div>	<!-- END FEATURES-11 WRAPPER -->
+                </div>    <!-- END FEATURES-11 WRAPPER -->
 
 
             </div>     <!-- End container -->
-        </section>	<!-- END FEATURES-11 -->
+        </section>    <!-- END FEATURES-11 -->
 
         <!-- DIVIDER LINE -->
         <hr class="divider">
@@ -301,7 +327,7 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6">
                         <div class="img-block left-column wow fadeInRight">
-                            <img class="img-fluid" src="{{ asset('images/img-07.png') }}" alt="content-image">                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-07.png') }}" alt="content-image"></div>
                     </div>
 
                     <!-- TEXT BLOCK -->
@@ -315,13 +341,17 @@
                             <h2 class="s-46 w-700">Right strategies & implementations</h2>
 
                             <!-- Text -->
-                            <p>In this program, we equip IT professionals with actionable strategies and proven methodologies for career acceleration.
-                                From the identification of growth opportunities through to the implementation of a customized career plan,
-                                this program ensures that you are equipped to remain competitive in today's truly fluid tech environment.
+                            <p>In this program, we equip IT professionals with actionable strategies and proven
+                                methodologies for career acceleration.
+                                From the identification of growth opportunities through to the implementation of a
+                                customized career plan,
+                                this program ensures that you are equipped to remain competitive in today's truly fluid
+                                tech environment.
                             </p>
 
                             <!-- Text -->
-                            <p class="mb-0">Our approach combines deep industry insights with practical tools to help you achieve your goals effectively and confidently.
+                            <p class="mb-0">Our approach combines deep industry insights with practical tools to help
+                                you achieve your goals effectively and confidently.
                                 Let me know if you'd like further refinements!
                             </p>
 
@@ -333,14 +363,14 @@
                             </div>
 
                         </div>
-                    </div>	<!-- END TEXT BLOCK -->
+                    </div>    <!-- END TEXT BLOCK -->
 
 
-                </div>	<!-- END SECTION CONTENT (ROW) -->
+                </div>    <!-- END SECTION CONTENT (ROW) -->
 
 
-            </div>	   <!-- End container -->
-        </section>	<!-- END TEXT CONTENT -->
+            </div>       <!-- End container -->
+        </section>    <!-- END TEXT CONTENT -->
 
 
         <!-- TEXT CONTENT
@@ -365,13 +395,16 @@
                                 <h5 class="s-24 w-700">Solution that grows with you</h5>
 
                                 <!-- Text -->
-                                <p>Our career guidance progresses with your development. We provide adaptive strategies and
+                                <p>Our career guidance progresses with your development. We provide adaptive strategies
+                                    and
                                     continuous support to align with evolving needs throughout your IT career journey.
-                                    Our solutions cater to every stage-from entry-level to the uppermost senior roles-so that your ambitions and
-                                    aspirations coordinate with any stage of your growth with confidence and awesome clarity.
+                                    Our solutions cater to every stage-from entry-level to the uppermost senior roles-so
+                                    that your ambitions and
+                                    aspirations coordinate with any stage of your growth with confidence and awesome
+                                    clarity.
                                 </p>
 
-                            </div>	<!-- END TEXT BOX -->
+                            </div>    <!-- END TEXT BOX -->
 
 
                             <!-- TEXT BOX -->
@@ -381,7 +414,8 @@
                                 <h5 class="s-24 w-700">Connect your data sources</h5>
 
                                 <!-- Text -->
-                                <p class="text-justify">Here, we look forward to helping you embark on a cohesive strategy that assembles skills and
+                                <p class="text-justify">Here, we look forward to helping you embark on a cohesive
+                                    strategy that assembles skills and
                                     experience and sets goals into pieces that foster success.
                                 </p>
 
@@ -389,42 +423,41 @@
                                 <ul class="simple-list">
 
                                     <li class="list-item">
-                                        <p class="text-justify">Identify your strengths as required in the IT industry, which gives you a clear route.
+                                        <p class="text-justify">Identify your strengths as required in the IT industry,
+                                            which gives you a clear route.
                                         </p>
                                     </li>
 
                                     <li class="list-item">
-                                        <p class="text-justify mb-2">Make data-informed career choices, skill acquisition, and growth plans.
+                                        <p class="text-justify mb-2">Make data-informed career choices, skill
+                                            acquisition, and growth plans.
                                         </p>
                                     </li>
 
-                                    <p class="text-justify">With our help, you connect your present and your future self by ensuring that every step taken is efficacious.
+                                    <p class="text-justify">With our help, you connect your present and your future self
+                                        by ensuring that every step taken is efficacious.
                                     </p>
 
                                 </ul>
 
-                            </div>	<!-- END TEXT BOX -->
-
-
+                            </div>    <!-- END TEXT BOX -->
                         </div>
-                    </div>	<!-- END TEXT BLOCK -->
-
+                    </div>    <!-- END TEXT BLOCK -->
 
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6 order-first order-md-2">
                         <div class="img-block right-column wow fadeInLeft">
-                            <img class="img-fluid" src="{{ asset('images/img-06.png') }}" alt="content-image">                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-06.png') }}" alt="content-image"></div>
                     </div>
 
 
-                </div>	<!-- END SECTION CONTENT (ROW) -->
+                </div>    <!-- END SECTION CONTENT (ROW) -->
 
 
-            </div>	   <!-- End container -->
-        </section>	<!-- END TEXT CONTENT -->
+            </div>       <!-- End container -->
+        </section>    <!-- END TEXT CONTENT -->
 
-
-
+        <hr class="divider">
 
 
         <!-- TEXT CONTENT
@@ -448,25 +481,32 @@
                             <h2 class="s-46 w-700">Achieve more with better workflows</h2>
 
                             <!-- Text -->
-                            <p>Sodales tempor sapien quaerat ipsum undo congue laoreet turpis neque auctor turpis
-                                vitae dolor luctus placerat magna and ligula cursus purus vitae purus an ipsum suscipit
+                            <p>Transform your professional journey with our cutting-edge workflow solutions.
+                                Our innovative training programs are designed to enhance your career progression while
+                                providing real-time performance tracking for both you and our expert team.
                             </p>
 
                             <!-- List -->
                             <ul class="simple-list">
 
                                 <li class="list-item">
-                                    <p>Sapien quaerat tempor an ipsum laoreet purus and sapien dolor an ultrice ipsum
-                                        aliquam undo congue cursus dolor
+                                    <p class="mb-2"><b>Progress Monitoring:</b> Our intuitive workflow system allows you
+                                        to visualize your career advancement, tracking milestones and skill acquisitions
+                                        in real-time.
                                     </p>
                                 </li>
 
                                 <li class="list-item">
-                                    <p class="mb-0">Purus suscipit cursus vitae cubilia magnis volute egestas vitae
-                                        sapien turpis ultrice auctor congue magna placerat
+                                    <p class="mb-2"><b>Learning Paths:</b> Benefit from customized workflows that adapt
+                                        to your unique career goals, ensuring efficient and targeted skill development.
                                     </p>
                                 </li>
-
+                                <li class="list-item">
+                                    <p class="mb-2"><b>Performance Tracking:</b> Work hand-in-hand with our career
+                                        experts, leveraging shared workflows to measure progress, identify areas for
+                                        improvement, and celebrate your successes.
+                                    </p>
+                                </li>
                             </ul>
 
                             <!-- Link -->
@@ -477,196 +517,21 @@
                             </div>
 
                         </div>
-                    </div>	<!-- END TEXT BLOCK -->
+                    </div>    <!-- END TEXT BLOCK -->
 
 
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6 order-first order-md-2">
                         <div class="img-block right-column wow fadeInLeft">
-                            <img class="img-fluid" src="{{ asset('images/img-05.png') }}" alt="content-image">                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-05.png') }}" alt="content-image"></div>
                     </div>
 
 
-                </div>	<!-- END SECTION CONTENT (ROW) -->
+                </div>    <!-- END SECTION CONTENT (ROW) -->
 
 
-            </div>	   <!-- End container -->
-        </section>	<!-- END TEXT CONTENT -->
-
-
-
-
-        <!-- FEATURES-13
-        ============================================= -->
-        <section id="features-13" class="shape--bg shape--white-500 pt-100 features-section division">
-            <div class="container">
-                <div class="row d-flex align-items-center">
-
-
-                    <!-- FEATURES-13 WRAPPER -->
-                    <div class="col-md-7 order-last order-md-2">
-                        <div class="fbox-13-wrapper wow fadeInRight">
-                            <div class="row">
-
-
-                                <div class="col-md-6">
-
-                                    <!-- FEATURE BOX #1 -->
-                                    <div id="fb-12-1" class="fbox-12 bg--white-100 block-shadow r-12 mb-30">
-
-                                        <!-- Icon -->
-                                        <div class="fbox-ico ico-50">
-                                            <div class="shape-ico color--theme">
-
-                                                <!-- Vector Icon -->
-                                                <span class="flaticon-layers-1"></span>
-
-                                                <!-- Shape -->
-                                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
-                                                </svg>
-
-                                            </div>
-                                        </div>	<!-- End Icon -->
-
-                                        <!-- Text -->
-                                        <div class="fbox-txt">
-                                            <h5 class="s-19 w-700">Content Marketing</h5>
-                                            <p>Porta semper lacus and cursus feugiat at primis ultrice a ligula auctor</p>
-                                        </div>
-
-                                    </div>
-
-                                    <!-- FEATURE BOX #2 -->
-                                    <div id="fb-12-2" class="fbox-12 bg--white-100 block-shadow r-12">
-
-                                        <!-- Icon -->
-                                        <div class="fbox-ico ico-50">
-                                            <div class="shape-ico color--theme">
-
-                                                <!-- Vector Icon -->
-                                                <span class="flaticon-tutorial"></span>
-
-                                                <!-- Shape -->
-                                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
-                                                </svg>
-
-                                            </div>
-                                        </div>	<!-- End Icon -->
-
-                                        <!-- Text -->
-                                        <div class="fbox-txt">
-                                            <h5 class="s-19 w-700">Video Marketing</h5>
-                                            <p>Porta semper lacus and cursus feugiat at primis ultrice a ligula auctor</p>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="col-md-6">
-
-                                    <!-- FEATURE BOX #3 -->
-                                    <div id="fb-12-3" class="fbox-12 bg--white-100 block-shadow r-12 mb-30">
-
-                                        <!-- Icon -->
-                                        <div class="fbox-ico ico-50">
-                                            <div class="shape-ico color--theme">
-
-                                                <!-- Vector Icon -->
-                                                <span class="flaticon-pay-per-click"></span>
-
-                                                <!-- Shape -->
-                                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
-                                                </svg>
-
-                                            </div>
-                                        </div>	<!-- End Icon -->
-
-                                        <!-- Text -->
-                                        <div class="fbox-txt">
-                                            <h5 class="s-19 w-700">Pay Per Click (PPC)</h5>
-                                            <p>Porta semper lacus and cursus feugiat at primis ultrice a ligula auctor</p>
-                                        </div>
-
-                                    </div>
-
-                                    <!-- FEATURE BOX #4 -->
-                                    <div id="fb-12-4" class="fbox-12 bg--white-100 block-shadow r-12">
-
-                                        <!-- Icon -->
-                                        <div class="fbox-ico ico-50">
-                                            <div class="shape-ico color--theme">
-
-                                                <!-- Vector Icon -->
-                                                <span class="flaticon-taxes"></span>
-
-                                                <!-- Shape -->
-                                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M69.8,-23C76.3,-2.7,57.6,25.4,32.9,42.8C8.1,60.3,-22.7,67,-39.1,54.8C-55.5,42.7,-57.5,11.7,-48.6,-11.9C-39.7,-35.5,-19.8,-51.7,5.9,-53.6C31.7,-55.6,63.3,-43.2,69.8,-23Z" transform="translate(100 100)" />
-                                                </svg>
-
-                                            </div>
-                                        </div>	<!-- End Icon -->
-
-                                        <!-- Text -->
-                                        <div class="fbox-txt">
-                                            <h5 class="s-19 w-700">Business Analytics</h5>
-                                            <p>Porta semper lacus and cursus feugiat at primis ultrice a ligula auctor</p>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                            </div>
-                        </div>	<!-- End row -->
-                    </div>	<!-- END FEATURES-13 WRAPPER -->
-
-
-                    <!-- TEXT BLOCK -->
-                    <div class="col-md-5 order-first order-md-2">
-                        <div class="txt-block left-column wow fadeInLeft">
-
-                            <!-- Section ID -->
-                            <span class="section-id">One-Stop Solution</span>
-
-                            <!-- Title -->
-                            <h2 class="s-44 w-700">Smart solutions, real-time results</h2>
-
-                            <!-- Text -->
-                            <p>Sodales tempor sapien quaerat ipsum and congue undo laoreet turpis neque auctor turpis
-                                vitae dolor luctus placerat magna ligula and cursus vitae
-                            </p>
-
-                            <!-- List -->
-                            <ul class="simple-list">
-
-                                <li class="list-item">
-                                    <p>Tempor sapien quaerat undo ipsum laoreet diam purus sapien a dolor ociis ultrice
-                                        ipsum aliquam
-                                    </p>
-                                </li>
-
-                                <li class="list-item">
-                                    <p class="mb-0">Cursus purus suscipit  vitae cubilia magnis diam volute egestas
-                                        sapien ultrice auctor
-                                    </p>
-                                </li>
-
-                            </ul>
-
-                        </div>
-                    </div>	<!-- END TEXT BLOCK -->
-
-
-                </div>    <!-- End row -->
-            </div>     <!-- End container -->
-        </section>	<!-- END FEATURES-13 -->
+            </div>       <!-- End container -->
+        </section>    <!-- END TEXT CONTENT -->
 
 
         <!-- FEATURES-5
@@ -679,14 +544,13 @@
                     <div class="row d-flex align-items-center">
 
                     </div>  <!-- End row -->
-                </div>	<!-- END FEATURES-5 WRAPPER -->
+                </div>    <!-- END FEATURES-5 WRAPPER -->
 
 
             </div>     <!-- End container -->
-        </section>	<!-- END FEATURES-5 -->
+        </section>    <!-- END FEATURES-5 -->
 
-
-
+        <hr class="divider">
 
         <!-- TEXT CONTENT
         ============================================= -->
@@ -717,7 +581,7 @@
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6">
                         <div class="img-block left-column wow fadeInRight">
-                            <img class="img-fluid" src="{{ asset('images/img-03.png') }}" alt="content-image">                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-03.png') }}" alt="content-image"></div>
                     </div>
 
 
@@ -743,7 +607,7 @@
                                     </p>
                                 </div>
 
-                            </div>	<!-- END CONTENT BOX #1 -->
+                            </div>    <!-- END CONTENT BOX #1 -->
 
 
                             <!-- CONTENT BOX #2 -->
@@ -763,7 +627,7 @@
                                     </p>
                                 </div>
 
-                            </div>	<!-- END CONTENT BOX #2 -->
+                            </div>    <!-- END CONTENT BOX #2 -->
 
 
                             <!-- CONTENT BOX #3 -->
@@ -777,24 +641,26 @@
 
                                 <!-- Text -->
                                 <div class="cbox-4-txt">
-                                    <p class="mb-0">Quaerat sodales sapien blandit purus primis purus ipsum cubilia laoreet
-                                        augue luctus and magna dolor luctus egestas an ipsum sapien primis vitae volute and
+                                    <p class="mb-0">Quaerat sodales sapien blandit purus primis purus ipsum cubilia
+                                        laoreet
+                                        augue luctus and magna dolor luctus egestas an ipsum sapien primis vitae volute
+                                        and
                                         magna turpis
                                     </p>
                                 </div>
 
-                            </div>	<!-- END CONTENT BOX #3 -->
+                            </div>    <!-- END CONTENT BOX #3 -->
 
 
                         </div>
-                    </div>	<!-- END TEXT BLOCK -->
+                    </div>    <!-- END TEXT BLOCK -->
 
 
-                </div>	<!-- END SECTION CONTENT (ROW) -->
+                </div>    <!-- END SECTION CONTENT (ROW) -->
 
 
-            </div>	   <!-- End container -->
-        </section>	<!-- END TEXT CONTENT -->
+            </div>       <!-- End container -->
+        </section>    <!-- END TEXT CONTENT -->
 
 
         <!-- TEXT CONTENT
@@ -832,21 +698,21 @@
                             </ul>
 
                         </div>
-                    </div>	<!-- END TEXT BLOCK -->
+                    </div>    <!-- END TEXT BLOCK -->
 
 
                     <!-- IMAGE BLOCK -->
                     <div class="col-md-6 col-lg-7 order-first order-md-2">
                         <div class="img-block right-column wow fadeInLeft">
-                            <img class="img-fluid" src="{{ asset('images/img-14.png') }}" alt="content-image">                        </div>
+                            <img class="img-fluid" src="{{ asset('images/img-14.png') }}" alt="content-image"></div>
                     </div>
 
 
                 </div>    <!-- End row -->
-            </div>	   <!-- End container -->
-        </section>	<!-- END TEXT CONTENT -->
+            </div>       <!-- End container -->
+        </section>    <!-- END TEXT CONTENT -->
 
-        <hr class="divider">
+
 
         <!-- TESTIMONIALS-1
         ============================================= -->
@@ -904,11 +770,11 @@
                                             <p class="p-sm">@scott_boxer</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #1 -->
+                            </div>    <!-- END TESTIMONIAL #1 -->
 
 
                             <!-- TESTIMONIAL #2 -->
@@ -940,11 +806,11 @@
                                             <p class="p-sm">Internet Surfer</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #2 -->
+                            </div>    <!-- END TESTIMONIAL #2 -->
 
 
                             <!-- TESTIMONIAL #3 -->
@@ -975,11 +841,11 @@
                                             <p class="p-sm">@marisol19</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #3 -->
+                            </div>    <!-- END TESTIMONIAL #3 -->
 
 
                             <!-- TESTIMONIAL #4 -->
@@ -1010,11 +876,11 @@
                                             <p class="p-sm">Web Developer</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #4 -->
+                            </div>    <!-- END TESTIMONIAL #4 -->
 
 
                             <!-- TESTIMONIAL #5 -->
@@ -1028,7 +894,8 @@
 
                                     <!-- Text -->
                                     <p>An augue cubilia undo laoreet magna suscipit egestas ipsum lectus purus ipsum
-                                        and primis augue an ultrice ligula egestas suscipit a lectus gestas auctor tempus
+                                        and primis augue an ultrice ligula egestas suscipit a lectus gestas auctor
+                                        tempus
                                         feugiat impedit
                                     </p>
 
@@ -1046,11 +913,11 @@
                                             <p class="p-sm">App Developer</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #5 -->
+                            </div>    <!-- END TESTIMONIAL #5 -->
 
 
                             <!-- TESTIMONIAL #6 -->
@@ -1081,11 +948,11 @@
                                             <p class="p-sm">jQuery Programmer</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #6 -->
+                            </div>    <!-- END TESTIMONIAL #6 -->
 
 
                             <!-- TESTIMONIAL #7 -->
@@ -1117,11 +984,11 @@
                                             <p class="p-sm">Graphic Designer</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #7 -->
+                            </div>    <!-- END TESTIMONIAL #7 -->
 
 
                             <!-- TESTIMONIAL #8 -->
@@ -1152,20 +1019,20 @@
                                             <p class="p-sm">WordPress Consultant</p>
                                         </div>
 
-                                    </div>	<!-- End Author -->
+                                    </div>    <!-- End Author -->
 
-                                </div>	<!-- End Text -->
+                                </div>    <!-- End Text -->
 
-                            </div>	<!-- END TESTIMONIAL #8 -->
+                            </div>    <!-- END TESTIMONIAL #8 -->
 
 
                         </div>
                     </div>
-                </div>	<!-- END TESTIMONIALS CONTENT -->
+                </div>    <!-- END TESTIMONIALS CONTENT -->
 
 
-            </div>	   <!-- End container -->
-        </section>	<!-- END TESTIMONIALS-1 -->
+            </div>       <!-- End container -->
+        </section>    <!-- END TESTIMONIALS-1 -->
 
         <!-- DIVIDER LINE -->
         <hr class="divider">
@@ -1187,13 +1054,16 @@
                                 <div class="banner-7-txt text-center">
 
                                     <!-- Title -->
-                                    <h2 class="s-45 w-700">Starting with <span class="color--theme">CODECV</span> is easy and fast</h2>
+                                    <h2 class="s-45 w-700">Starting with <span class="color--theme">CODECV</span> is
+                                        easy and fast</h2>
 
                                     <!-- Buttons -->
                                     <div class="btns-group">
-                                        <a href="signup-1.html" class="btn r-04 btn--theme hover--theme">Get srarted - it's free
+                                        <a href="signup-1.html" class="btn r-04 btn--theme hover--theme">Get srarted -
+                                            it's free
                                         </a>
-                                        <a href="{{ route('faqs') }}" class="btn r-04 btn--tra-black hover--theme">Read the FAQs</a>                                    </div>
+                                        <a href="{{ route('faqs') }}" class="btn r-04 btn--tra-black hover--theme">Read
+                                            the FAQs</a></div>
 
                                 </div>
                             </div>
@@ -1205,9 +1075,7 @@
 
                 </div>    <!-- End container -->
             </div>     <!-- End banner overlay -->
-        </section>	<!-- END BANNER-7 -->
-
-
+        </section>    <!-- END BANNER-7 -->
 
 
         <!-- DIVIDER LINE -->
