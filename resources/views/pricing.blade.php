@@ -60,7 +60,7 @@
                                 </div>    <!-- END TABLE HEADER -->
 
                                 <!-- BUTTON -->
-                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+                                <a href="{{ route('payment', ['plan' => 'Basic', 'price' => 99]) }}" class="pt-btn btn btn--theme hover--theme">Buy it</a>
 
                             </div>
                         </div>    <!-- END FREE PLAN -->
@@ -122,7 +122,7 @@
 
 
                                 <!-- BUTTON -->
-                                <a href="#" class="pt-btn btn btn--theme hover--theme">Buy it</a>
+                                <a href="{{ route('payment', ['plan' => 'Standard', 'price' => 199]) }}" class="pt-btn btn btn--theme hover--theme">Buy it</a>
 
                             </div>
                         </div>    <!-- END PLUS PLAN -->
@@ -182,8 +182,7 @@
                                 </div>    <!-- END TABLE HEADER -->
 
                                 <!-- BUTTON -->
-                                <a href="javascript:void(0);" class="pt-btn btn btn--theme hover--theme"
-                                   id="openModalBtn">Buy it</a>
+                                <a href="{{ route('payment', ['plan' => 'Premium', 'price' => 249]) }}" class="pt-btn btn btn--theme hover--theme">Buy it</a>
 
                             </div>
                         </div>    <!-- END PRO PLAN -->
@@ -191,50 +190,9 @@
                     </div>
                 </div>    <!-- PRICING TABLES -->
 
-                <!-- Modal Structure -->
-                <div id="buyModal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <img src="{{ asset('images/Bank.png') }}" alt="Popup Image" class="popup-image">
-                    </div>
-                </div>
-
             </div>       <!-- End container -->
         </section>    <!-- END PRICING-3 -->
     </section>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get modal element
-            var modal = document.getElementById("buyModal");
-
-            // Get all buttons that open the modal
-            var btns = document.querySelectorAll(".pt-btn");
-
-            // Get the <span> element that closes the modal
-            var span = document.getElementsByClassName("close")[0];
-
-            // When any button is clicked, open the modal
-            btns.forEach(btn =>
-                btn.onclick = event => {
-                    event.preventDefault(); // Prevent default anchor behavior
-                    modal.style.display = "block"; // Show the modal
-                    $(modal).addClass('modal')
-                });
-
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = () => modal.style.display = "none"; // Hide the modal
-
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = event => {
-                if (event.target === modal) {
-                    modal.style.display = "none"; // Hide the modal
-                }
-            }
-
-        });
-    </script>
-
 
     <!-- DIVIDER LINE -->
     <hr class="divider">

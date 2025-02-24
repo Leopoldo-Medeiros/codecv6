@@ -90,3 +90,7 @@
 .ico-15 .text-danger {
     color: red !important;
 }
+
+.qr-code {
+    max-width: 15px;
+}

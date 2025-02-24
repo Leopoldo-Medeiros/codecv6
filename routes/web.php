@@ -16,6 +16,14 @@ Route::get('/pricing', function () {
     return view('pricing');
 })->name('pricing');
 
+Route::get('/payment', function (\Illuminate\Http\Request $request) {
+    $plan = $request->query('plan');
+    $price = $request->query('price');
+
+    return view('payment', ['plan' => $plan, 'price' => $price]);
+})->name('payment');
+
+
 Route::get('/about-us', function () {
     return view('about-us');
 })->name('about-us');
