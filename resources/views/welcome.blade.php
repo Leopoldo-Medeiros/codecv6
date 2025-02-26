@@ -752,8 +752,8 @@
                                 <div class="review-txt">
 
                                     <!-- Text -->
-                                    <p>Etiam sapien sagittis congue augue a massa varius egestas ultrice varius magna
-                                        a tempus aliquet undo cursus suscipit
+                                    <p>Just what I was looking for. CODECV did exactly what you said it does.
+                                        I would also like to say thank you to all your staff. It was the perfect solution for my career.
                                     </p>
 
                                     <!-- Author -->
@@ -761,13 +761,13 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-1.jpg') }}" alt="review-avatar">
+                                            <img src="{{ asset('images/Luciana.png') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
                                         <div class="review-author">
-                                            <h6 class="s-18 w-700">Scott Boxer</h6>
-                                            <p class="p-sm">@scott_boxer</p>
+                                            <h6 class="s-18 w-700">Luciana Machado</h6>
+                                            <p class="p-sm">Project Manager</p>
                                         </div>
 
                                     </div>    <!-- End Author -->
@@ -787,9 +787,8 @@
                                 <div class="review-txt">
 
                                     <!-- Text -->
-                                    <p>At sagittis congue augue diam egestas magna an ipsum vitae purus ipsum primis
-                                        and cubilia laoreet augue egestas a luctus donec ltrice ligula porta augue magna
-                                        suscipit lectus gestas
+                                    <p>CODECV ensured that the information and skills included were relevant to the IT position I was applying for.
+                                        We have optimized my resume with achievements and responsibilities.
                                     </p>
 
                                     <!-- Author -->
@@ -797,13 +796,13 @@
 
                                         <!-- Avatar -->
                                         <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-2.jpg') }}" alt="review-avatar">
+                                            <img src="{{ asset('images/Lucas.png') }}" alt="review-avatar">
                                         </div>
 
                                         <!-- Data -->
                                         <div class="review-author">
-                                            <h6 class="s-18 w-700">Joel Peterson</h6>
-                                            <p class="p-sm">Internet Surfer</p>
+                                            <h6 class="s-18 w-700">Lucas Verdan</h6>
+                                            <p class="p-sm">IT Analyst</p>
                                         </div>
 
                                     </div>    <!-- End Author -->
@@ -838,7 +837,7 @@
                                         <!-- Data -->
                                         <div class="review-author">
                                             <h6 class="s-18 w-700">Marisol19</h6>
-                                            <p class="p-sm">@marisol19</p>
+                                            <p class="p-sm">Project Manager</p>
                                         </div>
 
                                     </div>    <!-- End Author -->
