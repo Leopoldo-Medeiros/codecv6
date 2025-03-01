@@ -27,7 +27,7 @@
                             </p>
 
                             <!-- Button -->
-                            <a href="#banner-7" class="btn r-04 btn--theme hover--theme">Get started for free</a>
+                            <a href="{{ route('pricing')  }}" class="btn r-04 btn--theme hover--theme">Get started</a>
 
                         </div>
                     </div>    <!-- END HERO TEXT -->
@@ -356,11 +356,11 @@
                             </p>
 
                             <!-- Link -->
-                            <div class="txt-block-tra-link mt-25">
-                                <a href="#integrations-1" class="tra-link ico-20 color--theme">
-                                    Friendly with others <span class="flaticon-next"></span>
-                                </a>
-                            </div>
+{{--                            <div class="txt-block-tra-link mt-25">--}}
+{{--                                <a href="#integrations-1" class="tra-link ico-20 color--theme">--}}
+{{--                                    Friendly with others <span class="flaticon-next"></span>--}}
+{{--                                </a>--}}
+{{--                            </div>--}}
 
                         </div>
                     </div>    <!-- END TEXT BLOCK -->
@@ -554,117 +554,6 @@
 
         <!-- TEXT CONTENT
         ============================================= -->
-        <section class="pt-100 ct-02 content-section division">
-            <div class="container">
-
-
-                <!-- SECTION TITLE -->
-                <div class="row justify-content-center">
-                    <div class="col-md-10 col-lg-9">
-                        <div class="section-title mb-80">
-
-                            <!-- Title -->
-                            <h2 class="s-50 w-700">The Complete Solutions</h2>
-
-                            <!-- Text -->
-                            <p class="s-21 color--grey">Ligula risus auctor tempus magna feugiat lacinia.</p>
-
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- SECTION CONTENT (ROW) -->
-                <div class="row d-flex align-items-center">
-
-
-                    <!-- IMAGE BLOCK -->
-                    <div class="col-md-6">
-                        <div class="img-block left-column wow fadeInRight">
-                            <img class="img-fluid" src="{{ asset('images/img-03.png') }}" alt="content-image"></div>
-                    </div>
-
-
-                    <!-- TEXT BLOCK -->
-                    <div class="col-md-6">
-                        <div class="txt-block right-column wow fadeInLeft">
-
-
-                            <!-- CONTENT BOX #1 -->
-                            <div class="cbox-4">
-
-                                <!-- Icon & Title -->
-                                <div class="box-title">
-                                    <span class="flaticon-paper-sizes color--theme"></span>
-                                    <h5 class="s-22 w-700">Built-in automation</h5>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="cbox-4-txt">
-                                    <p>Quaerat sodales sapien blandit purus primis purus ipsum cubilia laoreet augue
-                                        luctus and magna dolor luctus egestas an ipsum sapien primis vitae volute and
-                                        magna turpis
-                                    </p>
-                                </div>
-
-                            </div>    <!-- END CONTENT BOX #1 -->
-
-
-                            <!-- CONTENT BOX #2 -->
-                            <div class="cbox-4">
-
-                                <!-- Icon & Title -->
-                                <div class="box-title">
-                                    <span class="flaticon-layers-1 color--theme"></span>
-                                    <h5 class="s-22 w-700">Automatic workflows</h5>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="cbox-4-txt">
-                                    <p>Quaerat sodales sapien blandit purus primis purus ipsum cubilia laoreet augue
-                                        luctus and magna dolor luctus egestas an ipsum sapien primis vitae volute and
-                                        magna turpis
-                                    </p>
-                                </div>
-
-                            </div>    <!-- END CONTENT BOX #2 -->
-
-
-                            <!-- CONTENT BOX #3 -->
-                            <div class="cbox-4">
-
-                                <!-- Icon & Title -->
-                                <div class="box-title">
-                                    <span class="flaticon-pie-chart color--theme"></span>
-                                    <h5 class="s-22 w-700">Real-time analytics</h5>
-                                </div>
-
-                                <!-- Text -->
-                                <div class="cbox-4-txt">
-                                    <p class="mb-0">Quaerat sodales sapien blandit purus primis purus ipsum cubilia
-                                        laoreet
-                                        augue luctus and magna dolor luctus egestas an ipsum sapien primis vitae volute
-                                        and
-                                        magna turpis
-                                    </p>
-                                </div>
-
-                            </div>    <!-- END CONTENT BOX #3 -->
-
-
-                        </div>
-                    </div>    <!-- END TEXT BLOCK -->
-
-
-                </div>    <!-- END SECTION CONTENT (ROW) -->
-
-
-            </div>       <!-- End container -->
-        </section>    <!-- END TEXT CONTENT -->
-
-
-        <!-- TEXT CONTENT
-        ============================================= -->
         <section class="pt-100 ct-03 content-section division">
             <div class="container">
                 <div class="row d-flex align-items-center">
@@ -674,24 +563,25 @@
                     <div class="col-md-6 col-lg-5 order-last order-md-2">
                         <div class="txt-block left-column wow fadeInRight">
 
-                            <!-- Section ID -->
-                            <span class="section-id">Engagement Analytics</span>
-
                             <!-- Title -->
-                            <h2 class="s-46 w-700">Data-driven digital marketing</h2>
+                            <h2 class="s-46 w-700">Expert Interview Training</h2>
 
                             <!-- List -->
                             <ul class="simple-list">
 
                                 <li class="list-item">
-                                    <p>Tempor sapien quaerat undo ipsum laoreet purus and sapien dolor ociis ultrice
-                                        ipsum aliquam undo congue dolor cursus congue varius magnis
+                                    <p>We provide a powerful interview training, empowering you to showcase your skills confidently.
+                                        Our personalized professionals helps you articulate your experiences and stand out to potential employers.</p>
+                                </li>
+                                <li class="list-item">
+                                    <p>Our professionals covers all aspects of interview performance, from body language to answering tough questions.
+                                        We'll guide you through mock interviews, helping you refine your responses and build confidence.
                                     </p>
                                 </li>
 
                                 <li class="list-item">
-                                    <p class="mb-0">Cursus purus suscipit vitae cubilia magnis diam volute egestas
-                                        sapien ultrice auctor
+                                    <p class="mb-0">We develop customized strategies to highlight your unique strengths and experiences.
+                                        Our approach ensures you're well-prepared to make a lasting impression and secure your dream job.
                                     </p>
                                 </li>
 
@@ -712,326 +602,79 @@
             </div>       <!-- End container -->
         </section>    <!-- END TEXT CONTENT -->
 
-
-
         <!-- TESTIMONIALS-1
         ============================================= -->
         <section id="reviews-1" class="py-100 shape--06 shape--gr-whitesmoke reviews-section mt-20">
             <div class="container">
-
-
                 <!-- SECTION TITLE -->
                 <div class="row justify-content-center">
                     <div class="col-md-10 col-lg-9">
                         <div class="section-title mb-70">
-
                             <!-- Title -->
                             <h2 class="s-50 w-700">Our Happy Customers</h2>
-
-                            <!-- Text -->
-                            <p class="s-21 color--grey">Ligula risus auctor tempus magna feugiat lacinia.</p>
-
                         </div>
                     </div>
                 </div>
 
-
                 <!-- TESTIMONIALS CONTENT -->
                 <div class="row">
-                    <div class="col">
-                        <div class="owl-carousel owl-theme reviews-1-wrapper">
-
-
-                            <!-- TESTIMONIAL #1 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
+                    <!-- TESTIMONIAL #1 -->
+                    <div class="col-md-6 mb-4">
+                        <div class="review-1 bg--white-100 block-shadow r-08 h-100">
+                            <!-- Quote Icon -->
+                            <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
+                            <!-- Text -->
+                            <div class="review-txt">
                                 <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>Just what I was looking for. CODECV did exactly what you said it does.
-                                        I would also like to say thank you to all your staff. It was the perfect solution for my career.
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/Luciana.png') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Luciana Machado</h6>
-                                            <p class="p-sm">Project Manager</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #1 -->
-
-
-                            <!-- TESTIMONIAL #2 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>CODECV ensured that the information and skills included were relevant to the IT position I was applying for.
-                                        We have optimized my resume with achievements and responsibilities.
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/Lucas.png') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Lucas Verdan</h6>
-                                            <p class="p-sm">IT Analyst</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #2 -->
-
-
-                            <!-- TESTIMONIAL #3 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>Mauris gestas magnis a sapien etiam sapien congue an augue egestas and ultrice
-                                        vitae purus diam an integer congue magna ligula egestas magna suscipit
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-3.jpg') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Marisol19</h6>
-                                            <p class="p-sm">Project Manager</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #3 -->
-
-
-                            <!-- TESTIMONIAL #4 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>Mauris donec a magnis sapien etiam pretium a congue augue volutpat lectus
-                                        aenean magna and undo mauris lectus laoreet tempor egestas rutrum
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-4.jpg') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Leslie D.</h6>
-                                            <p class="p-sm">Web Developer</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #4 -->
-
-
-                            <!-- TESTIMONIAL #5 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>An augue cubilia undo laoreet magna suscipit egestas ipsum lectus purus ipsum
-                                        and primis augue an ultrice ligula egestas suscipit a lectus gestas auctor
-                                        tempus
-                                        feugiat impedit
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-5.jpg') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Jennifer Harper</h6>
-                                            <p class="p-sm">App Developer</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #5 -->
-
-
-                            <!-- TESTIMONIAL #6 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>An augue cubilia laoreet undo magna ipsum semper suscipit egestas magna ipsum
-                                        ligula a vitae purus and ipsum primis cubilia magna suscipit
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-6.jpg') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Jonathan Barnes</h6>
-                                            <p class="p-sm">jQuery Programmer</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #6 -->
-
-
-                            <!-- TESTIMONIAL #7 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>Augue egestas porta tempus volutpat egestas augue cubilia laoreet a magna
-                                        suscipit luctus dolor blandit vitae purus neque tempus an aliquet porta gestas
-                                        rutrum blandit vitae
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-7.jpg') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Mike Harris</h6>
-                                            <p class="p-sm">Graphic Designer</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #7 -->
-
-
-                            <!-- TESTIMONIAL #8 -->
-                            <div class="review-1 bg--white-100 block-shadow r-08">
-
-                                <!-- Quote Icon -->
-                                <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
-
-                                <!-- Text -->
-                                <div class="review-txt">
-
-                                    <!-- Text -->
-                                    <p>Augue at vitae purus tempus egestas volutpat augue undo cubilia laoreet magna
-                                        suscipit luctus dolor blandit at purus tempus feugiat impedit
-                                    </p>
-
-                                    <!-- Author -->
-                                    <div class="author-data clearfix">
-
-                                        <!-- Avatar -->
-                                        <div class="review-avatar">
-                                            <img src="{{ asset('images/review-author-8.jpg') }}" alt="review-avatar">
-                                        </div>
-
-                                        <!-- Data -->
-                                        <div class="review-author">
-                                            <h6 class="s-18 w-700">Evelyn Martinez</h6>
-                                            <p class="p-sm">WordPress Consultant</p>
-                                        </div>
-
-                                    </div>    <!-- End Author -->
-
-                                </div>    <!-- End Text -->
-
-                            </div>    <!-- END TESTIMONIAL #8 -->
-
-
+                                <p>Just what I was looking for. CODECV did exactly what you said it does.
+                                    I would also like to say thank you to all your staff. It was the perfect solution for my career.
+                                </p>
+                                <!-- Author -->
+                                <div class="author-data clearfix">
+                                    <!-- Avatar -->
+                                    <div class="review-avatar">
+                                        <img src="{{ asset('images/Luciana.png') }}" alt="review-avatar">
+                                    </div>
+                                    <!-- Data -->
+                                    <div class="review-author">
+                                        <h6 class="s-18 w-700">Luciana Machado</h6>
+                                        <p class="p-sm">Project Manager</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>    <!-- END TESTIMONIALS CONTENT -->
 
-
-            </div>       <!-- End container -->
-        </section>    <!-- END TESTIMONIALS-1 -->
+                    <!-- TESTIMONIAL #2 -->
+                    <div class="col-md-6 mb-4">
+                        <div class="review-1 bg--white-100 block-shadow r-08 h-100">
+                            <!-- Quote Icon -->
+                            <div class="review-ico ico-65"><span class="flaticon-quote"></span></div>
+                            <!-- Text -->
+                            <div class="review-txt">
+                                <!-- Text -->
+                                <p>CODECV ensured that the information and skills included were relevant to the IT position I was applying for.
+                                    We have optimized my resume with achievements and responsibilities.
+                                </p>
+                                <!-- Author -->
+                                <div class="author-data clearfix">
+                                    <!-- Avatar -->
+                                    <div class="review-avatar">
+                                        <img src="{{ asset('images/Lucas.png') }}" alt="review-avatar">
+                                    </div>
+                                    <!-- Data -->
+                                    <div class="review-author">
+                                        <h6 class="s-18 w-700">Lucas Verdan</h6>
+                                        <p class="p-sm">IT Analyst</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END TESTIMONIALS-1 -->
 
         <!-- DIVIDER LINE -->
         <hr class="divider">
@@ -1051,16 +694,11 @@
                             <!-- BANNER-7 TEXT -->
                             <div class="col-md-8">
                                 <div class="banner-7-txt text-center">
-
                                     <!-- Title -->
-                                    <h2 class="s-45 w-700">Starting with <span class="color--theme">CODECV</span> is
-                                        easy and fast</h2>
-
+                                    <h2 class="s-35 w-700">Starting with <span class="color--theme">CODECV</span> is easy and fast</h2>
                                     <!-- Buttons -->
                                     <div class="btns-group">
-                                        <a href="signup-1.html" class="btn r-04 btn--theme hover--theme">Get srarted -
-                                            it's free
-                                        </a>
+                                        <a href="{{ route('pricing') }}" class="btn r-04 btn--theme hover--theme">Get started</a>
                                         <a href="{{ route('faqs') }}" class="btn r-04 btn--tra-black hover--theme">Read
                                             the FAQs</a></div>
 
