@@ -36,25 +36,23 @@
                         <li class="nl-simple" aria-haspopup="true"><a href="{{ route('faqs') }}" class="h-link">FAQs</a></li>
 
 
-                        @if (Auth::check())
-                            <li class="nl-simple reg-fst-link mobile-last-link" aria-haspopup="true">
-                                <a href="{{ route('dashboard') }}" class="h-link">Dashboard</a>
-                            </li>
-                            <li class="nl-simple reg-fst-link mobile-last-link" aria-haspopup="true">
-                                <a href="{{ route('logout') }}" class="h-link">Log out</a>
-                            </li>
-                        @else
-                            <li class="nl-simple reg-fst-link mobile-last-link" aria-haspopup="true">
-                                <a href="{{ route('login') }}" class="h-link">Login</a>
-                            </li>
-                        @endif
+{{--                        @if (Auth::check())--}}
+{{--                            <li class="nl-simple reg-fst-link mobile-last-link" aria-haspopup="true">--}}
+{{--                                <a href="{{ route('dashboard') }}" class="h-link">Dashboard</a>--}}
+{{--                            </li>--}}
+{{--                            <li class="nl-simple reg-fst-link mobile-last-link" aria-haspopup="true">--}}
+{{--                                <a href="{{ route('logout') }}" class="h-link">Log out</a>--}}
+{{--                            </li>--}}
+{{--                        @else--}}
+{{--                            <li class="nl-simple reg-fst-link mobile-last-link" aria-haspopup="true">--}}
+{{--                                <a href="{{ route('login') }}" class="h-link">Login</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
 
-
-                        <!-- SIGN UP BUTTON -->
-                        <li class="nl-simple" aria-haspopup="true">
-                            <a href="{{ route('register') }}" class="btn r-04 btn--theme hover--tra-white last-link">Sign up</a>
-                        </li>
-
+{{--                        <!-- SIGN UP BUTTON -->--}}
+{{--                        <li class="nl-simple" aria-haspopup="true">--}}
+{{--                            <a href="{{ route('register') }}" class="btn r-04 btn--theme hover--tra-white last-link">Sign up</a>--}}
+{{--                        </li>--}}
 
                     </ul>
                 </nav>	<!-- END MAIN MENU -->
