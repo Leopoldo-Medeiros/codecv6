@@ -12,7 +12,7 @@
 }
 
 .desktoplogo, .smll-logo {
-    margin: 0 0 0 -60px;
+    margin: 0 auto; /* Center the logo horizontally */
     position: relative;
     z-index: 10;
     display: flex;
@@ -94,3 +94,60 @@
 .qr-code {
     max-width: 200px;
 }
+
+/* Hamburger button styles */
+.hamburger {
+    display: inline-block;
+    cursor: pointer;
+    width: 35px;
+    height: 24px;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger span {
+    background: #333;
+    display: block;
+    height: 4px;
+    width: 100%;
+    border-radius: 2px;
+    position: absolute;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger span:nth-child(1) {
+    top: 0;
+}
+
+.hamburger span:nth-child(2) {
+    top: 10px;
+}
+
+.hamburger span:nth-child(3) {
+    top: 20px;
+}
+
+/* Animation for the hamburger button when active */
+.hamburger.active span:nth-child(1) {
+    top: 10px;
+    transform: rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    top: 10px;
+    transform: rotate(-45deg);
+}
+
+/* Additional styling */
+.hamburger:hover span {
+    background: #555;
+}
+
+.hamburger span {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+

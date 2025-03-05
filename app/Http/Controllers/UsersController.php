@@ -12,7 +12,7 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = Auth::user(); // Assuming you are using Laravel's Auth system
         $search = $request->input('search');
@@ -28,19 +28,19 @@ class UsersController extends Controller
         return view('users.index', compact('user', 'users'));
     }
 
-    public function show(User $user)
+    public function show(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = $user->load('profile');
         return view('users.show', compact('user'));
     }
 
-    public function create()
+    public function create(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $roles = Role::all();
         return view('users.form', compact('roles'));
     }
 
-    public function store(UserRequest $request)
+    public function store(UserRequest $request): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
         $user = User::create($validated);
@@ -54,28 +54,29 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function edit(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = $user->load('profile');
         $roles = Role::all(); // Assuming you have roles to pass
         return view('users.form', compact('user', 'roles'));
     }
 
-    public function update(UserRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
-        $validated = $request->validated();
-        $user->update($validated);
+        $request->validate([
+            'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-        // Update individual profile fields
-        $this->updateCreateProfile($user, $request);
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('profile_images', 'public');
+            $user->profile->profile_image = $imagePath;
+            $user->profile->save();
+        }
 
-        // update roles
-        $this->updateRole($user, $validated);
-
-        return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('users.show', $user->id)->with('success', 'Profile updated successfully');
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user): \Illuminate\Http\RedirectResponse
     {
         if ($user->id === Auth::id()) {
             return redirect()->route('users.index')->with('error', 'You cannot delete yourself.');
