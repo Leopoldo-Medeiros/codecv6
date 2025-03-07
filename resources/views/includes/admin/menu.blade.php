@@ -33,9 +33,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('logout') }}" class="nav-link align-middle px-0">
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-menu').submit();" class="nav-link align-middle px-0">
                             <i class="fs-4 fas fa-sign-out-alt"></i> <span class="ms-1 d-none d-sm-inline">Logout</span>
                         </a>
+                        <form id="logout-form-menu" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
                     </li>
                 </ul>
                 <hr>
@@ -51,7 +54,12 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">Sign out</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form-dropdown').submit();">Sign out</a>
+                            <form id="logout-form-dropdown" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>

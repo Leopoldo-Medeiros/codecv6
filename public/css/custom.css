@@ -420,10 +420,32 @@ td.align-middle .user-subhead {
     background-color: #dae7f3; /* Original background color */
 }
 
-.nav-link:hover {
-    background-color: #65a3e6; /* Change to your desired hover color */
-    color: white; /* Ensure text color is white on hover */
-    transition: background-color 0.3s ease; /* Smooth transition effect */
+/* Override all nav-link hover effects with more specific selectors */
+.navbar .nav-link:hover,
+.navbar .nav-item .nav-link:hover,
+.navbar .dropdown .nav-link:hover,
+.navbar .nav-item.dropdown .nav-link:hover,
+nav .nav-link:hover {
+    background-color: transparent !important;
+    color: #495057 !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Specific style for notification dropdown link */
+.nav-item.dropdown .nav-link:hover,
+.navbar .nav-item.dropdown .nav-link:hover {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Ensure no background on any dropdown items */
+.dropdown-toggle:hover, 
+.dropdown-item:hover,
+.dropdown .nav-link:hover,
+.navbar .dropdown .nav-link:hover {
+    background-color: transparent !important;
 }
 
 /* Dark mode styles */
@@ -492,4 +514,131 @@ input, select, button, label, .form-label, .input-group-text, .btn, .text-danger
 
 [data-bs-theme="dark"] p.text-center.h1.fw-bold {
     color: #ffffff; /* White text color */
+}
+
+/* Notification Badge */
+.badge-notification {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.6rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid #fff;
+}
+
+/* Navbar Dropdown */
+.nav-item.dropdown {
+    position: relative;
+}
+
+.nav-link.dropdown-toggle.hidden-arrow::after {
+    display: none;
+}
+
+/* Direct targeting of notification link */
+.notification-link,
+.notification-link:hover,
+.notification-link:focus,
+.notification-link:active {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Override Bootstrap's nav-link focus and active states */
+.nav-link:focus,
+.nav-link:active,
+.nav-link.active,
+.nav-link.show,
+.show > .nav-link {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Override any Bootstrap utility classes that might be applied */
+.bg-light, .bg-white, .bg-body-tertiary {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Social Media Links */
+.list-group-item a.text-truncate {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-group-item i {
+    min-width: 20px;
+}
+
+/* Course View Styles */
+.course-icon-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.course-icon-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.course-card {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+.course-header {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.course-header:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: #007bff;
+}
+
+/* Dark mode styles for course view */
+[data-bs-theme="dark"] .course-card {
+    background-color: #2c3034;
+    border-color: #373b3e;
+}
+
+[data-bs-theme="dark"] .course-header {
+    background-color: #212529 !important;
+    border-color: #373b3e;
+}
+
+[data-bs-theme="dark"] .course-header:after {
+    background-color: #0d6efd;
 }

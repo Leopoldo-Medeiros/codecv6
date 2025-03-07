@@ -98,6 +98,51 @@
                                     </div>
                                 </div>
                                 <div class="w-100"></div>
+                                
+                                <!-- Website -->
+                                <div class="col-10">
+                                    <label for="profile[website]" class="form-label">Website</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-globe"></i>
+                                        </span>
+                                        <input type="url" class="form-control" id="profile[website]" name="profile[website]"
+                                               value="{{ old('profile.website', isset($user) && $user->profile ? $user->profile->website : '') }}"
+                                               placeholder="https://example.com">
+                                    </div>
+                                </div>
+                                <div class="w-100"></div>
+                                
+                                <!-- GitHub -->
+                                <div class="col-10">
+                                    <label for="profile[github]" class="form-label">GitHub</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fab fa-github"></i>
+                                        </span>
+                                        <input type="url" class="form-control" id="profile[github]" name="profile[github]"
+                                               value="{{ old('profile.github', isset($user) && $user->profile && isset($user->profile->github) ? $user->profile->github : '') }}"
+                                               placeholder="https://github.com/username">
+                                    </div>
+                                    <small class="form-text text-muted">Enter your full GitHub profile URL (e.g., https://github.com/username)</small>
+                                </div>
+                                <div class="w-100"></div>
+                                
+                                <!-- LinkedIn -->
+                                <div class="col-10">
+                                    <label for="profile[linkedin]" class="form-label">LinkedIn</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fab fa-linkedin"></i>
+                                        </span>
+                                        <input type="url" class="form-control" id="profile[linkedin]" name="profile[linkedin]"
+                                               value="{{ old('profile.linkedin', isset($user) && $user->profile && isset($user->profile->linkedin) ? $user->profile->linkedin : '') }}"
+                                               placeholder="https://linkedin.com/in/username">
+                                    </div>
+                                    <small class="form-text text-muted">Enter your full LinkedIn profile URL (e.g., https://linkedin.com/in/username)</small>
+                                </div>
+                                <div class="w-100"></div>
+                                
                                 <div class="col-10">
                                     <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
                                     <div class="input-group">

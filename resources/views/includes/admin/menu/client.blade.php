@@ -19,7 +19,10 @@
     </a>
 </li>
 <li class="nav-item">
-    <a href="{{ route('logout') }}" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
+    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-client').submit();" class="nav-link bg-blue-400 text-black py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
         <i class="fas fa-sign-out-alt mr-2"></i> Logout
     </a>
+    <form id="logout-form-client" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 </li>

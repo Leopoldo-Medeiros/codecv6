@@ -12,7 +12,7 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = Auth::user(); // Assuming you are using Laravel's Auth system
         $search = $request->input('search');
@@ -28,7 +28,7 @@ class UsersController extends Controller
         return view('users.index', compact('user', 'users'));
     }
 
-    public function show(User $user)
+    public function show(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = $user->load('profile');
         return view('users.show', compact('user'));
@@ -40,7 +40,7 @@ class UsersController extends Controller
         return view('users.form', compact('roles'));
     }
 
-    public function store(UserRequest $request)
+    public function store(UserRequest $request): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
         $user = User::create($validated);
@@ -54,28 +54,28 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function edit(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = $user->load('profile');
         $roles = Role::all(); // Assuming you have roles to pass
         return view('users.form', compact('user', 'roles'));
     }
 
-    public function update(UserRequest $request, User $user)
+    public function update(UserRequest $request, User $user): \Illuminate\Http\RedirectResponse
     {
+        \Log::info('Updating user: ' . $user->id);
+        \Log::info('Request data: ' . json_encode($request->all()));
+
         $validated = $request->validated();
         $user->update($validated);
 
-        // Update individual profile fields
         $this->updateCreateProfile($user, $request);
 
-        // update roles
         $this->updateRole($user, $validated);
 
         return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
     }
-
-    public function destroy(User $user)
+    public function destroy(User $user): \Illuminate\Http\RedirectResponse
     {
         if ($user->id === Auth::id()) {
             return redirect()->route('users.index')->with('error', 'You cannot delete yourself.');
@@ -98,13 +98,13 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
-    public function profile()
+    public function profile(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = auth()->user()->load('profile');
         return view('profile', compact('user'));
     }
 
-    public function updateRole(User $user, $validated)
+    public function updateRole(User $user, $validated): true|\Illuminate\Http\RedirectResponse
     {
         $role = Role::findById($validated['role']);
 
@@ -128,30 +128,61 @@ class UsersController extends Controller
         return true;
     }
 
-    private function updateCreateProfile(User $user, UserRequest $request)
+    private function updateCreateProfile(User $user, UserRequest $request): void
     {
-        // Inicializa o array validated se não estiver definido
+        \Log::info('Updating profile for user: ' . $user->id);
         $validated = $request->validated();
 
-        // Verifica se há um arquivo para a imagem de perfil
+        // Create profile data array
+        $profileData = $validated['profile'] ?? [];
+
         if ($request->hasFile('profile_image')) {
-            // Remove a imagem antiga se existir
+            \Log::info('Profile image file detected');
+            $file = $request->file('profile_image');
+
+            // Log file details
+            \Log::info('File details: ' . json_encode([
+                    'name' => $file->getClientOriginalName(),
+                    'size' => $file->getSize(),
+                    'mime' => $file->getMimeType()
+                ]));
+
             if ($user->profile && $user->profile->profile_image) {
-                if (Storage::exists($user->profile->profile_image)) {
-                    Storage::delete($user->profile->profile_image);
+                \Log::info('Deleting old profile image: ' . $user->profile->profile_image);
+                try {
+                    Storage::disk('public')->delete($user->profile->profile_image);
+                } catch (\Exception $e) {
+                    \Log::error('Error deleting old profile image: ' . $e->getMessage());
                 }
             }
 
-            // Salva a nova imagem e atualiza o array validated
-            $path = $request->file('profile_image')->store('profile_images', 'public');
-            $validated['profile']['profile_image'] = $path;
+            try {
+                $path = $file->store('profile_images', 'public');
+                \Log::info('New profile image stored at: ' . $path);
+                
+                // Verify the file was actually stored
+                if (Storage::disk('public')->exists($path)) {
+                    \Log::info('File exists at path: ' . $path);
+                    \Log::info('Full URL would be: ' . Storage::disk('public')->url($path));
+                    $profileData['profile_image'] = $path;
+                } else {
+                    \Log::error('File does not exist at expected path: ' . $path);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error storing profile image: ' . $e->getMessage());
+            }
+        } else {
+            \Log::info('No profile image file in request');
         }
 
-        // Atualiza ou cria o perfil com os dados validados
-        $user->profile()->updateOrCreate(
+        $profile = $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
-            $validated['profile'] ?? [] // Garante que $validated['profile'] existe
+            $profileData
         );
+
+        \Log::info('Profile updated: ' . json_encode($profile));
     }
+
+
 
 }

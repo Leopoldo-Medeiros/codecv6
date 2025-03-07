@@ -30,8 +30,8 @@
                             @else
                                 <img src="{{ asset('images/team-13.jpg') }}" alt="avatar" class="profile-image">
                             @endif
-                            <p class="text-muted mb-1">{{ $user->profile ? $user->profile->profession : 'N/A' }}</p>
-                            <p class="text-muted mb-4">{{ $user->profile ? $user->location : 'N/A' }}</p>
+                            <p class="text-muted mb-1">{{ $user->profile ? $user->profile->profession : '' }}</p>
+                            <p class="text-muted mb-4">{{ $user->profile ? $user->location : '' }}</p>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-primary">Follow</button>
                                 <button type="button" class="btn btn-outline-primary ms-1">Message</button>
@@ -42,24 +42,38 @@
                         <div class="card-body p-0">
                             <ul class="list-group list-group-flush rounded-3">
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <i class="fas fa-globe fa-lg text-warning"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->website : 'N/A' }}</p>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-github fa-lg text-body"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->github : 'N/A' }}</p>
+                                    <!-- Debug info: {{ isset($user->profile->github) ? 'GitHub exists: ' . $user->profile->github : 'GitHub does not exist' }} -->
+                                    @if($user->profile && $user->profile->github)
+                                        <a href="{{ $user->profile->github }}" target="_blank" class="mb-0 text-decoration-none text-truncate" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: block;">{{ $user->profile->github }}</a>
+                                    @else
+                                        <p class="mb-0"></p>
+                                    @endif
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->twitter : 'N/A' }}</p>
+                                    <i class="fab fa-linkedin fa-lg" style="color: #0077b5;"></i>
+                                    <!-- Debug info: {{ isset($user->profile->linkedin) ? 'LinkedIn exists: ' . $user->profile->linkedin : 'LinkedIn does not exist' }} -->
+                                    @if($user->profile && isset($user->profile->linkedin) && $user->profile->linkedin)
+                                        <a href="{{ $user->profile->linkedin }}" target="_blank" class="mb-0 text-decoration-none text-truncate" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: block;">{{ $user->profile->linkedin }}</a>
+                                    @else
+                                        <p class="mb-0"></p>
+                                    @endif
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->instagram : 'N/A' }}</p>
+                                    @if($user->profile && $user->profile->instagram)
+                                        <a href="{{ $user->profile->instagram }}" target="_blank" class="mb-0 text-decoration-none text-truncate" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: block;">{{ $user->profile->instagram }}</a>
+                                    @else
+                                        <p class="mb-0"></p>
+                                    @endif
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                                    <p class="mb-0">{{ $user->profile ? $user->profile->facebook : 'N/A' }}</p>
+                                    @if($user->profile && $user->profile->facebook)
+                                        <a href="{{ $user->profile->facebook }}" target="_blank" class="mb-0 text-decoration-none text-truncate" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: block;">{{ $user->profile->facebook }}</a>
+                                    @else
+                                        <p class="mb-0"></p>
+                                    @endif
                                 </li>
                             </ul>
                         </div>
@@ -96,7 +110,7 @@
                                     <p class="mb-0 fw-bold"><i class="fas fa-birthday-cake me-2"></i>Birth Date</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ $user->profile->birth_date ?? 'N/A' }}</p>
+                                    <p class="text-muted mb-0">{{ $user->profile->birth_date ?? '' }}</p>
                                 </div>
                             </div>
                             <hr>
@@ -105,7 +119,7 @@
                                     <p class="mb-0 fw-bold"><i class="fas fa-briefcase me-2"></i>Profession</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ $user->profile->profession ?? 'N/A' }}</p>
+                                    <p class="text-muted mb-0">{{ $user->profile->profession ?? '' }}</p>
                                 </div>
                             </div>
                         </div>
