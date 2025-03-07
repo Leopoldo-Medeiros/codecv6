@@ -1,7 +1,18 @@
-<nav class="navbar bg-white topbar border-bottom static-top p-0 pt-1 m-0">
-    <div class="container-fluid d-flex justify-content-between align-items-center pe-4">
-        <!-- Left side content if needed -->
-        <!-- Profile Section (Aligned Right) -->
+<nav class="navbar bg-white topbar border-bottom shadow-sm py-2">
+    <div class="container-fluid">
+        <!-- Sidebar toggle button (if needed) - hidden on larger screens -->
+        <button type="button" id="sidebarCollapse" class="btn d-md-none">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Logo moved to center-left -->
+        <div class="navbar-brand py-0 ms-md-5 mx-auto mx-md-0">
+            <a href="{{ Auth::check() ? route('dashboard') : url('/') }}" class="smll-logo">
+                <img src="{{ asset('images/codecv.png') }}" alt="Logo" class="navbar-logo">
+            </a>
+        </div>
+        
+        <!-- Right side controls -->
         <div class="dropdown ms-auto d-flex align-items-center">
             <div class="mode-switch d-flex align-items-center p-2 me-3">
                 <button title="Toggle dark mode" id="themeSwitch" class="btn btn-sm btn-outline-secondary rounded-circle me-2">

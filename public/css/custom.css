@@ -293,14 +293,23 @@ td.align-middle .user-subhead {
 }
 
 .logo-background {
-    background-color: #abcbf1; /* Replace with your desired background color */
-    padding: 5px; /* Optional: Adjust padding for better spacing */
-    height: 80px; /* Adjust the height as needed */
+    background-color: #ffffff; /* Clean white background */
+    padding: 15px; /* Increased padding for better spacing */
+    height: auto; /* Auto height */
+    min-height: 80px; /* Minimum height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #f0f0f0; /* Subtle border */
 }
 
 .logo-img {
-    width: 160px; /* Adjust the size as needed */
-    height: 120px; /* Adjust the size as needed */
+    width: 160px; /* Width */
+    height: auto; /* Auto height to maintain aspect ratio */
+    max-height: 120px; /* Max height */
+    object-fit: contain; /* Ensure the image fits within the container */
+    image-rendering: -webkit-optimize-contrast; /* Improve rendering on WebKit browsers */
+    image-rendering: crisp-edges; /* Improve rendering on other browsers */
 }
 
 .small-avatar {
@@ -641,4 +650,134 @@ input, select, button, label, .form-label, .input-group-text, .btn, .text-danger
 
 [data-bs-theme="dark"] .course-header:after {
     background-color: #0d6efd;
+}
+
+/* User Profile in Sidebar */
+.user-profile {
+    padding: 15px 10px;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-image-container {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.user-profile h6 {
+    color: #333;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.user-profile .badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+}
+
+.user-profile .btn-light {
+    background-color: #f8f9fa;
+    border: none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+.user-profile .btn-light:hover {
+    background-color: #e9ecef;
+    color: #495057;
+    transform: translateY(-2px);
+}
+
+/* Dark mode styles for user profile */
+[data-bs-theme="dark"] .user-profile {
+    background-color: transparent;
+}
+
+[data-bs-theme="dark"] .user-profile h6 {
+    color: #dee2e6;
+}
+
+[data-bs-theme="dark"] .profile-image {
+    border-color: #2c3034;
+}
+
+[data-bs-theme="dark"] .user-profile .btn-light {
+    background-color: #343a40;
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .user-profile .btn-light:hover {
+    background-color: #495057;
+    color: #e9ecef;
+}
+
+/* Navbar Logo */
+.navbar-logo {
+    height: 16px;
+    max-width: 70px;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Dark mode navbar logo */
+[data-bs-theme="dark"] .navbar {
+    background-color: #212529 !important;
+    border-color: #343a40 !important;
+}
+
+.navbar .dropdown img {
+    border: 2px solid #ccc; /* Add a light gray border */
+    padding: 2px; /* Add some padding for better appearance */
+}
+
+.profile-image-container img {
+    border: 2px solid #ccc; /* Add a light gray border */
+    border-radius: 50%; /* Make it a circle */
+    padding: 2px; /* Add some padding for better appearance */
+}
+
+.user-profile img {
+    border: 2px solid #ccc; /* Add a light gray border */
+    padding: 2px; /* Add some padding for better appearance */
+}
+
+img.rounded-circle {
+    border: 2px solid #ccc !important; /* Add a light gray border */
+    border-radius: 50% !important; /* Ensure it is circular */
+    padding: 2px !important; /* Add some padding for better appearance */
+}
+
+.navbar .dropdown .rounded-circle {
+    border: 2px solid #ccc !important; /* Add a light gray border */
+    border-radius: 50% !important; /* Ensure it is circular */
+    padding: 2px !important; /* Add some padding for better appearance */
 }
