@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserRequest extends FormRequest
 {
@@ -28,6 +29,11 @@ class UserRequest extends FormRequest
             'profile.birth_date' => 'nullable|date',
             'profile.profession' => 'nullable|string',
             'profile.profile_image' => 'nullable|file|max:2048|mimes:jpeg,jpg,png',
+            'profile.website' => 'nullable|url|max:255',
+            'profile.github' => 'nullable|url|max:255',
+            'profile.linkedin' => 'nullable|url|max:255',
+            'profile.instagram' => 'nullable|url|max:255',
+            'profile.facebook' => 'nullable|url|max:255',
             'role' => 'required|exists:roles,id',
         ];
 

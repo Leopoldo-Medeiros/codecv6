@@ -8,6 +8,23 @@
                     <i id="themeIcon" class="bi"></i>
                 </button>
             </div>
+            
+            <!-- Notification dropdown -->
+            <div class="nav-item dropdown me-3">
+                <a class="nav-link dropdown-toggle hidden-arrow position-relative notification-link" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge rounded-pill badge-notification bg-danger">1</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarDropdownMenuLink">
+                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                    <li><a class="dropdown-item" href="#">New course available</a></li>
+                    <li><a class="dropdown-item" href="#">Certificate ready</a></li>
+                    <li><a class="dropdown-item" href="#">System update</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-primary" href="#">View all notifications</a></li>
+                </ul>
+            </div>
+            
             @if(Auth::check())
                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="{{ Auth::user()->profile && Auth::user()->profile->profile_image ? Storage::url(Auth::user()->profile->profile_image) : asset('images/team-13.jpg') }}" alt="avatar" width="32" height="32" class="rounded-circle">
@@ -30,9 +47,12 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item d-flex align-items-center text-danger" href="{{ route('logout') }}">
+                        <a class="dropdown-item d-flex align-items-center text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form-navbar').submit();">
                             <i class="fas fa-sign-out-alt me-2"></i> Sign out
                         </a>
+                        <form id="logout-form-navbar" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
                     </li>
                 </ul>
             @else
