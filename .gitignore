@@ -1,5 +1,12 @@
 /.phpunit.cache
+# Top-level install folders
 /node_modules
+/frontend/node_modules
+
+# Nuxt build artifacts
+/frontend/.nuxt
+/frontend/.output
+/frontend/.nitro
 /public/build
 /public/hot
 /public/storage

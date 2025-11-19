@@ -18,28 +18,41 @@ class UserSeeder extends Seeder
             ['email' => 'admin@admin.com'],
             [
                 'fullname' => 'Admin User',
-                'password' => Hash::make('password'), // Only set the password
+                'password' => Hash::make('password'),
             ]
         );
 
         Profile::factory()->create([
-            'user_id' => $admin->id
+            'user_id' => $admin->id,
+        ]);
+
+        $consultant = User::updateOrCreate(
+            ['email' => 'consultant@consultant.com'],
+            [
+                'fullname' => 'Consultant User',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        Profile::factory()->create([
+            'user_id' => $consultant->id,
         ]);
 
         $client = User::updateOrCreate(
             ['email' => 'client@client.com'],
             [
                 'fullname' => 'Client User',
-                'password' => Hash::make('password'), // Only set the password
+                'password' => Hash::make('password'),
             ]
         );
 
         Profile::factory()->create([
-            'user_id' => $client->id
+            'user_id' => $client->id,
         ]);
 
         // Assign roles if you are using Spatie Permission
-        $admin->assignRole('admin');
+        $admin->assignRole('superadmin');
+        $consultant->assignRole('consultant');
         $client->assignRole('client');
     }
 }
