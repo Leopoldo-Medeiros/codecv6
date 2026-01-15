@@ -741,8 +741,8 @@ input, select, button, label, .form-label, .input-group-text, .btn, .text-danger
 
 /* Navbar Logo */
 .navbar-logo {
-    height: 16px;
-    max-width: 70px;
+    height: 80px;
+    max-width: 200px;
     object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;

@@ -51,7 +51,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Assign roles if you are using Spatie Permission
-        $admin->assignRole('superadmin');
+        $admin->assignRole('admin');
         $consultant->assignRole('consultant');
         $client->assignRole('client');
     }

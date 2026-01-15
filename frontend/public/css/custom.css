@@ -1,0 +1,783 @@
+/* Base Styles */
+body {
+    font-size: 1rem !important; /* 12px if the browser default is 16px */
+    font-family: 'Open Sans', sans-serif !important;
+    /* Set your desired background color */
+    background-color: #eee;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6, .table, .user-link, .user-subhead, .label {
+    font-size: 0.875rem !important; /* 14px */
+}
+
+.large-font, .form-label, .form-control, .input-group-text, .btn-lg, .navbar, .navbar a, .navbar .navbar-brand, .navbar .nav-link, #sidebar .nav-link, #sidebar .sidebar-header h3 {
+    font-size: 1rem !important; /* 12px */
+}
+
+/* Table Styles */
+.custom-table {
+    font-size: 1rem !important; /* 12px */
+    border-collapse: separate;
+    border-spacing: 0 15px;
+    width: 100%;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.custom-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.custom-table th, .custom-table td {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.custom-table tbody tr {
+    background-color: #67a7ee;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.table thead tr th {
+    font-size: 1rem !important; /* 12px */
+    text-transform: uppercase;
+    border-bottom: 2px solid #e7ebee;
+}
+
+.table tbody tr td:first-child {
+    font-size: 1rem !important; /* 12px */
+    font-weight: 300;
+}
+
+.table tbody tr td {
+    font-size: 1rem !important; /* 12px */
+    vertical-align: middle;
+    border-top: 1px solid #e7ebee;
+    padding: 12px 8px;
+}
+
+/* Button Styles */
+.btn-primary-custom, .btn-primary {
+    display: inline-block !important; /* Ensure button is displayed */
+    background-color: #007bff !important; /* Blue for edit */
+    border-color: #007bff !important;
+    color: white !important;
+    visibility: visible !important; /* Ensure button is always visible */
+}
+
+.btn-primary-custom:hover, .btn-primary:hover {
+    background-color: #0056b3 !important; /* Darker shade for hover */
+    border-color: #004085 !important;
+    color: white !important;
+}
+
+.btn-primary-custom {
+    margin-right: 5px;
+}
+
+.btn-danger {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: darkred;
+    border-color: darkred;
+    color: white;
+}
+
+.btn-warning {
+    display: inline-block !important; /* Ensure button is displayed */
+    background-color: #ffc107 !important; /* Yellow for edit */
+    border-color: #ffc107 !important;
+    color: black !important;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800 !important; /* Darker shade for hover */
+    border-color: #d39e00 !important;
+    color: black !important;
+}
+
+.highlighted-btn {
+    background-color: #ffc107; /* Highlight color */
+    color: black;
+    border-color: #ffc107;
+}
+
+.highlighted-btn:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* Float and Width Utilities */
+.float-right {
+    float: right;
+    margin-right: 60px;
+}
+
+.custom-width {
+    width: 50%;
+}
+
+/* Panel Table Styles */
+.panel-table .panel-body {
+    padding: 0;
+}
+
+.panel-table .panel-body .table-bordered {
+    border-style: none;
+    margin: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type {
+    text-align: center;
+    width: 100px;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:last-of-type,
+.panel-table .panel-body .table-bordered > tbody > tr > td:last-of-type {
+    border-right: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type,
+.panel-table .panel-body .table-bordered > tbody > tr > td:first-of-type {
+    border-left: 0;
+}
+
+.panel-table .panel-body .table-bordered > tbody > tr:first-of-type > td {
+    border-bottom: 0;
+}
+
+.panel-table .panel-body .table-bordered > thead > tr:first-of-type > th {
+    border-top: 0;
+}
+
+.panel-table .panel-footer .pagination {
+    margin: 0;
+}
+
+.panel-table .panel-footer .col {
+    line-height: 34px;
+    height: 34px;
+}
+
+.panel-table .panel-heading .col h3 {
+    line-height: 30px;
+    height: 30px;
+}
+
+.panel-table .panel-body .table-bordered > tbody > tr > td {
+    line-height: 34px;
+}
+
+/* Header Styles */
+header .dropdown img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Sidebar Styles */
+.custom-menu-bg {
+    background-color: #abcbf1; /* Replace with your desired color */
+}
+
+/* Main Box Styles */
+.main-box.no-header {
+    padding-top: 20px;
+}
+
+.main-box {
+    background: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -moz-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -o-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    -ms-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    box-shadow: 1px 1px 2px 0 #CCCCCC;
+    margin-bottom: 16px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+/* User List Styles */
+.user-list tbody td>img {
+    position: relative;
+    max-width: 30px; /* Adjust the size as needed */
+    float: left;
+    margin-right: 15px;
+}
+
+.user-list tbody td .user-subhead {
+    font-style: italic;
+}
+
+.user-list tbody td .user-link {
+    display: block;
+    padding-top: 3px;
+    margin-left: 60px;
+}
+
+/* Link Styles */
+a {
+    color: #3498db;
+    outline: none !important;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.table a.table-link.danger {
+    color: #e74c3c;
+}
+
+/* Label Styles */
+.label {
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+/* Profile Icon Styles */
+.profile-icon {
+    width: 40px; /* Set the desired width */
+    height: 40px; /* Set the desired height */
+    border-radius: 40%; /* Make it a circle */
+    object-fit: cover; /* Ensure the image covers the area */
+}
+
+/* Button Hover Styles */
+.btn-success:hover {
+    background-color: #218838 !important; /* Darker shade for hover */
+    border-color: #1e7e34 !important;
+    color: white !important;
+}
+
+/* Ensure table cells align middle */
+td.align-middle {
+    vertical-align: middle !important;
+}
+
+/* Style for user image */
+td.align-middle img.rounded-circle {
+    max-width: 50px; /* Adjust the size as needed */
+    float: left;
+    margin-right: 15px;
+}
+
+/* Style for user link */
+td.align-middle .user-link {
+    display: block;
+    padding-top: 3px;
+    margin-left: 60px;
+}
+
+/* Style for user subhead */
+td.align-middle .user-subhead {
+    display: block;
+    font-style: italic;
+    margin-left: 60px;
+}
+
+.large-text {
+    font-size: 2rem !important; /* Adjust the size as needed */
+}
+
+.logo-background {
+    background-color: #ffffff; /* Clean white background */
+    padding: 15px; /* Increased padding for better spacing */
+    height: auto; /* Auto height */
+    min-height: 80px; /* Minimum height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #f0f0f0; /* Subtle border */
+}
+
+.logo-img {
+    width: 160px; /* Width */
+    height: auto; /* Auto height to maintain aspect ratio */
+    max-height: 120px; /* Max height */
+    object-fit: contain; /* Ensure the image fits within the container */
+    image-rendering: -webkit-optimize-contrast; /* Improve rendering on WebKit browsers */
+    image-rendering: crisp-edges; /* Improve rendering on other browsers */
+}
+
+.small-avatar {
+    width: 34px !important; /* Adjust the size as needed */
+    height: 34px !important; /* Adjust the size as needed */
+}
+
+.small-user-link {
+    font-size: 0.875rem; /* Adjust the size as needed */
+}
+
+.rounded-circle-img {
+    width: 180px !important; /* Set a fixed width */
+    height: 180px !important; /* Set a fixed height */
+    border-radius: 100% !important; /* Make it a circle */
+    object-fit: cover !important; /* Ensure the image covers the area */
+}
+
+.profile-image {
+    width: 150px; /* Adjust the width as needed */
+    height: 150px; /* Adjust the height as needed */
+    border-radius: 50%; /* Make it a circle */
+    object-fit: cover; /* Ensure the image covers the area */
+}
+
+.align-sidebar {
+    margin-left: 10px; /* Adjust the margin as needed */
+    display: flex;
+    align-items: center;
+    position: absolute; /* Position it absolutely */
+    top: 20px; /* Adjust the top position as needed */
+    left: 20px; /* Adjust the left position as needed */
+}
+
+.mode-switch .btn {
+    width: 40px; /* Adjust the size as needed */
+    height: 40px; /* Adjust the size as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    border: 2px solid transparent;
+    background-color: transparent; /* Ensure background is transparent */
+}
+
+.mode-switch .btn:hover {
+    background-color: #67a7ee; /* Light blue background on hover */
+    color: #fff; /* White text color on hover */
+    transform: scale(1.1); /* Slightly enlarge the button on hover */
+    border-color: #0056b3; /* Border color on hover */
+}
+
+.mode-switch .btn:active {
+    transform: scale(0.9); /* Slightly shrink the button on click */
+}
+
+.mode-switch .btn i {
+    font-size: 1.2rem; /* Adjust the icon size as needed */
+}
+
+.custom-icon {
+    width: 20px; /* Adjust the size as needed */
+    height: 20px; /* Adjust the size as needed */
+    object-fit: cover; /* Ensure the image covers the area */
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] .mode-switch .btn:hover {
+    background-color: #67a7ee; /* Light blue background on hover */
+    color: #fff; /* White text color on hover */
+    border-color: #0056b3; /* Border color on hover */
+}
+
+[data-bs-theme="dark"] .custom-menu-bg,
+[data-bs-theme="dark"] .sidebar-header,
+[data-bs-theme="dark"] .form-create {
+    background-color: #1f1f1f; /* Dark background for sidebar and form */
+}
+
+[data-bs-theme="dark"] .nav-link,
+[data-bs-theme="dark"] .form-label,
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .btn,
+[data-bs-theme="dark"] .sidebar-header h3 {
+    color: #ffffff; /* Light text color */
+}
+
+[data-bs-theme="dark"] .nav-link:hover {
+    background-color: #333333; /* Darker background on hover */
+}
+
+[data-bs-theme="dark"] .form-control {
+    background-color: #333333; /* Dark background for input fields */
+    border-color: #444444; /* Dark border color for input fields */
+}
+
+[data-bs-theme="dark"] .btn:hover {
+    background-color: #555555; /* Darker background on hover */
+    border-color: #666666; /* Darker border color on hover */
+}
+
+[data-bs-theme="dark"] .fas {
+    color: #ffffff; /* Light color for FontAwesome icons */
+}
+
+[data-bs-theme="dark"] .nav-link {
+    color: #ffffff !important; /* Light text color for navigation links */
+}
+
+[data-bs-theme="dark"] .nav-link:hover {
+    background-color: #333333; /* Darker background on hover */
+    color: #ffffff !important; /* Ensure text remains white on hover */
+}
+
+/* Keep the original background for the logo */
+[data-bs-theme="dark"] .logo-background {
+    background-color: #dae7f3; /* Original background color */
+}
+
+/* Override all nav-link hover effects with more specific selectors */
+.navbar .nav-link:hover,
+.navbar .nav-item .nav-link:hover,
+.navbar .dropdown .nav-link:hover,
+.navbar .nav-item.dropdown .nav-link:hover,
+nav .nav-link:hover {
+    background-color: transparent !important;
+    color: #495057 !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Specific style for notification dropdown link */
+.nav-item.dropdown .nav-link:hover,
+.navbar .nav-item.dropdown .nav-link:hover {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Ensure no background on any dropdown items */
+.dropdown-toggle:hover, 
+.dropdown-item:hover,
+.dropdown .nav-link:hover,
+.navbar .dropdown .nav-link:hover {
+    background-color: transparent !important;
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] body {
+    background-color: #121212; /* Dark background for the entire page */
+    color: white; /* White text color */
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: #343a40 !important; /* Dark background for light sections */
+}
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: #343a40 !important; /* Dark background for white sections */
+}
+
+[data-bs-theme="dark"] .text-secondary {
+    color: #b0b0b0 !important; /* Light gray text color */
+}
+
+[data-bs-theme="dark"] .border-dark-subtle {
+    border-color: #6c757d !important; /* Dark border color */
+}
+
+[data-bs-theme="dark"] .form-container {
+    background-color: #343a40; /* Dark background for the form container */
+    color: white; /* White text color */
+    padding: 20px; /* Optional: Add padding for better spacing */
+    border-radius: 5px; /* Optional: Add rounded corners */
+}
+
+[data-bs-theme="dark"] .form-container .form-label,
+[data-bs-theme="dark"] .form-container .input-group-text,
+[data-bs-theme="dark"] .form-container .form-control,
+[data-bs-theme="dark"] .form-container .btn {
+}
+
+[data-bs-theme="dark"] .form-container .form-control:focus {
+    background-color: #495057; /* Keep dark background on focus */
+    color: white; /* Keep white text color on focus */
+    border-color: #80bdff; /* Optional: Change border color on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Optional: Add box shadow on focus */
+}
+
+/* Define CSS variables for light and dark themes */
+:root {
+    --font-color: #000000;
+}
+
+[data-theme="dark"] {
+    --font-color: #ffffff;
+}
+
+/* Apply the variables to your form */
+body {
+    color: var(--font-color);
+}
+
+input, select, button, label, .form-label, .input-group-text, .btn, .text-danger, .form-check-label {
+    color: var(--font-color);
+}
+
+[data-bs-theme="dark"] .form-check-label {
+    color: #ffffff; /* White text color */
+}
+
+[data-bs-theme="dark"] p.text-center.h1.fw-bold {
+    color: #ffffff; /* White text color */
+}
+
+/* Notification Badge */
+.badge-notification {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.6rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid #fff;
+}
+
+/* Navbar Dropdown */
+.nav-item.dropdown {
+    position: relative;
+}
+
+.nav-link.dropdown-toggle.hidden-arrow::after {
+    display: none;
+}
+
+/* Direct targeting of notification link */
+.notification-link,
+.notification-link:hover,
+.notification-link:focus,
+.notification-link:active {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Override Bootstrap's nav-link focus and active states */
+.nav-link:focus,
+.nav-link:active,
+.nav-link.active,
+.nav-link.show,
+.show > .nav-link {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Override any Bootstrap utility classes that might be applied */
+.bg-light, .bg-white, .bg-body-tertiary {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Social Media Links */
+.list-group-item a.text-truncate {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-group-item i {
+    min-width: 20px;
+}
+
+/* Course View Styles */
+.course-icon-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.course-icon-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.course-card {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+.course-header {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.course-header:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: #007bff;
+}
+
+/* Dark mode styles for course view */
+[data-bs-theme="dark"] .course-card {
+    background-color: #2c3034;
+    border-color: #373b3e;
+}
+
+[data-bs-theme="dark"] .course-header {
+    background-color: #212529 !important;
+    border-color: #373b3e;
+}
+
+[data-bs-theme="dark"] .course-header:after {
+    background-color: #0d6efd;
+}
+
+/* User Profile in Sidebar */
+.user-profile {
+    padding: 15px 10px;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-image-container {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.user-profile h6 {
+    color: #333;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.user-profile .badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+}
+
+.user-profile .btn-light {
+    background-color: #f8f9fa;
+    border: none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+.user-profile .btn-light:hover {
+    background-color: #e9ecef;
+    color: #495057;
+    transform: translateY(-2px);
+}
+
+/* Dark mode styles for user profile */
+[data-bs-theme="dark"] .user-profile {
+    background-color: transparent;
+}
+
+[data-bs-theme="dark"] .user-profile h6 {
+    color: #dee2e6;
+}
+
+[data-bs-theme="dark"] .profile-image {
+    border-color: #2c3034;
+}
+
+[data-bs-theme="dark"] .user-profile .btn-light {
+    background-color: #343a40;
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .user-profile .btn-light:hover {
+    background-color: #495057;
+    color: #e9ecef;
+}
+
+/* Navbar Logo */
+.navbar-logo {
+    height: 16px;
+    max-width: 70px;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Dark mode navbar logo */
+[data-bs-theme="dark"] .navbar {
+    background-color: #212529 !important;
+    border-color: #343a40 !important;
+}
+
+.navbar .dropdown img {
+    border: 2px solid #ccc; /* Add a light gray border */
+    padding: 2px; /* Add some padding for better appearance */
+}
+
+.profile-image-container img {
+    border: 2px solid #ccc; /* Add a light gray border */
+    border-radius: 50%; /* Make it a circle */
+    padding: 2px; /* Add some padding for better appearance */
+}
+
+.user-profile img {
+    border: 2px solid #ccc; /* Add a light gray border */
+    padding: 2px; /* Add some padding for better appearance */
+}
+
+img.rounded-circle {
+    border: 2px solid #ccc !important; /* Add a light gray border */
+    border-radius: 50% !important; /* Ensure it is circular */
+    padding: 2px !important; /* Add some padding for better appearance */
+}
+
+.navbar .dropdown .rounded-circle {
+    border: 2px solid #ccc !important; /* Add a light gray border */
+    border-radius: 50% !important; /* Ensure it is circular */
+    padding: 2px !important; /* Add some padding for better appearance */
+}

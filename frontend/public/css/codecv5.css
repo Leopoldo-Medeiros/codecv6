@@ -1,0 +1,96 @@
+/* Existing CSS */
+@import url('flaticon.css');
+
+.navbar-light .wsmenu > .wsmenu-list > li > a.h-link {
+    color: #090808;
+    font-weight: 600;
+    padding: 10px 15px;
+}
+
+.navbar-light .wsmenu > .wsmenu-list > li > a.h-link:hover {
+    color: #007bff;
+}
+
+.desktoplogo, .smll-logo {
+    margin: 0 0 0 -60px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center; /* Center the logo */
+}
+
+.desktoplogo img, .smll-logo img {
+    max-width: 170px;
+    max-height: 170px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.scroll .logo-black img {
+    width: 100px;
+    margin-bottom: 0;
+}
+
+.header-wrapper {
+    padding: 10px 0;
+}
+
+.wsmenu {
+    margin-top: 10px;
+}
+
+#wsnavtoggle {
+    z-index: 1000;
+    position: relative;
+    cursor: pointer;
+}
+
+@media (max-width: 991px) {
+    .wsmobileheader {
+        display: block;
+    }
+    .wsdesktopheader {
+        display: none;
+    }
+}
+
+/* New CSS for responsive logo */
+@media (max-width: 1200px) {
+    .desktoplogo img, .smll-logo img, .logo-img {
+        max-width: 150px;
+        max-height: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .desktoplogo img, .smll-logo img, .logo-img {
+        max-width: 120px;
+        max-height: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .desktoplogo img, .smll-logo img, .logo-img {
+        max-width: 100px;
+        max-height: 100px;
+    }
+}
+
+/* Default logo size */
+.logo-img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Add this to your CSS file */
+.ico-20 .text-success {
+    color: green !important;
+}
+
+.ico-15 .text-danger {
+    color: red !important;
+}
+
+.qr-code {
+    max-width: 200px;
+}

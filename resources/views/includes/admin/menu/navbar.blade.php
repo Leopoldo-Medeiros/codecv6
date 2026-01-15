@@ -8,7 +8,7 @@
         <!-- Logo moved to center-left -->
         <div class="navbar-brand py-0 ms-md-5 mx-auto mx-md-0">
             <a href="{{ Auth::check() ? route('dashboard') : url('/') }}" class="smll-logo">
-                <img src="{{ asset('images/codecv.png') }}" alt="Logo" class="navbar-logo">
+                <img src="{{ asset('images/codecv.png') }}" alt="Logo" class="navbar-logo" style="height: 80px;">
             </a>
         </div>
         

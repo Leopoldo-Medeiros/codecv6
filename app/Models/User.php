@@ -8,10 +8,11 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Scout\Searchable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, Searchable; // Add Searchable trait
+    use HasFactory, Notifiable, HasRoles, Searchable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
