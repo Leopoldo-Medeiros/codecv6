@@ -4,13 +4,14 @@ config:
   php: "8.3"
   webroot: public
   via: nginx
-  database: mysql:8.0
+  database: mysql:8.0.35
 services:
   appserver:
     type: php:8.3
     build_as_root:
       - apt-get update -y
       - apt-get install -y nodejs npm
+      - apt-get install -y composer
     environment:
       MYSQL_VERSION: "8"
   node:

@@ -1,0 +1,5 @@
+node_modules
+.nuxt
+.output
+.nitro
+.DS_Store

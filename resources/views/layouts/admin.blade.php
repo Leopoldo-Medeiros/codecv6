@@ -14,10 +14,43 @@
         @if (!request()->is('register'))
             <div class="col-auto col-md-3 col-xl-2 pr-sm-2 px-0 pl-0 custom-menu-bg">
                 <div id="sidebar"
-                     class="custom-menu-bg custom-sidebar-width d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white vh-100">
-                    <div class="sidebar-header d-flex justify-content-center align-items-center logo-background w-100">
-                        <img src="{{ asset('images/logo/codecv.png') }}" alt="Logo" class="logo-img mx-auto">
+                     class="custom-menu-bg custom-sidebar-width d-flex flex-column align-items-center align-items-sm-start px-3 pt-4 text-white vh-100">
+                    
+                    @if(Auth::check())
+                    <div class="user-profile my-3 w-100 text-center">
+                        <div class="d-flex justify-content-center">
+                            <div class="profile-image-container mb-3">
+                                <img src="{{ Auth::user()->profile && Auth::user()->profile->profile_image ? Storage::url(Auth::user()->profile->profile_image) : asset('images/team-13.jpg') }}" 
+                                    alt="{{ Auth::user()->fullname }}" 
+                                    class="profile-image">
+                            </div>
+                        </div>
+                        <h6 class="mb-1 fw-bold">{{ Auth::user()->fullname }}</h6>
+                        <p class="text-muted small mb-3">
+                            @if(Auth::user()->hasRole('admin'))
+                                <span class="badge bg-primary-subtle text-primary">Admin</span>
+                            @else
+                                <span class="badge bg-info-subtle text-info">{{ Auth::user()->profile && Auth::user()->profile->profession ? Auth::user()->profile->profession : 'Member' }}</span>
+                            @endif
+                        </p>
+                        <div class="d-flex justify-content-center gap-2 mb-2">
+                            <a href="{{ route('profile') }}" class="btn btn-sm btn-light" title="View Profile">
+                                <i class="fas fa-user"></i>
+                            </a>
+                            <a href="#" class="btn btn-sm btn-light" title="Settings">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();" class="btn btn-sm btn-light" title="Logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                            <form id="sidebar-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        </div>
                     </div>
+                    <hr class="w-100 my-2 opacity-25">
+                    @endif
+                    
                     <ul class="nav flex-column">
                         @if (Auth::check())
                             @role('client')

@@ -10,20 +10,31 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
         $credentials = $request->only('email', 'password');
+
         if (Auth::attempt($credentials)) {
-            return redirect('dashboard')->withSuccess('Signed in');
+            $user = Auth::user();
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            // Load user's roles
+            $user->load('roles');
+
+            // Add the primary role name to the user object
+            $userData = $user->toArray();
+            $userData['role'] = $user->roles->first()?->name;
+
+            return response()->json([
+                'user' => $userData,
+                'access_token' => $token,
+                'token_type' => 'Bearer'
+            ]);
         }
 
-        return redirect('login')->withErrors('Login details are not valid');
-    }
-
-    public function loginForm() {
-        return view('login');
+        return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
     public function logOut() {
