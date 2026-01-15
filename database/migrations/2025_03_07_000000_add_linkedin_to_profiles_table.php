@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('profiles', function (Blueprint $table) {
-            $table->string('linkedin')->nullable()->after('github');
+            $table->string('linkedin')->nullable();
         });
     }
 
@@ -25,4 +25,4 @@ return new class extends Migration
             $table->dropColumn('linkedin');
         });
     }
-}; 
+};

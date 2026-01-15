@@ -11,26 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('course_plan');
+    }
+
+    public function down(): void
+    {
+        // This is just for rollback purposes, you might not need it
         Schema::create('course_plan', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('course_id');
             $table->unsignedBigInteger('plan_id');
             $table->timestamps();
-
-            $table->unique(['course_id', 'plan_id']);
-        });
-
-        // Add foreign key constraints after table creation
-        Schema::table('course_plan', function (Blueprint $table) {
-            $table->foreign('course_id')
-                ->references('id')
-                ->on('courses')
-                ->onDelete('cascade');
-
-            $table->foreign('plan_id')
-                ->references('id')
-                ->on('plans')
-                ->onDelete('cascade');
         });
     }
 };
