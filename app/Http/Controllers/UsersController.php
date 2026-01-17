@@ -31,12 +31,14 @@ class UsersController extends Controller
     public function show(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = $user->load('profile');
+
         return view('users.show', compact('user'));
     }
 
     public function create()
     {
         $roles = Role::all();
+
         return view('users.form', compact('roles'));
     }
 
@@ -58,13 +60,14 @@ class UsersController extends Controller
     {
         $user = $user->load('profile');
         $roles = Role::all(); // Assuming you have roles to pass
+
         return view('users.form', compact('user', 'roles'));
     }
 
     public function update(UserRequest $request, User $user): \Illuminate\Http\RedirectResponse
     {
-        \Log::info('Updating user: ' . $user->id);
-        \Log::info('Request data: ' . json_encode($request->all()));
+        \Log::info('Updating user: '.$user->id);
+        \Log::info('Request data: '.json_encode($request->all()));
 
         $validated = $request->validated();
         $user->update($validated);
@@ -75,6 +78,7 @@ class UsersController extends Controller
 
         return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
     }
+
     public function destroy(User $user): \Illuminate\Http\RedirectResponse
     {
         if ($user->id === Auth::id()) {
@@ -101,6 +105,7 @@ class UsersController extends Controller
     public function profile(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
     {
         $user = auth()->user()->load('profile');
+
         return view('profile', compact('user'));
     }
 
@@ -130,7 +135,7 @@ class UsersController extends Controller
 
     private function updateCreateProfile(User $user, UserRequest $request): void
     {
-        \Log::info('Updating profile for user: ' . $user->id);
+        \Log::info('Updating profile for user: '.$user->id);
         $validated = $request->validated();
 
         // Create profile data array
@@ -141,35 +146,35 @@ class UsersController extends Controller
             $file = $request->file('profile_image');
 
             // Log file details
-            \Log::info('File details: ' . json_encode([
-                    'name' => $file->getClientOriginalName(),
-                    'size' => $file->getSize(),
-                    'mime' => $file->getMimeType()
-                ]));
+            \Log::info('File details: '.json_encode([
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'mime' => $file->getMimeType(),
+            ]));
 
             if ($user->profile && $user->profile->profile_image) {
-                \Log::info('Deleting old profile image: ' . $user->profile->profile_image);
+                \Log::info('Deleting old profile image: '.$user->profile->profile_image);
                 try {
                     Storage::disk('public')->delete($user->profile->profile_image);
                 } catch (\Exception $e) {
-                    \Log::error('Error deleting old profile image: ' . $e->getMessage());
+                    \Log::error('Error deleting old profile image: '.$e->getMessage());
                 }
             }
 
             try {
                 $path = $file->store('profile_images', 'public');
-                \Log::info('New profile image stored at: ' . $path);
-                
+                \Log::info('New profile image stored at: '.$path);
+
                 // Verify the file was actually stored
                 if (Storage::disk('public')->exists($path)) {
-                    \Log::info('File exists at path: ' . $path);
-                    \Log::info('Full URL would be: ' . Storage::disk('public')->url($path));
+                    \Log::info('File exists at path: '.$path);
+                    \Log::info('Full URL would be: '.Storage::disk('public')->url($path));
                     $profileData['profile_image'] = $path;
                 } else {
-                    \Log::error('File does not exist at expected path: ' . $path);
+                    \Log::error('File does not exist at expected path: '.$path);
                 }
             } catch (\Exception $e) {
-                \Log::error('Error storing profile image: ' . $e->getMessage());
+                \Log::error('Error storing profile image: '.$e->getMessage());
             }
         } else {
             \Log::info('No profile image file in request');
@@ -180,9 +185,6 @@ class UsersController extends Controller
             $profileData
         );
 
-        \Log::info('Profile updated: ' . json_encode($profile));
+        \Log::info('Profile updated: '.json_encode($profile));
     }
-
-
-
 }

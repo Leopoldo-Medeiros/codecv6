@@ -1,23 +1,52 @@
 <?php
 
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\JobController;
+use App\Http\Controllers\Api\PathController;
+use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| All routes are prefixed with /api automatically.
+|
+*/
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logOut'])->middleware('auth:sanctum');
-
+Route::post('/register', [AuthController::class, 'register']);
 
 // Protected routes (require authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
-    // User management API
-    Route::get('/users', [UsersController::class, 'index']);
-    Route::post('/users', [UsersController::class, 'store']);
-    Route::get('/users/{user}', [UsersController::class, 'show']);
-    Route::put('/users/{user}', [UsersController::class, 'update']);
-    Route::delete('/users/{user}', [UsersController::class, 'destroy']);
-    
-    // Get available roles
-    Route::get('/roles', [UsersController::class, 'getRoles']);
+    // Auth
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/me', [AuthController::class, 'me']);
+
+    // Users
+    Route::apiResource('users', UserController::class);
+    Route::post('/users/{user}/avatar', [UserController::class, 'updateAvatar']);
+
+    // Roles
+    Route::get('/roles', [RoleController::class, 'index']);
+
+    // Courses
+    Route::apiResource('courses', CourseController::class);
+
+    // Plans
+    Route::apiResource('plans', PlanController::class);
+    Route::post('/plans/{plan}/clients', [PlanController::class, 'attachClient']);
+    Route::delete('/plans/{plan}/clients/{user}', [PlanController::class, 'detachClient']);
+
+    // Paths
+    Route::apiResource('paths', PathController::class);
+
+    // Jobs
+    Route::apiResource('jobs', JobController::class);
 });

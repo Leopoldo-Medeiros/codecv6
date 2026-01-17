@@ -35,15 +35,6 @@ class Plan extends Model
     }
 
     /**
-     * Get the courses that belong to this plan.
-     */
-    public function courses()
-    {
-        return $this->belongsToMany(Course::class, 'course_plan', 'plan_id', 'course_id')
-            ->withTimestamps();
-    }
-
-    /**
      * Get the paths that this plan is associated with.
      */
     public function paths()

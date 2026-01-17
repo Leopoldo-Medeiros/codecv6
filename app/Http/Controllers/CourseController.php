@@ -12,8 +12,8 @@ class CourseController extends Controller
     {
         $search = $request->input('search'); // It gets the value of the search field, if it exists
         $courses = Course::when($search, function ($query, $search) {
-            return $query->where('name', 'like', '%' . $search . '%')
-                         ->orWhere('description', 'like', '%' . $search . '%');
+            return $query->where('name', 'like', '%'.$search.'%')
+                ->orWhere('description', 'like', '%'.$search.'%');
         })->paginate(10);
 
         return view('courses.index', compact('courses'));
@@ -32,7 +32,6 @@ class CourseController extends Controller
         return redirect()->route('courses.index')->with('success', 'Course created successfully!');
     }
 
-
     public function show(Course $course)
     {
         return view('courses.show', compact('course'));
@@ -48,12 +47,14 @@ class CourseController extends Controller
         $validatedData = $request->validated();
 
         $course->update($validatedData);
+
         return redirect()->route('courses.index')->with('success', 'Course updated successfully!');
     }
 
     public function destroy(Course $course)
     {
         $course->delete();
+
         return redirect()->route('courses.index')->with('success', 'Course deleted successfully!');
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Database\QueryException;
 use App\Mail\VerifyEmailMailable;
+use App\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class RegisterController extends Controller
@@ -47,6 +47,7 @@ class RegisterController extends Controller
             if ($e->errorInfo[1] == 1062) {
                 return redirect()->back()->withErrors(['email' => 'The email address is already registered.'])->withInput();
             }
+
             return redirect()->back()->withErrors(['error' => 'An unexpected error occurred. Please try again.'])->withInput();
         }
     }

@@ -3,12 +3,21 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   devServer: {
-      host: "localhost",
-      port: 3000,
+    host: "localhost",
+    port: 3000,
   },
 
-  // Ensure you have the pages directory and a default page
   pages: true,
 
   compatibilityDate: "2025-02-28",
+
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://codecv6.lndo.site',
+    },
+  },
+
+  typescript: {
+    strict: true,
+  },
 })
