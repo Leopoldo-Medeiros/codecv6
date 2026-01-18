@@ -5,11 +5,14 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const TEST_PASSWORD = 'secure-test-password';
 
     protected function setUp(): void
     {
@@ -17,32 +20,32 @@ class LoginTest extends TestCase
         $this->seed(RoleSeeder::class);
     }
 
-    public function test_login_screen_can_be_rendered()
+    public function test_login_screen_can_be_rendered(): void
     {
         $response = $this->get('/login');
 
         $response->assertStatus(200);
     }
 
-    public function test_user_can_authenticate_using_the_login_screen()
+    public function test_user_can_authenticate_using_the_login_screen(): void
     {
         $user = User::factory()->create([
-            'password' => bcrypt($password = 'i-love-laravel'),
+            'password' => Hash::make(self::TEST_PASSWORD),
         ]);
 
         $response = $this->post('/login', [
             'email' => $user->email,
-            'password' => $password,
+            'password' => self::TEST_PASSWORD,
         ]);
 
         $this->assertAuthenticated();
         $response->assertRedirect('/dashboard');
     }
 
-    public function test_user_cannot_authenticate_with_invalid_password()
+    public function test_user_cannot_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create([
-            'password' => bcrypt('i-love-laravel'),
+            'password' => Hash::make(self::TEST_PASSWORD),
         ]);
 
         $this->post('/login', [
