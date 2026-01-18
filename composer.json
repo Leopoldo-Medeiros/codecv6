@@ -8,7 +8,10 @@
         "php": "^8.2",
         "algolia/algoliasearch-client-php": "^3.2",
         "algolia/scout-extended": "^3.0",
-        "laravel/framework": "^11.0",
+        "doctrine/dbal": "^4.4",
+        "laravel/fortify": "^1.24",
+        "laravel/framework": "^11.44",
+        "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.11",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
@@ -64,6 +67,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.3.28"
         }
     },
     "minimum-stability": "stable",

@@ -36,7 +36,7 @@ class ProfileFactory extends Factory
                 'Architect',
                 'Journalist',
                 'Marketing Specialist',
-                'Entrepreneur'
+                'Entrepreneur',
             ]),
         ];
     }

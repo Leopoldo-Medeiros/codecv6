@@ -1,29 +1,38 @@
 export const useApi = () => {
-    const baseURL = 'http://codecv6.lndo.site' // Your Laravel URL
+    const config = useRuntimeConfig()
+    const baseURL = config.public.apiBase as string
 
-    const apiFetch = async (endpoint: string, options: any = {}) => {
+    const apiFetch = async <T>(endpoint: string, options: RequestInit & { body?: unknown } = {}): Promise<T> => {
+        const fetchOptions: RequestInit = {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                ...options.headers,
+            },
+            ...options,
+        }
+
+        if (options.body && typeof options.body === 'object') {
+            fetchOptions.body = JSON.stringify(options.body)
+        }
+
         try {
-            const response = await $fetch(endpoint, {
+            const response = await $fetch<T>(endpoint, {
                 baseURL: `${baseURL}/api`,
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    ...options.headers,
-                },
-                ...options,
+                ...fetchOptions,
             })
             return response
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('API Error:', error)
             throw error
         }
     }
 
     return {
-        get: (endpoint: string) => apiFetch(endpoint, { method: 'GET' }),
-        post: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'POST', body }),
-        put: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'PUT', body }),
-        delete: (endpoint: string) => apiFetch(endpoint, { method: 'DELETE' }),
+        get: <T>(endpoint: string) => apiFetch<T>(endpoint, { method: 'GET' }),
+        post: <T>(endpoint: string, body: unknown) => apiFetch<T>(endpoint, { method: 'POST', body }),
+        put: <T>(endpoint: string, body: unknown) => apiFetch<T>(endpoint, { method: 'PUT', body }),
+        delete: <T>(endpoint: string) => apiFetch<T>(endpoint, { method: 'DELETE' }),
     }
 }

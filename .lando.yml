@@ -1,48 +1,23 @@
 name: codecv6
 recipe: laravel
 config:
-  php: "8.3"
+  php: '8.3'
   webroot: public
   via: nginx
-  database: mysql:8.0.35
+  database: mysql:8.0
+  xdebug: true
+  config:
+    php: php.ini
+
 services:
   appserver:
     type: php:8.3
     build_as_root:
-      - apt-get update -y
-      - apt-get install -y nodejs npm
-      - apt-get install -y composer
-    environment:
-      MYSQL_VERSION: "8"
-  node:
-    type: node:20
-    ssl: true
-    healthcheck: false
-tooling:
-  install:
-    service: appserver
-    cmd:
-      - composer install --no-cache
-      - php -r "file_exists('.env') || copy('.env.example', '.env');"
-      - php artisan key:generate
-      - php artisan migrate --seed
-      - npm install
-      - php artisan storage:link
-  setup:
-    service: appserver
-    cmd:
-      - composer install --no-cache
-      - php -r "file_exists('.env') || copy('.env.example', '.env');"
-      - php artisan key:generate
-      - php artisan migrate --seed
-      - npm install
-      - php artisan storage:link
-  tinker:
-    service: appserver
-    cmd: php artisan tinker
-  migrate:
-    service: appserver
-    cmd: php artisan migrate
-  rollback:
-    service: appserver
-    cmd: php artisan migrate:rollback --step=1
+      - apt-get update && apt-get install -y --no-install-recommends libpng-dev libjpeg-dev libfreetype6-dev
+      - docker-php-ext-configure gd --with-freetype --with-jpeg
+      - docker-php-ext-install -j$(nproc) gd pdo pdo_mysql
+    overrides:
+      environment:
+        PHP_MEMORY_LIMIT: -1
+        UPLOAD_MAX_FILESIZE: 100M
+        POST_MAX_SIZE: 100M

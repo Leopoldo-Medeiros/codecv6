@@ -20,8 +20,8 @@
 }
 
 .desktoplogo img, .smll-logo img {
-    max-width: 170px;
-    max-height: 170px;
+    max-width: 200px;
+    max-height: 200px;
     pointer-events: auto;
     cursor: pointer;
 }
@@ -57,22 +57,22 @@
 /* New CSS for responsive logo */
 @media (max-width: 1200px) {
     .desktoplogo img, .smll-logo img, .logo-img {
-        max-width: 150px;
-        max-height: 150px;
+        max-width: 180px;
+        max-height: 180px;
     }
 }
 
 @media (max-width: 768px) {
     .desktoplogo img, .smll-logo img, .logo-img {
-        max-width: 120px;
-        max-height: 120px;
+        max-width: 150px;
+        max-height: 150px;
     }
 }
 
 @media (max-width: 576px) {
     .desktoplogo img, .smll-logo img, .logo-img {
-        max-width: 100px;
-        max-height: 100px;
+        max-width: 130px;
+        max-height: 130px;
     }
 }
 

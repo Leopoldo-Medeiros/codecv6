@@ -24,24 +24,24 @@ class CourseRequest extends FormRequest
     {
         $rules = [
             'name' => 'required|max:255',
-            'slug' => 'required|string|max:255|unique:courses,slug', //If the 'url' is not unique, the validation will fail
+            'slug' => 'required|string|max:255|unique:courses,slug', // If the 'url' is not unique, the validation will fail
             'description' => 'nullable|string',
             'user_id' => 'required|exists:users,id',
         ];
 
         // It verifies the HTTP method and adjusts the rules
-        switch($this->method())
-        {
+        switch ($this->method()) {
             case 'POST':
                 return $rules;
             case 'PUT':
             case 'PATCH':
                 // In case of PUT/PATCH, we can ignore the current course
-                $rules['slug'] = 'required|string|max:255|unique:courses,slug,' . $this->route('course')->id;
+                $rules['slug'] = 'required|string|max:255|unique:courses,slug,'.$this->route('course')->id;
+
                 return $rules;
             case 'GET':
-                case 'DELETE':
-                    return []; // No rules for GET/DELETE requests
+            case 'DELETE':
+                return []; // No rules for GET/DELETE requests
             default:
                 return [];
         }

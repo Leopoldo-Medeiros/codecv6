@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class UserRequest extends FormRequest
 {
@@ -42,7 +41,7 @@ class UserRequest extends FormRequest
         switch ($this->method()) {
             case 'PATCH':
             case 'PUT':
-                $rules['email'] = 'required|email|unique:users,email,' . $userId;
+                $rules['email'] = 'required|email|unique:users,email,'.$userId;
                 $rules['password'] = 'nullable|min:6|confirmed';
                 break;
 
@@ -63,7 +62,7 @@ class UserRequest extends FormRequest
             $this->request->remove('password');
         }
 
-        if (!is_array($this->profile)) {
+        if (! is_array($this->profile)) {
             $this->merge(['profile' => []]);
         }
     }
@@ -76,7 +75,7 @@ class UserRequest extends FormRequest
         $validated = parent::validated();
 
         // Hash da senha, se fornecida
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         }
 
