@@ -3,9 +3,11 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -92,6 +94,21 @@ class AuthenticationTest extends TestCase
     }
 
     // ── Register ──────────────────────────────────────────────
+
+    public function test_welcome_email_sent_on_registration(): void
+    {
+        Notification::fake();
+
+        $this->postJson('/api/register', [
+            'fullname'              => 'Welcome User',
+            'email'                 => 'welcome@example.com',
+            'password'              => self::STRONG_PASSWORD,
+            'password_confirmation' => self::STRONG_PASSWORD,
+        ])->assertCreated();
+
+        $user = User::where('email', 'welcome@example.com')->first();
+        Notification::assertSentTo($user, WelcomeNotification::class);
+    }
 
     public function test_user_can_register_with_valid_data(): void
     {

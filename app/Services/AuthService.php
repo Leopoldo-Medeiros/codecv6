@@ -6,6 +6,7 @@ use App\Enums\RoleEnum;
 use App\Exceptions\AuthenticationException;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -41,6 +42,8 @@ class AuthService
         if (isset($data['profile'])) {
             $user->profile()->create($data['profile']);
         }
+
+        $user->notify(new WelcomeNotification());
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
