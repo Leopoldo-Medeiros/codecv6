@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CvController;
@@ -21,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 | All routes are prefixed with /api automatically.
 |
 */
+
+// Google OAuth
+Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 // Public routes — rate limited to prevent brute force
 Route::middleware('throttle:5,1')->group(function () {

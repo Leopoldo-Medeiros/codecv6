@@ -147,6 +147,14 @@ export const useAuth = () => {
         }
     }
 
+    const setAuth = (token: string, userData: User) => {
+        user.value = userData
+        if (import.meta.client) {
+            localStorage.setItem(STORAGE_KEYS.TOKEN, token)
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
+        }
+    }
+
     const updateUser = (patch: Partial<User>) => {
         user.value = { ...user.value!, ...patch }
         if (import.meta.client) {
@@ -163,6 +171,7 @@ export const useAuth = () => {
         login,
         register,
         logout,
+        setAuth,
         updateUser,
     }
 }
