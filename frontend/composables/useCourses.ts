@@ -44,7 +44,7 @@ export const useCourses = () => {
       courses.value = response.data
       return response
     } catch (err: any) {
-      error.value = err.message || 'Failed to fetch courses'
+      error.value = err?.data?.message || err.message || 'Failed to fetch courses'
       throw err
     } finally {
       loading.value = false

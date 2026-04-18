@@ -9,6 +9,11 @@ config:
   config:
     php: php.ini
 
+proxy:
+  frontnode:
+    - dashboard.codecv6.lndo.site:3000
+    - app.codecv6.lndo.site:3000
+
 services:
   appserver:
     type: php:8.3
@@ -21,3 +26,14 @@ services:
         PHP_MEMORY_LIMIT: -1
         UPLOAD_MAX_FILESIZE: 100M
         POST_MAX_SIZE: 100M
+
+  frontnode:
+    type: node:20
+    build:
+      - cd /app/frontend && npm install
+    run:
+      - cd /app/frontend && npm run dev
+    overrides:
+      environment:
+        NODE_ENV: development
+        NUXT_PUBLIC_API_BASE: http://appserver_nginx

@@ -31,7 +31,7 @@ class PlanService
         $plan = Plan::create([
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
-            'price' => $data['price'] ?? null,
+            'price' => $data['price'] ?? 0,
             'consultant_id' => $data['consultant_id'],
         ]);
 

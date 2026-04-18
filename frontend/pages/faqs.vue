@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <NuxtLayout name="marketing">
+    <div>
     <!-- FAQs-2 -->
     <section id="faqs-2" class="gr--whitesmoke pb-30 inner-page-hero faqs-section division">
       <div class="container">
@@ -51,6 +52,7 @@
       </div>
     </section>
   </div>
+  </NuxtLayout>
 </template>
 
 <script setup>

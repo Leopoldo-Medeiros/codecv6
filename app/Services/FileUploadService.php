@@ -4,12 +4,15 @@ namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FileUploadService
 {
     public function upload(UploadedFile $file, string $directory = 'uploads'): ?string
     {
-        return $file->store($directory, 'public');
+        $filename = Str::random(40).'.'.$file->getClientOriginalExtension();
+
+        return $file->storeAs($directory, $filename, 'public');
     }
 
     public function delete(?string $path): bool
