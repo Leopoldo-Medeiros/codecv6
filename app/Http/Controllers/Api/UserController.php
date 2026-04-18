@@ -11,6 +11,7 @@ use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -28,8 +29,12 @@ class UserController extends Controller
         return UserResource::collection($users);
     }
 
-    public function show(User $user): UserResource
+    public function show(User $user): UserResource|JsonResponse
     {
+        if (Auth::id() !== $user->id && ! Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'You are not authorized to view this user.'], 403);
+        }
+
         $user = $this->userService->find($user->id);
 
         return new UserResource($user);
@@ -51,6 +56,10 @@ class UserController extends Controller
 
     public function update(UserRequest $request, User $user): JsonResponse
     {
+        if (Auth::id() !== $user->id && ! Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'You are not authorized to update this user.'], 403);
+        }
+
         try {
             $user = $this->userService->update($user, $request->validated());
 
@@ -74,8 +83,42 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * GDPR Art. 20 — Export all personal data for this user.
+     */
+    public function exportData(User $user): JsonResponse
+    {
+        if (Auth::id() !== $user->id && ! Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        return response()->json($this->userService->exportPersonalData($user));
+    }
+
+    /**
+     * GDPR Art. 17 — Permanently erase all personal data (admin only).
+     */
+    public function eraseData(User $user): JsonResponse
+    {
+        if (! Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'Only admins can permanently erase user data.'], 403);
+        }
+
+        try {
+            $this->userService->erasePersonalData($user);
+
+            return response()->json(['message' => 'User data permanently erased.']);
+        } catch (\App\Exceptions\AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        }
+    }
+
     public function updateAvatar(Request $request, User $user): JsonResponse
     {
+        if (Auth::id() !== $user->id && ! Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'You are not authorized to update this user\'s avatar.'], 403);
+        }
+
         $request->validate([
             'avatar' => 'required|image|mimes:jpeg,jpg,png|max:2048',
         ]);

@@ -10,6 +10,7 @@ use App\Services\PathService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class PathController extends Controller
 {
@@ -23,6 +24,13 @@ class PathController extends Controller
             $request->input('search'),
             $request->input('per_page', 10)
         );
+
+        return PathResource::collection($paths);
+    }
+
+    public function myPaths(): AnonymousResourceCollection
+    {
+        $paths = $this->pathService->forUser(Auth::user());
 
         return PathResource::collection($paths);
     }

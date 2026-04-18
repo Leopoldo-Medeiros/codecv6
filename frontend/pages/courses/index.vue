@@ -1,98 +1,189 @@
 <template>
   <NuxtLayout name="admin">
-    <section>
-      <div class="container bootstrap snippets bootdey">
-        <div class="px-2">
-          <div class="row mb-3">
-            <div class="col-lg-6">
-              <h1 class="text-xl fw-bold large-text">Courses List</h1>
-            </div>
-            <div class="col-lg-6 text-end">
-              <button class="btn btn-primary btn-sm mb-4">Create Course</button>
-            </div>
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Courses Management
+          </h1>
+          <p class="text-gray-500 dark:text-gray-400 text-lg">
+            Manage your course catalog and content
+          </p>
+        </div>
+        <UButton v-if="isAdmin" @click="goToCreateCourse" color="primary">
+          <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
+          Create Course
+        </UButton>
+      </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <UCard class="mb-6">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-1">
+          <UInput
+            v-model="searchQuery"
+            placeholder="Search courses..."
+            icon="i-heroicons-magnifying-glass"
+            size="lg"
+            @keyup.enter="handleSearch"
+          />
+        </div>
+        <UButton @click="handleSearch" size="lg" :loading="loading">
+          <Icon name="heroicons:magnifying-glass" class="w-4 h-4 mr-2" />
+          Search
+        </UButton>
+      </div>
+    </UCard>
+
+    <!-- Courses Table -->
+    <UCard class="hover:shadow-lg transition-shadow duration-200">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              All Courses
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Page {{ currentPage }} of {{ totalPages }}
+            </p>
           </div>
-
-          <div class="row">
-            <div class="col">
-              <div class="card shadow mb-4">
-                <div class="card-body">
-                  <!-- Search Bar -->
-                  <div class="input-group mb-3">
-                    <input 
-                      v-model="searchQuery" 
-                      type="text" 
-                      placeholder="Search by name or slug" 
-                      class="form-control"
-                      @keypress.enter="handleSearch"
-                    >
-                    <button @click="handleSearch" class="btn btn-primary" type="button">Search</button>
-                  </div>
-
-                  <div class="table-responsive">
-                    <table class="table course-list mt-3">
-                      <thead>
-                        <tr>
-                          <th><span>Course Name</span></th>
-                          <th><span>Slug</span></th>
-                          <th class="text-center"><span>Action</span></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="course in paginatedCourses" :key="course.id">
-                          <td>{{ course.name }}</td>
-                          <td>{{ course.slug }}</td>
-                          <td class="text-center" style="width: 20%;">
-                            <NuxtLink :to="`/courses/${course.id}`" class="table-link text-warning me-2" title="View">
-                              <i class="fas fa-eye"></i>
-                            </NuxtLink>
-                            <a href="#" class="table-link text-info me-2" title="Edit">
-                              <i class="fas fa-edit"></i>
-                            </a>
-                            <button 
-                              @click="confirmDelete(course.id)" 
-                              class="table-link text-danger" 
-                              style="border: none; background: none;" 
-                              title="Delete"
-                            >
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <!-- Pagination -->
-                  <div class="d-flex justify-content-center mt-3">
-                    <nav>
-                      <ul class="pagination">
-                        <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                          <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">‹</a>
-                        </li>
-                        <li 
-                          v-for="page in totalPages" 
-                          :key="page" 
-                          class="page-item" 
-                          :class="{ active: page === currentPage }"
-                        >
-                          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-                        </li>
-                        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                          <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">›</a>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
-                  <div class="text-center text-muted small">
-                    Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ filteredCourses.length }} results
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">{{ totalCourses }} total courses</span>
           </div>
         </div>
+      </template>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-12">
+        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary-500 mx-auto mb-4" />
+        <p class="text-gray-500 dark:text-gray-400">Loading courses...</p>
       </div>
-    </section>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-red-500 mx-auto mb-4" />
+        <p class="text-red-500 mb-4">{{ error }}</p>
+        <UButton @click="loadCourses" variant="outline" color="red">
+          <Icon name="heroicons:arrow-path" class="w-4 h-4 mr-2" />
+          Retry
+        </UButton>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="courses.length === 0" class="text-center py-12">
+        <UIcon name="i-heroicons-inbox" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No courses found</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-4">
+          {{ searchQuery ? 'Try adjusting your search terms' : 'Get started by creating your first course' }}
+        </p>
+        <UButton v-if="isAdmin" @click="goToCreateCourse" color="primary">
+          <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
+          Create Course
+        </UButton>
+      </div>
+
+      <!-- Courses Table -->
+      <UTable
+        v-else
+        :rows="[...courses]"
+        :columns="columns"
+        :loading="loading"
+        class="w-full"
+      >
+        <!-- Name Column -->
+        <template #name-data="{ row }">
+          <div class="py-2">
+            <p class="font-medium text-gray-900 dark:text-white">{{ row.name }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+              {{ row.description || 'No description available' }}
+            </p>
+          </div>
+        </template>
+
+        <!-- Slug Column -->
+        <template #slug-data="{ row }">
+          <UKbd>{{ row.slug }}</UKbd>
+        </template>
+
+        <!-- Instructor Column -->
+        <template #instructor-data="{ row }">
+          <div class="flex items-center gap-3">
+            <UAvatar
+              :src="row.user?.profile_image"
+              :alt="row.user?.fullname"
+              size="sm"
+            >
+              {{ row.user?.fullname?.charAt(0).toUpperCase() || 'U' }}
+            </UAvatar>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">{{ row.user?.fullname || 'Unknown' }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Instructor</p>
+            </div>
+          </div>
+        </template>
+
+        <!-- Created Column -->
+        <template #created-data="{ row }">
+          <div class="text-sm">
+            <p class="text-gray-900 dark:text-white">{{ formatDate(row.created_at) }}</p>
+            <p class="text-gray-500 dark:text-gray-400">{{ getRelativeTime(row.created_at) }}</p>
+          </div>
+        </template>
+
+        <!-- Actions Column -->
+        <template #actions-data="{ row }">
+          <div class="flex items-center gap-2">
+            <UButton
+              :to="`/courses/${row.id}`"
+              variant="ghost"
+              color="yellow"
+              size="sm"
+              title="View Course"
+            >
+              <Icon name="heroicons:eye" class="w-4 h-4" />
+            </UButton>
+            <template v-if="isAdmin">
+              <UButton
+                @click="goToEditCourse(row.id)"
+                variant="ghost"
+                color="blue"
+                size="sm"
+                title="Edit Course"
+              >
+                <Icon name="heroicons:pencil-square" class="w-4 h-4" />
+              </UButton>
+              <UButton
+                @click="confirmDelete(row.id)"
+                variant="ghost"
+                color="red"
+                size="sm"
+                title="Delete Course"
+              >
+                <Icon name="heroicons:trash" class="w-4 h-4" />
+              </UButton>
+            </template>
+          </div>
+        </template>
+      </UTable>
+
+      <!-- Pagination -->
+      <template #footer v-if="courses.length > 0">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+            Page {{ currentPage }} of {{ totalPages }} ({{ totalCourses }} courses)
+          </div>
+          <UPagination
+            v-model="currentPage"
+            :total="totalCourses"
+            :page-count="itemsPerPage"
+            show-last
+            show-first
+          />
+        </div>
+      </template>
+    </UCard>
   </NuxtLayout>
 </template>
 
@@ -102,88 +193,104 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const router = useRouter()
+const toast  = useToast()
+const { user } = useAuth()
+const isAdmin = computed(() => user.value?.role === 'admin')
+
+// Clients have no business on the management page
+onMounted(() => {
+  if (!isAdmin.value) router.replace('/my-courses')
+})
+
 const searchQuery = ref('')
 const currentPage = ref(1)
+const totalCourses = ref(0)
 const itemsPerPage = 10
 
-// Mock courses data
-const courses = ref([
-  { id: 1, name: 'Introduction to Vue.js', slug: 'intro-to-vuejs' },
-  { id: 2, name: 'Advanced JavaScript', slug: 'advanced-javascript' },
-  { id: 3, name: 'React Fundamentals', slug: 'react-fundamentals' },
-  { id: 4, name: 'Node.js Backend Development', slug: 'nodejs-backend' },
-  { id: 5, name: 'Full Stack Web Development', slug: 'full-stack-web-dev' },
-  { id: 6, name: 'Python for Beginners', slug: 'python-beginners' },
-  { id: 7, name: 'Database Design with SQL', slug: 'database-design-sql' },
-  { id: 8, name: 'Mobile App Development', slug: 'mobile-app-dev' },
-  { id: 9, name: 'DevOps Essentials', slug: 'devops-essentials' },
-  { id: 10, name: 'Cloud Computing with AWS', slug: 'cloud-computing-aws' },
-  { id: 11, name: 'Machine Learning Basics', slug: 'machine-learning-basics' },
-  { id: 12, name: 'Cybersecurity Fundamentals', slug: 'cybersecurity-fundamentals' }
-])
+const { courses, loading, error, fetchCourses, deleteCourse } = useCourses()
 
-const filteredCourses = computed(() => {
-  if (!searchQuery.value) {
-    return courses.value
-  }
-  const query = searchQuery.value.toLowerCase()
-  return courses.value.filter(course => 
-    course.name.toLowerCase().includes(query) || 
-    course.slug.toLowerCase().includes(query)
-  )
-})
+const columns = [
+  { key: 'name', label: 'Course Name', sortable: true },
+  { key: 'slug', label: 'Slug' },
+  { key: 'instructor', label: 'Instructor' },
+  { key: 'created', label: 'Created' },
+  { key: 'actions', label: 'Actions', class: 'w-32' }
+]
 
-const totalPages = computed(() => {
-  return Math.ceil(filteredCourses.value.length / itemsPerPage)
-})
+const totalPages = computed(() => Math.max(1, Math.ceil(totalCourses.value / itemsPerPage)))
 
-const paginatedCourses = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredCourses.value.slice(start, end)
-})
+onMounted(() => loadCourses())
 
-const startIndex = computed(() => {
-  return (currentPage.value - 1) * itemsPerPage
-})
+const loadCourses = async () => {
+  const res = await fetchCourses({
+    search: searchQuery.value || undefined,
+    page: currentPage.value,
+    per_page: itemsPerPage,
+  })
+  if (res?.meta) totalCourses.value = res.meta.total
+}
 
-const endIndex = computed(() => {
-  return Math.min(startIndex.value + itemsPerPage, filteredCourses.value.length)
-})
+watch(currentPage, loadCourses)
 
 const handleSearch = () => {
   currentPage.value = 1
+  loadCourses()
 }
 
-const changePage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-  }
+const goToCreateCourse = () => {
+  router.push('/courses/create')
 }
 
-const confirmDelete = (courseId: number) => {
+const goToEditCourse = (courseId: number) => {
+  router.push(`/courses/${courseId}/edit`)
+}
+
+const confirmDelete = async (courseId: number) => {
   if (confirm('Are you sure you want to delete this course?')) {
-    courses.value = courses.value.filter(c => c.id !== courseId)
+    try {
+      await deleteCourse(courseId)
+      toast.add({
+        title: 'Success',
+        description: 'Course deleted successfully',
+        color: 'green'
+      })
+      await loadCourses()
+    } catch (err) {
+      toast.add({
+        title: 'Error',
+        description: 'Failed to delete course',
+        color: 'red'
+      })
+    }
   }
+}
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+const getRelativeTime = (dateString: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = Math.abs(now.getTime() - date.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays} days ago`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+  return `${Math.floor(diffDays / 30)} months ago`
 }
 
 useHead({
-  title: 'Courses List'
+  title: 'Courses Management'
 })
 </script>
 
-<style scoped>
-.large-text {
-  font-size: 1.5rem;
-}
-
-.table-link {
-  font-size: 1.2rem;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.table-link:hover {
-  opacity: 0.7;
-}
-</style>

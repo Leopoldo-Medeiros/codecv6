@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
+  ssr: false,
 
   devServer: {
     host: "localhost",
@@ -9,11 +10,19 @@ export default defineNuxtConfig({
 
   pages: true,
 
-  compatibilityDate: "2025-02-28",
+  compatibilityDate: "2025-04-15",
+
+  modules: ['@nuxt/ui'],
+
+  colorMode: {
+    preference: 'dark'
+  },
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://codecv6.lndo.site',
+      // Override with NUXT_PUBLIC_API_BASE env var for local dev.
+      // Default points to the stable Lando hostname (never changes on restart).
+      apiBase: 'http://codecv6.lndo.site',
     },
   },
 

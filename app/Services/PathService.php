@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Path;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class PathService
 {
@@ -23,7 +25,7 @@ class PathService
 
     public function find(int $id): Path
     {
-        return Path::with(['consultant', 'plans'])->findOrFail($id);
+        return Path::with(['consultant', 'plans', 'steps.course'])->findOrFail($id);
     }
 
     public function create(array $data): Path
@@ -54,6 +56,13 @@ class PathService
         }
 
         return $path->fresh(['consultant', 'plans']);
+    }
+
+    public function forUser(User $user): Collection
+    {
+        return Path::whereHas('plans', function ($q) use ($user) {
+            $q->whereHas('clients', fn ($q2) => $q2->where('users.id', $user->id));
+        })->with(['consultant', 'steps.course'])->get();
     }
 
     public function delete(Path $path): void

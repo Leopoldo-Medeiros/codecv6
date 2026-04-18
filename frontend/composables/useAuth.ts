@@ -25,15 +25,6 @@ export const useAuth = () => {
     const isClient = computed(() => user.value?.role === 'client')
     const isConsultant = computed(() => user.value?.role === 'consultant')
 
-    onMounted(() => {
-        if (import.meta.client) {
-            const storedUser = loadUserFromStorage()
-            if (storedUser) {
-                user.value = storedUser
-            }
-        }
-    })
-
     const fetchCsrfToken = async (): Promise<string | undefined> => {
         await $fetch('/sanctum/csrf-cookie', {
             baseURL,
@@ -90,9 +81,47 @@ export const useAuth = () => {
         }
     }
 
-    const logout = async (): Promise<void> => {
+    const register = async (data: { fullname: string; email: string; password: string; password_confirmation: string }): Promise<{ success: true; user: User } | { success: false; error: string }> => {
         try {
             const token = await fetchCsrfToken()
+
+            const response = await $fetch<LoginResponse>('/api/register', {
+                baseURL,
+                method: 'POST',
+                body: data,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...(token ? { 'X-XSRF-TOKEN': decodeURIComponent(token) } : {}),
+                },
+            })
+
+            if (response.user) {
+                user.value = response.user
+                if (import.meta.client) {
+                    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user))
+                    if (response.access_token) {
+                        localStorage.setItem(STORAGE_KEYS.TOKEN, response.access_token)
+                    }
+                }
+            }
+
+            return { success: true, user: response.user }
+        } catch (error: unknown) {
+            const err = error as { response?: { _data?: { message?: string } }; message?: string }
+            return {
+                success: false,
+                error: err.response?._data?.message || err.message || 'Registration failed',
+            }
+        }
+    }
+
+    const logout = async (): Promise<void> => {
+        try {
+            const csrfToken = await fetchCsrfToken()
+            const authToken = import.meta.client ? localStorage.getItem(STORAGE_KEYS.TOKEN) : null
 
             await $fetch('/api/logout', {
                 baseURL,
@@ -102,7 +131,8 @@ export const useAuth = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    ...(token ? { 'X-XSRF-TOKEN': decodeURIComponent(token) } : {}),
+                    ...(csrfToken ? { 'X-XSRF-TOKEN': decodeURIComponent(csrfToken) } : {}),
+                    ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
                 },
             })
         } catch (error) {
@@ -117,6 +147,13 @@ export const useAuth = () => {
         }
     }
 
+    const updateUser = (patch: Partial<User>) => {
+        user.value = { ...user.value!, ...patch }
+        if (import.meta.client) {
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user.value))
+        }
+    }
+
     return {
         user: readonly(user),
         isAuthenticated,
@@ -124,6 +161,8 @@ export const useAuth = () => {
         isClient,
         isConsultant,
         login,
+        register,
         logout,
+        updateUser,
     }
 }

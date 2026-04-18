@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\RoleEnum;
 use App\Exceptions\AuthenticationException;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -71,9 +72,9 @@ class AuthService
     {
         $user->load('roles', 'profile');
 
-        $userData = $user->toArray();
-        $userData['role'] = $user->roles->first()?->name;
+        $resource = (new UserResource($user))->resolve();
+        $resource['role'] = $user->roles->first()?->name;
 
-        return $userData;
+        return $resource;
     }
 }

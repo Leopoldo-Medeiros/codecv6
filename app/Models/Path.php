@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Path extends Model
@@ -22,6 +23,11 @@ class Path extends Model
     public function consultant()
     {
         return $this->belongsTo(User::class, 'consultant_id');
+    }
+
+    public function steps(): HasMany
+    {
+        return $this->hasMany(PathStep::class)->orderBy('order');
     }
 
     /**

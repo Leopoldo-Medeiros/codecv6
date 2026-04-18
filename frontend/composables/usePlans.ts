@@ -138,7 +138,7 @@ export const usePlans = () => {
     error.value = null
 
     try {
-      await api.delete(`/plans/${planId}/clients?client_id=${clientId}`)
+      await api.delete(`/plans/${planId}/clients/${clientId}`)
     } catch (err: any) {
       error.value = err.message || 'Failed to detach client'
       throw err

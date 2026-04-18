@@ -1,0 +1,2 @@
+    rm -rf .nuxt node_modules package-lock.json
+    

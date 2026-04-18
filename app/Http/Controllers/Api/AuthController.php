@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -35,11 +36,11 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'fullname' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-            'profile' => 'nullable|array',
-            'profile.birth_date' => 'nullable|date',
-            'profile.profession' => 'nullable|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+            'profile'  => 'nullable|array',
+            'profile.birth_date'  => 'nullable|date',
+            'profile.profession'  => 'nullable|string|max:255',
         ]);
 
         $result = $this->authService->register($validated);

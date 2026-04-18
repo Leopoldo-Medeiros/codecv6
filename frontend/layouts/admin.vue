@@ -1,418 +1,315 @@
 <template>
-  <div class="dark-theme-wrapper">
-    <div class="container-fluid p-0 flex-shrink-0">
-      <div class="row flex-nowrap">
-        <!-- SIDEBAR -->
-        <div class="col-auto col-md-3 col-xl-2 pr-sm-2 px-0 pl-0 dark-sidebar">
-          <div id="sidebar"
-            class="dark-sidebar d-flex flex-column align-items-center align-items-sm-start px-3 pt-4 vh-100">
+  <div class="min-h-screen bg-gray-50 dark:bg-slate-950" style="font-family:'Inter',system-ui,sans-serif">
 
-          <!-- USER PROFILE -->
-          <div v-if="user" class="user-profile-card my-4 w-100">
-            <div class="profile-header text-center">
-              <div class="profile-image-wrapper mb-3 mx-auto">
-                <div class="profile-glow"></div>
-                <img :src="user.profile_image || '/images/team-13.jpg'" :alt="user.name" class="profile-image rounded-circle">
-              </div>
-              <h6 class="profile-name mb-1">{{ user.name }}</h6>
-              <div class="profile-role mb-3">
-                <span v-if="user.role === 'admin'" class="role-badge admin-badge">
-                  <i class="fas fa-crown me-1"></i> Admin
-                </span>
-                <span v-else class="role-badge member-badge">
-                  <i class="fas fa-user me-1"></i> Member
-                </span>
-              </div>
-            </div>
-            <div class="profile-actions d-flex justify-content-center gap-2">
-              <NuxtLink to="/profile" class="action-btn" title="View Profile">
-                <i class="fas fa-user"></i>
-              </NuxtLink>
-              <a href="#" class="action-btn" title="Settings">
-                <i class="fas fa-cog"></i>
-              </a>
-              <a href="#" @click.prevent="handleLogout" class="action-btn logout-btn" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-              </a>
-            </div>
-          </div>
-          <hr class="w-100 my-2 opacity-25">
+    <!-- Mobile backdrop -->
+    <Transition enter-from-class="opacity-0" enter-active-class="transition-opacity duration-200"
+                leave-to-class="opacity-0" leave-active-class="transition-opacity duration-200">
+      <div v-if="sidebarOpen" class="fixed inset-0 z-40 bg-black/40 lg:hidden" @click="sidebarOpen = false" />
+    </Transition>
 
-          <!-- NAVIGATION -->
-          <ul class="nav flex-column w-100">
+    <!-- ═══════════════════════════════════════ SIDEBAR ═══ -->
+    <aside :class="[
+      'fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900 transition-transform duration-200',
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+    ]">
 
-            <!-- Admin Menu -->
-            <template v-if="user?.role === 'admin'">
-              <li class="nav-item">
-                <NuxtLink to="/users" class="nav-link large-font">
-                  <i class="fas fa-users me-2"></i> Clients
-                </NuxtLink>
-              </li>
-              <li class="nav-item">
-                <NuxtLink to="/courses" class="nav-link large-font">
-                  <i class="fas fa-book me-2"></i> Courses
-                </NuxtLink>
-              </li>
-              <li class="nav-item">
-                <a href="#" class="nav-link large-font">
-                  <i class="fas fa-map-signs me-2"></i> Paths
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#" class="nav-link large-font">
-                  <i class="fas fa-tasks me-2"></i> Steps
-                </a>
-              </li>
-              <li class="nav-item">
-                <NuxtLink to="/dashboard" class="nav-link large-font">
-                  <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                </NuxtLink>
-              </li>
-            </template>
+      <!-- Accent stripe -->
+      <div class="h-0.5 w-full shrink-0" style="background:linear-gradient(90deg,#6366f1,#06b6d4,#8b5cf6)"></div>
 
-            <!-- Client Menu -->
-            <template v-else>
-              <li class="nav-item">
-                <a href="#" class="nav-link py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                  <i class="fas fa-graduation-cap me-2"></i> My Courses
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#" class="nav-link py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                  <i class="fas fa-route me-2"></i> My Paths
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#" class="nav-link py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                  <i class="fas fa-id-card me-2"></i> My CV
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#" class="nav-link py-2 px-4 rounded hover:bg-blue-500 hover:text-white flex items-center">
-                  <i class="fas fa-folder-open me-2"></i> My Files
-                </a>
-              </li>
-            </template>
-             <li class="nav-item mt-3">
-                <a href="#" @click.prevent="handleLogout" class="nav-link large-font">
-                  <i class="fas fa-sign-out-alt me-2"></i> Logout
-                </a>
-              </li>
-              <li class="nav-item mt-2">
-                 <a href="#" class="nav-link large-font position-relative">
-                    <i class="fas fa-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                        <span class="visually-hidden">New alerts</span>
-                    </span>
-                 </a>
-              </li>
-          </ul>
+      <!-- Brand -->
+      <div class="flex h-[60px] shrink-0 items-center justify-center border-b border-gray-100 px-5 dark:border-slate-800">
+        <NuxtLink to="/dashboard" class="flex items-center gap-2.5">
+          <!-- Light mode: real logo (mix-blend hides white bg) -->
+          <img src="/images/codecv.png" alt="CODECV"
+               class="h-8 w-auto dark:hidden"
+               style="mix-blend-mode:multiply"
+               onerror="this.style.display='none'" />
+          <!-- Dark mode: gradient text wordmark -->
+          <span class="hidden dark:inline-block brand-glow text-[15px] font-extrabold tracking-[0.18em] uppercase">
+            CODECV
+          </span>
+        </NuxtLink>
+      </div>
+
+      <!-- User card -->
+      <div class="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-slate-800">
+        <UAvatar :src="user?.profile?.profile_image_url || '/images/team-13.jpg'" :alt="user?.fullname" size="sm" />
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-[13px] font-semibold text-gray-800 dark:text-slate-200">{{ user?.fullname }}</p>
+          <p class="text-[11px] capitalize text-gray-400 dark:text-slate-500">{{ user?.role }}</p>
         </div>
       </div>
 
-      <!-- Main Content -->
-      <div class="col py-3">
-        <!-- Navbar -->
-        <nav class="navbar dark-navbar topbar border-bottom shadow-sm py-2 mb-4 rounded">
-          <div class="container-fluid">
-             <button type="button" id="sidebarCollapse" class="btn d-md-none">
-                <i class="fas fa-bars"></i>
-            </button>
+      <!-- Nav -->
+      <nav class="flex-1 overflow-y-auto p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
-            <div class="navbar-brand py-0 ms-md-5 mx-auto mx-md-0">
-               <NuxtLink to="/dashboard" class="smll-logo">
-                  <img src="/images/codecv.png" alt="Logo" class="navbar-logo" style="max-height: 100px;">
-               </NuxtLink>
-            </div>
+        <!-- Main items -->
+        <div class="mb-1 flex flex-col gap-0.5">
+          <NuxtLink
+            v-for="item in mainItems"
+            :key="item.to"
+            :to="item.to"
+            class="nav-item group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium"
+            :class="isActive(item.to) ? 'nav-item--active' : 'nav-item--idle'"
+            @click="sidebarOpen = false"
+          >
+            <!-- glow pill (dark mode active only) -->
+            <span v-if="isActive(item.to)" class="nav-glow" aria-hidden="true"></span>
+            <!-- left indicator -->
+            <span
+              class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r transition-all"
+              :class="isActive(item.to) ? 'nav-bar--active' : 'bg-transparent'"
+            ></span>
+            <UIcon :name="item.icon" class="nav-icon h-[18px] w-[18px] shrink-0"
+              :class="isActive(item.to) ? 'nav-icon--active' : 'nav-icon--idle'" />
+            <span class="flex-1">{{ item.label }}</span>
+          </NuxtLink>
+        </div>
 
-            <div class="d-flex align-items-center gap-3">
-              <!-- Theme Toggle -->
-              <button @click="toggleTheme" class="btn btn-sm theme-toggle-btn" title="Toggle theme">
-                <i :class="isDark ? 'fas fa-sun' : 'fas fa-moon'"></i>
-              </button>
+        <!-- Admin tools -->
+        <div v-if="isAdmin" class="mt-4 flex flex-col gap-0.5 border-t border-gray-100 pt-4 dark:border-slate-800">
+          <p class="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-600">
+            Admin
+          </p>
+          <NuxtLink
+            to="/settings"
+            class="nav-item group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium"
+            :class="isActive('/settings') ? 'nav-item--active' : 'nav-item--idle'"
+          >
+            <span v-if="isActive('/settings')" class="nav-glow" aria-hidden="true"></span>
+            <span class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r transition-all"
+              :class="isActive('/settings') ? 'nav-bar--active' : 'bg-transparent'"></span>
+            <UIcon name="i-heroicons-cog-6-tooth"
+              class="nav-icon h-[18px] w-[18px] shrink-0"
+              :class="isActive('/settings') ? 'nav-icon--active' : 'nav-icon--idle'" />
+            <span>Settings</span>
+          </NuxtLink>
+        </div>
 
-              <!-- User Dropdown -->
-              <div v-if="user" class="dropdown">
-                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-                     <img :src="user.profile_image || '/images/team-13.jpg'" alt="avatar" width="32" height="32" class="rounded-circle">
-                 </a>
-                 <ul class="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="dropdownUser2">
-                     <li><NuxtLink class="dropdown-item" to="/profile"><i class="fas fa-user me-2"></i> Profile</NuxtLink></li>
-                     <li><hr class="dropdown-divider"></li>
-                     <li><a class="dropdown-item text-danger" href="#" @click.prevent="handleLogout"><i class="fas fa-sign-out-alt me-2"></i> Sign out</a></li>
-                 </ul>
-              </div>
-            </div>
-          </div>
-        </nav>
+      </nav>
 
-        <slot />
-        
-        <!-- Footer -->
-        <footer class="mt-auto py-3 bg-body-tertiary m-0 text-center">
-            <span class="text-body-secondary"> Copyright © {{ new Date().getFullYear() }} CODECV</span>
-        </footer>
+      <!-- Footer logout -->
+      <div class="shrink-0 border-t border-gray-100 p-3 dark:border-slate-800">
+        <button
+          class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
+                 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600
+                 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+          @click="handleLogout"
+        >
+          <UIcon name="i-heroicons-arrow-right-on-rectangle" class="h-[18px] w-[18px] shrink-0" />
+          Logout
+        </button>
       </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════ MAIN ═══════ -->
+    <div class="flex min-h-screen flex-col lg:pl-60">
+
+      <!-- Topbar -->
+      <header class="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between
+                     border-b border-gray-200 bg-white px-4 lg:px-6
+                     dark:border-slate-800 dark:bg-slate-900">
+        <div class="flex items-center gap-3">
+          <!-- Hamburger — mobile only -->
+          <button class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500
+                         hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
+            @click="sidebarOpen = !sidebarOpen">
+            <UIcon name="i-heroicons-bars-3" class="h-5 w-5" />
+          </button>
+          <UBreadcrumb :links="breadcrumbLinks" class="hidden sm:flex" />
+        </div>
+
+        <div class="flex items-center gap-1">
+
+          <UButton :icon="isDark ? 'i-heroicons-sun' : 'i-heroicons-moon'"
+            color="gray" variant="ghost" size="sm" @click="toggleColorMode" />
+          <UPopover>
+            <UButton icon="i-heroicons-bell" color="gray" variant="ghost" size="sm" />
+            <template #panel>
+              <div class="w-72 p-4">
+                <p class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
+                <p class="text-sm text-gray-400 dark:text-slate-500">Nothing new</p>
+              </div>
+            </template>
+          </UPopover>
+          <UDropdown :items="userMenuItems" :popper="{ placement: 'bottom-end' }">
+            <button class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5
+                           text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50
+                           dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+              <UAvatar :src="user?.profile?.profile_image_url || '/images/team-13.jpg'" :alt="user?.fullname" size="xs" />
+              <span class="max-w-[120px] truncate">{{ user?.fullname }}</span>
+              <UIcon name="i-heroicons-chevron-down" class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
+            </button>
+          </UDropdown>
+        </div>
+      </header>
+
+      <main class="flex-1 p-4 lg:p-6">
+        <slot />
+      </main>
+
+      <footer class="border-t border-gray-200 px-6 py-4 text-center text-xs
+                     text-gray-400 dark:border-slate-800 dark:text-slate-600">
+        &copy; {{ new Date().getFullYear() }}
+        <strong class="text-gray-500 dark:text-slate-400">CODECV</strong>.
+        All rights reserved.
+      </footer>
     </div>
-  </div>
+
+    <UNotifications />
   </div>
 </template>
 
 <script setup lang="ts">
-const { user, logout } = useAuth();
-const isDark = ref(true); // Default to dark theme
+useHead({
+  link: [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' },
+  ]
+})
 
-const handleLogout = () => {
-  logout();
-};
+const { user, logout } = useAuth()
+const route            = useRoute()
+const colorMode        = useColorMode()
+const sidebarOpen      = ref(false)
 
-const toggleTheme = () => {
-  isDark.value = !isDark.value;
-  
-  // Toggle dark theme class on body
-  if (process.client) {
-    if (isDark.value) {
-      document.body.classList.add('dark-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.remove('dark-theme');
-      localStorage.setItem('theme', 'light');
-    }
+// Close sidebar on route change
+watch(() => route.path, () => { sidebarOpen.value = false })
+
+const isDark   = computed(() => colorMode.value === 'dark')
+const isAdmin  = computed(() => user.value?.role === 'admin')
+const isActive = (p: string) => route.path === p
+
+const toggleColorMode = () => { colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark' }
+const handleLogout    = () => logout()
+
+// ── Neon values injected into CSS via v-bind() ──────────────
+// Active item background
+const navActiveBg = computed(() =>
+  isDark.value ? 'rgba(99,102,241,0.12)' : 'rgb(238,242,255)'
+)
+// Active item text colour
+const navActiveTxt = computed(() =>
+  isDark.value ? 'rgb(165,180,252)' : 'rgb(79,70,229)'
+)
+// Active left-bar colour
+const navBarColor = computed(() =>
+  isDark.value ? '#818cf8' : '#6366f1'
+)
+// Neon glow (dark mode only)
+const navGlowColor = computed(() =>
+  isDark.value
+    ? 'rgba(99,102,241,0.35)'
+    : 'transparent'
+)
+// Icon active colour
+const navIconActive = computed(() =>
+  isDark.value ? 'rgb(129,140,248)' : 'rgb(99,102,241)'
+)
+// Icon idle colour
+const navIconIdle = computed(() =>
+  isDark.value ? 'rgb(148,163,184)' : 'rgb(156,163,175)'
+)
+// Idle text
+const navIdleTxt = computed(() =>
+  isDark.value ? 'rgb(148,163,184)' : 'rgb(75,85,99)'
+)
+// Idle hover bg
+const navHoverBg = computed(() =>
+  isDark.value ? 'rgba(255,255,255,0.04)' : 'rgb(249,250,251)'
+)
+
+const mainItems = computed(() => isAdmin.value
+  ? [
+      { label: 'Dashboard', icon: 'i-heroicons-home',          to: '/dashboard' },
+      { label: 'Users',     icon: 'i-heroicons-users',         to: '/users' },
+      { label: 'Courses',   icon: 'i-heroicons-book-open',     to: '/courses' },
+      { label: 'Paths',     icon: 'i-heroicons-map',           to: '/paths' },
+      { label: 'Jobs',      icon: 'i-heroicons-briefcase',     to: '/jobs' },
+    ]
+  : [
+      { label: 'Dashboard',  icon: 'i-heroicons-home',             to: '/dashboard' },
+      { label: 'My Courses', icon: 'i-heroicons-book-open',      to: '/my-courses' },
+      { label: 'My Paths',   icon: 'i-heroicons-map',            to: '/my-paths' },
+      { label: 'My CV',        icon: 'i-heroicons-document-magnifying-glass', to: '/my-cv' },
+      { label: 'LinkedIn',    icon: 'i-heroicons-identification',            to: '/linkedin-analyser' },
+    ]
+)
+
+const userMenuItems = [
+  [
+    { label: 'Profile',  icon: 'i-heroicons-user',                    click: () => navigateTo('/profile')  },
+    { label: 'Settings', icon: 'i-heroicons-cog-6-tooth',             click: () => navigateTo('/settings') },
+  ],
+  [
+    { label: 'Logout',   icon: 'i-heroicons-arrow-right-on-rectangle', click: () => handleLogout() },
+  ],
+]
+
+const breadcrumbLinks = computed(() => {
+  const path  = route.path
+  const links: Array<{ label: string; to?: string; icon?: string }> = [
+    { label: 'Home', to: '/dashboard', icon: 'i-heroicons-home' },
+  ]
+  if (path !== '/dashboard') {
+    path.split('/').filter(Boolean).forEach((seg, i, arr) => {
+      const to    = '/' + arr.slice(0, i + 1).join('/')
+      const label = seg.charAt(0).toUpperCase() + seg.slice(1)
+      links.push(i === arr.length - 1 ? { label } : { label, to })
+    })
   }
-};
-
-onMounted(() => {
-  // Check local storage for saved theme preference
-  if (process.client) {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      isDark.value = false;
-      document.body.classList.remove('dark-theme');
-    } else {
-      isDark.value = true;
-      document.body.classList.add('dark-theme');
-    }
-  }
-});
+  return links
+})
 </script>
 
 <style scoped>
-.custom-menu-bg {
-  background-color: #a8cbf7; /* Light blue matching screenshot */
+/* ── Nav item states — colours come from v-bind(), no :global needed ── */
+
+.nav-item--active {
+  background: v-bind(navActiveBg);
+  color: v-bind(navActiveTxt);
 }
-.custom-sidebar-width {
-  min-height: 100vh;
+.nav-item--idle {
+  color: v-bind(navIdleTxt);
 }
-.nav-link {
-    color: #333; /* Dark text */
-    font-weight: 500;
+.nav-item--idle:hover {
+  background: v-bind(navHoverBg);
 }
 
-/* Dark Theme Styles */
-.dark-theme-wrapper {
-  background: var(--bg-primary);
-  min-height: 100vh;
+/* Left indicator bar */
+.nav-bar--active {
+  background: v-bind(navBarColor);
+  box-shadow: 0 0 8px v-bind(navBarColor);
 }
 
-.dark-sidebar {
-  background: var(--bg-secondary) !important;
-  border-right: 1px solid var(--border-color);
-}
-
-.nav-link {
-  color: var(--text-secondary) !important;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  margin: 0.25rem 0;
-  padding: 0.75rem 1rem !important;
-}
-
-.nav-link:hover {
-  background: var(--bg-hover) !important;
-  color: var(--text-primary) !important;
-}
-
-.nav-link.router-link-active {
-  background: var(--gradient-blue) !important;
-  color: white !important;
-}
-
-.profile-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--border-color);
-}
-
-.user-profile h6 {
-  color: var(--text-primary);
-}
-
-.user-profile .text-muted {
-  color: var(--text-muted) !important;
-}
-
-.large-font {
-  font-size: 0.9rem;
-}
-
-.dark-navbar {
-  background: var(--bg-card) !important;
-  border-color: var(--border-color) !important;
-}
-
-.dark-footer {
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-color);
-  color: var(--text-muted);
-}
-
-.modern-btn-primary {
-  background: var(--gradient-blue);
-  color: white;
-  border: none;
-  position: relative;
-}
-
-.modern-btn-primary .badge {
+/* Neon glow overlay (visible in dark mode via navGlowColor) */
+.nav-glow {
   position: absolute;
-  top: -5px;
-  right: -5px;
-}
-
-.theme-toggle-btn {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  inset: 0;
   border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  transition: all 0.2s ease;
+  pointer-events: none;
+  box-shadow: 0 0 18px v-bind(navGlowColor), inset 0 0 12px v-bind(navGlowColor);
 }
 
-.theme-toggle-btn:hover {
-  background: var(--bg-hover);
-  transform: scale(1.05);
+/* Icons */
+.nav-icon--active { color: v-bind(navIconActive); }
+.nav-icon--idle   { color: v-bind(navIconIdle); }
+.nav-item--idle:hover .nav-icon--idle {
+  color: v-bind(navActiveTxt);
 }
 
-.theme-toggle-btn i {
-  font-size: 1.1rem;
+/* Text glow on active label in dark mode */
+.nav-item--active span {
+  text-shadow: 0 0 12px v-bind(navGlowColor);
 }
 
-/* Modern Profile Card */
-.user-profile-card {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  border-radius: 16px;
-  padding: 1.5rem 1rem;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.profile-header {
-  margin-bottom: 1rem;
-}
-
-.profile-image-wrapper {
-  position: relative;
-  width: 90px;
-  height: 90px;
-  display: inline-block;
-}
-
-.profile-glow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #3b82f6);
-  filter: blur(8px);
-  z-index: 0;
-  animation: spin 4s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.profile-image {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  position: relative;
-  z-index: 1;
-  border: 3px solid var(--bg-secondary);
-}
-
-.profile-name {
-  color: var(--text-primary);
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-.profile-role {
-  margin-bottom: 1rem;
-}
-
-.role-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.375rem 0.875rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.admin-badge {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.member-badge {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.profile-actions {
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.action-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.action-btn:hover {
-  background: var(--bg-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.logout-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-/* Navigation Icons */
-.nav-link i {
-  font-size: 1.1rem;
-  margin-right: 0.75rem;
-  width: 20px;
-  text-align: center;
+/* Brand wordmark — dark mode gradient + glow */
+.brand-glow {
+  background: linear-gradient(90deg, #818cf8, #38bdf8, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.6));
 }
 </style>

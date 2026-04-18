@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\AuthorizationException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
 use App\Models\Course;
@@ -56,26 +57,42 @@ class CourseController extends Controller
 
     public function update(Request $request, Course $course): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:courses,slug,'.$course->id,
-            'description' => 'nullable|string',
-        ]);
+        try {
+            if (Auth::id() !== $course->user_id && ! Auth::user()->hasRole('admin')) {
+                throw new AuthorizationException('You do not own this course.');
+            }
 
-        $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'slug' => 'nullable|string|max:255|unique:courses,slug,'.$course->id,
+                'description' => 'nullable|string',
+            ]);
 
-        $course = $this->courseService->update($course, $validated);
+            $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
 
-        return response()->json([
-            'message' => 'Course updated successfully',
-            'course' => new CourseResource($course),
-        ]);
+            $course = $this->courseService->update($course, $validated);
+
+            return response()->json([
+                'message' => 'Course updated successfully',
+                'course' => new CourseResource($course),
+            ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        }
     }
 
     public function destroy(Course $course): JsonResponse
     {
-        $this->courseService->delete($course);
+        try {
+            if (Auth::id() !== $course->user_id && ! Auth::user()->hasRole('admin')) {
+                throw new AuthorizationException('You do not own this course.');
+            }
 
-        return response()->json(['message' => 'Course deleted successfully']);
+            $this->courseService->delete($course);
+
+            return response()->json(['message' => 'Course deleted successfully']);
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        }
     }
 }

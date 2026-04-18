@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class UserRequest extends FormRequest
 {
@@ -23,7 +24,7 @@ class UserRequest extends FormRequest
         $rules = [
             'fullname' => 'required|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'profile' => 'required|array',
             'profile.birth_date' => 'nullable|date',
             'profile.profession' => 'nullable|string',
@@ -42,7 +43,7 @@ class UserRequest extends FormRequest
             case 'PATCH':
             case 'PUT':
                 $rules['email'] = 'required|email|unique:users,email,'.$userId;
-                $rules['password'] = 'nullable|min:6|confirmed';
+                $rules['password'] = ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()];
                 break;
 
             case 'POST':

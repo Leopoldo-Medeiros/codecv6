@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <NuxtLayout name="marketing">
+    <div>
     <!-- ABOUT-2 -->
     <section id="about-2" class="rel inner-page-hero about-section division">
 
@@ -494,7 +495,8 @@
 
     <!-- DIVIDER LINE -->
     <hr class="divider">
-  </div>
+    </div>
+  </NuxtLayout>
 </template>
 
 <script setup>
