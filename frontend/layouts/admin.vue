@@ -222,11 +222,12 @@ const navHoverBg = computed(() =>
 
 const mainItems = computed(() => isAdmin.value
   ? [
-      { label: 'Dashboard', icon: 'i-heroicons-home',          to: '/dashboard' },
-      { label: 'Users',     icon: 'i-heroicons-users',         to: '/users' },
-      { label: 'Courses',   icon: 'i-heroicons-book-open',     to: '/courses' },
-      { label: 'Paths',     icon: 'i-heroicons-map',           to: '/paths' },
-      { label: 'Jobs',      icon: 'i-heroicons-briefcase',     to: '/jobs' },
+      { label: 'Dashboard', icon: 'i-heroicons-home',                       to: '/dashboard' },
+      { label: 'Users',     icon: 'i-heroicons-users',                    to: '/users' },
+      { label: 'Courses',   icon: 'i-heroicons-book-open',                to: '/courses' },
+      { label: 'Paths',     icon: 'i-heroicons-map',                      to: '/paths' },
+      { label: 'Plans',     icon: 'i-heroicons-clipboard-document-list',  to: '/plans' },
+      { label: 'Jobs',      icon: 'i-heroicons-briefcase',                to: '/jobs' },
     ]
   : [
       { label: 'Dashboard',  icon: 'i-heroicons-home',             to: '/dashboard' },
