@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password_confirmation',
         'google_id',
         'email_verified_at',
+        'consultant_id',
     ];
 
     /**
@@ -54,6 +55,16 @@ class User extends Authenticatable
     public function profile(): HasOne
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function consultant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'consultant_id');
+    }
+
+    public function clients(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class, 'consultant_id');
     }
 
     /**

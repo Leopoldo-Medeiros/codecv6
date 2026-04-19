@@ -13,12 +13,22 @@ class Profile extends Model
         'user_id',
         'birth_date',
         'profession',
+        'goal',
+        'level',
+        'stack',
+        'product_interest',
+        'availability_hours',
+        'timeline',
         'profile_image',
         'website',
         'github',
         'linkedin',
         'instagram',
         'facebook',
+    ];
+
+    protected $casts = [
+        'stack' => 'array',
     ];
 
     public function user()

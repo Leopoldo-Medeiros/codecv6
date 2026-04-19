@@ -31,7 +31,8 @@ onMounted(() => {
   try {
     const user = JSON.parse(decodeURIComponent(raw))
     setAuth(token, user)
-    navigateTo('/dashboard')
+    const dest = user?.profile?.profession ? '/dashboard' : '/onboarding'
+    navigateTo(dest)
   } catch {
     error.value = 'Could not complete sign-in. Please try again.'
   }

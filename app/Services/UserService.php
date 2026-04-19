@@ -32,7 +32,7 @@ class UserService
 
     public function find(int $id): User
     {
-        return User::with(['profile', 'roles'])->findOrFail($id);
+        return User::with(['profile', 'roles', 'consultant'])->findOrFail($id);
     }
 
     public function create(array $data): User

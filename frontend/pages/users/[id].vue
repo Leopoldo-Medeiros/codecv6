@@ -70,8 +70,10 @@
         </div>
       </UCard>
 
-      <!-- Details Card -->
+      <!-- Details -->
       <div class="lg:col-span-2 space-y-6">
+
+        <!-- Account Details -->
         <UCard>
           <template #header>
             <h3 class="font-semibold text-gray-900 dark:text-white">Account Details</h3>
@@ -90,15 +92,105 @@
               <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">{{ selectedUser.profile?.birth_date || 'N/A' }}</p>
             </div>
             <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Profession</label>
-              <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">{{ selectedUser.profile?.profession || 'N/A' }}</p>
-            </div>
-            <div>
               <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Member Since</label>
               <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">{{ formatDate(selectedUser.created_at) }}</p>
             </div>
           </div>
         </UCard>
+
+        <!-- Career Profile -->
+        <UCard v-if="hasOnboarding">
+          <template #header>
+            <h3 class="font-semibold text-gray-900 dark:text-white">Career Profile</h3>
+          </template>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Role</label>
+              <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">
+                {{ selectedUser.profile?.profession || 'N/A' }}
+              </p>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Level</label>
+              <p class="mt-1 pb-2 border-b dark:border-gray-800">
+                <UBadge :color="levelColor(selectedUser.profile?.level)" variant="subtle" class="capitalize">
+                  {{ selectedUser.profile?.level || 'N/A' }}
+                </UBadge>
+              </p>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Product Interest</label>
+              <p class="mt-1 pb-2 border-b dark:border-gray-800">
+                <UBadge :color="productColor(selectedUser.profile?.product_interest)" variant="subtle">
+                  {{ productLabel(selectedUser.profile?.product_interest) }}
+                </UBadge>
+              </p>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Timeline</label>
+              <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">
+                {{ timelineLabel(selectedUser.profile?.timeline) }}
+              </p>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Availability</label>
+              <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">
+                {{ selectedUser.profile?.availability_hours ? `${selectedUser.profile.availability_hours}h / week` : 'N/A' }}
+              </p>
+            </div>
+            <div v-if="selectedUser.profile?.goal">
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Goal</label>
+              <p class="text-gray-900 dark:text-white font-medium border-b dark:border-gray-800 pb-2 mt-1">
+                {{ selectedUser.profile.goal }}
+              </p>
+            </div>
+            <div class="md:col-span-2" v-if="selectedUser.profile?.stack?.length">
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Stack</label>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <UBadge v-for="s in selectedUser.profile.stack" :key="s" color="indigo" variant="subtle">
+                  {{ s }}
+                </UBadge>
+              </div>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Onboarding pending notice -->
+        <UAlert v-else color="amber" variant="subtle"
+          icon="i-heroicons-clock"
+          title="Onboarding not completed"
+          description="This user has not filled in their career profile yet." />
+
+        <!-- Assign Consultant (admin only) -->
+        <UCard v-if="isAdmin">
+          <template #header>
+            <h3 class="font-semibold text-gray-900 dark:text-white">Assigned Consultant</h3>
+          </template>
+
+          <div v-if="selectedUser.consultant" class="flex items-center gap-3 mb-4">
+            <UAvatar :alt="selectedUser.consultant.fullname" size="sm" />
+            <div>
+              <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedUser.consultant.fullname }}</p>
+              <p class="text-xs text-gray-400">{{ selectedUser.consultant.email }}</p>
+            </div>
+          </div>
+          <p v-else class="text-sm text-gray-400 mb-4">No consultant assigned yet.</p>
+
+          <div class="flex gap-3">
+            <select v-model="selectedConsultantId" class="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-white">
+              <option :value="null">— Remove assignment —</option>
+              <option v-for="c in consultants" :key="c.id" :value="c.id">{{ c.fullname }}</option>
+            </select>
+            <UButton
+              :loading="assigningConsultant"
+              :disabled="selectedConsultantId === selectedUser.consultant_id"
+              @click="handleAssignConsultant"
+            >
+              Save
+            </UButton>
+          </div>
+        </UCard>
+
       </div>
     </div>
   </NuxtLayout>
@@ -113,6 +205,38 @@ definePageMeta({
 const route = useRoute()
 const userId = computed(() => Number(route.params.id))
 const { user: selectedUser, loading, error: fetchError, fetchUser } = useUsers()
+const { get, patch } = useApi()
+const { isAdmin } = useAuth()
+const toast = useToast()
+
+const consultants          = ref<any[]>([])
+const selectedConsultantId = ref<number | null>(null)
+const assigningConsultant  = ref(false)
+
+async function loadConsultants() {
+  try {
+    const res = await get<{ data: any[] }>('/consultants')
+    consultants.value = res.data
+  } catch {}
+}
+
+async function handleAssignConsultant() {
+  assigningConsultant.value = true
+  try {
+    const res = await patch<{ user: any }>(`/users/${userId.value}/consultant`, {
+      consultant_id: selectedConsultantId.value,
+    })
+    if (selectedUser.value) selectedUser.value = res.user
+    selectedConsultantId.value = res.user.consultant_id ?? null
+    toast.add({ title: 'Consultant assigned', color: 'green' })
+  } catch (e: any) {
+    toast.add({ title: e?.data?.message || 'Failed to assign consultant', color: 'red' })
+  } finally {
+    assigningConsultant.value = false
+  }
+}
+
+const hasOnboarding = computed(() => !!selectedUser.value?.profile?.level)
 
 const roleBadgeColor = (role?: string) => {
   switch (role) {
@@ -122,7 +246,49 @@ const roleBadgeColor = (role?: string) => {
   }
 }
 
+const levelColor = (level?: string) => {
+  switch (level) {
+    case 'junior':  return 'green'
+    case 'mid':     return 'blue'
+    case 'senior':  return 'purple'
+    case 'manager': return 'orange'
+    default: return 'gray'
+  }
+}
+
+const productColor = (p?: string) => {
+  switch (p) {
+    case 'self-serve':  return 'green'
+    case 'bootcamp':    return 'blue'
+    case 'mentorship':  return 'purple'
+    default: return 'gray'
+  }
+}
+
+const productLabel = (p?: string) => {
+  switch (p) {
+    case 'self-serve':  return 'Career Accelerator'
+    case 'bootcamp':    return 'Laravel Bootcamp'
+    case 'mentorship':  return '1-on-1 Mentorship'
+    default: return 'N/A'
+  }
+}
+
+const timelineLabel = (t?: string) => {
+  switch (t) {
+    case '1-3m':     return '1–3 months'
+    case '3-6m':     return '3–6 months'
+    case '6-12m':    return '6–12 months'
+    case 'flexible': return 'No rush'
+    default: return 'N/A'
+  }
+}
+
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
 
-onMounted(() => fetchUser(userId.value))
+onMounted(async () => {
+  await fetchUser(userId.value)
+  selectedConsultantId.value = selectedUser.value?.consultant_id ?? null
+  if (isAdmin.value) loadConsultants()
+})
 </script>

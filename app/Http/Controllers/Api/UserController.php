@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\NewClientOnboarded;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,6 +130,69 @@ class UserController extends Controller
             'message' => 'Avatar updated successfully',
             'path' => $path,
             'url' => asset('storage/'.$path),
+        ]);
+    }
+
+    public function consultants(): AnonymousResourceCollection
+    {
+        $consultants = User::role('consultant')->with(['profile', 'roles'])->get();
+
+        return UserResource::collection($consultants);
+    }
+
+    public function assignConsultant(Request $request, User $user): JsonResponse
+    {
+        if (! Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'Only admins can assign consultants.'], 403);
+        }
+
+        $request->validate([
+            'consultant_id' => 'nullable|exists:users,id',
+        ]);
+
+        if ($request->consultant_id) {
+            $consultant = User::findOrFail($request->consultant_id);
+            if (! $consultant->hasRole('consultant')) {
+                return response()->json(['message' => 'Selected user is not a consultant.'], 422);
+            }
+        }
+
+        $user->update(['consultant_id' => $request->consultant_id]);
+        $user->load(['profile', 'roles', 'consultant']);
+
+        return response()->json([
+            'message' => 'Consultant assigned successfully.',
+            'user'    => new UserResource($user),
+        ]);
+    }
+
+    public function completeOnboarding(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'profession'         => 'required|string|max:255',
+            'level'              => 'required|in:junior,mid,senior,manager',
+            'stack'              => 'required|array|min:1',
+            'stack.*'            => 'string|max:50',
+            'product_interest'   => 'required|in:self-serve,bootcamp,mentorship',
+            'availability_hours' => 'required|integer|min:1|max:80',
+            'timeline'           => 'required|in:1-3m,3-6m,6-12m,flexible',
+            'goal'               => 'nullable|string|max:500',
+        ]);
+
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            $data
+        );
+
+        $user->load('profile', 'roles');
+
+        User::role('admin')->each(fn (User $admin) => $admin->notify(new NewClientOnboarded($user)));
+
+        return response()->json([
+            'message' => 'Onboarding complete',
+            'user'    => new UserResource($user),
         ]);
     }
 }

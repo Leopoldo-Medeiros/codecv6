@@ -184,7 +184,7 @@ async function handleRegister() {
   error.value   = ''
   const result = await register({ ...form })
   loading.value = false
-  if (result.success) navigateTo('/dashboard')
+  if (result.success) navigateTo('/onboarding')
   else {
     error.value = result.error || 'Registration failed.'
     form.password = ''
