@@ -20,15 +20,40 @@
             </p>
           </div>
         </div>
-        <UButton icon="i-heroicons-plus" size="sm" color="indigo" @click="openAddStep">
-          Add Step
-        </UButton>
+        <div class="flex items-center gap-2">
+          <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <button
+              class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+              :class="view === 'timeline' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+              @click="view = 'timeline'"
+            >
+              <UIcon name="i-heroicons-bars-3-bottom-left" class="h-3.5 w-3.5" /> Timeline
+            </button>
+            <button
+              class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+              :class="view === 'roadmap' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+              @click="view = 'roadmap'"
+            >
+              <UIcon name="i-heroicons-map" class="h-3.5 w-3.5" /> Roadmap
+            </button>
+          </div>
+          <UButton icon="i-heroicons-plus" size="sm" color="indigo" @click="openAddStep">
+            Add Step
+          </UButton>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
-        <!-- ── Timeline ─────────────────────────────── -->
+        <!-- ── Timeline / Roadmap ─────────────────── -->
         <div class="lg:col-span-2">
+
+          <!-- Roadmap view -->
+          <RoadmapFlow
+            v-if="view === 'roadmap' && steps.length"
+            :steps="steps"
+            @node-click="openEditStep"
+          />
 
           <!-- Empty -->
           <div v-if="!steps.length"
@@ -41,7 +66,7 @@
           </div>
 
           <!-- Steps timeline -->
-          <div v-else class="flex flex-col">
+          <div v-else-if="view === 'timeline'" class="flex flex-col">
             <div v-for="(step, i) in steps" :key="step.id" class="flex gap-4">
 
               <!-- Line + node -->
@@ -220,6 +245,7 @@ const { courses, fetchCourses } = useCourses()
 const currentPath = ref<any>(null)
 const steps       = ref<PathStep[]>([])
 const loading     = ref(true)
+const view        = ref<'timeline' | 'roadmap'>('timeline')
 
 const showModal   = ref(false)
 const saving      = ref(false)

@@ -9,6 +9,24 @@
           Structured roadmaps to guide your IT career in Ireland.
         </p>
       </div>
+      <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <button
+          class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="view === 'timeline' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+          @click="view = 'timeline'"
+        >
+          <UIcon name="i-heroicons-bars-3-bottom-left" class="h-3.5 w-3.5" />
+          Timeline
+        </button>
+        <button
+          class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="view === 'roadmap' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+          @click="view = 'roadmap'"
+        >
+          <UIcon name="i-heroicons-map" class="h-3.5 w-3.5" />
+          Roadmap
+        </button>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -65,8 +83,15 @@
             </div>
           </div>
 
+          <!-- Roadmap view -->
+          <RoadmapFlow
+            v-if="view === 'roadmap' && path.steps.length"
+            :steps="path.steps"
+            @node-click="(step) => toggleExpanded(step.id)"
+          />
+
           <!-- Timeline -->
-          <div v-if="path.steps.length" class="flex flex-col pl-2 sm:pl-6">
+          <div v-if="view === 'timeline' && path.steps.length" class="flex flex-col pl-2 sm:pl-6">
             <div v-for="(step, i) in path.steps" :key="step.id" class="flex gap-4">
 
               <!-- Connector -->
@@ -156,7 +181,7 @@
             </div>
           </div>
 
-          <div v-else class="rounded-xl border border-dashed border-gray-200 px-5 py-8 text-center dark:border-gray-700">
+          <div v-else-if="!path.steps.length" class="rounded-xl border border-dashed border-gray-200 px-5 py-8 text-center dark:border-gray-700">
             <p class="text-sm text-gray-400 dark:text-gray-500">Your consultant hasn't added steps to this path yet.</p>
           </div>
 
@@ -175,6 +200,7 @@ useHead({ title: 'My Learning Paths — CODECV' })
 
 const toast = useToast()
 const { paths, loading, fetchMyPaths, fetchSteps, updateStepProgress } = usePaths()
+const view = ref<'timeline' | 'roadmap'>('timeline')
 
 // local step state per path: pathId → steps with user_status
 const pathSteps = ref<Record<number, PathStep[]>>({})
