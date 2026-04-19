@@ -123,12 +123,57 @@
 
           <UButton :icon="isDark ? 'i-heroicons-sun' : 'i-heroicons-moon'"
             color="gray" variant="ghost" size="sm" @click="toggleColorMode" />
-          <UPopover>
-            <UButton icon="i-heroicons-bell" color="gray" variant="ghost" size="sm" />
-            <template #panel>
-              <div class="w-72 p-4">
-                <p class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
-                <p class="text-sm text-gray-400 dark:text-slate-500">Nothing new</p>
+          <UPopover @open="fetchNotifications">
+            <div class="relative">
+              <UButton icon="i-heroicons-bell" color="gray" variant="ghost" size="sm" />
+              <span
+                v-if="unreadCount > 0"
+                class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center
+                       rounded-full bg-indigo-500 text-[9px] font-bold text-white"
+              >{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+            </div>
+            <template #panel="{ close }">
+              <div class="w-80">
+                <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-slate-700">
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
+                  <button
+                    v-if="unreadCount > 0"
+                    class="text-xs text-indigo-500 hover:underline"
+                    @click="markAllRead"
+                  >Mark all read</button>
+                </div>
+                <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-400">Loading…</div>
+                <div v-else-if="notifications.length === 0" class="px-4 py-6 text-center text-sm text-gray-400 dark:text-slate-500">
+                  Nothing new
+                </div>
+                <ul v-else class="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800">
+                  <li
+                    v-for="n in notifications"
+                    :key="n.id"
+                    class="flex cursor-pointer gap-3 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/60"
+                    :class="n.read ? 'opacity-60' : ''"
+                    @click="handleNotificationClick(n, close)"
+                  >
+                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40">
+                      <UIcon name="i-heroicons-user-plus" class="h-4 w-4 text-indigo-500" />
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-[13px] font-medium text-gray-800 dark:text-slate-200 leading-snug">
+                        <span class="font-semibold">{{ n.data.fullname }}</span> completed onboarding
+                      </p>
+                      <p class="mt-0.5 text-[11px] text-gray-400 dark:text-slate-500">
+                        {{ n.data.profession }} · {{ n.data.level }} · {{ n.data.product_interest }}
+                      </p>
+                      <p v-if="n.data.stack?.length" class="mt-0.5 text-[11px] text-gray-400 dark:text-slate-500">
+                        {{ n.data.stack.join(', ') }} · {{ n.data.availability_hours }}h/week · {{ n.data.timeline }}
+                      </p>
+                      <p class="mt-0.5 text-[10px] text-gray-300 dark:text-slate-600">
+                        {{ timeAgo(n.created_at) }}
+                      </p>
+                    </div>
+                    <span v-if="!n.read" class="mt-2 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />
+                  </li>
+                </ul>
               </div>
             </template>
           </UPopover>
@@ -173,6 +218,26 @@ const { user, logout } = useAuth()
 const route            = useRoute()
 const colorMode        = useColorMode()
 const sidebarOpen      = ref(false)
+
+const { notifications, unreadCount, loading, fetchNotifications, markRead, markAllRead } = useNotifications()
+
+onMounted(fetchNotifications)
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1)  return 'just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  return `${Math.floor(h / 24)}d ago`
+}
+
+async function handleNotificationClick(n: any, close: () => void) {
+  if (!n.read) await markRead(n.id)
+  close()
+  if (n.data?.client_id) navigateTo(`/users/${n.data.client_id}`)
+}
 
 // Close sidebar on route change
 watch(() => route.path, () => { sidebarOpen.value = false })

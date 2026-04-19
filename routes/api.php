@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\CourseController;
@@ -61,6 +62,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/cv/analyze', [CvController::class, 'analyze']);
     Route::post('/linkedin/analyze', [LinkedInController::class, 'analyze']);
 
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markRead']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+
+    // Onboarding (authenticated user completes their own profile)
+    Route::patch('/me/onboarding', [UserController::class, 'completeOnboarding']);
+
     // User self-service (admin or resource owner — enforced in controller)
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::put('/users/{user}', [UserController::class, 'update']);
@@ -107,6 +116,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        Route::get('/consultants', [UserController::class, 'consultants']);
+        Route::patch('/users/{user}/consultant', [UserController::class, 'assignConsultant']);
         Route::get('/roles', [RoleController::class, 'index']);
     });
 });
