@@ -67,7 +67,7 @@
         </div>
 
         <!-- Admin tools -->
-        <div v-if="isAdmin" class="mt-4 flex flex-col gap-0.5 border-t border-gray-100 pt-4 dark:border-slate-800">
+        <div v-if="isStaff" class="mt-4 flex flex-col gap-0.5 border-t border-gray-100 pt-4 dark:border-slate-800">
           <p class="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-600">
             Admin
           </p>
@@ -177,9 +177,10 @@ const sidebarOpen      = ref(false)
 // Close sidebar on route change
 watch(() => route.path, () => { sidebarOpen.value = false })
 
-const isDark   = computed(() => colorMode.value === 'dark')
-const isAdmin  = computed(() => user.value?.role === 'admin')
-const isActive = (p: string) => route.path === p
+const isDark      = computed(() => colorMode.value === 'dark')
+const isAdmin     = computed(() => user.value?.role === 'admin')
+const isStaff     = computed(() => ['admin', 'consultant'].includes(user.value?.role ?? ''))
+const isActive    = (p: string) => route.path === p
 
 const toggleColorMode = () => { colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark' }
 const handleLogout    = () => logout()
@@ -220,23 +221,28 @@ const navHoverBg = computed(() =>
   isDark.value ? 'rgba(255,255,255,0.04)' : 'rgb(249,250,251)'
 )
 
-const mainItems = computed(() => isAdmin.value
-  ? [
-      { label: 'Dashboard', icon: 'i-heroicons-home',                       to: '/dashboard' },
-      { label: 'Users',     icon: 'i-heroicons-users',                    to: '/users' },
-      { label: 'Courses',   icon: 'i-heroicons-book-open',                to: '/courses' },
-      { label: 'Paths',     icon: 'i-heroicons-map',                      to: '/paths' },
-      { label: 'Plans',     icon: 'i-heroicons-clipboard-document-list',  to: '/plans' },
-      { label: 'Jobs',      icon: 'i-heroicons-briefcase',                to: '/jobs' },
+const mainItems = computed(() => {
+  if (isStaff.value) {
+    const items = [
+      { label: 'Dashboard', icon: 'i-heroicons-home',                      to: '/dashboard' },
+      { label: 'Courses',   icon: 'i-heroicons-book-open',               to: '/courses' },
+      { label: 'Paths',     icon: 'i-heroicons-map',                     to: '/paths' },
+      { label: 'Plans',     icon: 'i-heroicons-clipboard-document-list', to: '/plans' },
+      { label: 'Jobs',      icon: 'i-heroicons-briefcase',               to: '/jobs' },
     ]
-  : [
-      { label: 'Dashboard',  icon: 'i-heroicons-home',             to: '/dashboard' },
-      { label: 'My Courses', icon: 'i-heroicons-book-open',      to: '/my-courses' },
-      { label: 'My Paths',   icon: 'i-heroicons-map',            to: '/my-paths' },
-      { label: 'My CV',        icon: 'i-heroicons-document-magnifying-glass', to: '/my-cv' },
-      { label: 'LinkedIn',    icon: 'i-heroicons-identification',            to: '/linkedin-analyser' },
-    ]
-)
+    if (isAdmin.value) {
+      items.splice(1, 0, { label: 'Users', icon: 'i-heroicons-users', to: '/users' })
+    }
+    return items
+  }
+  return [
+    { label: 'Dashboard',  icon: 'i-heroicons-home',                              to: '/dashboard' },
+    { label: 'My Courses', icon: 'i-heroicons-book-open',                       to: '/my-courses' },
+    { label: 'My Paths',   icon: 'i-heroicons-map',                             to: '/my-paths' },
+    { label: 'My CV',      icon: 'i-heroicons-document-magnifying-glass',       to: '/my-cv' },
+    { label: 'LinkedIn',   icon: 'i-heroicons-identification',                  to: '/linkedin-analyser' },
+  ]
+})
 
 const userMenuItems = [
   [
