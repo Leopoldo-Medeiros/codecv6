@@ -1,35 +1,36 @@
 <template>
   <ClientOnly>
-    <div class="rf-wrap" :style="{ height: wrapHeight }">
+    <div
+      class="rf-wrap"
+      :class="isDark ? 'rf-wrap--dark' : 'rf-wrap--light'"
+      :style="{ height: wrapHeight }"
+    >
       <VueFlow
         :nodes="nodes"
         :edges="edges"
         :node-types="nodeTypes"
         fit-view-on-init
-        :min-zoom="0.3"
-        :max-zoom="1.8"
+        :fit-view-on-init-options="{ padding: 0.12 }"
+        :min-zoom="0.25"
+        :max-zoom="2"
         :nodes-draggable="false"
         :nodes-connectable="false"
         :elements-selectable="false"
         class="rf-flow"
         @node-click="onNodeClick"
       >
-        <!-- Dark dot grid -->
         <Background
           variant="dots"
           :gap="28"
           :size="1.2"
-          pattern-color="rgba(99,102,241,0.2)"
+          :pattern-color="isDark ? 'rgba(0,172,105,0.18)' : 'rgba(0,172,105,0.1)'"
         />
-
-        <!-- Minimap for long paths -->
         <MiniMap
-          v-if="steps.length > 5"
+          v-if="steps.length > 6"
           :node-color="minimapColor"
-          :mask-color="'rgba(0,0,0,0.6)'"
+          :mask-color="isDark ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)'"
           class="rf-minimap"
         />
-
         <Controls :show-interactive="false" class="rf-controls" />
       </VueFlow>
     </div>
@@ -41,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { VueFlow } from '@vue-flow/core'
+import { VueFlow, Position } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import { Controls } from '@vue-flow/controls'
@@ -63,25 +64,36 @@ interface Step {
 const props = defineProps<{ steps: Step[] }>()
 const emit  = defineEmits<{ (e: 'nodeClick', step: Step): void }>()
 
+const colorMode = useColorMode()
+const isDark    = computed(() => colorMode.value === 'dark')
 const nodeTypes = { step: markRaw(RoadmapStepNode) }
 
-const NODE_H = 100
-const GAP    = 52
+// Snake layout constants
+const NODE_W = 240, NODE_H = 90, V_GAP = 60, H_GAP = 100
+const SRC = [Position.Right,  Position.Bottom, Position.Left,  Position.Bottom]
+const TGT = [Position.Top,    Position.Left,   Position.Top,   Position.Right]
 
 const nodes = computed(() =>
-  props.steps.map((step, i) => ({
-    id:       String(step.id),
-    type:     'step',
-    position: { x: 0, y: i * (NODE_H + GAP) },
-    data: {
-      order:         step.order ?? i + 1,
-      title:         step.title,
-      course:        step.course?.name ?? null,
-      resourceCount: (step.resources ?? []).length,
-      status:        step.user_status,
-      step,
-    },
-  }))
+  props.steps.map((step, i) => {
+    const row = Math.floor(i / 2)
+    const col = (row % 2 === 0) ? (i % 2) : (1 - (i % 2))
+    return {
+      id:             String(step.id),
+      type:           'step',
+      position:       { x: col * (NODE_W + H_GAP), y: row * (NODE_H + V_GAP) },
+      sourcePosition: SRC[i % 4],
+      targetPosition: TGT[i % 4],
+      data: {
+        order:         step.order ?? i + 1,
+        index:         i,
+        title:         step.title,
+        course:        step.course?.name ?? null,
+        resourceCount: (step.resources ?? []).length,
+        status:        step.user_status,
+        step,
+      },
+    }
+  })
 )
 
 const edges = computed(() =>
@@ -89,37 +101,29 @@ const edges = computed(() =>
     const next   = props.steps[i + 1]
     const isDone = step.user_status === 'done'
     const isWip  = step.user_status === 'in_progress'
+    const stroke = isDone ? '#00AC69' : isWip ? '#00d97e' : 'rgba(0,172,105,0.3)'
     return {
       id:        `e${step.id}-${next.id}`,
       source:    String(step.id),
       target:    String(next.id),
       animated:  isWip,
       type:      'smoothstep',
-      style: {
-        stroke:      isDone ? '#22c55e' : isWip ? '#818cf8' : 'rgba(99,102,241,0.35)',
-        strokeWidth: isDone || isWip ? 2.5 : 1.5,
-        filter:      isDone ? 'drop-shadow(0 0 4px #22c55e)' : isWip ? 'drop-shadow(0 0 6px #818cf8)' : 'none',
-      },
-      markerEnd: {
-        type:   'arrowclosed',
-        color:  isDone ? '#22c55e' : isWip ? '#818cf8' : 'rgba(99,102,241,0.4)',
-        width:  12,
-        height: 12,
-      },
+      style:     { stroke, strokeWidth: isDone || isWip ? 2 : 1.5 },
+      markerEnd: { type: 'arrowclosed', color: stroke, width: 11, height: 11 },
     }
   })
 )
 
 const wrapHeight = computed(() => {
-  const h = props.steps.length * (NODE_H + GAP) + 120
-  return `${Math.max(h, 340)}px`
+  const rows = Math.ceil(props.steps.length / 2)
+  return `${Math.max(rows * (NODE_H + V_GAP) + 120, 300)}px`
 })
 
 function minimapColor(node: any) {
   const s = node.data?.status
-  if (s === 'done')        return '#22c55e'
-  if (s === 'in_progress') return '#6366f1'
-  return '#334155'
+  if (s === 'done')        return '#00AC69'
+  if (s === 'in_progress') return '#00d97e'
+  return isDark.value ? '#1D252C' : '#b2dfce'
 }
 
 function onNodeClick({ node }: any) {
@@ -128,53 +132,39 @@ function onNodeClick({ node }: any) {
 </script>
 
 <style>
-/* ── Canvas ──────────────────────────────────────────── */
-.rf-wrap {
-  width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(99,102,241,0.2);
+.rf-wrap { width: 100%; border-radius: 12px; overflow: hidden; }
+
+.rf-wrap--dark {
+  border: 1px solid rgba(0,172,105,0.2);
   background:
-    radial-gradient(ellipse at 20% 10%,  rgba(99,102,241,0.12) 0%, transparent 45%),
-    radial-gradient(ellipse at 80% 80%,  rgba(6,182,212,0.08)  0%, transparent 45%),
-    radial-gradient(ellipse at 60% 40%,  rgba(139,92,246,0.07) 0%, transparent 40%),
-    #060d1a;
+    radial-gradient(ellipse at 20% 15%, rgba(0,172,105,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,125,74,0.05)  0%, transparent 50%),
+    #1D252C;
+}
+.rf-wrap--light {
+  border: 1px solid #b2dfce;
+  background: #f0faf5;
 }
 
 .rf-flow { width: 100%; height: 100%; }
-
-/* Override VueFlow internals to fit dark theme */
 .rf-flow .vue-flow__background { background: transparent !important; }
-.rf-flow .vue-flow__pane       { cursor: grab; }
-.rf-flow .vue-flow__pane:active { cursor: grabbing; }
+.rf-flow .vue-flow__pane       { cursor: default; }
 
 /* Minimap */
-.rf-minimap {
-  border-radius: 10px !important;
-  overflow: hidden;
-  border: 1px solid rgba(99,102,241,0.25) !important;
-  background: rgba(6,13,26,0.9) !important;
-}
+.rf-minimap { border-radius: 8px !important; overflow: hidden; }
+.rf-wrap--dark  .rf-minimap { border: 1px solid rgba(0,172,105,0.2) !important; background: rgba(29,37,44,0.95) !important; }
+.rf-wrap--light .rf-minimap { border: 1px solid #b2dfce !important; background: rgba(240,250,245,0.95) !important; }
 
 /* Controls */
-.rf-controls {
-  border-radius: 10px !important;
-  overflow: hidden;
-  border: 1px solid rgba(99,102,241,0.25) !important;
-  background: rgba(15,23,42,0.9) !important;
-  box-shadow: none !important;
-}
-.rf-controls button {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(99,102,241,0.15) !important;
-  color: #94a3b8 !important;
-}
-.rf-controls button:hover { background: rgba(99,102,241,0.15) !important; color: #a5b4fc !important; }
+.rf-controls { border-radius: 8px !important; overflow: hidden; box-shadow: none !important; }
+.rf-wrap--dark  .rf-controls { border: 1px solid rgba(0,172,105,0.2) !important; background: #1a2220 !important; }
+.rf-wrap--light .rf-controls { border: 1px solid #b2dfce !important; background: #ffffff !important; }
+
+.rf-wrap--dark  .rf-controls button { background: transparent !important; border-bottom: 1px solid rgba(0,172,105,0.15) !important; color: #5dd9a4 !important; }
+.rf-wrap--dark  .rf-controls button:hover { background: rgba(0,172,105,0.12) !important; color: #00AC69 !important; }
+.rf-wrap--light .rf-controls button { background: transparent !important; border-bottom: 1px solid #b2dfce !important; color: #007D4A !important; }
+.rf-wrap--light .rf-controls button:hover { background: #e0f5ec !important; color: #005c34 !important; }
 .rf-controls button:last-child { border-bottom: none !important; }
 
-/* Fallback */
-.rf-fallback {
-  display: flex; align-items: center; justify-content: center;
-  height: 240px; font-size: 0.875rem; color: #64748b;
-}
+.rf-fallback { display: flex; align-items: center; justify-content: center; height: 240px; font-size: 0.875rem; color: #6b7280; }
 </style>

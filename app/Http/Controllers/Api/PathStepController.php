@@ -13,14 +13,11 @@ use Illuminate\Support\Facades\Auth;
 
 class PathStepController extends Controller
 {
-    /**
-     * List steps for a path, annotated with the current user's progress.
-     */
     public function index(Path $path): JsonResponse
     {
-        $steps = $path->steps()->with('course')->get();
+        $steps = $path->steps()->with('course')->orderBy('order')->get();
 
-        $userId = Auth::id();
+        $userId      = Auth::id();
         $progressMap = UserStepProgress::where('user_id', $userId)
             ->whereIn('path_step_id', $steps->pluck('id'))
             ->pluck('status', 'path_step_id');
@@ -33,22 +30,40 @@ class PathStepController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    /**
-     * Create a new step (admin/consultant only — enforced by route middleware).
-     */
+    public function show(PathStep $step): JsonResponse
+    {
+        $step->load('course');
+
+        $userStatus = UserStepProgress::where('user_id', Auth::id())
+            ->where('path_step_id', $step->id)
+            ->value('status') ?? 'not_started';
+
+        return response()->json([
+            'data' => array_merge(
+                (new PathStepResource($step))->resolve(),
+                ['user_status' => $userStatus]
+            ),
+        ]);
+    }
+
     public function store(Request $request, Path $path): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'course_id'   => 'nullable|exists:courses,id',
-            'resources'   => 'nullable|array',
-            'resources.*.label' => 'required|string|max:100',
-            'resources.*.url'   => 'required|url|max:500',
-            'order'       => 'nullable|integer|min:0',
+            'title'            => 'required|string|max:255',
+            'description'      => 'nullable|string',
+            'course_id'        => 'nullable|exists:courses,id',
+            'resources'        => 'nullable|array',
+            'resources.*.label'     => 'required|string|max:100',
+            'resources.*.url'       => 'required|url|max:500',
+            'order'            => 'nullable|integer|min:0',
+            'type'             => 'nullable|in:reading,lab,challenge,quiz',
+            'lab_url'          => 'nullable|url|max:1000',
+            'instructions'     => 'nullable|array',
+            'instructions.*.id'   => 'required|integer',
+            'instructions.*.text' => 'required|string|max:500',
+            'challenge_prompt' => 'nullable|string',
         ]);
 
-        // Default order: append at end
         if (! isset($validated['order'])) {
             $validated['order'] = $path->steps()->max('order') + 1;
         }
@@ -62,21 +77,24 @@ class PathStepController extends Controller
         ], 201);
     }
 
-    /**
-     * Update a step.
-     */
     public function update(Request $request, Path $path, PathStep $step): JsonResponse
     {
         abort_if($step->path_id !== $path->id, 404);
 
         $validated = $request->validate([
-            'title'       => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'course_id'   => 'nullable|exists:courses,id',
-            'resources'   => 'nullable|array',
-            'resources.*.label' => 'required|string|max:100',
-            'resources.*.url'   => 'required|url|max:500',
-            'order'       => 'nullable|integer|min:0',
+            'title'            => 'sometimes|required|string|max:255',
+            'description'      => 'nullable|string',
+            'course_id'        => 'nullable|exists:courses,id',
+            'resources'        => 'nullable|array',
+            'resources.*.label'     => 'required|string|max:100',
+            'resources.*.url'       => 'required|url|max:500',
+            'order'            => 'nullable|integer|min:0',
+            'type'             => 'nullable|in:reading,lab,challenge,quiz',
+            'lab_url'          => 'nullable|url|max:1000',
+            'instructions'     => 'nullable|array',
+            'instructions.*.id'   => 'required|integer',
+            'instructions.*.text' => 'required|string|max:500',
+            'challenge_prompt' => 'nullable|string',
         ]);
 
         $step->update($validated);
@@ -88,9 +106,6 @@ class PathStepController extends Controller
         ]);
     }
 
-    /**
-     * Delete a step.
-     */
     public function destroy(Path $path, PathStep $step): JsonResponse
     {
         abort_if($step->path_id !== $path->id, 404);
@@ -99,9 +114,6 @@ class PathStepController extends Controller
         return response()->json(['message' => 'Step deleted']);
     }
 
-    /**
-     * Reorder steps by passing an ordered array of step IDs.
-     */
     public function reorder(Request $request, Path $path): JsonResponse
     {
         $request->validate([
@@ -116,17 +128,44 @@ class PathStepController extends Controller
         return response()->json(['message' => 'Steps reordered']);
     }
 
-    /**
-     * Update the authenticated user's progress on a step.
-     */
     public function updateProgress(Request $request, PathStep $step): JsonResponse
     {
         $request->validate([
             'status' => 'required|in:not_started,in_progress,done',
         ]);
 
+        $userId = Auth::id();
+
+        if ($request->status === 'in_progress') {
+            $precedingIds = PathStep::where('path_id', $step->path_id)
+                ->where('order', '<', $step->order)
+                ->pluck('id');
+
+            $blocker = UserStepProgress::where('user_id', $userId)
+                ->whereIn('path_step_id', $precedingIds)
+                ->where('status', 'in_progress')
+                ->with('step')
+                ->first();
+
+            if ($blocker) {
+                return response()->json([
+                    'message'       => 'Complete the current step first.',
+                    'blocking_step' => $blocker->step?->title,
+                ], 422);
+            }
+
+            $siblingIds = PathStep::where('path_id', $step->path_id)
+                ->where('id', '!=', $step->id)
+                ->pluck('id');
+
+            UserStepProgress::where('user_id', $userId)
+                ->whereIn('path_step_id', $siblingIds)
+                ->where('status', 'in_progress')
+                ->update(['status' => 'not_started']);
+        }
+
         UserStepProgress::updateOrCreate(
-            ['user_id' => Auth::id(), 'path_step_id' => $step->id],
+            ['user_id' => $userId, 'path_step_id' => $step->id],
             ['status' => $request->status]
         );
 

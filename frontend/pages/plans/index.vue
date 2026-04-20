@@ -6,24 +6,24 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Plans</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Assign paths and clients to structured coaching plans</p>
       </div>
-      <UButton icon="i-heroicons-plus" size="sm" color="indigo" @click="navigateTo('/plans/create')">
+      <UButton icon="i-heroicons-plus" size="sm" color="emerald" @click="navigateTo('/plans/create')">
         New Plan
       </UButton>
     </div>
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-20">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-indigo-500" />
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
     </div>
 
     <!-- Empty -->
     <div v-else-if="!plans.length" class="flex flex-col items-center rounded-xl border border-dashed border-gray-200 bg-white py-20 text-center dark:border-gray-700 dark:bg-gray-800">
-      <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950">
-        <UIcon name="i-heroicons-clipboard-document-list" class="h-8 w-8 text-indigo-400" />
+      <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
+        <UIcon name="i-heroicons-clipboard-document-list" class="h-8 w-8 text-emerald-400" />
       </div>
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300">No plans yet</p>
       <p class="mt-1 max-w-xs text-xs text-gray-400 dark:text-gray-500">Create a plan to bundle paths and assign clients.</p>
-      <UButton size="sm" color="indigo" class="mt-5" icon="i-heroicons-plus" @click="navigateTo('/plans/create')">
+      <UButton size="sm" color="emerald" class="mt-5" icon="i-heroicons-plus" @click="navigateTo('/plans/create')">
         Create First Plan
       </UButton>
     </div>
@@ -37,8 +37,8 @@
       >
         <div class="flex-1 p-5">
           <div class="mb-3 flex items-start justify-between gap-2">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950">
-              <UIcon name="i-heroicons-clipboard-document-list" class="h-5 w-5 text-indigo-500" />
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950">
+              <UIcon name="i-heroicons-clipboard-document-list" class="h-5 w-5 text-emerald-500" />
             </div>
             <UDropdown :items="planActions(plan)" :popper="{ placement: 'bottom-end' }">
               <UButton icon="i-heroicons-ellipsis-horizontal" color="gray" variant="ghost" size="xs" />
@@ -52,7 +52,7 @@
 
           <div class="mt-4 flex flex-wrap gap-3">
             <div class="flex items-center gap-1.5">
-              <UIcon name="i-heroicons-map" class="h-3.5 w-3.5 text-indigo-400" />
+              <UIcon name="i-heroicons-map" class="h-3.5 w-3.5 text-emerald-400" />
               <span class="text-xs text-gray-500 dark:text-gray-400">
                 {{ plan.paths?.length ?? 0 }} path{{ (plan.paths?.length ?? 0) !== 1 ? 's' : '' }}
               </span>

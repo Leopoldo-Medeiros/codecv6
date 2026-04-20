@@ -47,7 +47,7 @@
           </div>
 
           <div class="mt-6 flex items-center gap-3">
-            <UButton type="submit" color="indigo" size="md" :loading="saving"
+            <UButton type="submit" color="emerald" size="md" :loading="saving"
               :disabled="!form.name.trim() || saving">
               Create Path
             </UButton>

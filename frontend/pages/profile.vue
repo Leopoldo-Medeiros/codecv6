@@ -30,12 +30,12 @@
               :src="avatarPreview || user?.profile?.profile_image_url || '/images/team-13.jpg'"
               :alt="user?.fullname"
               size="3xl"
-              class="ring-4 ring-indigo-100 dark:ring-indigo-900"
+              class="ring-4 ring-emerald-100 dark:ring-emerald-900"
             />
             <button
               class="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center
-                     rounded-full border-2 border-white bg-indigo-600 text-white shadow
-                     hover:bg-indigo-700 dark:border-gray-800"
+                     rounded-full border-2 border-white bg-emerald-600 text-white shadow
+                     hover:bg-emerald-700 dark:border-gray-800"
               title="Change photo"
               :disabled="uploadingAvatar"
               @click="$refs.avatarInput.click()"
@@ -53,7 +53,7 @@
           </div>
           <h3 class="text-base font-bold text-gray-900 dark:text-white">{{ user?.fullname }}</h3>
           <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400 capitalize">{{ user?.role }}</p>
-          <UBadge color="indigo" variant="subtle" size="xs" class="mt-2">
+          <UBadge color="emerald" variant="subtle" size="xs" class="mt-2">
             {{ user?.email }}
           </UBadge>
         </div>
@@ -79,14 +79,14 @@
                     type="url"
                     :placeholder="`https://...`"
                     class="mt-0.5 w-full rounded-md border border-gray-200 bg-gray-50 px-2 py-1
-                           text-xs text-gray-800 outline-none focus:border-indigo-400
+                           text-xs text-gray-800 outline-none focus:border-emerald-400
                            dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                   />
                 </template>
                 <template v-else>
                   <a v-if="user?.profile?.[link.key]"
                     :href="user.profile[link.key]" target="_blank"
-                    class="truncate text-xs text-indigo-600 hover:underline dark:text-indigo-400">
+                    class="truncate text-xs text-emerald-600 hover:underline dark:text-emerald-400">
                     {{ user.profile[link.key] }}
                   </a>
                   <p v-else class="text-xs italic text-gray-400 dark:text-gray-500">Not set</p>
@@ -117,7 +117,7 @@
                 <input v-if="editing" v-model="form.fullname"
                   type="text"
                   class="mt-1 w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5
-                         text-sm text-gray-800 outline-none focus:border-indigo-400
+                         text-sm text-gray-800 outline-none focus:border-emerald-400
                          dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
                 <p v-else class="mt-0.5 text-sm font-medium text-gray-900 dark:text-white">
                   {{ user?.fullname || '—' }}
@@ -172,19 +172,19 @@
               <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Current Password</label>
               <input v-model="passwordForm.current" type="password"
                 class="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm
-                       outline-none focus:border-indigo-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
+                       outline-none focus:border-emerald-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
             </div>
             <div>
               <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">New Password</label>
               <input v-model="passwordForm.new" type="password"
                 class="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm
-                       outline-none focus:border-indigo-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
+                       outline-none focus:border-emerald-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
             </div>
             <div>
               <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Confirm New Password</label>
               <input v-model="passwordForm.confirm" type="password"
                 class="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm
-                       outline-none focus:border-indigo-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
+                       outline-none focus:border-emerald-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
             </div>
             <div class="flex justify-end gap-2 pt-1">
               <UButton size="sm" color="gray" variant="outline" @click="showPasswordForm = false">Cancel</UButton>
@@ -195,9 +195,9 @@
 
         <!-- Save bar — visible only in edit mode -->
         <div v-if="editing"
-          class="flex items-center justify-between rounded-xl border border-indigo-200 bg-indigo-50
-                 px-5 py-4 dark:border-indigo-800 dark:bg-indigo-950/40">
-          <p class="text-sm text-indigo-700 dark:text-indigo-300">You have unsaved changes.</p>
+          class="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50
+                 px-5 py-4 dark:border-emerald-800 dark:bg-emerald-950/40">
+          <p class="text-sm text-emerald-700 dark:text-emerald-300">You have unsaved changes.</p>
           <div class="flex gap-2">
             <UButton size="sm" color="gray" variant="outline" @click="cancelEdit">Discard</UButton>
             <UButton size="sm" icon="i-heroicons-check" :loading="saving" @click="saveProfile">

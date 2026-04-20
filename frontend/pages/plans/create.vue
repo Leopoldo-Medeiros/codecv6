@@ -42,11 +42,11 @@
           </div>
           <div class="p-6">
             <div v-if="pathsLoading" class="flex justify-center py-6">
-              <UIcon name="i-heroicons-arrow-path" class="animate-spin text-indigo-400" />
+              <UIcon name="i-heroicons-arrow-path" class="animate-spin text-emerald-400" />
             </div>
             <div v-else-if="!allPaths.length" class="text-sm text-gray-400 dark:text-gray-500">
               No paths available.
-              <NuxtLink to="/paths/create" class="text-indigo-500 hover:underline">Create one first.</NuxtLink>
+              <NuxtLink to="/paths/create" class="text-emerald-500 hover:underline">Create one first.</NuxtLink>
             </div>
             <div v-else class="flex flex-col gap-2">
               <label
@@ -54,18 +54,18 @@
                 :key="path.id"
                 class="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
                 :class="form.path_ids.includes(path.id)
-                  ? 'border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-950/30'
+                  ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
                   : 'border-gray-100 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/30'"
               >
                 <input type="checkbox" class="hidden" :value="path.id" v-model="form.path_ids" />
                 <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  :class="form.path_ids.includes(path.id) ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-gray-100 dark:bg-gray-700'">
+                  :class="form.path_ids.includes(path.id) ? 'bg-emerald-100 dark:bg-emerald-900/50' : 'bg-gray-100 dark:bg-gray-700'">
                   <UIcon name="i-heroicons-map" class="h-4 w-4"
-                    :class="form.path_ids.includes(path.id) ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'" />
+                    :class="form.path_ids.includes(path.id) ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'" />
                 </div>
                 <span class="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{{ path.name }}</span>
                 <UIcon v-if="form.path_ids.includes(path.id)"
-                  name="i-heroicons-check-circle" class="h-5 w-5 text-indigo-500" />
+                  name="i-heroicons-check-circle" class="h-5 w-5 text-emerald-500" />
               </label>
             </div>
           </div>
@@ -81,7 +81,7 @@
             <UInput v-model="clientSearch" placeholder="Search clients…" icon="i-heroicons-magnifying-glass"
               size="sm" class="mb-3" />
             <div v-if="usersLoading" class="flex justify-center py-6">
-              <UIcon name="i-heroicons-arrow-path" class="animate-spin text-indigo-400" />
+              <UIcon name="i-heroicons-arrow-path" class="animate-spin text-emerald-400" />
             </div>
             <div v-else-if="!filteredClients.length" class="text-sm text-gray-400 dark:text-gray-500">
               No clients found.
@@ -130,7 +130,7 @@
             {{ error }}
           </div>
 
-          <UButton type="button" block color="indigo" size="md" class="mt-5" :loading="saving"
+          <UButton type="button" block color="emerald" size="md" class="mt-5" :loading="saving"
             :disabled="!form.name.trim() || saving" @click="handleSubmit">
             Create Plan
           </UButton>

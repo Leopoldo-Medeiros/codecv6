@@ -3,7 +3,7 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-24">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-indigo-500" />
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
     </div>
 
     <template v-else-if="currentPath">
@@ -24,20 +24,20 @@
           <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <button
               class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
-              :class="view === 'timeline' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+              :class="view === 'timeline' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
               @click="view = 'timeline'"
             >
               <UIcon name="i-heroicons-bars-3-bottom-left" class="h-3.5 w-3.5" /> Timeline
             </button>
             <button
               class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
-              :class="view === 'roadmap' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+              :class="view === 'roadmap' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
               @click="view = 'roadmap'"
             >
               <UIcon name="i-heroicons-map" class="h-3.5 w-3.5" /> Roadmap
             </button>
           </div>
-          <UButton icon="i-heroicons-plus" size="sm" color="indigo" @click="openAddStep">
+          <UButton icon="i-heroicons-plus" size="sm" color="emerald" @click="openAddStep">
             Add Step
           </UButton>
         </div>
@@ -80,16 +80,24 @@
 
               <!-- Card -->
               <div class="mb-4 flex-1 rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
-                :class="{ 'ring-2 ring-indigo-200 dark:ring-indigo-800': editingStep?.id === step.id }">
+                :class="{ 'ring-2 ring-emerald-200 dark:ring-emerald-800': editingStep?.id === step.id }">
                 <div class="flex items-start justify-between gap-3 p-4">
                   <div class="min-w-0 flex-1">
                     <p class="font-semibold text-gray-900 dark:text-white">{{ step.title }}</p>
                     <p v-if="step.description" class="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                       {{ step.description }}
                     </p>
-                    <!-- Linked course -->
-                    <div v-if="step.course" class="mt-2 flex items-center gap-2">
-                      <UBadge color="indigo" variant="subtle" size="xs" icon="i-heroicons-book-open">
+                    <!-- Type badge + Open Lab -->
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                      <UBadge v-if="step.type && step.type !== 'reading'" :color="stepTypeBadgeColor(step.type)" variant="subtle" size="xs">
+                        {{ stepTypeLabel(step.type) }}
+                      </UBadge>
+                      <UButton v-if="step.type === 'lab' || step.type === 'challenge'"
+                        size="xs" color="emerald" variant="soft" icon="i-heroicons-command-line"
+                        @click.stop="navigateTo(`/labs/${step.id}`)">
+                        Open Lab
+                      </UButton>
+                      <UBadge v-if="step.course" color="emerald" variant="subtle" size="xs" icon="i-heroicons-book-open">
                         {{ step.course.name }}
                       </UBadge>
                     </div>
@@ -97,7 +105,7 @@
                     <div v-if="step.resources?.length" class="mt-2 flex flex-wrap gap-2">
                       <a v-for="r in step.resources" :key="r.url"
                         :href="r.url" target="_blank"
-                        class="flex items-center gap-1 text-xs text-indigo-600 hover:underline dark:text-indigo-400">
+                        class="flex items-center gap-1 text-xs text-emerald-600 hover:underline dark:text-emerald-400">
                         <UIcon name="i-heroicons-link" class="h-3 w-3" />
                         {{ r.label }}
                       </a>
@@ -151,9 +159,9 @@
           </div>
 
           <!-- Tip -->
-          <div class="rounded-xl bg-indigo-50 p-4 dark:bg-indigo-950/30">
-            <p class="text-xs font-semibold text-indigo-700 dark:text-indigo-400">Tip</p>
-            <p class="mt-1 text-xs text-indigo-600 dark:text-indigo-500 leading-relaxed">
+          <div class="rounded-xl bg-emerald-50 p-4 dark:bg-emerald-950/30">
+            <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Tip</p>
+            <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-500 leading-relaxed">
               Use the ↑ ↓ arrows to reorder steps. Link a course to each step so clients can access content directly from their roadmap.
             </p>
           </div>
@@ -180,17 +188,65 @@
         />
 
         <div class="flex flex-col gap-4">
-          <!-- Title -->
-          <div>
-            <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">Title *</label>
-            <UInput v-model="form.title" placeholder="e.g. Learn Git & GitHub" />
+          <!-- Title + Type row -->
+          <div class="flex gap-3">
+            <div class="flex-1">
+              <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">Title *</label>
+              <UInput v-model="form.title" placeholder="e.g. Instrument your Node.js app" />
+            </div>
+            <div class="w-36 shrink-0">
+              <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">Type</label>
+              <USelect v-model="form.type"
+                :options="[
+                  { label: '📖 Reading', value: 'reading' },
+                  { label: '🧪 Lab', value: 'lab' },
+                  { label: '🎯 Challenge', value: 'challenge' },
+                  { label: '❓ Quiz', value: 'quiz' },
+                ]"
+                value-attribute="value" option-attribute="label" />
+            </div>
           </div>
 
           <!-- Description -->
           <div>
             <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">Description</label>
-            <UTextarea v-model="form.description" :rows="3"
+            <UTextarea v-model="form.description" :rows="2"
               placeholder="What will the student learn or do in this step?" />
+          </div>
+
+          <!-- Lab URL (only for lab/challenge) -->
+          <div v-if="form.type === 'lab' || form.type === 'challenge'">
+            <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
+              Lab Environment URL
+              <span class="font-normal text-gray-400 ml-1">(StackBlitz, Killercoda, Codespace…)</span>
+            </label>
+            <UInput v-model="form.lab_url" placeholder="https://stackblitz.com/edit/…" />
+          </div>
+
+          <!-- Challenge prompt (for challenge type) -->
+          <div v-if="form.type === 'challenge'">
+            <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">Challenge Prompt</label>
+            <UTextarea v-model="form.challenge_prompt" :rows="2"
+              placeholder="Describe what the student must accomplish…" />
+          </div>
+
+          <!-- Instructions (for lab/challenge) -->
+          <div v-if="form.type === 'lab' || form.type === 'challenge'">
+            <div class="mb-1.5 flex items-center justify-between">
+              <label class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Step-by-step Instructions
+              </label>
+              <UButton size="xs" variant="ghost" icon="i-heroicons-plus" @click="addInstruction">Add</UButton>
+            </div>
+            <div v-for="(inst, ii) in form.instructions" :key="inst.id" class="mb-2 flex gap-2 items-center">
+              <span class="text-xs text-gray-400 w-5 shrink-0 text-right">{{ ii + 1 }}.</span>
+              <UInput v-model="inst.text" :placeholder="`Step ${ii + 1}…`" class="flex-1" />
+              <UButton icon="i-heroicons-x-mark" size="xs" color="red" variant="ghost"
+                @click="form.instructions.splice(ii, 1)" />
+            </div>
+            <p v-if="!form.instructions.length" class="text-xs text-gray-400 dark:text-gray-500 italic">
+              No instructions yet. Add checkable steps for the student to follow.
+            </p>
           </div>
 
           <!-- Linked course -->
@@ -220,7 +276,7 @@
 
         <div class="mt-6 flex justify-end gap-2">
           <UButton color="gray" variant="outline" @click="showModal = false; stepError = null">Cancel</UButton>
-          <UButton color="indigo" :loading="saving" @click="saveStep">
+          <UButton color="emerald" :loading="saving" @click="saveStep">
             {{ editingStep ? 'Save Changes' : 'Add Step' }}
           </UButton>
         </div>
@@ -252,7 +308,16 @@ const saving      = ref(false)
 const stepError   = ref<string | null>(null)
 const editingStep = ref<PathStep | null>(null)
 
-const emptyForm = () => ({ title: '', description: '', course_id: null as number | null, resources: [] as { label: string; url: string }[] })
+const emptyForm = () => ({
+  title: '',
+  description: '',
+  course_id: null as number | null,
+  type: 'reading' as 'reading' | 'lab' | 'challenge' | 'quiz',
+  lab_url: '',
+  instructions: [] as { id: number; text: string }[],
+  challenge_prompt: '',
+  resources: [] as { label: string; url: string }[],
+})
 const form = reactive(emptyForm())
 
 const pathId = computed(() => Number(route.params.id))
@@ -281,6 +346,14 @@ function nodeClass(step: PathStep) {
   return 'border-gray-300 bg-white text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400'
 }
 
+function stepTypeLabel(type: string) {
+  return { lab: '🧪 Lab', challenge: '🎯 Challenge', quiz: '❓ Quiz', reading: '📖 Reading' }[type] ?? type
+}
+
+function stepTypeBadgeColor(type: string) {
+  return { lab: 'emerald', challenge: 'amber', quiz: 'violet', reading: 'gray' }[type] ?? 'gray'
+}
+
 function openAddStep() {
   editingStep.value = null
   stepError.value = null
@@ -292,10 +365,14 @@ function openEditStep(step: PathStep) {
   editingStep.value = step
   stepError.value = null
   Object.assign(form, {
-    title: step.title,
-    description: step.description ?? '',
-    course_id: step.course?.id ?? null,
-    resources: step.resources ? JSON.parse(JSON.stringify(step.resources)) : [],
+    title:            step.title,
+    description:      step.description ?? '',
+    course_id:        step.course?.id ?? null,
+    type:             step.type ?? 'reading',
+    lab_url:          step.lab_url ?? '',
+    instructions:     step.instructions ? JSON.parse(JSON.stringify(step.instructions)) : [],
+    challenge_prompt: step.challenge_prompt ?? '',
+    resources:        step.resources ? JSON.parse(JSON.stringify(step.resources)) : [],
   })
   showModal.value = true
 }
@@ -304,15 +381,24 @@ function addResource() {
   form.resources.push({ label: '', url: '' })
 }
 
+function addInstruction() {
+  const nextId = (form.instructions[form.instructions.length - 1]?.id ?? 0) + 1
+  form.instructions.push({ id: nextId, text: '' })
+}
+
 async function saveStep() {
   if (!form.title.trim()) return
   saving.value = true
   try {
-    const payload = {
-      title: form.title,
-      description: form.description || null,
-      course_id: form.course_id || null,
-      resources: form.resources.filter(r => r.label && r.url),
+    const payload: any = {
+      title:            form.title,
+      description:      form.description || null,
+      course_id:        form.course_id || null,
+      type:             form.type,
+      lab_url:          form.lab_url || null,
+      instructions:     form.instructions.filter(i => i.text.trim()),
+      challenge_prompt: form.challenge_prompt || null,
+      resources:        form.resources.filter(r => r.label && r.url),
     }
     if (editingStep.value) {
       const res = await updateStep(pathId.value, editingStep.value.id, payload)

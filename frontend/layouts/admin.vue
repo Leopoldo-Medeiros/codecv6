@@ -14,7 +14,7 @@
     ]">
 
       <!-- Accent stripe -->
-      <div class="h-0.5 w-full shrink-0" style="background:linear-gradient(90deg,#6366f1,#06b6d4,#8b5cf6)"></div>
+      <div class="h-0.5 w-full shrink-0" style="background:linear-gradient(90deg,#00AC69,#00d97e,#007D4A)"></div>
 
       <!-- Brand -->
       <div class="flex h-[60px] shrink-0 items-center justify-center border-b border-gray-100 px-5 dark:border-slate-800">
@@ -129,7 +129,7 @@
               <span
                 v-if="unreadCount > 0"
                 class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center
-                       rounded-full bg-indigo-500 text-[9px] font-bold text-white"
+                       rounded-full bg-emerald-500 text-[9px] font-bold text-white"
               >{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
             </div>
             <template #panel="{ close }">
@@ -138,7 +138,7 @@
                   <p class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
                   <button
                     v-if="unreadCount > 0"
-                    class="text-xs text-indigo-500 hover:underline"
+                    class="text-xs text-emerald-500 hover:underline"
                     @click="markAllRead"
                   >Mark all read</button>
                 </div>
@@ -154,8 +154,8 @@
                     :class="n.read ? 'opacity-60' : ''"
                     @click="handleNotificationClick(n, close)"
                   >
-                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40">
-                      <UIcon name="i-heroicons-user-plus" class="h-4 w-4 text-indigo-500" />
+                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+                      <UIcon name="i-heroicons-user-plus" class="h-4 w-4 text-emerald-500" />
                     </span>
                     <div class="min-w-0 flex-1">
                       <p class="text-[13px] font-medium text-gray-800 dark:text-slate-200 leading-snug">
@@ -171,7 +171,7 @@
                         {{ timeAgo(n.created_at) }}
                       </p>
                     </div>
-                    <span v-if="!n.read" class="mt-2 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />
+                    <span v-if="!n.read" class="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
                   </li>
                 </ul>
               </div>
@@ -245,55 +245,46 @@ watch(() => route.path, () => { sidebarOpen.value = false })
 const isDark      = computed(() => colorMode.value === 'dark')
 const isAdmin     = computed(() => user.value?.role === 'admin')
 const isStaff     = computed(() => ['admin', 'consultant'].includes(user.value?.role ?? ''))
-const isActive    = (p: string) => route.path === p
+const isActive    = (p: string) => route.path === p || (p !== '/dashboard' && route.path.startsWith(p + '/'))
 
 const toggleColorMode = () => { colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark' }
 const handleLogout    = () => logout()
 
-// ── Neon values injected into CSS via v-bind() ──────────────
-// Active item background
+// ── Nav colours — New Relic green palette ───────────────────
 const navActiveBg = computed(() =>
-  isDark.value ? 'rgba(99,102,241,0.12)' : 'rgb(238,242,255)'
+  isDark.value ? 'rgba(0,172,105,0.12)' : 'rgb(240,250,245)'
 )
-// Active item text colour
 const navActiveTxt = computed(() =>
-  isDark.value ? 'rgb(165,180,252)' : 'rgb(79,70,229)'
+  isDark.value ? 'rgb(93,217,164)' : 'rgb(0,125,74)'
 )
-// Active left-bar colour
 const navBarColor = computed(() =>
-  isDark.value ? '#818cf8' : '#6366f1'
+  isDark.value ? '#00AC69' : '#007D4A'
 )
-// Neon glow (dark mode only)
 const navGlowColor = computed(() =>
-  isDark.value
-    ? 'rgba(99,102,241,0.35)'
-    : 'transparent'
+  isDark.value ? 'rgba(0,172,105,0.3)' : 'transparent'
 )
-// Icon active colour
 const navIconActive = computed(() =>
-  isDark.value ? 'rgb(129,140,248)' : 'rgb(99,102,241)'
+  isDark.value ? 'rgb(93,217,164)' : 'rgb(0,125,74)'
 )
-// Icon idle colour
 const navIconIdle = computed(() =>
   isDark.value ? 'rgb(148,163,184)' : 'rgb(156,163,175)'
 )
-// Idle text
 const navIdleTxt = computed(() =>
   isDark.value ? 'rgb(148,163,184)' : 'rgb(75,85,99)'
 )
-// Idle hover bg
 const navHoverBg = computed(() =>
-  isDark.value ? 'rgba(255,255,255,0.04)' : 'rgb(249,250,251)'
+  isDark.value ? 'rgba(0,172,105,0.06)' : 'rgb(240,250,245)'
 )
 
 const mainItems = computed(() => {
   if (isStaff.value) {
     const items = [
-      { label: 'Dashboard', icon: 'i-heroicons-home',                      to: '/dashboard' },
-      { label: 'Courses',   icon: 'i-heroicons-book-open',               to: '/courses' },
-      { label: 'Paths',     icon: 'i-heroicons-map',                     to: '/paths' },
-      { label: 'Plans',     icon: 'i-heroicons-clipboard-document-list', to: '/plans' },
-      { label: 'Jobs',      icon: 'i-heroicons-briefcase',               to: '/jobs' },
+      { label: 'Dashboard',  icon: 'i-heroicons-home',                      to: '/dashboard' },
+      { label: 'My Clients', icon: 'i-heroicons-user-group',               to: '/my-clients' },
+      { label: 'Courses',    icon: 'i-heroicons-book-open',                to: '/courses' },
+      { label: 'Paths',      icon: 'i-heroicons-map',                      to: '/paths' },
+      { label: 'Plans',      icon: 'i-heroicons-clipboard-document-list',  to: '/plans' },
+      { label: 'Jobs',       icon: 'i-heroicons-briefcase',                to: '/jobs' },
     ]
     if (isAdmin.value) {
       items.splice(1, 0, { label: 'Users', icon: 'i-heroicons-users', to: '/users' })
@@ -378,10 +369,10 @@ const breadcrumbLinks = computed(() => {
 
 /* Brand wordmark — dark mode gradient + glow */
 .brand-glow {
-  background: linear-gradient(90deg, #818cf8, #38bdf8, #a78bfa);
+  background: linear-gradient(90deg, #00AC69, #00d97e, #5dd9a4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.6));
+  filter: drop-shadow(0 0 8px rgba(0, 172, 105, 0.5));
 }
 </style>

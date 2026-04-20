@@ -17,11 +17,16 @@ class PathStep extends Model
         'description',
         'resources',
         'order',
+        'type',
+        'lab_url',
+        'instructions',
+        'challenge_prompt',
     ];
 
     protected $casts = [
-        'resources' => 'array',
-        'order' => 'integer',
+        'resources'    => 'array',
+        'instructions' => 'array',
+        'order'        => 'integer',
     ];
 
     public function path(): BelongsTo

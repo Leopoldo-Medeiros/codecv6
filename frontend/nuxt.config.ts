@@ -14,6 +14,11 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/ui'],
 
+  ui: {
+    primary: 'emerald',
+    gray: 'slate',
+  },
+
   colorMode: {
     preference: 'dark'
   },
