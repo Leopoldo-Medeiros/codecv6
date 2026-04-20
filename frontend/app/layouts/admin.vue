@@ -154,18 +154,16 @@
                     :class="n.read ? 'opacity-60' : ''"
                     @click="handleNotificationClick(n, close)"
                   >
-                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
-                      <UIcon name="i-heroicons-user-plus" class="h-4 w-4 text-emerald-500" />
+                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                      :class="notifIconBg(n.data.type)">
+                      <UIcon :name="notifIcon(n.data.type)" class="h-4 w-4" :class="notifIconColor(n.data.type)" />
                     </span>
                     <div class="min-w-0 flex-1">
                       <p class="text-[13px] font-medium text-gray-800 dark:text-slate-200 leading-snug">
-                        <span class="font-semibold">{{ n.data.fullname }}</span> completed onboarding
+                        {{ notifTitle(n.data) }}
                       </p>
                       <p class="mt-0.5 text-[11px] text-gray-400 dark:text-slate-500">
-                        {{ n.data.profession }} · {{ n.data.level }} · {{ n.data.product_interest }}
-                      </p>
-                      <p v-if="n.data.stack?.length" class="mt-0.5 text-[11px] text-gray-400 dark:text-slate-500">
-                        {{ n.data.stack.join(', ') }} · {{ n.data.availability_hours }}h/week · {{ n.data.timeline }}
+                        {{ notifSubtitle(n.data) }}
                       </p>
                       <p class="mt-0.5 text-[10px] text-gray-300 dark:text-slate-600">
                         {{ timeAgo(n.created_at) }}
@@ -222,6 +220,41 @@ const sidebarOpen      = ref(false)
 const { notifications, unreadCount, loading, fetchNotifications, markRead, markAllRead } = useNotifications()
 
 onMounted(fetchNotifications)
+
+function notifIcon(type: string) {
+  if (type === 'client_started_learning') return 'i-heroicons-play-circle'
+  if (type === 'client_path_halfway')     return 'i-heroicons-chart-bar'
+  if (type === 'client_path_completed')   return 'i-heroicons-trophy'
+  return 'i-heroicons-user-plus'
+}
+function notifIconBg(type: string) {
+  if (type === 'client_path_completed') return 'bg-amber-100 dark:bg-amber-900/40'
+  if (type === 'client_path_halfway')   return 'bg-blue-100 dark:bg-blue-900/40'
+  return 'bg-emerald-100 dark:bg-emerald-900/40'
+}
+function notifIconColor(type: string) {
+  if (type === 'client_path_completed') return 'text-amber-500'
+  if (type === 'client_path_halfway')   return 'text-blue-500'
+  return 'text-emerald-500'
+}
+function notifTitle(data: any) {
+  if (data.type === 'client_started_learning')
+    return `${data.fullname} started their first step`
+  if (data.type === 'client_path_halfway')
+    return `${data.fullname} is halfway through a path`
+  if (data.type === 'client_path_completed')
+    return `${data.fullname} completed a path! 🎉`
+  return `${data.fullname} completed onboarding`
+}
+function notifSubtitle(data: any) {
+  if (data.type === 'client_started_learning')
+    return data.path_name
+  if (data.type === 'client_path_halfway')
+    return `${data.path_name} · ${data.done_count}/${data.total_count} steps done`
+  if (data.type === 'client_path_completed')
+    return `${data.path_name} · ${data.total_steps} steps`
+  return `${data.profession ?? ''} · ${data.level ?? ''}`
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()

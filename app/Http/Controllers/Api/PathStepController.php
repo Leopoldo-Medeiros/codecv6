@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PathStepResource;
 use App\Models\Path;
 use App\Models\PathStep;
+use App\Models\User;
 use App\Models\UserStepProgress;
+use App\Notifications\ClientPathCompleted;
+use App\Notifications\ClientPathHalfway;
+use App\Notifications\ClientStartedLearning;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,7 +138,9 @@ class PathStepController extends Controller
             'status' => 'required|in:not_started,in_progress,done',
         ]);
 
-        $userId = Auth::id();
+        /** @var User $client */
+        $client = Auth::user();
+        $userId = $client->id;
 
         if ($request->status === 'in_progress') {
             $precedingIds = PathStep::where('path_id', $step->path_id)
@@ -164,11 +170,61 @@ class PathStepController extends Controller
                 ->update(['status' => 'not_started']);
         }
 
+        // Snapshot: any prior progress at all (used for "first step" detection)
+        $hadAnyProgress = UserStepProgress::where('user_id', $userId)->exists();
+
         UserStepProgress::updateOrCreate(
             ['user_id' => $userId, 'path_step_id' => $step->id],
-            ['status' => $request->status]
+            ['status'  => $request->status]
+        );
+
+        $this->dispatchProgressNotifications(
+            $client, $step, $request->status, $hadAnyProgress
         );
 
         return response()->json(['message' => 'Progress updated', 'status' => $request->status]);
+    }
+
+    private function dispatchProgressNotifications(
+        User     $client,
+        PathStep $step,
+        string   $newStatus,
+        bool     $hadAnyProgress,
+    ): void {
+        $consultant = $client->consultant;
+        if (! $consultant) {
+            return;
+        }
+
+        $path       = $step->path;
+        $allStepIds = PathStep::where('path_id', $step->path_id)->pluck('id');
+        $totalSteps = $allStepIds->count();
+
+        if ($totalSteps === 0) {
+            return;
+        }
+
+        $doneCount = UserStepProgress::where('user_id', $client->id)
+            ->whereIn('path_step_id', $allStepIds)
+            ->where('status', 'done')
+            ->count();
+
+        // 1. First ever step started
+        if ($newStatus === 'in_progress' && ! $hadAnyProgress) {
+            $consultant->notify(new ClientStartedLearning($client, $path));
+            return;
+        }
+
+        // 2. Path completed (all steps done)
+        if ($newStatus === 'done' && $doneCount === $totalSteps) {
+            $consultant->notify(new ClientPathCompleted($client, $path, $totalSteps));
+            return;
+        }
+
+        // 3. Path halfway (exactly hits the midpoint step)
+        $midpoint = (int) ceil($totalSteps / 2);
+        if ($newStatus === 'done' && $doneCount === $midpoint && $totalSteps > 1) {
+            $consultant->notify(new ClientPathHalfway($client, $path, $doneCount, $totalSteps));
+        }
     }
 }
