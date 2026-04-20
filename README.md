@@ -26,8 +26,21 @@ CODECV connects consultants with clients to provide structured career developmen
 
 ### Prerequisites
 
-- [DDEV](https://ddev.readthedocs.io/en/stable/) (Docker-based local development)
-- Docker Desktop or OrbStack
+- Docker Desktop or [OrbStack](https://orbstack.dev/) (recommended for macOS)
+- [DDEV](https://ddev.readthedocs.io/en/stable/) — install with:
+
+```bash
+# macOS (Homebrew)
+brew install ddev/ddev/ddev
+
+# Linux (install script)
+curl -fsSL https://ddev.com/install.sh | bash
+
+# Windows (Chocolatey)
+choco install ddev
+```
+
+After installing, verify with `ddev version`.
 
 ### Installation
 
