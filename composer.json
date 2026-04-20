@@ -10,7 +10,7 @@
         "algolia/scout-extended": "^3.0",
         "doctrine/dbal": "^4.4",
         "laravel/fortify": "^1.24",
-        "laravel/framework": "^11.44",
+        "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.11",
         "laravel/socialite": "^5.16",
