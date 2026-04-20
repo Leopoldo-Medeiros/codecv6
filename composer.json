@@ -5,25 +5,26 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
-        "algolia/algoliasearch-client-php": "^3.2",
-        "algolia/scout-extended": "^3.0",
+        "php": "^8.3",
+        "algolia/algoliasearch-client-php": "^4.39",
+        "algolia/scout-extended": "^4.0",
         "doctrine/dbal": "^4.4",
         "laravel/fortify": "^1.24",
-        "laravel/framework": "^11.44",
+        "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.11",
         "laravel/socialite": "^5.16",
-        "laravel/tinker": "^2.9",
-        "spatie/laravel-permission": "^6.7"
+        "laravel/tinker": "^2.9|^3.0",
+        "spatie/laravel-permission": "^7.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "laravel/boost": "^2.4",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^11.0.1",
+        "phpunit/phpunit": "^12.0",
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {
@@ -69,7 +70,7 @@
             "php-http/discovery": true
         },
         "platform": {
-            "php": "8.3.28"
+            "php": "8.4.10"
         }
     },
     "minimum-stability": "stable",
