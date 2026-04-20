@@ -3,10 +3,10 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
@@ -74,27 +74,27 @@ class PasswordResetApiTest extends TestCase
 
     public function test_password_can_be_reset_with_valid_token(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $token = Password::broker()->createToken($user);
 
         $this->postJson('/api/reset-password', [
-            'token'                 => $token,
-            'email'                 => $user->email,
-            'password'              => 'new-password-123',
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password-123',
             'password_confirmation' => 'new-password-123',
         ])->assertOk()
-          ->assertJsonFragment(['message' => 'Password reset successfully. You can now sign in.']);
+            ->assertJsonFragment(['message' => 'Password reset successfully. You can now sign in.']);
     }
 
     public function test_password_is_actually_updated_in_database(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $token = Password::broker()->createToken($user);
 
         $this->postJson('/api/reset-password', [
-            'token'                 => $token,
-            'email'                 => $user->email,
-            'password'              => 'new-password-123',
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password-123',
             'password_confirmation' => 'new-password-123',
         ]);
 
@@ -106,50 +106,50 @@ class PasswordResetApiTest extends TestCase
         $user = User::factory()->create();
 
         $this->postJson('/api/reset-password', [
-            'token'                 => 'invalid-token',
-            'email'                 => $user->email,
-            'password'              => 'new-password-123',
+            'token' => 'invalid-token',
+            'email' => $user->email,
+            'password' => 'new-password-123',
             'password_confirmation' => 'new-password-123',
         ])->assertUnprocessable()
-          ->assertJsonFragment(['message' => 'This reset link is invalid or has expired.']);
+            ->assertJsonFragment(['message' => 'This reset link is invalid or has expired.']);
     }
 
     public function test_reset_password_fails_with_unknown_email(): void
     {
         $this->postJson('/api/reset-password', [
-            'token'                 => 'some-token',
-            'email'                 => 'nobody@example.com',
-            'password'              => 'new-password-123',
+            'token' => 'some-token',
+            'email' => 'nobody@example.com',
+            'password' => 'new-password-123',
             'password_confirmation' => 'new-password-123',
         ])->assertUnprocessable();
     }
 
     public function test_reset_password_fails_when_passwords_do_not_match(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $token = Password::broker()->createToken($user);
 
         $this->postJson('/api/reset-password', [
-            'token'                 => $token,
-            'email'                 => $user->email,
-            'password'              => 'new-password-123',
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password-123',
             'password_confirmation' => 'different-password',
         ])->assertUnprocessable()
-          ->assertJsonValidationErrors(['password']);
+            ->assertJsonValidationErrors(['password']);
     }
 
     public function test_reset_password_fails_when_password_too_short(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $token = Password::broker()->createToken($user);
 
         $this->postJson('/api/reset-password', [
-            'token'                 => $token,
-            'email'                 => $user->email,
-            'password'              => 'short',
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'short',
             'password_confirmation' => 'short',
         ])->assertUnprocessable()
-          ->assertJsonValidationErrors(['password']);
+            ->assertJsonValidationErrors(['password']);
     }
 
     public function test_reset_password_requires_all_fields(): void

@@ -13,9 +13,9 @@ class LinkedInController extends Controller
     {
         $request->validate([
             'linkedin_pdf' => 'required|file|mimes:pdf|max:5120',
-            'target_role'  => 'required|string|min:5|max:200',
-            'industry'     => 'nullable|string|max:100',
-            'years_exp'    => 'nullable|integer|min:0|max:50',
+            'target_role' => 'required|string|min:5|max:200',
+            'industry' => 'nullable|string|max:100',
+            'years_exp' => 'nullable|integer|min:0|max:50',
         ]);
 
         $apiKey = config('services.gemini.key');
@@ -24,8 +24,8 @@ class LinkedInController extends Controller
         }
 
         $targetRole = $request->input('target_role');
-        $industry   = $request->input('industry') ? "Industry/location: {$request->input('industry')}" : '';
-        $yearsExp   = $request->input('years_exp') !== null ? "Years of experience: {$request->input('years_exp')}" : '';
+        $industry = $request->input('industry') ? "Industry/location: {$request->input('industry')}" : '';
+        $yearsExp = $request->input('years_exp') !== null ? "Years of experience: {$request->input('years_exp')}" : '';
 
         $prompt = <<<PROMPT
 You are a professional career coach and LinkedIn profile expert specialising in the Irish and European tech job market.
@@ -49,7 +49,7 @@ JSON structure required:
 }
 PROMPT;
 
-        $model    = config('services.gemini.model', 'gemini-flash-latest');
+        $model = config('services.gemini.model', 'gemini-flash-latest');
         $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
         $pdfBase64 = base64_encode(
@@ -70,7 +70,7 @@ PROMPT;
             return response()->json(['message' => 'Analysis failed. Please try again later.'], 502);
         }
 
-        $raw  = $response->json('candidates.0.content.parts.0.text', '{}');
+        $raw = $response->json('candidates.0.content.parts.0.text', '{}');
         $data = json_decode($raw, true);
 
         if (json_last_error() !== JSON_ERROR_NONE || ! isset($data['score'])) {
@@ -85,5 +85,4 @@ PROMPT;
 
         return response()->json($data);
     }
-
 }

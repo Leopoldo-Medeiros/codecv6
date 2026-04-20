@@ -17,8 +17,8 @@ class ResetPasswordNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $url = config('app.frontend_url', config('app.url'))
-            . '/reset-password?token=' . $this->token
-            . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
+            .'/reset-password?token='.$this->token
+            .'&email='.urlencode($notifiable->getEmailForPasswordReset());
 
         return (new MailMessage)
             ->subject('Reset your CODECV password')

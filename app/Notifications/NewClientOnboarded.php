@@ -19,16 +19,16 @@ class NewClientOnboarded extends Notification
         $profile = $this->client->profile;
 
         return [
-            'type'               => 'new_client_onboarded',
-            'client_id'          => $this->client->id,
-            'fullname'           => $this->client->fullname,
-            'profession'         => $profile?->profession,
-            'level'              => $profile?->level,
-            'stack'              => $profile?->stack,
-            'product_interest'   => $profile?->product_interest,
+            'type' => 'new_client_onboarded',
+            'client_id' => $this->client->id,
+            'fullname' => $this->client->fullname,
+            'profession' => $profile?->profession,
+            'level' => $profile?->level,
+            'stack' => $profile?->stack,
+            'product_interest' => $profile?->product_interest,
             'availability_hours' => $profile?->availability_hours,
-            'timeline'           => $profile?->timeline,
-            'goal'               => $profile?->goal,
+            'timeline' => $profile?->timeline,
+            'goal' => $profile?->goal,
         ];
     }
 }

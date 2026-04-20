@@ -6,7 +6,6 @@ use App\Models\Course;
 use App\Models\Path;
 use App\Models\PathStep;
 use App\Models\User;
-use App\Models\UserStepProgress;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -20,8 +19,11 @@ class PathStepApiTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $consultant;
+
     private User $client;
+
     private Path $path;
 
     protected function setUp(): void
@@ -57,9 +59,9 @@ class PathStepApiTest extends TestCase
     public static function allRolesProvider(): array
     {
         return [
-            'admin'      => ['admin'],
+            'admin' => ['admin'],
             'consultant' => ['consultant'],
-            'client'     => ['client'],
+            'client' => ['client'],
         ];
     }
 
@@ -142,7 +144,7 @@ class PathStepApiTest extends TestCase
 
         $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/paths/{$this->path->id}/steps", [
-                'title'     => 'Step with Course',
+                'title' => 'Step with Course',
                 'course_id' => $course->id,
             ])->assertCreated();
 
@@ -153,7 +155,7 @@ class PathStepApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/paths/{$this->path->id}/steps", [
-                'title'     => 'Resourced Step',
+                'title' => 'Resourced Step',
                 'resources' => [
                     ['label' => 'Docs', 'url' => 'https://laravel.com/docs'],
                     ['label' => 'Video', 'url' => 'https://laracasts.com'],
@@ -186,13 +188,13 @@ class PathStepApiTest extends TestCase
     public static function invalidStepStoreProvider(): array
     {
         return [
-            'missing title'           => [['title' => '']],
-            'title too long'          => [['title' => str_repeat('x', 256)]],
-            'invalid course_id'       => [['course_id' => 99999]],
-            'negative order'          => [['order' => -1]],
-            'resource missing label'  => [['resources' => [['url' => 'https://example.com']]]],
-            'resource missing url'    => [['resources' => [['label' => 'Docs']]]],
-            'resource invalid url'    => [['resources' => [['label' => 'X', 'url' => 'not-a-url']]]],
+            'missing title' => [['title' => '']],
+            'title too long' => [['title' => str_repeat('x', 256)]],
+            'invalid course_id' => [['course_id' => 99999]],
+            'negative order' => [['order' => -1]],
+            'resource missing label' => [['resources' => [['url' => 'https://example.com']]]],
+            'resource missing url' => [['resources' => [['label' => 'Docs']]]],
+            'resource invalid url' => [['resources' => [['label' => 'X', 'url' => 'not-a-url']]]],
         ];
     }
 
@@ -250,10 +252,10 @@ class PathStepApiTest extends TestCase
     public static function invalidStepUpdateProvider(): array
     {
         return [
-            'empty title'             => [['title' => '']],
-            'title too long'          => [['title' => str_repeat('x', 256)]],
-            'invalid course_id'       => [['course_id' => 99999]],
-            'resource missing url'    => [['resources' => [['label' => 'X']]]],
+            'empty title' => [['title' => '']],
+            'title too long' => [['title' => str_repeat('x', 256)]],
+            'invalid course_id' => [['course_id' => 99999]],
+            'resource missing url' => [['resources' => [['label' => 'X']]]],
             'resource bad url format' => [['resources' => [['label' => 'X', 'url' => 'bad-url']]]],
         ];
     }
@@ -335,7 +337,7 @@ class PathStepApiTest extends TestCase
 
     public function test_reorder_updates_order_column(): void
     {
-        $first  = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0]);
+        $first = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0]);
         $second = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 1]);
 
         $this->actingAs($this->admin, 'sanctum')
@@ -380,7 +382,7 @@ class PathStepApiTest extends TestCase
         return [
             'not started' => ['not_started'],
             'in progress' => ['in_progress'],
-            'done'        => ['done'],
+            'done' => ['done'],
         ];
     }
 
@@ -392,9 +394,9 @@ class PathStepApiTest extends TestCase
             ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done']);
 
         $this->assertDatabaseHas('user_step_progress', [
-            'user_id'      => $this->client->id,
+            'user_id' => $this->client->id,
             'path_step_id' => $step->id,
-            'status'       => 'done',
+            'status' => 'done',
         ]);
     }
 
@@ -446,9 +448,9 @@ class PathStepApiTest extends TestCase
     public static function invalidProgressStatusProvider(): array
     {
         return [
-            'empty'     => [''],
-            'invalid'   => ['completed'],
-            'random'    => ['whatever'],
+            'empty' => [''],
+            'invalid' => ['completed'],
+            'random' => ['whatever'],
             'uppercase' => ['DONE'],
         ];
     }
@@ -465,9 +467,9 @@ class PathStepApiTest extends TestCase
     private function userForRole(string $role): User
     {
         return match ($role) {
-            'admin'      => $this->admin,
+            'admin' => $this->admin,
             'consultant' => $this->consultant,
-            'client'     => $this->client,
+            'client' => $this->client,
         };
     }
 }

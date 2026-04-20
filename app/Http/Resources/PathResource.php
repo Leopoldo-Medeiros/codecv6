@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\PathStepResource;
 
 class PathResource extends JsonResource
 {
@@ -26,8 +25,7 @@ class PathResource extends JsonResource
                     'name' => $plan->name,
                 ]);
             }),
-            'steps' => $this->when($this->relationLoaded('steps'), fn () =>
-                PathStepResource::collection($this->steps)
+            'steps' => $this->when($this->relationLoaded('steps'), fn () => PathStepResource::collection($this->steps)
             ),
             'steps_count' => $this->when($this->relationLoaded('steps'), fn () => $this->steps->count()),
             'created_at' => $this->created_at,

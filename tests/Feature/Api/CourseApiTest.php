@@ -18,7 +18,9 @@ class CourseApiTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $consultant;
+
     private User $client;
 
     protected function setUp(): void
@@ -106,9 +108,9 @@ class CourseApiTest extends TestCase
     public static function searchTermProvider(): array
     {
         return [
-            'exact match'       => ['Laravel Fundamentals', 1],
-            'partial match'     => ['Laravel', 2],
-            'no match'          => ['Python', 0],
+            'exact match' => ['Laravel Fundamentals', 1],
+            'partial match' => ['Laravel', 2],
+            'no match' => ['Python', 0],
         ];
     }
 
@@ -152,7 +154,7 @@ class CourseApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/courses', [
-                'name'        => 'New Course',
+                'name' => 'New Course',
                 'description' => 'A great course.',
             ])->assertCreated()
             ->assertJsonStructure(['message', 'course']);
@@ -218,9 +220,9 @@ class CourseApiTest extends TestCase
     public static function invalidCourseStoreProvider(): array
     {
         return [
-            'missing name'        => [['name' => '']],
-            'name too long'       => [['name' => str_repeat('x', 256)]],
-            'slug too long'       => [['name' => 'OK', 'slug' => str_repeat('s', 256)]],
+            'missing name' => [['name' => '']],
+            'name too long' => [['name' => str_repeat('x', 256)]],
+            'slug too long' => [['name' => 'OK', 'slug' => str_repeat('s', 256)]],
         ];
     }
 
@@ -325,7 +327,7 @@ class CourseApiTest extends TestCase
     public static function invalidCourseUpdateProvider(): array
     {
         return [
-            'empty name'    => [['name' => '']],
+            'empty name' => [['name' => '']],
             'name too long' => [['name' => str_repeat('x', 256)]],
             'slug too long' => [['name' => 'OK', 'slug' => str_repeat('s', 256)]],
         ];

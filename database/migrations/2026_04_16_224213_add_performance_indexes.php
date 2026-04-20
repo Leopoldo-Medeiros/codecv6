@@ -52,5 +52,4 @@ return new class extends Migration
         Schema::table('courses', fn (Blueprint $t) => $t->dropIndex('idx_courses_deleted_at'));
         Schema::table('paths', fn (Blueprint $t) => $t->dropIndex('idx_paths_deleted_at'));
     }
-
 };

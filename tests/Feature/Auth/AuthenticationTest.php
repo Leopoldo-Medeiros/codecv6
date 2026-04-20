@@ -35,7 +35,7 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create(['password' => Hash::make(self::STRONG_PASSWORD)]);
 
         $this->postJson('/api/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => self::STRONG_PASSWORD,
         ])->assertOk()->assertJsonStructure(['user', 'access_token', 'token_type']);
     }
@@ -45,7 +45,7 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create(['password' => Hash::make(self::STRONG_PASSWORD)]);
 
         $this->postJson('/api/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => self::STRONG_PASSWORD,
         ])->assertOk()->assertJsonPath('user.email', $user->email);
     }
@@ -54,7 +54,7 @@ class AuthenticationTest extends TestCase
     public function test_login_fails_with_invalid_credentials(string $email, string $password): void
     {
         User::factory()->create([
-            'email'    => 'real@example.com',
+            'email' => 'real@example.com',
             'password' => Hash::make(self::STRONG_PASSWORD),
         ]);
 
@@ -65,9 +65,9 @@ class AuthenticationTest extends TestCase
     public static function invalidLoginProvider(): array
     {
         return [
-            'wrong password'          => ['real@example.com', 'WrongPassword1!'],
-            'wrong email'             => ['ghost@example.com', 'ValidPass1!'],
-            'both wrong'              => ['no@no.com', 'BadPass0!'],
+            'wrong password' => ['real@example.com', 'WrongPassword1!'],
+            'wrong email' => ['ghost@example.com', 'ValidPass1!'],
+            'both wrong' => ['no@no.com', 'BadPass0!'],
             'password lowercase only' => ['real@example.com', 'allowercase'],
         ];
     }
@@ -81,9 +81,9 @@ class AuthenticationTest extends TestCase
     public static function missingLoginFieldProvider(): array
     {
         return [
-            'no email'    => [['password' => 'ValidPass1!']],
+            'no email' => [['password' => 'ValidPass1!']],
             'no password' => [['email' => 'test@test.com']],
-            'empty body'  => [[]],
+            'empty body' => [[]],
         ];
     }
 
@@ -100,9 +100,9 @@ class AuthenticationTest extends TestCase
         Notification::fake();
 
         $this->postJson('/api/register', [
-            'fullname'              => 'Welcome User',
-            'email'                 => 'welcome@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'Welcome User',
+            'email' => 'welcome@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ])->assertCreated();
 
@@ -113,9 +113,9 @@ class AuthenticationTest extends TestCase
     public function test_user_can_register_with_valid_data(): void
     {
         $this->postJson('/api/register', [
-            'fullname'              => 'John Doe',
-            'email'                 => 'john@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ])->assertCreated()->assertJsonStructure(['user', 'access_token']);
     }
@@ -123,9 +123,9 @@ class AuthenticationTest extends TestCase
     public function test_registration_assigns_client_role_by_default(): void
     {
         $this->postJson('/api/register', [
-            'fullname'              => 'Jane Doe',
-            'email'                 => 'jane@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ])->assertCreated();
 
@@ -137,9 +137,9 @@ class AuthenticationTest extends TestCase
     public function test_registration_persists_user_to_database(): void
     {
         $this->postJson('/api/register', [
-            'fullname'              => 'Stored User',
-            'email'                 => 'stored@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'Stored User',
+            'email' => 'stored@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ]);
 
@@ -150,9 +150,9 @@ class AuthenticationTest extends TestCase
     public function test_registration_rejects_weak_password(string $password): void
     {
         $this->postJson('/api/register', [
-            'fullname'              => 'Test User',
-            'email'                 => 'test@example.com',
-            'password'              => $password,
+            'fullname' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => $password,
             'password_confirmation' => $password,
         ])->assertUnprocessable();
     }
@@ -160,13 +160,13 @@ class AuthenticationTest extends TestCase
     public static function weakPasswordProvider(): array
     {
         return [
-            'too short'               => ['Aa1!'],
-            'no uppercase'            => ['lowercase1!'],
-            'no lowercase'            => ['UPPERCASE1!'],
-            'no number'               => ['NoNumberHere!'],
-            'all digits'              => ['12345678'],
-            'just spaces'             => ['        '],
-            'seven chars with all'    => ['Abc123!'],
+            'too short' => ['Aa1!'],
+            'no uppercase' => ['lowercase1!'],
+            'no lowercase' => ['UPPERCASE1!'],
+            'no number' => ['NoNumberHere!'],
+            'all digits' => ['12345678'],
+            'just spaces' => ['        '],
+            'seven chars with all' => ['Abc123!'],
         ];
     }
 
@@ -174,9 +174,9 @@ class AuthenticationTest extends TestCase
     public function test_registration_validates_required_fields(array $overrides): void
     {
         $valid = [
-            'fullname'              => 'Valid Name',
-            'email'                 => 'valid@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'Valid Name',
+            'email' => 'valid@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ];
 
@@ -187,15 +187,15 @@ class AuthenticationTest extends TestCase
     public static function invalidRegistrationProvider(): array
     {
         return [
-            'missing fullname'           => [['fullname' => '']],
-            'fullname too long'          => [['fullname' => str_repeat('a', 256)]],
-            'missing email'              => [['email' => '']],
-            'invalid email format'       => [['email' => 'not-an-email']],
-            'email missing domain'       => [['email' => 'user@']],
-            'missing password'           => [['password' => '', 'password_confirmation' => '']],
-            'confirmation mismatch'      => [['password_confirmation' => 'DifferentPass1!']],
-            'invalid birth date'         => [['profile' => ['birth_date' => 'not-a-date']]],
-            'profession too long'        => [['profile' => ['profession' => str_repeat('x', 256)]]],
+            'missing fullname' => [['fullname' => '']],
+            'fullname too long' => [['fullname' => str_repeat('a', 256)]],
+            'missing email' => [['email' => '']],
+            'invalid email format' => [['email' => 'not-an-email']],
+            'email missing domain' => [['email' => 'user@']],
+            'missing password' => [['password' => '', 'password_confirmation' => '']],
+            'confirmation mismatch' => [['password_confirmation' => 'DifferentPass1!']],
+            'invalid birth date' => [['profile' => ['birth_date' => 'not-a-date']]],
+            'profession too long' => [['profile' => ['profession' => str_repeat('x', 256)]]],
         ];
     }
 
@@ -204,9 +204,9 @@ class AuthenticationTest extends TestCase
         User::factory()->create(['email' => 'taken@example.com']);
 
         $this->postJson('/api/register', [
-            'fullname'              => 'Another User',
-            'email'                 => 'taken@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'Another User',
+            'email' => 'taken@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ])->assertUnprocessable();
     }
@@ -277,26 +277,26 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create(['password' => Hash::make(self::STRONG_PASSWORD)]);
 
         $this->postJson('/api/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => self::STRONG_PASSWORD,
         ])->assertOk()
-          ->assertJsonPath('user.profile.profile_image_url', null);
+            ->assertJsonPath('user.profile.profile_image_url', null);
     }
 
     public function test_register_response_includes_profile_image_url(): void
     {
         $this->postJson('/api/register', [
-            'fullname'              => 'Image User',
-            'email'                 => 'imguser@example.com',
-            'password'              => self::STRONG_PASSWORD,
+            'fullname' => 'Image User',
+            'email' => 'imguser@example.com',
+            'password' => self::STRONG_PASSWORD,
             'password_confirmation' => self::STRONG_PASSWORD,
         ])->assertCreated()
-          ->assertJsonPath('user.profile.profile_image_url', null);
+            ->assertJsonPath('user.profile.profile_image_url', null);
     }
 
     public function test_refresh_response_includes_profile_image_url(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test-token')->plainTextToken;
 
         $this->withToken($token)

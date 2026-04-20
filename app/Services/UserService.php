@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 class UserService
@@ -117,8 +118,8 @@ class UserService
         // Anonymise rather than delete, to preserve referential integrity
         $user->forceFill([
             'fullname' => 'Deleted User',
-            'email'    => 'deleted_' . $user->id . '@deleted.invalid',
-            'password' => \Illuminate\Support\Str::random(64),
+            'email' => 'deleted_'.$user->id.'@deleted.invalid',
+            'password' => Str::random(64),
         ])->save();
 
         $user->profile()?->delete();
@@ -138,20 +139,20 @@ class UserService
         return [
             'exported_at' => now()->toIso8601String(),
             'account' => [
-                'id'         => $user->id,
-                'fullname'   => $user->fullname,
-                'email'      => $user->email,
-                'role'       => $user->roles->pluck('name')->first(),
+                'id' => $user->id,
+                'fullname' => $user->fullname,
+                'email' => $user->email,
+                'role' => $user->roles->pluck('name')->first(),
                 'created_at' => $user->created_at?->toIso8601String(),
             ],
             'profile' => $user->profile ? [
-                'birth_date'  => $user->profile->birth_date,
-                'profession'  => $user->profile->profession,
-                'website'     => $user->profile->website,
-                'github'      => $user->profile->github,
-                'linkedin'    => $user->profile->linkedin,
-                'instagram'   => $user->profile->instagram,
-                'facebook'    => $user->profile->facebook,
+                'birth_date' => $user->profile->birth_date,
+                'profession' => $user->profile->profession,
+                'website' => $user->profile->website,
+                'github' => $user->profile->github,
+                'linkedin' => $user->profile->linkedin,
+                'instagram' => $user->profile->instagram,
+                'facebook' => $user->profile->facebook,
             ] : null,
         ];
     }

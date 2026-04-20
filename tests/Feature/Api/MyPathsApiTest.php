@@ -14,6 +14,7 @@ class MyPathsApiTest extends TestCase
     use RefreshDatabase;
 
     private User $consultant;
+
     private User $client;
 
     protected function setUp(): void
@@ -30,7 +31,7 @@ class MyPathsApiTest extends TestCase
 
     public function test_client_only_sees_paths_assigned_via_their_plan(): void
     {
-        $assignedPath   = Path::factory()->create();
+        $assignedPath = Path::factory()->create();
         $unassignedPath = Path::factory()->create();
 
         $plan = Plan::factory()->create(['consultant_id' => $this->consultant->id]);

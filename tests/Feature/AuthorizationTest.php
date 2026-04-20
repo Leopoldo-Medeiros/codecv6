@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Course;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,7 +18,9 @@ class AuthorizationTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $client;
+
     private User $otherClient;
 
     protected function setUp(): void
@@ -46,7 +49,7 @@ class AuthorizationTest extends TestCase
 
     public function test_client_cannot_delete_course(): void
     {
-        $course = \App\Models\Course::factory()->create(['user_id' => $this->admin->id]);
+        $course = Course::factory()->create(['user_id' => $this->admin->id]);
 
         $this->actingAs($this->client, 'sanctum')
             ->deleteJson("/api/courses/{$course->id}")
@@ -57,8 +60,8 @@ class AuthorizationTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/courses', [
-                'name'        => 'Laravel Fundamentals',
-                'slug'        => 'laravel-fundamentals',
+                'name' => 'Laravel Fundamentals',
+                'slug' => 'laravel-fundamentals',
                 'description' => 'A course about Laravel.',
             ])
             ->assertCreated();

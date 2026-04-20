@@ -17,7 +17,9 @@ class JobApiTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $consultant;
+
     private User $client;
 
     protected function setUp(): void
@@ -52,9 +54,9 @@ class JobApiTest extends TestCase
     public static function authenticatedRoleProvider(): array
     {
         return [
-            'admin'      => ['admin'],
+            'admin' => ['admin'],
             'consultant' => ['consultant'],
-            'client'     => ['client'],
+            'client' => ['client'],
         ];
     }
 
@@ -107,7 +109,7 @@ class JobApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/jobs', [
-                'title'   => 'Senior PHP Developer',
+                'title' => 'Senior PHP Developer',
                 'company' => 'Acme Corp',
             ])->assertCreated()
             ->assertJsonStructure(['message', 'job']);
@@ -117,7 +119,7 @@ class JobApiTest extends TestCase
     {
         $this->actingAs($this->consultant, 'sanctum')
             ->postJson('/api/jobs', [
-                'title'   => 'Junior Dev',
+                'title' => 'Junior Dev',
                 'company' => 'StartupXYZ',
             ])->assertCreated();
     }
@@ -139,7 +141,7 @@ class JobApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/jobs', [
-                'title'   => 'DB Test Job',
+                'title' => 'DB Test Job',
                 'company' => 'Test Corp',
             ]);
 
@@ -159,12 +161,12 @@ class JobApiTest extends TestCase
     public static function invalidJobStoreProvider(): array
     {
         return [
-            'missing title'       => [['title' => '']],
-            'title too long'      => [['title' => str_repeat('x', 256)]],
-            'missing company'     => [['company' => '']],
-            'company too long'    => [['company' => str_repeat('x', 256)]],
-            'location too long'   => [['location' => str_repeat('x', 256)]],
-            'salary too long'     => [['salary' => str_repeat('x', 256)]],
+            'missing title' => [['title' => '']],
+            'title too long' => [['title' => str_repeat('x', 256)]],
+            'missing company' => [['company' => '']],
+            'company too long' => [['company' => str_repeat('x', 256)]],
+            'location too long' => [['location' => str_repeat('x', 256)]],
+            'salary too long' => [['salary' => str_repeat('x', 256)]],
         ];
     }
 
@@ -172,11 +174,11 @@ class JobApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/jobs', [
-                'title'       => 'Full Stack Dev',
-                'company'     => 'Tech Corp',
+                'title' => 'Full Stack Dev',
+                'company' => 'Tech Corp',
                 'description' => 'A great role.',
-                'location'    => 'Dublin, Ireland',
-                'salary'      => '€60k–€80k',
+                'location' => 'Dublin, Ireland',
+                'salary' => '€60k–€80k',
             ])->assertCreated();
     }
 
@@ -188,7 +190,7 @@ class JobApiTest extends TestCase
 
         $this->actingAs($this->admin, 'sanctum')
             ->putJson("/api/jobs/{$job->id}", [
-                'title'   => 'Updated Title',
+                'title' => 'Updated Title',
                 'company' => 'Updated Corp',
             ])->assertOk();
     }
@@ -199,7 +201,7 @@ class JobApiTest extends TestCase
 
         $this->actingAs($this->consultant, 'sanctum')
             ->putJson("/api/jobs/{$job->id}", [
-                'title'   => 'Updated',
+                'title' => 'Updated',
                 'company' => 'Corp',
             ])->assertOk();
     }
@@ -242,10 +244,10 @@ class JobApiTest extends TestCase
     public static function invalidJobUpdateProvider(): array
     {
         return [
-            'empty title'     => [['title' => '', 'company' => 'Corp']],
-            'title too long'  => [['title' => str_repeat('x', 256), 'company' => 'Corp']],
-            'empty company'   => [['title' => 'Title', 'company' => '']],
-            'company too long'=> [['title' => 'Title', 'company' => str_repeat('x', 256)]],
+            'empty title' => [['title' => '', 'company' => 'Corp']],
+            'title too long' => [['title' => str_repeat('x', 256), 'company' => 'Corp']],
+            'empty company' => [['title' => 'Title', 'company' => '']],
+            'company too long' => [['title' => 'Title', 'company' => str_repeat('x', 256)]],
         ];
     }
 
@@ -307,9 +309,9 @@ class JobApiTest extends TestCase
     private function userForRole(string $role): User
     {
         return match ($role) {
-            'admin'      => $this->admin,
+            'admin' => $this->admin,
             'consultant' => $this->consultant,
-            'client'     => $this->client,
+            'client' => $this->client,
         };
     }
 }

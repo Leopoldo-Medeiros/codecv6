@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PathStep extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'path_id',
         'course_id',
@@ -24,9 +25,9 @@ class PathStep extends Model
     ];
 
     protected $casts = [
-        'resources'    => 'array',
+        'resources' => 'array',
         'instructions' => 'array',
-        'order'        => 'integer',
+        'order' => 'integer',
     ];
 
     public function path(): BelongsTo

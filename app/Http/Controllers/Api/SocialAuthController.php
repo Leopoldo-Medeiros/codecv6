@@ -35,14 +35,14 @@ class SocialAuthController extends Controller
             }
         } else {
             $user = User::create([
-                'fullname'          => $googleUser->getName() ?? $googleUser->getEmail(),
-                'email'             => $googleUser->getEmail(),
-                'google_id'         => $googleUser->getId(),
-                'password'          => Str::random(32),
+                'fullname' => $googleUser->getName() ?? $googleUser->getEmail(),
+                'email' => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'password' => Str::random(32),
                 'email_verified_at' => now(),
             ]);
             $user->assignRole('client');
-            $user->notify(new WelcomeNotification());
+            $user->notify(new WelcomeNotification);
         }
 
         $token = $user->createToken('google-auth')->plainTextToken;

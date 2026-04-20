@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Mail\WelcomeMail;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Mail;
 
 class WelcomeNotification extends Notification
 {

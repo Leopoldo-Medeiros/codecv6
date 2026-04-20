@@ -12,9 +12,9 @@ class CvController extends Controller
     public function analyze(Request $request): JsonResponse
     {
         $request->validate([
-            'cv'              => 'required|file|mimes:pdf|max:5120',
+            'cv' => 'required|file|mimes:pdf|max:5120',
             'job_description' => 'required_without:job_url|nullable|string|min:50|max:5000',
-            'job_url'         => 'required_without:job_description|nullable|url|max:2048',
+            'job_url' => 'required_without:job_description|nullable|url|max:2048',
         ]);
 
         $apiKey = config('services.gemini.key');
@@ -55,7 +55,7 @@ Job description:
 {$jobDescription}
 PROMPT;
 
-        $model    = config('services.gemini.model', 'gemini-flash-latest');
+        $model = config('services.gemini.model', 'gemini-flash-latest');
         $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
         $response = Http::timeout(60)
@@ -66,7 +66,7 @@ PROMPT;
                             [
                                 'inline_data' => [
                                     'mime_type' => 'application/pdf',
-                                    'data'      => $pdfBase64,
+                                    'data' => $pdfBase64,
                                 ],
                             ],
                             [
@@ -86,7 +86,7 @@ PROMPT;
             ], 502);
         }
 
-        $raw  = $response->json('candidates.0.content.parts.0.text', '{}');
+        $raw = $response->json('candidates.0.content.parts.0.text', '{}');
         $data = json_decode($raw, true);
 
         if (json_last_error() !== JSON_ERROR_NONE || ! isset($data['score'])) {
@@ -106,7 +106,7 @@ PROMPT;
     {
         $response = Http::timeout(15)
             ->withHeaders(['Accept' => 'text/plain'])
-            ->get('https://r.jina.ai/' . $url);
+            ->get('https://r.jina.ai/'.$url);
 
         if ($response->failed()) {
             return null;
