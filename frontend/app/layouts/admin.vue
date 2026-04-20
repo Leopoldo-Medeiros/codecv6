@@ -269,7 +269,12 @@ function timeAgo(dateStr: string): string {
 async function handleNotificationClick(n: any, close: () => void) {
   if (!n.read) await markRead(n.id)
   close()
-  if (n.data?.client_id) navigateTo(`/users/${n.data.client_id}`)
+  const type = n.data?.type
+  if (type === 'client_started_learning' || type === 'client_path_halfway' || type === 'client_path_completed') {
+    navigateTo(`/my-clients/${n.data.client_id}`)
+  } else if (n.data?.client_id) {
+    navigateTo(`/users/${n.data.client_id}`)
+  }
 }
 
 // Close sidebar on route change
