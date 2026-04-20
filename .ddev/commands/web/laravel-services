@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+## Description: Start Laravel background services (Reverb, Scheduler, Horizon)
+## Usage: laravel-services [start|stop|status]
+## Example: "ddev laravel-services start"
+
+PIDFILE_REVERB="/tmp/laravel-reverb.pid"
+PIDFILE_SCHEDULER="/tmp/laravel-scheduler.pid"
+PIDFILE_HORIZON="/tmp/laravel-horizon.pid"
+LOGDIR="/var/www/html/storage/logs"
+
+start_services() {
+    echo "Starting Laravel services..."
+
+    # Start Reverb (WebSocket)
+    if [ -f "$PIDFILE_REVERB" ] && kill -0 $(cat "$PIDFILE_REVERB") 2>/dev/null; then
+        echo "  Reverb is already running (PID: $(cat $PIDFILE_REVERB))"
+    else
+        nohup php /var/www/html/artisan reverb:start > "$LOGDIR/reverb.log" 2>&1 &
+        echo $! > "$PIDFILE_REVERB"
+        echo "  Reverb started (PID: $!)"
+    fi
+
+    # Start Scheduler
+    if [ -f "$PIDFILE_SCHEDULER" ] && kill -0 $(cat "$PIDFILE_SCHEDULER") 2>/dev/null; then
+        echo "  Scheduler is already running (PID: $(cat $PIDFILE_SCHEDULER))"
+    else
+        nohup php /var/www/html/artisan schedule:work > "$LOGDIR/scheduler.log" 2>&1 &
+        echo $! > "$PIDFILE_SCHEDULER"
+        echo "  Scheduler started (PID: $!)"
+    fi
+
+    # Start Horizon
+    if [ -f "$PIDFILE_HORIZON" ] && kill -0 $(cat "$PIDFILE_HORIZON") 2>/dev/null; then
+        echo "  Horizon is already running (PID: $(cat $PIDFILE_HORIZON))"
+    else
+        nohup php /var/www/html/artisan horizon > "$LOGDIR/horizon.log" 2>&1 &
+        echo $! > "$PIDFILE_HORIZON"
+        echo "  Horizon started (PID: $!)"
+    fi
+
+    echo ""
+    echo "All services started! Logs available at:"
+    echo "  - Reverb:    storage/logs/reverb.log"
+    echo "  - Scheduler: storage/logs/scheduler.log"
+    echo "  - Horizon:   storage/logs/horizon.log"
+}
+
+stop_services() {
+    echo "Stopping Laravel services..."
+
+    if [ -f "$PIDFILE_REVERB" ]; then
+        kill $(cat "$PIDFILE_REVERB") 2>/dev/null && echo "  Reverb stopped" || echo "  Reverb was not running"
+        rm -f "$PIDFILE_REVERB"
+    fi
+
+    if [ -f "$PIDFILE_SCHEDULER" ]; then
+        kill $(cat "$PIDFILE_SCHEDULER") 2>/dev/null && echo "  Scheduler stopped" || echo "  Scheduler was not running"
+        rm -f "$PIDFILE_SCHEDULER"
+    fi
+
+    if [ -f "$PIDFILE_HORIZON" ]; then
+        kill $(cat "$PIDFILE_HORIZON") 2>/dev/null && echo "  Horizon stopped" || echo "  Horizon was not running"
+        rm -f "$PIDFILE_HORIZON"
+    fi
+
+    # Also terminate Horizon gracefully
+    php /var/www/html/artisan horizon:terminate 2>/dev/null
+
+    echo "All services stopped."
+}
+
+status_services() {
+    echo "Laravel services status:"
+    echo ""
+
+    if [ -f "$PIDFILE_REVERB" ] && kill -0 $(cat "$PIDFILE_REVERB") 2>/dev/null; then
+        echo "  Reverb:    Running (PID: $(cat $PIDFILE_REVERB))"
+    else
+        echo "  Reverb:    Stopped"
+    fi
+
+    if [ -f "$PIDFILE_SCHEDULER" ] && kill -0 $(cat "$PIDFILE_SCHEDULER") 2>/dev/null; then
+        echo "  Scheduler: Running (PID: $(cat $PIDFILE_SCHEDULER))"
+    else
+        echo "  Scheduler: Stopped"
+    fi
+
+    if [ -f "$PIDFILE_HORIZON" ] && kill -0 $(cat "$PIDFILE_HORIZON") 2>/dev/null; then
+        echo "  Horizon:   Running (PID: $(cat $PIDFILE_HORIZON))"
+    else
+        echo "  Horizon:   Stopped"
+    fi
+}
+
+case "${1:-start}" in
+    start)
+        start_services
+        ;;
+    stop)
+        stop_services
+        ;;
+    status)
+        status_services
+        ;;
+    restart)
+        stop_services
+        sleep 2
+        start_services
+        ;;
+    *)
+        echo "Usage: ddev laravel-services [start|stop|status|restart]"
+        exit 1
+        ;;
+esac

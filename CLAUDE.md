@@ -4,44 +4,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Full-stack application: Laravel 11 (backend) + Nuxt 3 (frontend). Platform for managing courses, learning paths, job listings, and consultant-client relationships with role-based access control.
+Full-stack application: Laravel 11 (backend) + Nuxt 4 (frontend). Platform for managing courses, learning paths, job listings, and consultant-client relationships with role-based access control.
+
+## Language Policy
+
+**CRITICAL**: This project has specific language requirements:
+- All **explanations and communication** must be in **Portuguese-BR** or/and **English**
+- All **code, documentation, comments, identifiers, filenames, and commit messages** must be in **English**
+- All **marketing messages, release notes, and internal announcements** must be in **English**
 
 ## Development Commands
 
-### Lando (Local Environment)
+### DDEV (Local Environment)
 
 ```bash
-lando start                    # Start environment
-lando stop                     # Stop environment
-lando ssh                      # SSH into appserver
+ddev start                     # Start environment
+ddev stop                      # Stop environment
+ddev ssh                       # SSH into web container
 ```
 
-**Environment:** PHP 8.3, MySQL 8.0, Nginx, Xdebug enabled
-**URLs:** API at `http://codecv6.lndo.site/api`, Frontend proxied at `http://dashboard.codecv6.lndo.site:3000`
+**Environment:** PHP 8.4, MySQL 8.0, Nginx, Node.js 24, Redis, Xdebug enabled
+**URLs:** API at `https://codecv6.localhost.ddev.site/api`, Frontend at `https://codecv6.localhost.ddev.site:3000`
 
 ### Backend (Laravel)
 
 ```bash
-composer install                                    # Install dependencies
-lando artisan migrate                               # Run migrations
-lando artisan migrate:fresh                         # Fresh database
-lando artisan db:seed                               # Run all seeders
-lando artisan db:seed --class=RoleSeeder            # Specific seeder
-./vendor/bin/pint                                   # Code formatting
-lando php vendor/bin/phpunit                        # Run all tests
-lando php vendor/bin/phpunit --testsuite=Feature    # Feature tests only
-lando php vendor/bin/phpunit tests/Feature/ExampleTest.php  # Single test
-lando artisan cache:clear && lando artisan config:clear && lando artisan route:clear  # Clear caches
-lando artisan storage:link                          # Link public storage
+ddev composer install                                   # Install dependencies
+ddev artisan migrate                                    # Run migrations
+ddev artisan migrate:fresh                              # Fresh database
+ddev artisan db:seed                                    # Run all seeders
+ddev artisan db:seed --class=RoleSeeder                 # Specific seeder
+ddev exec ./vendor/bin/pint                             # Code formatting
+ddev php vendor/bin/phpunit                             # Run all tests
+ddev php vendor/bin/phpunit --testsuite=Feature         # Feature tests only
+ddev php vendor/bin/phpunit tests/Feature/ExampleTest.php  # Single test
+ddev artisan cache:clear && ddev artisan config:clear && ddev artisan route:clear  # Clear caches
+ddev artisan storage:link                               # Link public storage
 ```
 
-### Frontend (Nuxt 3)
+### Frontend (Nuxt 4)
 
 ```bash
-cd frontend && npm install     # Install dependencies
-npm run dev                    # Dev server at http://localhost:3000
-npm run build                  # Production build
+ddev npm install               # Install dependencies
+ddev nuxt                      # Dev server at https://codecv6.localhost.ddev.site:3000
+ddev npm run build             # Production build
 ```
+
+`ddev nuxt` loads `.env` from the project root via `--dotenv`, providing `NUXT_PUBLIC_API_BASE` and `DDEV_HOSTNAME` automatically.
 
 ## Architecture
 
@@ -88,6 +97,7 @@ Uses Spatie Laravel Permission with `RoleEnum` (`app/Enums/RoleEnum.php`):
 - CSRF cookie: call `/sanctum/csrf-cookie` before POST/PUT/DELETE (frontend does this automatically)
 - Token stored in `localStorage` as `auth_token`; user object as `auth_user`
 - Login response: `{ user, access_token, token_type }`
+- `SANCTUM_STATEFUL_DOMAINS` must include both the base domain and `:3000` port variant
 
 ### API Response Conventions
 
@@ -106,15 +116,17 @@ Resources use `$this->when($this->relationLoaded('relationship'), ...)` to avoid
 - `PlanRequest` → injects `consultant_id`
 - `UserRequest` → removes null passwords before validation
 
-### Frontend Stack
+### Frontend Stack (Nuxt 4)
 
+- **Directory structure:** Application code lives in `frontend/app/` (Nuxt 4 convention)
 - **UI Library:** `@nuxt/ui` v2 — use UCard, UButton, UTable, UBadge, UAvatar, UProgress, UIcon, UDropdown components
 - **Dark mode:** enabled by default
-- **Types:** defined in `frontend/types/models.ts` — `User`, `Profile`, `Course`, `Plan`, `Path`, `Job`, `Role`, pagination/API response types
+- **Types:** defined in `frontend/app/types/models.ts` — `User`, `Profile`, `Course`, `Plan`, `Path`, `Job`, `Role`, pagination/API response types
+- **SSR:** disabled (`ssr: false`) — runs as a client-side SPA
 
 ### Frontend Composables
 
-Located in `frontend/composables/`:
+Located in `frontend/app/composables/`:
 
 | Composable | Purpose |
 |------------|---------|
@@ -122,12 +134,14 @@ Located in `frontend/composables/`:
 | `useApi` | Base `$fetch` wrapper with credentials and CSRF header |
 | `useUsers` | CRUD operations for users |
 | `useCourses`, `usePlans`, `useJobs`, `usePaths` | Domain-specific API operations |
+| `useMyClients` | Consultant client management |
+| `useNotifications` | Notification state management |
 
 Pattern: each returns `readonly()` reactive refs (`data`, `loading`, `error`) and async methods with try/catch error extraction.
 
 ### Frontend Layouts & Middleware
 
-Layouts: `admin`, `auth`, `default`.
+Layouts: `admin`, `auth`, `default`, `marketing`.
 
 - `auth.ts` middleware — redirects unauthenticated users to login
 - `guest.ts` middleware — redirects authenticated users to dashboard
@@ -150,3 +164,5 @@ Layouts: `admin`, `auth`, `default`.
 **Testing:** Feature tests use `RefreshDatabase` and call `RoleSeeder` in `setUp()`. PHPUnit 11 with a separate test database config.
 
 **Search:** `User` model uses Laravel Scout (Algolia) — `toSearchableArray()` indexes `id`, `fullname`, and `email`. Requires `SCOUT_QUEUE=true` in env.
+
+**DDEV Nuxt Config:** `frontend/nuxt.config.ts` uses `process.env.DDEV_HOSTNAME` (auto-injected by DDEV inside the container) with fallback to `codecv6.localhost.ddev.site`. The Vite HMR is configured for WSS through DDEV's HTTPS reverse proxy.
