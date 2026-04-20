@@ -19,7 +19,9 @@ class PlanApiTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $consultant;
+
     private User $client;
 
     protected function setUp(): void
@@ -53,9 +55,9 @@ class PlanApiTest extends TestCase
     public static function authenticatedRoleProvider(): array
     {
         return [
-            'admin'      => ['admin'],
+            'admin' => ['admin'],
             'consultant' => ['consultant'],
-            'client'     => ['client'],
+            'client' => ['client'],
         ];
     }
 
@@ -107,7 +109,7 @@ class PlanApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/plans', [
-                'name'  => 'Junior Dev Kickstart',
+                'name' => 'Junior Dev Kickstart',
                 'price' => 99.99,
             ])->assertCreated()
             ->assertJsonStructure(['message', 'plan']);
@@ -153,12 +155,12 @@ class PlanApiTest extends TestCase
     public static function invalidPlanStoreProvider(): array
     {
         return [
-            'missing name'        => [['name' => '']],
-            'name too long'       => [['name' => str_repeat('x', 256)]],
-            'negative price'      => [['price' => -1]],
-            'non-numeric price'   => [['price' => 'free']],
-            'invalid client_ids'  => [['client_ids' => [99999]]],
-            'invalid path_ids'    => [['path_ids' => [99999]]],
+            'missing name' => [['name' => '']],
+            'name too long' => [['name' => str_repeat('x', 256)]],
+            'negative price' => [['price' => -1]],
+            'non-numeric price' => [['price' => 'free']],
+            'invalid client_ids' => [['client_ids' => [99999]]],
+            'invalid path_ids' => [['path_ids' => [99999]]],
         ];
     }
 
@@ -182,7 +184,7 @@ class PlanApiTest extends TestCase
 
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/plans', [
-                'name'     => 'Plan with Paths',
+                'name' => 'Plan with Paths',
                 'path_ids' => [$path->id],
             ])->assertCreated();
     }
@@ -239,10 +241,10 @@ class PlanApiTest extends TestCase
     public static function invalidPlanUpdateProvider(): array
     {
         return [
-            'empty name'      => [['name' => '']],
-            'name too long'   => [['name' => str_repeat('x', 256)]],
-            'negative price'  => [['name' => 'OK', 'price' => -1]],
-            'non-numeric'     => [['name' => 'OK', 'price' => 'abc']],
+            'empty name' => [['name' => '']],
+            'name too long' => [['name' => str_repeat('x', 256)]],
+            'negative price' => [['name' => 'OK', 'price' => -1]],
+            'non-numeric' => [['name' => 'OK', 'price' => 'abc']],
         ];
     }
 
@@ -372,9 +374,9 @@ class PlanApiTest extends TestCase
     private function userForRole(string $role): User
     {
         return match ($role) {
-            'admin'      => $this->admin,
+            'admin' => $this->admin,
             'consultant' => $this->consultant,
-            'client'     => $this->client,
+            'client' => $this->client,
         };
     }
 }

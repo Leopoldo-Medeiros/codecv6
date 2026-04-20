@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+## Description: Install Composer and npm deps
+## Usage: install
+## Example: "install"
+
+composer install
+php artisan key:generate
+cd frontend && npm install

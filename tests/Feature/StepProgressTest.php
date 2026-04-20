@@ -15,6 +15,7 @@ class StepProgressTest extends TestCase
     use RefreshDatabase;
 
     private User $client;
+
     private Path $path;
 
     protected function setUp(): void
@@ -23,15 +24,15 @@ class StepProgressTest extends TestCase
         $this->seed(RoleSeeder::class);
 
         $this->client = User::factory()->create();
-        $this->path   = Path::create(['name' => 'Test Path', 'consultant_id' => $this->client->id]);
+        $this->path = Path::create(['name' => 'Test Path', 'consultant_id' => $this->client->id]);
     }
 
     private function makeStep(int $order): PathStep
     {
         return PathStep::create([
             'path_id' => $this->path->id,
-            'title'   => "Step {$order}",
-            'order'   => $order,
+            'title' => "Step {$order}",
+            'order' => $order,
         ]);
     }
 
@@ -39,7 +40,7 @@ class StepProgressTest extends TestCase
     {
         UserStepProgress::updateOrCreate(
             ['user_id' => $this->client->id, 'path_step_id' => $step->id],
-            ['status'  => $status]
+            ['status' => $status]
         );
     }
 
@@ -58,9 +59,9 @@ class StepProgressTest extends TestCase
         $this->putProgress($step, 'in_progress')->assertOk()->assertJson(['status' => 'in_progress']);
 
         $this->assertDatabaseHas('user_step_progress', [
-            'user_id'      => $this->client->id,
+            'user_id' => $this->client->id,
             'path_step_id' => $step->id,
-            'status'       => 'in_progress',
+            'status' => 'in_progress',
         ]);
     }
 
@@ -97,17 +98,17 @@ class StepProgressTest extends TestCase
 
         // step2 should have been reset to not_started
         $this->assertDatabaseHas('user_step_progress', [
-            'user_id'      => $this->client->id,
+            'user_id' => $this->client->id,
             'path_step_id' => $step2->id,
-            'status'       => 'not_started',
+            'status' => 'not_started',
         ]);
     }
 
     public function test_setting_in_progress_does_not_affect_other_paths(): void
     {
         $otherPath = Path::create(['name' => 'Other Path', 'consultant_id' => $this->client->id]);
-        $stepA     = $this->makeStep(1);
-        $stepB     = PathStep::create(['path_id' => $otherPath->id, 'title' => 'Other step', 'order' => 1]);
+        $stepA = $this->makeStep(1);
+        $stepB = PathStep::create(['path_id' => $otherPath->id, 'title' => 'Other step', 'order' => 1]);
 
         $this->setProgress($stepB, 'in_progress');
 
@@ -115,9 +116,9 @@ class StepProgressTest extends TestCase
 
         // stepB on a different path must remain in_progress
         $this->assertDatabaseHas('user_step_progress', [
-            'user_id'      => $this->client->id,
+            'user_id' => $this->client->id,
             'path_step_id' => $stepB->id,
-            'status'       => 'in_progress',
+            'status' => 'in_progress',
         ]);
     }
 
@@ -134,9 +135,9 @@ class StepProgressTest extends TestCase
 
         // step2 must remain unchanged
         $this->assertDatabaseMissing('user_step_progress', [
-            'user_id'      => $this->client->id,
+            'user_id' => $this->client->id,
             'path_step_id' => $step2->id,
-            'status'       => 'in_progress',
+            'status' => 'in_progress',
         ]);
     }
 

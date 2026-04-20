@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+## Description: Start nuxt server and launch URL
+## Usage: nuxt
+## Flags: [{"Name":"open","Shorthand":"o","Usage":"Open in browser"}]
+## Example: "ddev nuxt\nddev -o"
+
+if [[ ${1:-} == "-o" ]] || [[ ${1:-} == "--open" ]]; then
+    ( sleep 1 ; open ${DDEV_PRIMARY_URL}:3000 ) &
+fi
+
+ddev npm-run-dev

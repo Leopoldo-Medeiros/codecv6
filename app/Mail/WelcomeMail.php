@@ -25,7 +25,7 @@ class WelcomeMail extends Mailable
         return new Content(
             view: 'emails.welcome',
             with: [
-                'dashboardUrl' => config('app.frontend_url', config('app.url')) . '/dashboard',
+                'dashboardUrl' => config('app.frontend_url', config('app.url')).'/dashboard',
             ],
         );
     }

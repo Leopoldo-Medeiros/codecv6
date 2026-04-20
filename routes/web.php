@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UsersController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -16,7 +17,7 @@ Route::get('/pricing', function () {
     return view('pricing');
 })->name('pricing');
 
-Route::get('/payment', function (\Illuminate\Http\Request $request) {
+Route::get('/payment', function (Request $request) {
     $plan = $request->query('plan');
     $price = $request->query('price');
 

@@ -17,7 +17,7 @@ class PathStepController extends Controller
     {
         $steps = $path->steps()->with('course')->orderBy('order')->get();
 
-        $userId      = Auth::id();
+        $userId = Auth::id();
         $progressMap = UserStepProgress::where('user_id', $userId)
             ->whereIn('path_step_id', $steps->pluck('id'))
             ->pluck('status', 'path_step_id');
@@ -49,17 +49,17 @@ class PathStepController extends Controller
     public function store(Request $request, Path $path): JsonResponse
     {
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'description'      => 'nullable|string',
-            'course_id'        => 'nullable|exists:courses,id',
-            'resources'        => 'nullable|array',
-            'resources.*.label'     => 'required|string|max:100',
-            'resources.*.url'       => 'required|url|max:500',
-            'order'            => 'nullable|integer|min:0',
-            'type'             => 'nullable|in:reading,lab,challenge,quiz',
-            'lab_url'          => 'nullable|url|max:1000',
-            'instructions'     => 'nullable|array',
-            'instructions.*.id'   => 'required|integer',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'course_id' => 'nullable|exists:courses,id',
+            'resources' => 'nullable|array',
+            'resources.*.label' => 'required|string|max:100',
+            'resources.*.url' => 'required|url|max:500',
+            'order' => 'nullable|integer|min:0',
+            'type' => 'nullable|in:reading,lab,challenge,quiz',
+            'lab_url' => 'nullable|url|max:1000',
+            'instructions' => 'nullable|array',
+            'instructions.*.id' => 'required|integer',
             'instructions.*.text' => 'required|string|max:500',
             'challenge_prompt' => 'nullable|string',
         ]);
@@ -73,7 +73,7 @@ class PathStepController extends Controller
 
         return response()->json([
             'message' => 'Step created',
-            'data'    => new PathStepResource($step),
+            'data' => new PathStepResource($step),
         ], 201);
     }
 
@@ -82,17 +82,17 @@ class PathStepController extends Controller
         abort_if($step->path_id !== $path->id, 404);
 
         $validated = $request->validate([
-            'title'            => 'sometimes|required|string|max:255',
-            'description'      => 'nullable|string',
-            'course_id'        => 'nullable|exists:courses,id',
-            'resources'        => 'nullable|array',
-            'resources.*.label'     => 'required|string|max:100',
-            'resources.*.url'       => 'required|url|max:500',
-            'order'            => 'nullable|integer|min:0',
-            'type'             => 'nullable|in:reading,lab,challenge,quiz',
-            'lab_url'          => 'nullable|url|max:1000',
-            'instructions'     => 'nullable|array',
-            'instructions.*.id'   => 'required|integer',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'course_id' => 'nullable|exists:courses,id',
+            'resources' => 'nullable|array',
+            'resources.*.label' => 'required|string|max:100',
+            'resources.*.url' => 'required|url|max:500',
+            'order' => 'nullable|integer|min:0',
+            'type' => 'nullable|in:reading,lab,challenge,quiz',
+            'lab_url' => 'nullable|url|max:1000',
+            'instructions' => 'nullable|array',
+            'instructions.*.id' => 'required|integer',
             'instructions.*.text' => 'required|string|max:500',
             'challenge_prompt' => 'nullable|string',
         ]);
@@ -102,7 +102,7 @@ class PathStepController extends Controller
 
         return response()->json([
             'message' => 'Step updated',
-            'data'    => new PathStepResource($step),
+            'data' => new PathStepResource($step),
         ]);
     }
 
@@ -117,7 +117,7 @@ class PathStepController extends Controller
     public function reorder(Request $request, Path $path): JsonResponse
     {
         $request->validate([
-            'ids'   => 'required|array',
+            'ids' => 'required|array',
             'ids.*' => 'integer|exists:path_steps,id',
         ]);
 
@@ -149,7 +149,7 @@ class PathStepController extends Controller
 
             if ($blocker) {
                 return response()->json([
-                    'message'       => 'Complete the current step first.',
+                    'message' => 'Complete the current step first.',
                     'blocking_step' => $blocker->step?->title,
                 ], 422);
             }

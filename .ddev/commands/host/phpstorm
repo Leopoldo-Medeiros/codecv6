@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+## Description: Open PhpStorm with the current project
+## Usage: phpstorm
+## Example: "ddev phpstorm"
+
+open -a PhpStorm.app ${DDEV_APPROOT}

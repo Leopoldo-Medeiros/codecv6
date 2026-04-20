@@ -7,6 +7,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -21,8 +22,11 @@ class UserApiTest extends TestCase
     private const PASSWORD = 'ValidPass1!';
 
     private User $admin;
+
     private User $consultant;
+
     private User $client;
+
     private User $otherClient;
 
     protected function setUp(): void
@@ -99,7 +103,7 @@ class UserApiTest extends TestCase
     {
         return [
             'consultant' => ['consultant'],
-            'client'     => ['client'],
+            'client' => ['client'],
         ];
     }
 
@@ -160,16 +164,16 @@ class UserApiTest extends TestCase
 
     public function test_admin_can_create_user(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/users', [
-                'fullname'              => 'New Client',
-                'email'                 => 'newclient@example.com',
-                'password'              => self::PASSWORD,
+                'fullname' => 'New Client',
+                'email' => 'newclient@example.com',
+                'password' => self::PASSWORD,
                 'password_confirmation' => self::PASSWORD,
-                'role'                  => $clientRoleId,
-                'profile'               => ['profession' => 'Developer'],
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Developer'],
             ])->assertCreated()
             ->assertJsonStructure(['message', 'user']);
     }
@@ -177,16 +181,16 @@ class UserApiTest extends TestCase
     #[DataProvider('nonAdminRoleProvider')]
     public function test_non_admin_cannot_create_user(string $role): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->userForRole($role), 'sanctum')
             ->postJson('/api/users', [
-                'fullname'              => 'Hack User',
-                'email'                 => 'hack@example.com',
-                'password'              => self::PASSWORD,
+                'fullname' => 'Hack User',
+                'email' => 'hack@example.com',
+                'password' => self::PASSWORD,
                 'password_confirmation' => self::PASSWORD,
-                'role'                  => $clientRoleId,
-                'profile'               => ['profession' => 'Hacker'],
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Hacker'],
             ])->assertForbidden();
     }
 
@@ -197,16 +201,16 @@ class UserApiTest extends TestCase
 
     public function test_created_user_persisted_to_database(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/users', [
-                'fullname'              => 'Stored User',
-                'email'                 => 'stored@example.com',
-                'password'              => self::PASSWORD,
+                'fullname' => 'Stored User',
+                'email' => 'stored@example.com',
+                'password' => self::PASSWORD,
                 'password_confirmation' => self::PASSWORD,
-                'role'                  => $clientRoleId,
-                'profile'               => ['profession' => 'Tester'],
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Tester'],
             ]);
 
         $this->assertDatabaseHas('users', ['email' => 'stored@example.com']);
@@ -215,15 +219,15 @@ class UserApiTest extends TestCase
     #[DataProvider('invalidUserStoreProvider')]
     public function test_user_creation_fails_validation(array $overrides): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $valid = [
-            'fullname'              => 'Valid Name',
-            'email'                 => 'valid@example.com',
-            'password'              => self::PASSWORD,
+            'fullname' => 'Valid Name',
+            'email' => 'valid@example.com',
+            'password' => self::PASSWORD,
             'password_confirmation' => self::PASSWORD,
-            'role'                  => $clientRoleId,
-            'profile'               => ['profession' => 'Tester'],
+            'role' => $clientRoleId,
+            'profile' => ['profession' => 'Tester'],
         ];
 
         $this->actingAs($this->admin, 'sanctum')
@@ -234,22 +238,22 @@ class UserApiTest extends TestCase
     public static function invalidUserStoreProvider(): array
     {
         return [
-            'missing fullname'           => [['fullname' => '']],
-            'fullname too long'          => [['fullname' => str_repeat('x', 256)]],
-            'missing email'              => [['email' => '']],
-            'invalid email'              => [['email' => 'not-an-email']],
-            'missing password'           => [['password' => '', 'password_confirmation' => '']],
-            'password too short'         => [['password' => 'Abc1', 'password_confirmation' => 'Abc1']],
-            'password no uppercase'      => [['password' => 'lowercase1', 'password_confirmation' => 'lowercase1']],
-            'password no number'         => [['password' => 'NoNumbers!', 'password_confirmation' => 'NoNumbers!']],
+            'missing fullname' => [['fullname' => '']],
+            'fullname too long' => [['fullname' => str_repeat('x', 256)]],
+            'missing email' => [['email' => '']],
+            'invalid email' => [['email' => 'not-an-email']],
+            'missing password' => [['password' => '', 'password_confirmation' => '']],
+            'password too short' => [['password' => 'Abc1', 'password_confirmation' => 'Abc1']],
+            'password no uppercase' => [['password' => 'lowercase1', 'password_confirmation' => 'lowercase1']],
+            'password no number' => [['password' => 'NoNumbers!', 'password_confirmation' => 'NoNumbers!']],
             'password confirmation miss' => [['password_confirmation' => 'WrongConf1!']],
-            'invalid role id'            => [['role' => 99999]],
-            'invalid profile.website'    => [['profile' => ['website' => 'not-a-url']]],
-            'invalid profile.github'     => [['profile' => ['github' => 'not-a-url']]],
-            'invalid profile.linkedin'   => [['profile' => ['linkedin' => 'not-a-url']]],
-            'invalid profile.instagram'  => [['profile' => ['instagram' => 'not-a-url']]],
-            'invalid profile.facebook'   => [['profile' => ['facebook' => 'not-a-url']]],
-            'invalid birth date'         => [['profile' => ['birth_date' => 'not-a-date']]],
+            'invalid role id' => [['role' => 99999]],
+            'invalid profile.website' => [['profile' => ['website' => 'not-a-url']]],
+            'invalid profile.github' => [['profile' => ['github' => 'not-a-url']]],
+            'invalid profile.linkedin' => [['profile' => ['linkedin' => 'not-a-url']]],
+            'invalid profile.instagram' => [['profile' => ['instagram' => 'not-a-url']]],
+            'invalid profile.facebook' => [['profile' => ['facebook' => 'not-a-url']]],
+            'invalid birth date' => [['profile' => ['birth_date' => 'not-a-date']]],
         ];
     }
 
@@ -257,66 +261,66 @@ class UserApiTest extends TestCase
 
     public function test_admin_can_update_any_user(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->admin, 'sanctum')
             ->putJson("/api/users/{$this->client->id}", [
                 'fullname' => 'Updated Name',
-                'email'    => $this->client->email,
-                'role'     => $clientRoleId,
-                'profile'  => ['profession' => 'Developer'],
+                'email' => $this->client->email,
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Developer'],
             ])->assertOk();
     }
 
     public function test_client_can_update_own_profile(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->client, 'sanctum')
             ->putJson("/api/users/{$this->client->id}", [
                 'fullname' => 'Self Updated',
-                'email'    => $this->client->email,
-                'role'     => $clientRoleId,
-                'profile'  => ['profession' => 'Designer'],
+                'email' => $this->client->email,
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Designer'],
             ])->assertOk();
     }
 
     public function test_client_cannot_update_another_users_profile(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->client, 'sanctum')
             ->putJson("/api/users/{$this->otherClient->id}", [
                 'fullname' => 'Hack',
-                'email'    => $this->otherClient->email,
-                'role'     => $clientRoleId,
-                'profile'  => ['profession' => 'Hacker'],
+                'email' => $this->otherClient->email,
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Hacker'],
             ])->assertForbidden();
     }
 
     public function test_patch_update_works(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->admin, 'sanctum')
             ->patchJson("/api/users/{$this->client->id}", [
                 'fullname' => 'Patched',
-                'email'    => $this->client->email,
-                'role'     => $clientRoleId,
-                'profile'  => ['profession' => 'Dev'],
+                'email' => $this->client->email,
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Dev'],
             ])->assertOk();
     }
 
     public function test_update_allows_same_email_for_same_user(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->admin, 'sanctum')
             ->putJson("/api/users/{$this->client->id}", [
                 'fullname' => 'Same Email User',
-                'email'    => $this->client->email,
-                'role'     => $clientRoleId,
-                'profile'  => ['profession' => 'Dev'],
+                'email' => $this->client->email,
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Dev'],
             ])->assertOk();
     }
 
@@ -325,8 +329,8 @@ class UserApiTest extends TestCase
         $this->actingAs($this->admin, 'sanctum')
             ->putJson("/api/users/{$this->client->id}", [
                 'fullname' => 'Test',
-                'email'    => $this->otherClient->email,
-                'profile'  => ['profession' => 'Dev'],
+                'email' => $this->otherClient->email,
+                'profile' => ['profession' => 'Dev'],
             ])->assertUnprocessable();
     }
 
@@ -335,8 +339,8 @@ class UserApiTest extends TestCase
     {
         $valid = [
             'fullname' => 'Valid Name',
-            'email'    => $this->client->email,
-            'profile'  => [],
+            'email' => $this->client->email,
+            'profile' => [],
         ];
 
         $this->actingAs($this->admin, 'sanctum')
@@ -347,30 +351,30 @@ class UserApiTest extends TestCase
     public static function invalidUserUpdateProvider(): array
     {
         return [
-            'empty fullname'          => [['fullname' => '']],
-            'fullname too long'       => [['fullname' => str_repeat('x', 256)]],
-            'empty email'             => [['email' => '']],
-            'invalid email'           => [['email' => 'not-an-email']],
-            'weak password'           => [['password' => 'weak', 'password_confirmation' => 'weak']],
-            'password no uppercase'   => [['password' => 'lowercase1', 'password_confirmation' => 'lowercase1']],
-            'password no number'      => [['password' => 'NoNumbers!', 'password_confirmation' => 'NoNumbers!']],
+            'empty fullname' => [['fullname' => '']],
+            'fullname too long' => [['fullname' => str_repeat('x', 256)]],
+            'empty email' => [['email' => '']],
+            'invalid email' => [['email' => 'not-an-email']],
+            'weak password' => [['password' => 'weak', 'password_confirmation' => 'weak']],
+            'password no uppercase' => [['password' => 'lowercase1', 'password_confirmation' => 'lowercase1']],
+            'password no number' => [['password' => 'NoNumbers!', 'password_confirmation' => 'NoNumbers!']],
             'invalid profile.website' => [['profile' => ['website' => 'not-a-url']]],
-            'invalid profile.github'  => [['profile' => ['github' => 'not-a-url']]],
-            'invalid profile.linkedin'=> [['profile' => ['linkedin' => 'not-a-url']]],
-            'invalid birth_date'      => [['profile' => ['birth_date' => 'not-a-date']]],
+            'invalid profile.github' => [['profile' => ['github' => 'not-a-url']]],
+            'invalid profile.linkedin' => [['profile' => ['linkedin' => 'not-a-url']]],
+            'invalid birth_date' => [['profile' => ['birth_date' => 'not-a-date']]],
         ];
     }
 
     public function test_update_password_is_optional(): void
     {
-        $clientRoleId = \Spatie\Permission\Models\Role::where('name', 'client')->first()->id;
+        $clientRoleId = Role::where('name', 'client')->first()->id;
 
         $this->actingAs($this->admin, 'sanctum')
             ->putJson("/api/users/{$this->client->id}", [
                 'fullname' => 'No Pass Change',
-                'email'    => $this->client->email,
-                'role'     => $clientRoleId,
-                'profile'  => ['profession' => 'Developer'],
+                'email' => $this->client->email,
+                'role' => $clientRoleId,
+                'profile' => ['profession' => 'Developer'],
             ])->assertOk();
     }
 
@@ -518,9 +522,9 @@ class UserApiTest extends TestCase
     private function userForRole(string $role): User
     {
         return match ($role) {
-            'admin'      => $this->admin,
+            'admin' => $this->admin,
             'consultant' => $this->consultant,
-            'client'     => $this->client,
+            'client' => $this->client,
         };
     }
 }

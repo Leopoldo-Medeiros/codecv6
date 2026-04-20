@@ -113,7 +113,7 @@ class UserController extends Controller
             $this->userService->erasePersonalData($user);
 
             return response()->json(['message' => 'User data permanently erased.']);
-        } catch (\App\Exceptions\AuthorizationException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['message' => $e->getMessage()], 403);
         }
     }
@@ -166,7 +166,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Consultant assigned successfully.',
-            'user'    => new UserResource($user),
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -182,28 +182,28 @@ class UserController extends Controller
                     $q->whereHas('clients', fn ($q2) => $q2->where('users.id', $client->id));
                 })->withCount('steps')->get();
 
-                $stepIds    = $paths->flatMap(fn ($p) => $p->steps()->pluck('id'));
-                $doneCount  = UserStepProgress::where('user_id', $client->id)
+                $stepIds = $paths->flatMap(fn ($p) => $p->steps()->pluck('id'));
+                $doneCount = UserStepProgress::where('user_id', $client->id)
                     ->whereIn('path_step_id', $stepIds)
                     ->where('status', 'done')
                     ->count();
                 $totalSteps = $stepIds->count();
 
                 return [
-                    'id'           => $client->id,
-                    'fullname'     => $client->fullname,
-                    'email'        => $client->email,
-                    'profile'      => $client->profile ? [
-                        'profession'       => $client->profile->profession,
-                        'level'            => $client->profile->level,
-                        'profile_image_url'=> $client->profile->profile_image
+                    'id' => $client->id,
+                    'fullname' => $client->fullname,
+                    'email' => $client->email,
+                    'profile' => $client->profile ? [
+                        'profession' => $client->profile->profession,
+                        'level' => $client->profile->level,
+                        'profile_image_url' => $client->profile->profile_image
                             ? asset('storage/'.$client->profile->profile_image)
                             : null,
                     ] : null,
-                    'path_count'   => $paths->count(),
+                    'path_count' => $paths->count(),
                     'progress_pct' => $totalSteps > 0 ? (int) round($doneCount / $totalSteps * 100) : 0,
-                    'done_steps'   => $doneCount,
-                    'total_steps'  => $totalSteps,
+                    'done_steps' => $doneCount,
+                    'total_steps' => $totalSteps,
                 ];
             });
 
@@ -224,29 +224,29 @@ class UserController extends Controller
             $q->whereHas('clients', fn ($q2) => $q2->where('users.id', $client->id));
         })->with(['steps.course'])->get();
 
-        $stepIds     = $paths->flatMap(fn ($p) => $p->steps->pluck('id'));
+        $stepIds = $paths->flatMap(fn ($p) => $p->steps->pluck('id'));
         $progressMap = UserStepProgress::where('user_id', $client->id)
             ->whereIn('path_step_id', $stepIds)
             ->pluck('status', 'path_step_id');
 
         $pathData = $paths->map(fn ($path) => [
-            'id'          => $path->id,
-            'name'        => $path->name,
+            'id' => $path->id,
+            'name' => $path->name,
             'description' => $path->description,
-            'steps'       => $path->steps->map(fn ($step) => [
-                'id'          => $step->id,
-                'order'       => $step->order,
-                'title'       => $step->title,
-                'type'        => $step->type,
-                'course'      => $step->course ? ['id' => $step->course->id, 'name' => $step->course->name] : null,
+            'steps' => $path->steps->map(fn ($step) => [
+                'id' => $step->id,
+                'order' => $step->order,
+                'title' => $step->title,
+                'type' => $step->type,
+                'course' => $step->course ? ['id' => $step->course->id, 'name' => $step->course->name] : null,
                 'user_status' => $progressMap->get($step->id, 'not_started'),
             ])->sortBy('order')->values(),
-            'done_count'  => $path->steps->filter(fn ($s) => $progressMap->get($s->id) === 'done')->count(),
+            'done_count' => $path->steps->filter(fn ($s) => $progressMap->get($s->id) === 'done')->count(),
             'total_count' => $path->steps->count(),
         ]);
 
         return response()->json([
-            'user'  => new UserResource($client),
+            'user' => new UserResource($client),
             'paths' => $pathData->values(),
         ]);
     }
@@ -284,14 +284,14 @@ class UserController extends Controller
         $user = Auth::user();
 
         $data = $request->validate([
-            'profession'         => 'required|string|max:255',
-            'level'              => 'required|in:junior,mid,senior,manager',
-            'stack'              => 'required|array|min:1',
-            'stack.*'            => 'string|max:50',
-            'product_interest'   => 'required|in:self-serve,bootcamp,mentorship',
+            'profession' => 'required|string|max:255',
+            'level' => 'required|in:junior,mid,senior,manager',
+            'stack' => 'required|array|min:1',
+            'stack.*' => 'string|max:50',
+            'product_interest' => 'required|in:self-serve,bootcamp,mentorship',
             'availability_hours' => 'required|integer|min:1|max:80',
-            'timeline'           => 'required|in:1-3m,3-6m,6-12m,flexible',
-            'goal'               => 'nullable|string|max:500',
+            'timeline' => 'required|in:1-3m,3-6m,6-12m,flexible',
+            'goal' => 'nullable|string|max:500',
         ]);
 
         $user->profile()->updateOrCreate(
@@ -305,7 +305,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Onboarding complete',
-            'user'    => new UserResource($user),
+            'user' => new UserResource($user),
         ]);
     }
 }

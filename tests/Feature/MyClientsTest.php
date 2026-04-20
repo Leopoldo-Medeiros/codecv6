@@ -14,6 +14,7 @@ class MyClientsTest extends TestCase
     use RefreshDatabase;
 
     private User $consultant;
+
     private User $client;
 
     protected function setUp(): void
@@ -80,10 +81,10 @@ class MyClientsTest extends TestCase
 
         $item = collect($response->json('data'))->firstWhere('id', $this->client->id);
         $this->assertNotNull($item);
-        $this->assertArrayHasKey('path_count',   $item);
+        $this->assertArrayHasKey('path_count', $item);
         $this->assertArrayHasKey('progress_pct', $item);
-        $this->assertArrayHasKey('done_steps',   $item);
-        $this->assertArrayHasKey('total_steps',  $item);
+        $this->assertArrayHasKey('done_steps', $item);
+        $this->assertArrayHasKey('total_steps', $item);
     }
 
     // ── Client detail ────────────────────────────────────────────────────────
@@ -118,7 +119,7 @@ class MyClientsTest extends TestCase
         // A plan must exist linking consultant → client → path
         $plan = Plan::where('consultant_id', $this->consultant->id)
             ->whereHas('clients', fn ($q) => $q->where('users.id', $this->client->id))
-            ->whereHas('paths',   fn ($q) => $q->where('paths.id', $path->id))
+            ->whereHas('paths', fn ($q) => $q->where('paths.id', $path->id))
             ->first();
 
         $this->assertNotNull($plan);

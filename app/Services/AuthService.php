@@ -43,7 +43,7 @@ class AuthService
             $user->profile()->create($data['profile']);
         }
 
-        $user->notify(new WelcomeNotification());
+        $user->notify(new WelcomeNotification);
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

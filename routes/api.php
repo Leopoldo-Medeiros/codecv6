@@ -1,17 +1,17 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\SocialAuthController;
-use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CvController;
-use App\Http\Controllers\Api\LinkedInController;
 use App\Http\Controllers\Api\JobController;
+use App\Http\Controllers\Api\LinkedInController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\PathController;
 use App\Http\Controllers\Api\PathStepController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 

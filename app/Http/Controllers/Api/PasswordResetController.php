@@ -33,9 +33,9 @@ class PasswordResetController extends Controller
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
-            'token'                 => 'required|string',
-            'email'                 => 'required|email',
-            'password'              => 'required|string|min:8|confirmed',
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
         ]);
 
@@ -43,7 +43,7 @@ class PasswordResetController extends Controller
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
                 $user->forceFill(['password' => Hash::make($password)])
-                     ->setRememberToken(Str::random(60));
+                    ->setRememberToken(Str::random(60));
                 $user->save();
             }
         );
@@ -52,8 +52,8 @@ class PasswordResetController extends Controller
             return response()->json([
                 'message' => match ($status) {
                     Password::INVALID_TOKEN => 'This reset link is invalid or has expired.',
-                    Password::INVALID_USER  => 'No account found with that email.',
-                    default                 => 'Could not reset password. Please try again.',
+                    Password::INVALID_USER => 'No account found with that email.',
+                    default => 'Could not reset password. Please try again.',
                 },
             ], 422);
         }

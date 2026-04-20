@@ -17,7 +17,9 @@ class PathApiTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $consultant;
+
     private User $client;
 
     protected function setUp(): void
@@ -51,9 +53,9 @@ class PathApiTest extends TestCase
     public static function authenticatedRoleProvider(): array
     {
         return [
-            'admin'      => ['admin'],
+            'admin' => ['admin'],
             'consultant' => ['consultant'],
-            'client'     => ['client'],
+            'client' => ['client'],
         ];
     }
 
@@ -105,7 +107,7 @@ class PathApiTest extends TestCase
     {
         $this->actingAs($this->admin, 'sanctum')
             ->postJson('/api/paths', [
-                'name'        => 'Laravel Developer Roadmap',
+                'name' => 'Laravel Developer Roadmap',
                 'description' => 'A complete path.',
             ])->assertCreated()
             ->assertJsonStructure(['message', 'path']);
@@ -151,9 +153,9 @@ class PathApiTest extends TestCase
     public static function invalidPathStoreProvider(): array
     {
         return [
-            'missing name'       => [['name' => '']],
-            'name too long'      => [['name' => str_repeat('x', 256)]],
-            'invalid plan_ids'   => [['plan_ids' => [99999]]],
+            'missing name' => [['name' => '']],
+            'name too long' => [['name' => str_repeat('x', 256)]],
+            'invalid plan_ids' => [['plan_ids' => [99999]]],
         ];
     }
 
@@ -214,8 +216,8 @@ class PathApiTest extends TestCase
     public static function invalidPathUpdateProvider(): array
     {
         return [
-            'empty name'      => [['name' => '']],
-            'name too long'   => [['name' => str_repeat('x', 256)]],
+            'empty name' => [['name' => '']],
+            'name too long' => [['name' => str_repeat('x', 256)]],
             'invalid plan_id' => [['name' => 'OK', 'plan_ids' => [99999]]],
         ];
     }
@@ -308,9 +310,9 @@ class PathApiTest extends TestCase
     private function userForRole(string $role): User
     {
         return match ($role) {
-            'admin'      => $this->admin,
+            'admin' => $this->admin,
             'consultant' => $this->consultant,
-            'client'     => $this->client,
+            'client' => $this->client,
         };
     }
 }

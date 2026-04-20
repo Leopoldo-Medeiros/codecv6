@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +16,7 @@ use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+    public function index(Request $request): View|Factory|Application
     {
         $user = Auth::user(); // Assuming you are using Laravel's Auth system
         $search = $request->input('search');
@@ -28,7 +32,7 @@ class UsersController extends Controller
         return view('users.index', compact('user', 'users'));
     }
 
-    public function show(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+    public function show(User $user): View|Factory|Application
     {
         $user = $user->load('profile');
 
@@ -42,7 +46,7 @@ class UsersController extends Controller
         return view('users.form', compact('roles'));
     }
 
-    public function store(UserRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(UserRequest $request): RedirectResponse
     {
         $validated = $request->validated();
         $user = User::create($validated);
@@ -56,7 +60,7 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+    public function edit(User $user): View|Factory|Application
     {
         $user = $user->load('profile');
         $roles = Role::all(); // Assuming you have roles to pass
@@ -64,7 +68,7 @@ class UsersController extends Controller
         return view('users.form', compact('user', 'roles'));
     }
 
-    public function update(UserRequest $request, User $user): \Illuminate\Http\RedirectResponse
+    public function update(UserRequest $request, User $user): RedirectResponse
     {
         \Log::info('Updating user: '.$user->id);
         \Log::info('Request data: '.json_encode($request->all()));
@@ -79,7 +83,7 @@ class UsersController extends Controller
         return redirect()->route('users.show', $user->id)->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user): \Illuminate\Http\RedirectResponse
+    public function destroy(User $user): RedirectResponse
     {
         if ($user->id === Auth::id()) {
             return redirect()->route('users.index')->with('error', 'You cannot delete yourself.');
@@ -102,14 +106,14 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
-    public function profile(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+    public function profile(): View|Factory|Application
     {
         $user = auth()->user()->load('profile');
 
         return view('profile', compact('user'));
     }
 
-    public function updateRole(User $user, $validated): true|\Illuminate\Http\RedirectResponse
+    public function updateRole(User $user, $validated): true|RedirectResponse
     {
         $role = Role::findById($validated['role']);
 

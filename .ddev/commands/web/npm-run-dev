@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+## Description: Start nuxt server
+## Usage: npm-run-dev
+## Example: "npm-run-dev nuxt"
+
+cd frontend && npx nuxi cleanup && npx nuxi dev --dotenv ./../.env

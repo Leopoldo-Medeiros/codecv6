@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Plan;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PlanService
@@ -90,9 +91,9 @@ class PlanService
             ->first();
 
         if (! $plan) {
-            $client = \App\Models\User::findOrFail($clientId);
+            $client = User::findOrFail($clientId);
             $plan = Plan::create([
-                'name'          => "{$client->fullname}'s Training Plan",
+                'name' => "{$client->fullname}'s Training Plan",
                 'consultant_id' => $consultantId,
             ]);
             $plan->clients()->attach($clientId);

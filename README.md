@@ -15,20 +15,32 @@ CODECV connects consultants with clients to provide structured career developmen
 
 | Layer | Technology |
 |-------|------------|
-| Backend | Laravel 11 (PHP 8.3) |
-| Frontend | Nuxt 3 (Vue 3, TypeScript) |
+| Backend | Laravel 11 (PHP 8.4) |
+| Frontend | Nuxt 4 (Vue 3, TypeScript) |
 | Database | MySQL 8.0 |
 | Auth | Laravel Sanctum |
 | Search | Algolia (Laravel Scout) |
-| Dev Environment | Lando |
+| Dev Environment | DDEV |
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Lando](https://lando.dev/) (Docker-based local development)
-- Node.js 18+
-- Composer
+- Docker Desktop or [OrbStack](https://orbstack.dev/) (recommended for macOS)
+- [DDEV](https://ddev.readthedocs.io/en/stable/) — install with:
+
+```bash
+# macOS (Homebrew)
+brew install ddev/ddev/ddev
+
+# Linux (install script)
+curl -fsSL https://ddev.com/install.sh | bash
+
+# Windows (Chocolatey)
+choco install ddev
+```
+
+After installing, verify with `ddev version`.
 
 ### Installation
 
@@ -38,32 +50,37 @@ git clone https://github.com/Leopoldo-Medeiros/codecv6.git
 cd codecv6
 
 # Start the development environment
-lando start
+ddev start
 
 # Install PHP dependencies
-composer install
+ddev composer install
 
 # Copy environment file and generate key
 cp .env.example .env
-lando artisan key:generate
+ddev artisan key:generate
 
 # Run migrations and seed the database
-lando artisan migrate --seed
+ddev artisan migrate --seed
 
 # Install frontend dependencies
-cd frontend && npm install
+ddev npm install
 ```
 
 ### Running the Application
 
 ```bash
-# Backend runs automatically via Lando
-# Access at: http://codecv6.lndo.site
+# Backend runs automatically via DDEV
+# Access at: https://codecv6.localhost.ddev.site
 
 # Start frontend development server
-cd frontend && npm run dev
-# Access at: http://localhost:3000
+ddev nuxt
+# Access at: https://codecv6.localhost.ddev.site:3000
 ```
+
+The `ddev nuxt` command starts the Nuxt dev server inside the DDEV container with:
+- Automatic `.env` loading from the project root (via `--dotenv`)
+- HTTPS served through the DDEV router at port 3000
+- HMR (Hot Module Replacement) websocket support
 
 ### Default Users
 
@@ -78,20 +95,20 @@ cd frontend && npm run dev
 ### Backend Commands
 
 ```bash
-lando artisan migrate              # Run migrations
-lando artisan db:seed              # Seed database
-lando artisan test                 # Run tests
-./vendor/bin/pint                  # Format code
-lando artisan route:list           # List routes
+ddev artisan migrate              # Run migrations
+ddev artisan db:seed              # Seed database
+ddev php vendor/bin/phpunit       # Run tests
+ddev exec ./vendor/bin/pint       # Format code
+ddev artisan route:list           # List routes
+ddev artisan config:clear         # Clear config cache
 ```
 
 ### Frontend Commands
 
 ```bash
-cd frontend
-npm run dev                        # Development server
-npm run build                      # Production build
-npm run preview                    # Preview production build
+ddev nuxt                          # Development server (recommended)
+ddev npm run build                 # Production build
+ddev npm run preview               # Preview production build
 ```
 
 ## Architecture
@@ -109,16 +126,23 @@ app/
 └── Enums/                   # Role definitions
 ```
 
-### Frontend (Nuxt)
+### Frontend (Nuxt 4)
 
 ```
 frontend/
-├── pages/                   # File-based routing
-├── composables/             # Reusable API logic (useAuth, useUsers, etc.)
-├── components/              # Vue components
-├── layouts/                 # Page layouts (default, admin, auth)
-├── middleware/              # Route guards (auth, guest)
-└── types/                   # TypeScript definitions
+├── app/                     # Application source (Nuxt 4 convention)
+│   ├── pages/               # File-based routing
+│   ├── composables/         # Reusable API logic (useAuth, useUsers, etc.)
+│   ├── components/          # Vue components
+│   ├── layouts/             # Page layouts (default, admin, auth, marketing)
+│   ├── middleware/          # Route guards (auth, guest)
+│   ├── types/               # TypeScript definitions
+│   └── assets/              # CSS and static assets processed by Vite
+├── public/                  # Static files served directly
+├── server/                  # Nitro server configuration
+├── nuxt.config.ts           # Nuxt configuration
+├── tailwind.config.js       # Tailwind CSS configuration
+└── package.json             # Dependencies
 ```
 
 ### User Roles
@@ -149,13 +173,13 @@ frontend/
 
 ```bash
 # Run all tests
-lando artisan test
+ddev php vendor/bin/phpunit
 
 # Run specific test file
-lando php vendor/bin/phpunit tests/Feature/LoginTest.php
+ddev php vendor/bin/phpunit tests/Feature/LoginTest.php
 
 # Run with coverage
-lando php vendor/bin/phpunit --coverage-html coverage
+ddev php vendor/bin/phpunit --coverage-html coverage
 ```
 
 ## License

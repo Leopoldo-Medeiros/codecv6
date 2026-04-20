@@ -12,8 +12,8 @@ class PathStepFactory extends Factory
 
     private static array $steps = [
         [
-            'title'       => 'PHP & OOP Foundations',
-            'type'        => 'reading',
+            'title' => 'PHP & OOP Foundations',
+            'type' => 'reading',
             'description' => 'Master the building blocks of server-side PHP development with a strong focus on Object-Oriented Programming. You will learn how PHP executes on the server, how to structure code using classes and interfaces, and why encapsulation and inheritance lead to more maintainable applications. This step sets the foundation for every Laravel concept you will encounter later.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Understand PHP\'s request lifecycle and how it differs from client-side scripting'],
@@ -28,8 +28,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'Laravel Essentials',
-            'type'        => 'reading',
+            'title' => 'Laravel Essentials',
+            'type' => 'reading',
             'description' => 'Get hands-on with the most popular PHP framework in the industry. Laravel abstracts common web development tasks — routing, database access, authentication, and validation — so you can focus on business logic. By the end of this step you will be able to scaffold a working web application from scratch using Artisan, Eloquent, and Blade.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Set up a new Laravel project and understand the directory structure'],
@@ -44,8 +44,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'MySQL & Database Design',
-            'type'        => 'reading',
+            'title' => 'MySQL & Database Design',
+            'type' => 'reading',
             'description' => 'A well-designed database is the backbone of every production application. This step covers the relational model in depth — from normalisation and schema design to indexing strategies and query optimisation. You will learn how to think like a DBA and write efficient queries that scale as your data grows.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Design normalised schemas up to 3NF and know when to denormalise'],
@@ -60,8 +60,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'RESTful API Development',
-            'type'        => 'lab',
+            'title' => 'RESTful API Development',
+            'type' => 'lab',
             'description' => 'REST is the dominant architectural style for APIs consumed by mobile apps, SPAs, and third-party integrations. In this lab you will build a fully functional REST API with Laravel, covering resource routing, API Resources for response shaping, token-based authentication with Sanctum, and proper HTTP status codes. You will leave with a production-ready API skeleton.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Implement CRUD endpoints following REST conventions (GET, POST, PUT, DELETE)'],
@@ -77,8 +77,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'Git & Version Control',
-            'type'        => 'reading',
+            'title' => 'Git & Version Control',
+            'type' => 'reading',
             'description' => 'Version control is a non-negotiable skill for every professional developer. This step goes beyond basic commits to cover the branching strategies and collaboration workflows used by engineering teams at scale — including Git Flow, trunk-based development, and pull request best practices. You will also learn how to recover from common mistakes confidently.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Understand the Git object model: blobs, trees, commits, and refs'],
@@ -93,8 +93,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'Docker & Local Dev Environment',
-            'type'        => 'lab',
+            'title' => 'Docker & Local Dev Environment',
+            'type' => 'lab',
             'description' => 'Containers have revolutionised how software is developed, shipped, and run. This lab walks you through containerising a Laravel + MySQL + Nginx stack with Docker Compose, mirroring how production environments are configured. You will understand image layering, volume mounts, networking, and how to keep your development environment reproducible across any machine.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Write a Dockerfile for a PHP-FPM Laravel application'],
@@ -109,8 +109,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'AWS Basics for Developers',
-            'type'        => 'reading',
+            'title' => 'AWS Basics for Developers',
+            'type' => 'reading',
             'description' => 'Cloud infrastructure is a core competency for backend engineers working in Ireland\'s tech sector. This step introduces the AWS services you will encounter most often on the job: EC2, S3, RDS, and IAM. You will understand the shared responsibility model, how to deploy a basic application, and how to manage permissions securely — essential knowledge for any technical interview.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Navigate the AWS console and understand regions, AZs, and VPCs'],
@@ -125,8 +125,8 @@ class PathStepFactory extends Factory
             ],
         ],
         [
-            'title'       => 'CV & LinkedIn Optimisation',
-            'type'        => 'challenge',
+            'title' => 'CV & LinkedIn Optimisation',
+            'type' => 'challenge',
             'description' => 'Your CV and LinkedIn profile are your professional shop window in the Irish and EU tech job market. Recruiters spend an average of 7 seconds scanning a CV — this step teaches you how to pass the ATS filter, tell a compelling career story, and position yourself for the roles you actually want. You will also learn how to leverage LinkedIn\'s algorithm to get inbound interest from recruiters.',
             'instructions' => [
                 ['id' => 1, 'text' => 'Structure your CV for ATS compatibility (clean formatting, keyword alignment)'],
@@ -145,19 +145,19 @@ class PathStepFactory extends Factory
 
     public function definition(): array
     {
-        $step  = fake()->randomElement(self::$steps);
+        $step = fake()->randomElement(self::$steps);
         $order = fake()->numberBetween(0, 20);
 
         return [
-            'path_id'          => Path::factory(),
-            'title'            => $step['title'],
-            'description'      => $step['description'],
-            'type'             => $step['type'],
-            'order'            => $order,
-            'instructions'     => $step['instructions'] ?? null,
+            'path_id' => Path::factory(),
+            'title' => $step['title'],
+            'description' => $step['description'],
+            'type' => $step['type'],
+            'order' => $order,
+            'instructions' => $step['instructions'] ?? null,
             'challenge_prompt' => $step['challenge_prompt'] ?? null,
-            'resources'        => $step['resources'] ?? null,
-            'course_id'        => null,
+            'resources' => $step['resources'] ?? null,
+            'course_id' => null,
         ];
     }
 }
