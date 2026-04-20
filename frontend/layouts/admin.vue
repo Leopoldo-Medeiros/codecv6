@@ -154,7 +154,7 @@
                     :class="n.read ? 'opacity-60' : ''"
                     @click="handleNotificationClick(n, close)"
                   >
-                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/40">
+                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
                       <UIcon name="i-heroicons-user-plus" class="h-4 w-4 text-emerald-500" />
                     </span>
                     <div class="min-w-0 flex-1">

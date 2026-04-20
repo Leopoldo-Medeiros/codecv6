@@ -12,7 +12,7 @@
       <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <button
           class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
-          :class="view === 'timeline' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+          :class="view === 'timeline' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
           @click="view = 'timeline'"
         >
           <UIcon name="i-heroicons-bars-3-bottom-left" class="h-3.5 w-3.5" />
@@ -20,7 +20,7 @@
         </button>
         <button
           class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
-          :class="view === 'roadmap' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
+          :class="view === 'roadmap' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'"
           @click="view = 'roadmap'"
         >
           <UIcon name="i-heroicons-map" class="h-3.5 w-3.5" />
@@ -31,15 +31,15 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-20">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-teal-500" />
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
     </div>
 
     <template v-else>
 
       <!-- Empty -->
       <div v-if="!paths.length" class="flex flex-col items-center py-20 text-center">
-        <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950">
-          <UIcon name="i-heroicons-map" class="h-10 w-10 text-teal-400" />
+        <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
+          <UIcon name="i-heroicons-map" class="h-10 w-10 text-emerald-400" />
         </div>
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">No learning paths yet</h3>
         <p class="mt-2 max-w-sm text-sm text-gray-500 dark:text-gray-400">
@@ -47,7 +47,7 @@
         </p>
         <a href="https://wa.me/353894050730?text=Hi%2C+I%27d+like+to+get+a+learning+path+assigned+to+my+profile."
           target="_blank"
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5
                  text-sm font-semibold text-white transition-opacity hover:opacity-90">
           <UIcon name="i-heroicons-chat-bubble-left-ellipsis" class="h-4 w-4" />
           Request a Learning Path
@@ -533,7 +533,7 @@ async function setStatus(path: any, step: PathStep, status: PathStep['user_statu
 
 function statusBadgeColor(status: PathStep['user_status']) {
   if (status === 'done') return 'green'
-  if (status === 'in_progress') return 'teal'
+  if (status === 'in_progress') return 'emerald'
   return 'gray'
 }
 
@@ -545,7 +545,7 @@ function statusLabel(status: PathStep['user_status']) {
 
 function progressColor(pct: number) {
   if (pct >= 75) return 'text-green-600 dark:text-green-400'
-  if (pct >= 40) return 'text-teal-600 dark:text-teal-400'
+  if (pct >= 40) return 'text-emerald-600 dark:text-emerald-400'
   return 'text-gray-500 dark:text-gray-400'
 }
 
@@ -587,7 +587,7 @@ const statusOptions = [
   { value: 'not_started' as const, label: 'Not Started', icon: 'i-heroicons-minus-circle',
     activeClass: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' },
   { value: 'in_progress' as const, label: 'In Progress', icon: 'i-heroicons-play-circle',
-    activeClass: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300' },
+    activeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
   { value: 'done' as const, label: 'Done', icon: 'i-heroicons-check-circle',
     activeClass: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' },
 ]

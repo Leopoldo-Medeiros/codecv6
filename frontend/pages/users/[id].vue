@@ -147,7 +147,7 @@
             <div class="md:col-span-2" v-if="selectedUser.profile?.stack?.length">
               <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Stack</label>
               <div class="flex flex-wrap gap-2 mt-2">
-                <UBadge v-for="s in selectedUser.profile.stack" :key="s" color="teal" variant="subtle">
+                <UBadge v-for="s in selectedUser.profile.stack" :key="s" color="emerald" variant="subtle">
                   {{ s }}
                 </UBadge>
               </div>

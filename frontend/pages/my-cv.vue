@@ -9,7 +9,7 @@
           Upload your CV and provide a job posting — AI will score the match and suggest improvements.
         </p>
       </div>
-      <UBadge color="teal" variant="subtle" size="sm" class="items-center gap-1.5">
+      <UBadge color="emerald" variant="subtle" size="sm" class="items-center gap-1.5">
         <UIcon name="i-heroicons-sparkles" class="h-3.5 w-3.5" />
         Powered by CODECV
       </UBadge>
@@ -32,20 +32,20 @@
               class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed
                      px-6 py-10 transition-colors"
               :class="dragOver
-                ? 'border-teal-400 bg-teal-50 dark:border-teal-500 dark:bg-teal-950/30'
+                ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/30'
                 : cvFile
                   ? 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20'
-                  : 'border-gray-200 hover:border-teal-300 dark:border-gray-600 dark:hover:border-teal-600'"
+                  : 'border-gray-200 hover:border-emerald-300 dark:border-gray-600 dark:hover:border-emerald-600'"
               @dragover.prevent="dragOver = true"
               @dragleave.prevent="dragOver = false"
               @drop.prevent="handleDrop"
             >
               <div class="flex h-14 w-14 items-center justify-center rounded-xl"
-                :class="cvFile ? 'bg-green-100 dark:bg-green-900/40' : 'bg-teal-50 dark:bg-teal-950'">
+                :class="cvFile ? 'bg-green-100 dark:bg-green-900/40' : 'bg-emerald-50 dark:bg-emerald-950'">
                 <UIcon
                   :name="cvFile ? 'i-heroicons-document-check' : 'i-heroicons-document-arrow-up'"
                   class="h-7 w-7"
-                  :class="cvFile ? 'text-green-500' : 'text-teal-400'"
+                  :class="cvFile ? 'text-green-500' : 'text-emerald-400'"
                 />
               </div>
               <div class="text-center">
@@ -53,7 +53,7 @@
                   {{ cvFile.name }}
                 </p>
                 <p v-else class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Drop your CV here or <span class="text-teal-600 dark:text-teal-400">browse</span>
+                  Drop your CV here or <span class="text-emerald-600 dark:text-emerald-400">browse</span>
                 </p>
                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">PDF only · max 5 MB</p>
               </div>
@@ -94,9 +94,9 @@
             <!-- URL mode -->
             <template v-if="jobInputMode === 'url'">
               <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3
-                          focus-within:border-teal-400 focus-within:bg-white focus-within:ring-2
-                          focus-within:ring-teal-200 dark:border-gray-700 dark:bg-gray-900
-                          dark:focus-within:border-teal-500 dark:focus-within:bg-gray-800">
+                          focus-within:border-emerald-400 focus-within:bg-white focus-within:ring-2
+                          focus-within:ring-emerald-200 dark:border-gray-700 dark:bg-gray-900
+                          dark:focus-within:border-emerald-500 dark:focus-within:bg-gray-800">
                 <UIcon name="i-heroicons-link" class="h-4 w-4 shrink-0 text-gray-400" />
                 <input
                   v-model="jobUrl"
@@ -122,9 +122,9 @@
                 placeholder="Paste the job description here…&#10;&#10;E.g. &quot;We are looking for a Senior Software Engineer with 5+ years of experience in Laravel, Vue.js, and AWS…&quot;"
                 class="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3
                        text-sm text-gray-700 placeholder-gray-400 transition-colors
-                       focus:border-teal-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-200
+                       focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-200
                        dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:placeholder-gray-600
-                       dark:focus:border-teal-500 dark:focus:bg-gray-800"
+                       dark:focus:border-emerald-500 dark:focus:bg-gray-800"
               />
               <p class="mt-1.5 text-right text-xs text-gray-400">
                 {{ jobDescription.length }} / 5000 chars
@@ -136,7 +136,7 @@
         <!-- Analyse button -->
         <UButton
           size="lg"
-          color="teal"
+          color="emerald"
           block
           :loading="analysing"
           :disabled="!canAnalyse || analysing"
@@ -159,8 +159,8 @@
         <div v-if="!result && !analysing"
           class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200
                  bg-white py-20 text-center dark:border-gray-700 dark:bg-gray-800">
-          <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950">
-            <UIcon name="i-heroicons-chart-bar-square" class="h-8 w-8 text-teal-300" />
+          <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
+            <UIcon name="i-heroicons-chart-bar-square" class="h-8 w-8 text-emerald-300" />
           </div>
           <p class="text-sm font-medium text-gray-400 dark:text-gray-500">Results will appear here</p>
           <p class="mt-1 text-xs text-gray-300 dark:text-gray-600">Upload your CV and add a job posting</p>
@@ -170,7 +170,7 @@
         <div v-else-if="analysing" class="flex flex-col gap-5">
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 p-6">
             <div class="flex flex-col items-center gap-4 py-6">
-              <UIcon name="i-heroicons-sparkles" class="h-10 w-10 animate-pulse text-teal-400" />
+              <UIcon name="i-heroicons-sparkles" class="h-10 w-10 animate-pulse text-emerald-400" />
               <div class="text-center">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Analysing your CV…</p>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">CODECV is reading your CV and comparing it to the job. This takes ~15 seconds.</p>
@@ -270,15 +270,15 @@
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
               <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                <UIcon name="i-heroicons-light-bulb" class="h-4 w-4 text-teal-500" />
+                <UIcon name="i-heroicons-light-bulb" class="h-4 w-4 text-emerald-500" />
                 How to Improve Your CV
               </h3>
             </div>
             <ul class="divide-y divide-gray-100 dark:divide-gray-700">
               <li v-for="(tip, i) in result.improvements" :key="tip"
                 class="flex items-start gap-3 px-5 py-3 text-sm text-gray-700 dark:text-gray-300">
-                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50
-                             text-[10px] font-bold text-teal-600 dark:bg-teal-950 dark:text-teal-400">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50
+                             text-[10px] font-bold text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
                   {{ i + 1 }}
                 </span>
                 {{ tip }}

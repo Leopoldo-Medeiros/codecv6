@@ -3,7 +3,7 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex h-[70vh] items-center justify-center">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-teal-500" />
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
     </div>
 
     <template v-else-if="step">
@@ -27,10 +27,10 @@
         <!-- Progress + status -->
         <div class="flex items-center gap-3 shrink-0">
           <div v-if="step.instructions?.length" class="text-right">
-            <p class="text-xs font-semibold" :class="allDone ? 'text-teal-600 dark:text-teal-400' : 'text-gray-500'">
+            <p class="text-xs font-semibold" :class="allDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500'">
               {{ checkedCount }} / {{ step.instructions.length }} completed
             </p>
-            <UProgress :value="progressPct" size="xs" color="teal" class="w-28 mt-1" />
+            <UProgress :value="progressPct" size="xs" color="emerald" class="w-28 mt-1" />
           </div>
           <UBadge :color="statusColor" variant="subtle">{{ statusLabel }}</UBadge>
         </div>
@@ -50,12 +50,12 @@
 
           <!-- Challenge prompt -->
           <div v-if="step.challenge_prompt"
-            class="rounded-xl border border-teal-200 bg-teal-50 dark:border-teal-800/40 dark:bg-teal-950/20 p-4">
+            class="rounded-xl border border-emerald-200 bg-emerald-50 dark:border-emerald-800/40 dark:bg-emerald-950/20 p-4">
             <div class="flex items-center gap-2 mb-2">
-              <UIcon name="i-heroicons-bolt" class="h-4 w-4 text-teal-600 dark:text-teal-400" />
-              <p class="text-xs font-bold text-teal-700 dark:text-teal-400 uppercase tracking-wide">Challenge</p>
+              <UIcon name="i-heroicons-bolt" class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Challenge</p>
             </div>
-            <p class="text-sm text-teal-800 dark:text-teal-300 leading-relaxed">{{ step.challenge_prompt }}</p>
+            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">{{ step.challenge_prompt }}</p>
           </div>
 
           <!-- Instructions checklist -->
@@ -74,8 +74,8 @@
                   <div
                     class="h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all"
                     :class="checked.has(inst.id)
-                      ? 'border-teal-500 bg-teal-500'
-                      : 'border-gray-300 dark:border-gray-600 group-hover:border-teal-400'"
+                      ? 'border-emerald-500 bg-emerald-500'
+                      : 'border-gray-300 dark:border-gray-600 group-hover:border-emerald-400'"
                     @click="toggleCheck(inst.id)"
                   >
                     <UIcon v-if="checked.has(inst.id)" name="i-heroicons-check" class="h-3 w-3 text-white" />
@@ -100,7 +100,7 @@
             <p class="mb-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Resources</p>
             <div class="flex flex-col gap-2">
               <a v-for="r in step.resources" :key="r.url" :href="r.url" target="_blank"
-                class="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 hover:underline">
+                class="flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:underline">
                 <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-3.5 w-3.5 shrink-0" />
                 {{ r.label }}
               </a>
@@ -113,7 +113,7 @@
             <div class="flex flex-col gap-2">
               <UButton
                 block
-                color="teal"
+                color="emerald"
                 variant="solid"
                 icon="i-heroicons-check-circle"
                 :loading="saving"
@@ -154,7 +154,7 @@
               </span>
             </div>
             <a v-if="step.lab_url" :href="step.lab_url" target="_blank"
-              class="flex items-center gap-1 text-xs text-gray-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+              class="flex items-center gap-1 text-xs text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
               <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-3.5 w-3.5" />
               Open in new tab
             </a>
@@ -246,7 +246,7 @@ async function markStatus(status: 'in_progress' | 'done') {
   try {
     await updateStepProgress(step.value.id, status)
     step.value = { ...step.value, user_status: status }
-    toast.add({ title: status === 'done' ? 'Step completed!' : 'Marked as in progress', color: 'teal' })
+    toast.add({ title: status === 'done' ? 'Step completed!' : 'Marked as in progress', color: 'emerald' })
   } catch {
     toast.add({ title: 'Could not save progress', color: 'red' })
   } finally {
@@ -270,7 +270,7 @@ const typeIcon = computed(() => ({
 }[step.value?.type ?? 'reading']))
 
 const typeBadgeColor = computed(() => ({
-  lab:       'teal',
+  lab:       'emerald',
   challenge: 'amber',
   quiz:      'violet',
   reading:   'gray',
@@ -284,7 +284,7 @@ const statusLabel = computed(() => ({
 
 const statusColor = computed(() => ({
   done:        'green',
-  in_progress: 'teal',
+  in_progress: 'emerald',
   not_started: 'gray',
 }[step.value?.user_status ?? 'not_started']))
 </script>

@@ -37,7 +37,7 @@
       <button v-for="t in tabs" :key="t.value"
         class="px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px"
         :class="activeTab === t.value
-          ? 'border-teal-600 text-teal-600 dark:text-teal-400 dark:border-teal-400'
+          ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400'
           : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'"
         @click="activeTab = t.value">
         {{ t.label }}
@@ -57,7 +57,7 @@
             <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">All courses on the platform</p>
           </div>
           <div class="p-5">
-            <div v-if="catalogLoading" class="flex justify-center py-12 text-teal-500">
+            <div v-if="catalogLoading" class="flex justify-center py-12 text-emerald-500">
               <UIcon name="i-heroicons-arrow-path" class="animate-spin text-2xl" />
             </div>
             <div v-else-if="!catalog.length" class="py-12 text-center text-sm text-gray-400">
@@ -66,9 +66,9 @@
             <div v-else class="flex flex-col gap-3">
               <div v-for="course in catalog" :key="course.id"
                 class="flex items-start gap-4 rounded-lg border border-gray-100 p-4
-                       dark:border-gray-700 hover:border-teal-200 dark:hover:border-teal-800 transition-colors">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950">
-                  <UIcon name="i-heroicons-book-open" class="h-5 w-5 text-teal-500" />
+                       dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950">
+                  <UIcon name="i-heroicons-book-open" class="h-5 w-5 text-emerald-500" />
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ course.name }}</p>
@@ -79,7 +79,7 @@
                     By {{ course.user?.fullname || 'CODECV' }}
                   </p>
                 </div>
-                <UButton size="xs" color="teal" variant="soft"
+                <UButton size="xs" color="emerald" variant="soft"
                   icon="i-heroicons-arrow-right"
                   trailing
                   @click="navigateTo(`/courses/${course.id}`)">
@@ -101,19 +101,19 @@
             <div class="flex gap-1">
               <UButton
                 v-for="f in filters" :key="f.value"
-                size="xs" :color="activeFilter === f.value ? 'teal' : 'gray'"
+                size="xs" :color="activeFilter === f.value ? 'emerald' : 'gray'"
                 :variant="activeFilter === f.value ? 'solid' : 'ghost'"
                 @click="activeFilter = f.value"
               >{{ f.label }}</UButton>
             </div>
           </div>
           <div class="p-5">
-            <div v-if="loading" class="flex justify-center py-12 text-teal-500">
+            <div v-if="loading" class="flex justify-center py-12 text-emerald-500">
               <UIcon name="i-heroicons-arrow-path" class="animate-spin text-2xl" />
             </div>
             <div v-else class="flex flex-col items-center py-12 text-center">
-              <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950">
-                <UIcon name="i-heroicons-book-open" class="h-8 w-8 text-teal-400" />
+              <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
+                <UIcon name="i-heroicons-book-open" class="h-8 w-8 text-emerald-400" />
               </div>
               <h3 class="text-sm font-semibold text-gray-900 dark:text-white">No enrollments yet</h3>
               <p class="mt-1 max-w-xs text-sm text-gray-500 dark:text-gray-400">
@@ -146,8 +146,8 @@
             <div v-else>
               <p class="mb-3 text-sm font-medium text-gray-900 dark:text-white">{{ activePath.name }}</p>
               <div class="mb-3 flex items-center gap-2">
-                <UProgress :value="activePath.progress" size="md" color="teal" class="flex-1" />
-                <span class="text-sm font-semibold text-teal-600 dark:text-teal-400">{{ activePath.progress }}%</span>
+                <UProgress :value="activePath.progress" size="md" color="emerald" class="flex-1" />
+                <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{{ activePath.progress }}%</span>
               </div>
               <p class="text-xs text-gray-500 dark:text-gray-400">
                 {{ activePath.completed }} of {{ activePath.total }} milestones completed
@@ -183,13 +183,13 @@
 
         <!-- CTA -->
         <div class="rounded-xl p-5 text-white" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
-          <p class="text-xs font-semibold uppercase tracking-widest text-teal-200">1-on-1 Mentorship</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-emerald-200">1-on-1 Mentorship</p>
           <h3 class="mt-2 text-base font-bold">Need guidance from an expert?</h3>
-          <p class="mt-1 text-sm text-teal-100 leading-relaxed">
+          <p class="mt-1 text-sm text-emerald-100 leading-relaxed">
             Book a session with your consultant and accelerate your progress.
           </p>
           <button
-            class="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-teal-700
+            class="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-emerald-700
                    transition-opacity hover:opacity-90"
             @click="navigateTo('/pricing')"
           >
