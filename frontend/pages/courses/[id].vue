@@ -3,7 +3,7 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-24">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-indigo-500" />
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-teal-500" />
     </div>
 
     <!-- Error -->
@@ -48,8 +48,8 @@
           <!-- Course info card -->
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center gap-4 border-b border-gray-100 px-6 py-5 dark:border-gray-700">
-              <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950">
-                <UIcon name="i-heroicons-book-open" class="h-7 w-7 text-indigo-500" />
+              <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950">
+                <UIcon name="i-heroicons-book-open" class="h-7 w-7 text-teal-500" />
               </div>
               <div>
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">{{ course.name }}</h2>
@@ -87,7 +87,7 @@
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <div class="p-6">
               <div class="mb-4 text-center">
-                <p class="text-xs font-semibold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
+                <p class="text-xs font-semibold uppercase tracking-widest text-teal-500 dark:text-teal-400">
                   Ready to start?
                 </p>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -97,7 +97,7 @@
               <a
                 :href="`https://wa.me/353894050730?text=Hi%2C+I%27d+like+to+start+the+course+%22${encodeURIComponent(course.name)}%22.+Can+you+help+me+get+access%3F`"
                 target="_blank"
-                class="block w-full rounded-lg bg-indigo-600 px-4 py-3 text-center text-sm font-semibold
+                class="block w-full rounded-lg bg-teal-600 px-4 py-3 text-center text-sm font-semibold
                        text-white transition-opacity hover:opacity-90"
               >
                 Request Access via WhatsApp

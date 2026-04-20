@@ -9,7 +9,7 @@
           Share your LinkedIn profile and career goal — AI will tell you exactly what to improve.
         </p>
       </div>
-      <UBadge color="indigo" variant="subtle" size="sm" class="items-center gap-1.5">
+      <UBadge color="teal" variant="subtle" size="sm" class="items-center gap-1.5">
         <UIcon name="i-heroicons-sparkles" class="h-3.5 w-3.5" />
         Powered by CODECV
       </UBadge>
@@ -34,19 +34,19 @@
                 class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed px-6 py-8 transition-colors"
                 :class="linkedinPdf
                   ? 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20'
-                  : 'border-gray-200 hover:border-indigo-300 dark:border-gray-600 dark:hover:border-indigo-600'"
+                  : 'border-gray-200 hover:border-teal-300 dark:border-gray-600 dark:hover:border-teal-600'"
               >
                 <UIcon
                   :name="linkedinPdf ? 'i-heroicons-document-check' : 'i-heroicons-document-arrow-up'"
                   class="h-7 w-7"
-                  :class="linkedinPdf ? 'text-green-500' : 'text-indigo-400'"
+                  :class="linkedinPdf ? 'text-green-500' : 'text-teal-400'"
                 />
                 <div class="text-center">
                   <p v-if="linkedinPdf" class="text-sm font-semibold text-green-700 dark:text-green-400">
                     {{ linkedinPdf.name }}
                   </p>
                   <p v-else class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Drop PDF here or <span class="text-indigo-600 dark:text-indigo-400">browse</span>
+                    Drop PDF here or <span class="text-teal-600 dark:text-teal-400">browse</span>
                   </p>
                   <p class="mt-1 text-xs text-gray-400">PDF only · max 5 MB</p>
                 </div>
@@ -81,9 +81,9 @@
                 maxlength="200"
                 class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm
                        text-gray-700 placeholder-gray-400 transition-colors
-                       focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200
+                       focus:border-teal-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-200
                        dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:placeholder-gray-600
-                       dark:focus:border-indigo-500 dark:focus:bg-gray-800"
+                       dark:focus:border-teal-500 dark:focus:bg-gray-800"
               />
             </div>
 
@@ -99,9 +99,9 @@
                 maxlength="100"
                 class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm
                        text-gray-700 placeholder-gray-400 transition-colors
-                       focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200
+                       focus:border-teal-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-200
                        dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:placeholder-gray-600
-                       dark:focus:border-indigo-500 dark:focus:bg-gray-800"
+                       dark:focus:border-teal-500 dark:focus:bg-gray-800"
               />
             </div>
 
@@ -118,9 +118,9 @@
                 placeholder="e.g. 5"
                 class="w-32 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm
                        text-gray-700 placeholder-gray-400 transition-colors
-                       focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200
+                       focus:border-teal-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-200
                        dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:placeholder-gray-600
-                       dark:focus:border-indigo-500 dark:focus:bg-gray-800"
+                       dark:focus:border-teal-500 dark:focus:bg-gray-800"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@
         <!-- Analyse button -->
         <UButton
           size="lg"
-          color="indigo"
+          color="teal"
           block
           :loading="analysing"
           :disabled="!canAnalyse || analysing"
@@ -152,8 +152,8 @@
         <div v-if="!result && !analysing"
           class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200
                  bg-white py-20 text-center dark:border-gray-700 dark:bg-gray-800">
-          <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950">
-            <UIcon name="i-heroicons-identification" class="h-8 w-8 text-indigo-300" />
+          <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950">
+            <UIcon name="i-heroicons-identification" class="h-8 w-8 text-teal-300" />
           </div>
           <p class="text-sm font-medium text-gray-400 dark:text-gray-500">Results will appear here</p>
           <p class="mt-1 text-xs text-gray-300 dark:text-gray-600">Fill in the form to get your analysis</p>
@@ -163,7 +163,7 @@
         <div v-else-if="analysing" class="flex flex-col gap-5">
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 p-6">
             <div class="flex flex-col items-center gap-4 py-6">
-              <UIcon name="i-heroicons-sparkles" class="h-10 w-10 animate-pulse text-indigo-400" />
+              <UIcon name="i-heroicons-sparkles" class="h-10 w-10 animate-pulse text-teal-400" />
               <div class="text-center">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Analysing your profile…</p>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">CODECV is reading your LinkedIn and building your personalised report.</p>
@@ -208,14 +208,14 @@
           </div>
 
           <!-- Headline & Summary suggestions -->
-          <div class="rounded-xl border border-indigo-100 bg-indigo-50 dark:border-indigo-900/40 dark:bg-indigo-950/20">
-            <div class="border-b border-indigo-100 px-5 py-4 dark:border-indigo-900/40">
-              <h3 class="flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-300">
+          <div class="rounded-xl border border-teal-100 bg-teal-50 dark:border-teal-900/40 dark:bg-teal-950/20">
+            <div class="border-b border-teal-100 px-5 py-4 dark:border-teal-900/40">
+              <h3 class="flex items-center gap-2 text-sm font-semibold text-teal-800 dark:text-teal-300">
                 <UIcon name="i-heroicons-pencil-square" class="h-4 w-4" />
                 Suggested Headline
               </h3>
             </div>
-            <p class="px-5 py-4 text-sm text-indigo-700 dark:text-indigo-300 italic">
+            <p class="px-5 py-4 text-sm text-teal-700 dark:text-teal-300 italic">
               "{{ result.headline_suggestion }}"
             </p>
           </div>
@@ -223,7 +223,7 @@
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
               <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                <UIcon name="i-heroicons-document-text" class="h-4 w-4 text-indigo-500" />
+                <UIcon name="i-heroicons-document-text" class="h-4 w-4 text-teal-500" />
                 Suggested About Section
               </h3>
             </div>
@@ -263,13 +263,13 @@
           <!-- Skills to add -->
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 p-5">
             <p class="mb-3 flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300">
-              <UIcon name="i-heroicons-plus-circle" class="h-4 w-4 text-indigo-500" />
+              <UIcon name="i-heroicons-plus-circle" class="h-4 w-4 text-teal-500" />
               Skills / Certifications to Add
             </p>
             <div class="flex flex-wrap gap-1.5">
               <span v-for="skill in result.skills_to_add" :key="skill"
-                class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700
-                       dark:bg-indigo-900/40 dark:text-indigo-300">
+                class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700
+                       dark:bg-teal-900/40 dark:text-teal-300">
                 {{ skill }}
               </span>
             </div>
@@ -279,15 +279,15 @@
           <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
               <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                <UIcon name="i-heroicons-light-bulb" class="h-4 w-4 text-indigo-500" />
+                <UIcon name="i-heroicons-light-bulb" class="h-4 w-4 text-teal-500" />
                 Action Plan
               </h3>
             </div>
             <ul class="divide-y divide-gray-100 dark:divide-gray-700">
               <li v-for="(rec, i) in result.recommendations" :key="rec"
                 class="flex items-start gap-3 px-5 py-3 text-sm text-gray-700 dark:text-gray-300">
-                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-50
-                             text-[10px] font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50
+                             text-[10px] font-bold text-teal-600 dark:bg-teal-950 dark:text-teal-400">
                   {{ i + 1 }}
                 </span>
                 {{ rec }}

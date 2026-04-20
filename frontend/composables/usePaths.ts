@@ -1,8 +1,14 @@
+export type StepType = 'reading' | 'lab' | 'challenge' | 'quiz'
+
 export interface PathStep {
   id: number
   path_id: number
   title: string
   description?: string
+  type: StepType
+  lab_url?: string | null
+  instructions?: Array<{ id: number; text: string }>
+  challenge_prompt?: string | null
   resources?: Array<{ label: string; url: string }>
   order: number
   course?: { id: number; name: string; slug: string } | null
@@ -136,6 +142,11 @@ export const usePaths = () => {
     return res.data
   }
 
+  const fetchStep = async (stepId: number): Promise<PathStep & { user_status: string }> => {
+    const res = await api.get(`/path-steps/${stepId}`) as { data: PathStep & { user_status: string } }
+    return res.data
+  }
+
   const createStep = async (pathId: number, data: Partial<PathStep>) => {
     return api.post(`/paths/${pathId}/steps`, data) as Promise<{ data: PathStep }>
   }
@@ -168,6 +179,7 @@ export const usePaths = () => {
     updatePath,
     deletePath,
     fetchSteps,
+    fetchStep,
     createStep,
     updateStep,
     deleteStep,

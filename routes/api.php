@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/my-paths', [PathController::class, 'myPaths']);
     Route::get('/paths/{path}', [PathController::class, 'show']);
     Route::get('/paths/{path}/steps', [PathStepController::class, 'index']);
+    Route::get('/path-steps/{step}', [PathStepController::class, 'show']);
 
     // Step progress (all authenticated users update their own progress)
     Route::put('/path-steps/{step}/progress', [PathStepController::class, 'updateProgress']);
@@ -79,6 +80,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // GDPR — data portability (own data) and erasure (admin only)
     Route::get('/users/{user}/export', [UserController::class, 'exportData']);
     Route::delete('/users/{user}/erase', [UserController::class, 'eraseData']);
+
+    // Consultant — my clients
+    Route::middleware(['role:admin|consultant'])->group(function () {
+        Route::get('/my-clients', [UserController::class, 'myClients']);
+        Route::get('/my-clients/{client}', [UserController::class, 'clientDetail']);
+        Route::post('/my-clients/{client}/paths', [UserController::class, 'assignPath']);
+        Route::delete('/my-clients/{client}/paths/{path}', [UserController::class, 'removePath']);
+    });
 
     // Admin + Consultant
     Route::middleware(['role:admin|consultant'])->group(function () {

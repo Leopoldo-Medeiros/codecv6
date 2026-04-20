@@ -200,7 +200,7 @@ const isAdmin = computed(() => user.value?.role === 'admin')
 
 // Clients have no business on the management page
 onMounted(() => {
-  if (!isAdmin.value) router.replace('/my-courses')
+  if (user.value?.role === 'client') router.replace('/my-courses')
 })
 
 const searchQuery = ref('')

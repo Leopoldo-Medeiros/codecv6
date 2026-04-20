@@ -82,4 +82,37 @@ class PlanService
     {
         $plan->clients()->detach($clientId);
     }
+
+    public function findOrCreateForClient(int $consultantId, int $clientId): Plan
+    {
+        $plan = Plan::where('consultant_id', $consultantId)
+            ->whereHas('clients', fn ($q) => $q->where('users.id', $clientId))
+            ->first();
+
+        if (! $plan) {
+            $client = \App\Models\User::findOrFail($clientId);
+            $plan = Plan::create([
+                'name'          => "{$client->fullname}'s Training Plan",
+                'consultant_id' => $consultantId,
+            ]);
+            $plan->clients()->attach($clientId);
+        }
+
+        return $plan;
+    }
+
+    public function assignPathToClient(int $consultantId, int $clientId, int $pathId): void
+    {
+        $plan = $this->findOrCreateForClient($consultantId, $clientId);
+        $plan->paths()->syncWithoutDetaching([$pathId]);
+    }
+
+    public function removePathFromClient(int $consultantId, int $clientId, int $pathId): void
+    {
+        $plan = Plan::where('consultant_id', $consultantId)
+            ->whereHas('clients', fn ($q) => $q->where('users.id', $clientId))
+            ->first();
+
+        $plan?->paths()->detach($pathId);
+    }
 }

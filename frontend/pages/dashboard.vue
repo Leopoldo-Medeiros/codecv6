@@ -68,7 +68,7 @@
 
           <!-- Card body -->
           <div class="px-5 py-4">
-            <div v-if="statsLoading" class="flex justify-center py-8 text-indigo-500">
+            <div v-if="statsLoading" class="flex justify-center py-8 text-teal-500">
               <UIcon name="i-heroicons-arrow-path" class="animate-spin text-xl" />
             </div>
 
@@ -106,14 +106,14 @@
                   v-for="path in clientPaths"
                   :key="path.id"
                   class="cursor-pointer rounded-xl border border-gray-100 p-4 transition-colors
-                         hover:border-indigo-200 hover:bg-indigo-50/30
-                         dark:border-gray-700 dark:hover:border-indigo-800 dark:hover:bg-indigo-950/20"
+                         hover:border-teal-200 hover:bg-teal-50/30
+                         dark:border-gray-700 dark:hover:border-teal-800 dark:hover:bg-teal-950/20"
                   @click="navigateTo('/my-paths')"
                 >
                   <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950">
-                        <UIcon name="i-heroicons-map" class="h-5 w-5 text-indigo-500" />
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950">
+                        <UIcon name="i-heroicons-map" class="h-5 w-5 text-teal-500" />
                       </div>
                       <div>
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ path.name }}</p>
@@ -128,11 +128,11 @@
                   </div>
 
                   <!-- Progress bar -->
-                  <UProgress :value="path.pct" size="xs" color="indigo" class="mt-3" />
+                  <UProgress :value="path.pct" size="xs" color="teal" class="mt-3" />
 
                   <!-- Next step -->
                   <div v-if="path.nextStep" class="mt-3 flex items-center gap-2">
-                    <UIcon name="i-heroicons-arrow-right-circle" class="h-4 w-4 shrink-0 text-indigo-400" />
+                    <UIcon name="i-heroicons-arrow-right-circle" class="h-4 w-4 shrink-0 text-teal-400" />
                     <span class="text-xs text-gray-500 dark:text-gray-400">
                       Next: <span class="font-medium text-gray-700 dark:text-gray-300">{{ path.nextStep }}</span>
                     </span>
@@ -146,14 +146,14 @@
 
               <!-- Empty state -->
               <div v-else class="flex flex-col items-center py-10 text-center">
-                <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950">
-                  <UIcon name="i-heroicons-map" class="h-8 w-8 text-indigo-400" />
+                <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950">
+                  <UIcon name="i-heroicons-map" class="h-8 w-8 text-teal-400" />
                 </div>
                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300">No learning paths yet</p>
                 <p class="mt-1 max-w-xs text-xs text-gray-400 dark:text-gray-500">
                   Your consultant will assign a personalised learning path based on your goals.
                 </p>
-                <UButton size="xs" color="indigo" variant="soft" class="mt-4" @click="navigateTo('/my-paths')">
+                <UButton size="xs" color="teal" variant="soft" class="mt-4" @click="navigateTo('/my-paths')">
                   Learn more
                 </UButton>
               </div>
@@ -294,7 +294,7 @@ const getUserActions = (u: any) => [[
 
 function progressColor(pct: number) {
   if (pct >= 75) return 'text-green-600 dark:text-green-400'
-  if (pct >= 40) return 'text-indigo-600 dark:text-indigo-400'
+  if (pct >= 40) return 'text-teal-600 dark:text-teal-400'
   return 'text-gray-500 dark:text-gray-400'
 }
 

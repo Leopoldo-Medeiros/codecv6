@@ -2,7 +2,7 @@
   <NuxtLayout name="admin">
 
     <div v-if="loading" class="flex justify-center py-20">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-indigo-500" />
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-teal-500" />
     </div>
 
     <template v-else-if="plan">
@@ -32,14 +32,14 @@
         <div class="lg:col-span-2 flex flex-col gap-5">
 
           <!-- Edit name/description -->
-          <div v-if="editMode" class="rounded-xl border border-indigo-200 bg-white p-6 dark:border-indigo-800 dark:bg-gray-800">
+          <div v-if="editMode" class="rounded-xl border border-teal-200 bg-white p-6 dark:border-teal-800 dark:bg-gray-800">
             <h2 class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Edit Details</h2>
             <div class="flex flex-col gap-4">
               <UInput v-model="editForm.name" label="Name" placeholder="Plan name" size="lg" />
               <UTextarea v-model="editForm.description" label="Description" :rows="3" />
             </div>
             <div class="mt-4 flex gap-2">
-              <UButton color="indigo" :loading="saving" @click="handleSave">Save Changes</UButton>
+              <UButton color="teal" :loading="saving" @click="handleSave">Save Changes</UButton>
               <UButton color="gray" variant="outline" @click="editMode = false">Cancel</UButton>
             </div>
           </div>
@@ -59,8 +59,8 @@
               </div>
               <div v-for="path in plan.paths" :key="path.id"
                 class="flex items-center gap-3 px-5 py-3">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950">
-                  <UIcon name="i-heroicons-map" class="h-4 w-4 text-indigo-500" />
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950">
+                  <UIcon name="i-heroicons-map" class="h-4 w-4 text-teal-500" />
                 </div>
                 <span class="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{{ path.name }}</span>
                 <UButton icon="i-heroicons-arrow-top-right-on-square" size="xs" color="gray" variant="ghost"
@@ -140,19 +140,19 @@
             :key="path.id"
             class="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
             :class="selectedPathIds.includes(path.id)
-              ? 'border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-950/30'
+              ? 'border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-950/30'
               : 'border-gray-100 hover:bg-gray-50 dark:border-gray-700'"
           >
             <input type="checkbox" class="hidden" :value="path.id" v-model="selectedPathIds" />
-            <UIcon name="i-heroicons-map" class="h-4 w-4 text-indigo-400" />
+            <UIcon name="i-heroicons-map" class="h-4 w-4 text-teal-400" />
             <span class="flex-1 text-sm text-gray-800 dark:text-gray-200">{{ path.name }}</span>
-            <UIcon v-if="selectedPathIds.includes(path.id)" name="i-heroicons-check-circle" class="h-5 w-5 text-indigo-500" />
+            <UIcon v-if="selectedPathIds.includes(path.id)" name="i-heroicons-check-circle" class="h-5 w-5 text-teal-500" />
           </label>
           <p v-if="!availablePaths.length" class="text-sm text-gray-400 py-4 text-center">All paths already added.</p>
         </div>
         <div class="mt-5 flex justify-end gap-2">
           <UButton color="gray" variant="outline" @click="showAddPath = false">Cancel</UButton>
-          <UButton color="indigo" :loading="saving" :disabled="!selectedPathIds.length" @click="handleAddPaths">
+          <UButton color="teal" :loading="saving" :disabled="!selectedPathIds.length" @click="handleAddPaths">
             Add {{ selectedPathIds.length || '' }} Path{{ selectedPathIds.length !== 1 ? 's' : '' }}
           </UButton>
         </div>

@@ -6,8 +6,11 @@ use App\Exceptions\AuthorizationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Path;
 use App\Models\User;
+use App\Models\UserStepProgress;
 use App\Notifications\NewClientOnboarded;
+use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +20,8 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     public function __construct(
-        private readonly UserService $userService
+        private readonly UserService $userService,
+        private readonly PlanService $planService,
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -164,6 +168,115 @@ class UserController extends Controller
             'message' => 'Consultant assigned successfully.',
             'user'    => new UserResource($user),
         ]);
+    }
+
+    public function myClients(): JsonResponse
+    {
+        $consultant = Auth::user();
+
+        $clients = User::where('consultant_id', $consultant->id)
+            ->with(['profile', 'roles'])
+            ->get()
+            ->map(function (User $client) {
+                $paths = Path::whereHas('plans', function ($q) use ($client) {
+                    $q->whereHas('clients', fn ($q2) => $q2->where('users.id', $client->id));
+                })->withCount('steps')->get();
+
+                $stepIds    = $paths->flatMap(fn ($p) => $p->steps()->pluck('id'));
+                $doneCount  = UserStepProgress::where('user_id', $client->id)
+                    ->whereIn('path_step_id', $stepIds)
+                    ->where('status', 'done')
+                    ->count();
+                $totalSteps = $stepIds->count();
+
+                return [
+                    'id'           => $client->id,
+                    'fullname'     => $client->fullname,
+                    'email'        => $client->email,
+                    'profile'      => $client->profile ? [
+                        'profession'       => $client->profile->profession,
+                        'level'            => $client->profile->level,
+                        'profile_image_url'=> $client->profile->profile_image
+                            ? asset('storage/'.$client->profile->profile_image)
+                            : null,
+                    ] : null,
+                    'path_count'   => $paths->count(),
+                    'progress_pct' => $totalSteps > 0 ? (int) round($doneCount / $totalSteps * 100) : 0,
+                    'done_steps'   => $doneCount,
+                    'total_steps'  => $totalSteps,
+                ];
+            });
+
+        return response()->json(['data' => $clients]);
+    }
+
+    public function clientDetail(User $client): JsonResponse
+    {
+        $consultant = Auth::user();
+
+        if ($client->consultant_id !== $consultant->id && ! $consultant->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $client->load(['profile', 'roles']);
+
+        $paths = Path::whereHas('plans', function ($q) use ($client) {
+            $q->whereHas('clients', fn ($q2) => $q2->where('users.id', $client->id));
+        })->with(['steps.course'])->get();
+
+        $stepIds     = $paths->flatMap(fn ($p) => $p->steps->pluck('id'));
+        $progressMap = UserStepProgress::where('user_id', $client->id)
+            ->whereIn('path_step_id', $stepIds)
+            ->pluck('status', 'path_step_id');
+
+        $pathData = $paths->map(fn ($path) => [
+            'id'          => $path->id,
+            'name'        => $path->name,
+            'description' => $path->description,
+            'steps'       => $path->steps->map(fn ($step) => [
+                'id'          => $step->id,
+                'order'       => $step->order,
+                'title'       => $step->title,
+                'type'        => $step->type,
+                'course'      => $step->course ? ['id' => $step->course->id, 'name' => $step->course->name] : null,
+                'user_status' => $progressMap->get($step->id, 'not_started'),
+            ])->sortBy('order')->values(),
+            'done_count'  => $path->steps->filter(fn ($s) => $progressMap->get($s->id) === 'done')->count(),
+            'total_count' => $path->steps->count(),
+        ]);
+
+        return response()->json([
+            'user'  => new UserResource($client),
+            'paths' => $pathData->values(),
+        ]);
+    }
+
+    public function assignPath(Request $request, User $client): JsonResponse
+    {
+        $consultant = Auth::user();
+
+        if ($client->consultant_id !== $consultant->id && ! $consultant->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $request->validate(['path_id' => 'required|exists:paths,id']);
+
+        $this->planService->assignPathToClient($consultant->id, $client->id, $request->path_id);
+
+        return response()->json(['message' => 'Path assigned successfully.']);
+    }
+
+    public function removePath(User $client, Path $path): JsonResponse
+    {
+        $consultant = Auth::user();
+
+        if ($client->consultant_id !== $consultant->id && ! $consultant->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $this->planService->removePathFromClient($consultant->id, $client->id, $path->id);
+
+        return response()->json(['message' => 'Path removed successfully.']);
     }
 
     public function completeOnboarding(Request $request): JsonResponse
