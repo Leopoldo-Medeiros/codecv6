@@ -1,14 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+const ddevHostname = process.env.DDEV_HOSTNAME || 'codecv6.localhost.ddev.site'
+
 export default defineNuxtConfig({
   devtools: { enabled: false },
   ssr: false,
 
   devServer: {
-    host: "localhost",
+    host: "0.0.0.0",
     port: 3000,
   },
-
-  pages: true,
 
   compatibilityDate: "2025-04-15",
 
@@ -25,13 +26,22 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // Override with NUXT_PUBLIC_API_BASE env var for local dev.
-      // Default points to the stable Lando hostname (never changes on restart).
-      apiBase: 'http://codecv6.lndo.site',
+      // Override with NUXT_PUBLIC_API_BASE env var (loaded via --dotenv from root .env).
+      apiBase: `https://${ddevHostname}`,
     },
   },
 
   typescript: {
     strict: true,
+  },
+
+  vite: {
+    server: {
+      hmr: {
+        protocol: 'wss',
+        host: ddevHostname,
+        clientPort: 3000,
+      },
+    },
   },
 })
