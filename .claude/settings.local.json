@@ -14,7 +14,13 @@
       "Bash(git restore:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(grep -E \"\\\\.php$\")",
+      "WebFetch(domain:spatie.be)",
+      "Bash(ddev composer:*)",
+      "Bash(ddev php:*)",
+      "Bash(ddev artisan:*)"
     ]
   }
 }
