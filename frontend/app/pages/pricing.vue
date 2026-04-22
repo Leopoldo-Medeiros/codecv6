@@ -38,7 +38,7 @@
                     <span style="font-size:14px;color:#374151;">{{ item.text }}</span>
                   </div>
                 </div>
-                <a href="https://wa.me/353894050730?text=Hi%2C+I%27m+interested+in+the+Career+Accelerator+%28%E2%82%AC99%29.+Can+you+tell+me+more%3F"
+                <a href="https://buy.stripe.com/28EfZg8umaHK7VC7CT7Zu01"
                   target="_blank"
                   style="display:block;margin-top:32px;padding:14px;text-align:center;border-radius:10px;font-size:15px;font-weight:600;color:#4f46e5;border:2px solid #4f46e5;text-decoration:none;transition:all .2s;"
                   onmouseover="this.style.background='#4f46e5';this.style.color='#fff'"
@@ -70,7 +70,7 @@
                     <span style="font-size:14px;color:#e0e7ff;">{{ item.text }}</span>
                   </div>
                 </div>
-                <a href="https://wa.me/353894050730?text=Hi%2C+I%27m+interested+in+the+Laravel+%2B+NR+Bootcamp+%28%E2%82%AC1%2C500%29.+Can+you+tell+me+more%3F"
+                <a href="https://buy.stripe.com/3cI4gy3a29DG5Nu6yP7Zu02"
                   target="_blank"
                   style="display:block;margin-top:32px;padding:14px;text-align:center;border-radius:10px;font-size:15px;font-weight:600;color:#4f46e5;background:#fff;text-decoration:none;transition:opacity .2s;"
                   onmouseover="this.style.opacity='.9'"
@@ -97,12 +97,12 @@
                     <span style="font-size:14px;color:#374151;">{{ item }}</span>
                   </div>
                 </div>
-                <a href="https://wa.me/353894050730?text=Hi%2C+I%27m+interested+in+the+1-on-1+Mentorship+%28%E2%82%AC249%2Fmonth%29.+Can+we+book+a+discovery+call%3F"
+                <a href="https://buy.stripe.com/00w5kC25YeY04JqaP57Zu03"
                   target="_blank"
                   style="display:block;margin-top:32px;padding:14px;text-align:center;border-radius:10px;font-size:15px;font-weight:600;color:#4f46e5;border:2px solid #4f46e5;text-decoration:none;transition:all .2s;"
                   onmouseover="this.style.background='#4f46e5';this.style.color='#fff'"
                   onmouseout="this.style.background='transparent';this.style.color='#4f46e5'">
-                  Book a Call
+                  Get Started
                 </a>
               </div>
             </div>
@@ -225,7 +225,7 @@
 
                   <div class="question mb-35 wow fadeInUp">
                     <h5 class="s-22 w-700"><span>4.</span> How do I pay?</h5>
-                    <p class="color--grey">Click any plan button to start a WhatsApp conversation. We'll send you payment details and get you set up within 24 hours.</p>
+                    <p class="color--grey">Click any plan button to go directly to our secure Stripe checkout. Payment is processed instantly and you'll receive a confirmation email right away.</p>
                   </div>
 
                   <div class="question mb-35 wow fadeInUp">
