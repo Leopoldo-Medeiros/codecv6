@@ -11,7 +11,7 @@ additional_fqdns: []
 database:
     type: mysql
     version: "8.0"
-project_tld: localhost.ddev.site
+project_tld: ddev.site
 use_dns_when_possible: true
 disable_settings_management: true
 composer_version: "2"

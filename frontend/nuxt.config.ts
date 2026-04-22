@@ -38,9 +38,23 @@ export default defineNuxtConfig({
   vite: {
     server: {
       hmr: {
-        protocol: 'wss',
-        host: ddevHostname,
+        protocol: 'ws',
+        host: 'localhost',
         clientPort: 3000,
+      },
+      proxy: {
+        '/api': {
+          target: 'http://codecv6.ddev.site:33000',
+          changeOrigin: true,
+        },
+        '/sanctum': {
+          target: 'http://codecv6.ddev.site:33000',
+          changeOrigin: true,
+        },
+        '/storage': {
+          target: 'http://codecv6.ddev.site:33000',
+          changeOrigin: true,
+        },
       },
     },
   },
