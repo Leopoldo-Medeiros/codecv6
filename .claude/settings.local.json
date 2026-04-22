@@ -22,5 +22,9 @@
       "Bash(ddev php:*)",
       "Bash(ddev artisan:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ],
+  "enableAllProjectMcpServers": true
 }
