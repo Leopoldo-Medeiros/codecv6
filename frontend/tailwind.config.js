@@ -9,8 +9,11 @@ export default {
     "./app/error.vue",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        display: ['Syne', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
-
