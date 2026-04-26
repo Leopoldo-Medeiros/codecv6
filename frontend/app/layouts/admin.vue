@@ -67,25 +67,6 @@
         </div>
 
         <!-- Admin tools -->
-        <div v-if="isStaff" class="mt-4 flex flex-col gap-0.5 border-t border-gray-100 pt-4 dark:border-slate-800">
-          <p class="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-600">
-            Admin
-          </p>
-          <NuxtLink
-            to="/settings"
-            class="nav-item group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium"
-            :class="isActive('/settings') ? 'nav-item--active' : 'nav-item--idle'"
-          >
-            <span v-if="isActive('/settings')" class="nav-glow" aria-hidden="true"></span>
-            <span class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r transition-all"
-              :class="isActive('/settings') ? 'nav-bar--active' : 'bg-transparent'"></span>
-            <UIcon name="i-heroicons-cog-6-tooth"
-              class="nav-icon h-[18px] w-[18px] shrink-0"
-              :class="isActive('/settings') ? 'nav-icon--active' : 'nav-icon--idle'" />
-            <span>Settings</span>
-          </NuxtLink>
-        </div>
-
       </nav>
 
       <!-- Footer logout -->
@@ -341,7 +322,6 @@ const mainItems = computed(() => {
 const userMenuItems = [
   [
     { label: 'Profile',  icon: 'i-heroicons-user',                    click: () => navigateTo('/profile')  },
-    { label: 'Settings', icon: 'i-heroicons-cog-6-tooth',             click: () => navigateTo('/settings') },
   ],
   [
     { label: 'Logout',   icon: 'i-heroicons-arrow-right-on-rectangle', click: () => handleLogout() },

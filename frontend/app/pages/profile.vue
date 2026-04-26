@@ -85,9 +85,10 @@
                 </template>
                 <template v-else>
                   <a v-if="user?.profile?.[link.key]"
-                    :href="user.profile[link.key]" target="_blank"
-                    class="truncate text-xs text-emerald-600 hover:underline dark:text-emerald-400">
-                    {{ user.profile[link.key] }}
+                    :href="user.profile[link.key]" target="_blank" rel="noopener"
+                    :title="user.profile[link.key]"
+                    class="block truncate text-xs text-emerald-700 hover:text-emerald-600 hover:underline dark:text-emerald-400">
+                    {{ user.profile[link.key].replace(/^https?:\/\/(www\.)?/, '') }}
                   </a>
                   <p v-else class="text-xs italic text-gray-400 dark:text-gray-500">Not set</p>
                 </template>
