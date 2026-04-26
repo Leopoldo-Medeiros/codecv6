@@ -472,7 +472,7 @@ textarea::placeholder { color: #c0c9d4; }
   transition: background .2s, transform .15s, box-shadow .2s;
 }
 .btn-primary:hover:not(:disabled) {
-  background: #4f46e5; transform: translateY(-1px);
+  background: #047857; transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(99,102,241,0.35);
 }
 .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }

@@ -56,6 +56,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | The canonical, single-valued URL of the frontend SPA. Used by backend
+    | flows that need to redirect the browser back to the frontend (OAuth
+    | callbacks, password reset emails, etc.).
+    |
+    | Do NOT confuse with FRONTEND_URL in .env, which is a comma-separated
+    | list consumed by config/cors.php for the CORS allow-list.
+    |
+    */
+
+    'frontend_url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

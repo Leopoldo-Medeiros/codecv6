@@ -5,7 +5,7 @@
     <div class="card-wrap">
       <div class="card">
 
-        <NuxtLink to="/" class="logo-link">
+        <NuxtLink to="/" class="logo-link" aria-label="CODECV — back to home">
           <img src="/images/Logo/codecv.png" alt="CODECV" class="logo" />
         </NuxtLink>
 

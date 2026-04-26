@@ -4,7 +4,7 @@
 
     <div class="brand-panel">
       <div class="brand-panel__inner">
-        <NuxtLink to="/" class="brand-logo">
+        <NuxtLink to="/" class="brand-logo" aria-label="CODECV — back to home">
           <img src="/images/Logo/codecv.png" alt="CODECV" />
         </NuxtLink>
         <div class="brand-content">
@@ -183,7 +183,7 @@ async function handleSubmit() {
 @keyframes errIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
 .btn-primary { width: 100%; padding: 0.9rem; background: var(--accent); color: #fff; font-family: var(--font); font-size: 0.9375rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: background .2s, transform .15s, box-shadow .2s; }
-.btn-primary:hover:not(:disabled) { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
+.btn-primary:hover:not(:disabled) { background: #047857; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .spinner-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 .spinner-row svg { width: 16px; height: 16px; }

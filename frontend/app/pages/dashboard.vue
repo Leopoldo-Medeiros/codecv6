@@ -274,7 +274,7 @@ const quickLinks = computed(() => isAdmin.value
       { label: 'My Learning Paths', icon: 'i-heroicons-map',                       to: '/my-paths',  color: '#6366f1' },
       { label: 'My Courses',        icon: 'i-heroicons-book-open',                 to: '/my-courses', color: '#0ea5e9' },
       { label: 'My CV',             icon: 'i-heroicons-document-magnifying-glass', to: '/my-cv',     color: '#10b981' },
-      { label: 'Edit Profile',      icon: 'i-heroicons-user',                      to: '/profile',   color: '#8b5cf6' },
+      { label: 'Edit Profile',      icon: 'i-heroicons-user',                      to: '/profile',   color: '#10b981' },
     ]
 )
 

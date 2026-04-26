@@ -182,7 +182,7 @@
         </div>
 
         <!-- CTA -->
-        <div class="rounded-xl p-5 text-white" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
+        <div class="rounded-xl p-5 text-white" style="background:linear-gradient(135deg,#047857,#059669)">
           <p class="text-xs font-semibold uppercase tracking-widest text-emerald-200">1-on-1 Mentorship</p>
           <h3 class="mt-2 text-base font-bold">Need guidance from an expert?</h3>
           <p class="mt-1 text-sm text-emerald-100 leading-relaxed">

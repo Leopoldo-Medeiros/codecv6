@@ -16,14 +16,14 @@
     /* Accent Colors */
     --accent-green: #10b981;
     --accent-blue: #3b82f6;
-    --accent-purple: #8b5cf6;
+    --accent-purple: #10b981;
     --accent-orange: #f59e0b;
     --accent-red: #ef4444;
 
     /* Gradients */
     --gradient-green: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --gradient-purple: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --gradient-orange: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 
     /* Shadows */
@@ -53,14 +53,14 @@ body:not(.dark-theme) {
     /* Accent Colors (same as dark) */
     --accent-green: #10b981;
     --accent-blue: #3b82f6;
-    --accent-purple: #8b5cf6;
+    --accent-purple: #10b981;
     --accent-orange: #f59e0b;
     --accent-red: #ef4444;
 
     /* Gradients (same as dark) */
     --gradient-green: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --gradient-purple: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --gradient-orange: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 
     /* Shadows */
