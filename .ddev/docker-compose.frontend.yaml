@@ -1,0 +1,20 @@
+# Per-platform isolation for frontend/node_modules.
+#
+# Host installs (npm install on macOS arm64) populate frontend/node_modules
+# directly. The container needs Linux x64 binaries, which would conflict.
+#
+# This override mounts a named Docker volume on top of frontend/node_modules
+# inside the web container, so:
+#   - Host:      uses ./frontend/node_modules (macOS arm64 binaries)
+#   - Container: uses the named volume (Linux x64 binaries)
+#
+# Each environment is populated independently:
+#   - Host:      `npm install` from frontend/
+#   - Container: `ddev npm install` from frontend/
+services:
+  web:
+    volumes:
+      - frontend_node_modules:/var/www/html/frontend/node_modules
+
+volumes:
+  frontend_node_modules:
