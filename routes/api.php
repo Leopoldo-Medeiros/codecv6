@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +33,11 @@ Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleC
 
 // Stripe webhook (signature-verified, no auth, no CSRF)
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
+
+// Email verification (signed URL, no session auth required)
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('api.email.verify');
 
 // Public routes — rate limited to prevent brute force
 Route::middleware('throttle:5,1')->group(function () {
