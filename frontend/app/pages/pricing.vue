@@ -5,6 +5,9 @@
     <section class="ph">
       <div class="ph__blob" />
       <div class="mkt-container ph__content">
+        <div v-if="cancelled" class="ph__cancelled">
+          Payment cancelled — no charge was made. You can pick a plan again any time.
+        </div>
         <span class="section-badge">Pricing</span>
         <h1 class="ph__title">Simple, flexible pricing</h1>
         <p class="ph__sub">Choose the plan that fits your career goals — from self-paced CV services to full bootcamp training.</p>
@@ -32,7 +35,7 @@
                 {{ f.text }}
               </li>
             </ul>
-            <a href="https://buy.stripe.com/28EfZg8umaHK7VC7CT7Zu01" target="_blank" class="mkt-btn mkt-btn--outline mkt-btn--lg pcard__cta">Get Started</a>
+            <button type="button" :disabled="loadingTier === 'accelerator'" class="mkt-btn mkt-btn--outline mkt-btn--lg pcard__cta" @click="handleCta('accelerator')">{{ loadingTier === 'accelerator' ? 'Redirecting…' : 'Get Started' }}</button>
           </div>
 
           <!-- Bootcamp — Featured -->
@@ -52,7 +55,7 @@
                 {{ f.text }}
               </li>
             </ul>
-            <a href="https://buy.stripe.com/3cI4gy3a29DG5Nu6yP7Zu02" target="_blank" class="mkt-btn mkt-btn--white mkt-btn--lg pcard__cta">Enroll Now</a>
+            <button type="button" :disabled="loadingTier === 'bootcamp'" class="mkt-btn mkt-btn--white mkt-btn--lg pcard__cta" @click="handleCta('bootcamp')">{{ loadingTier === 'bootcamp' ? 'Redirecting…' : 'Enroll Now' }}</button>
           </div>
 
           <!-- Mentorship -->
@@ -71,7 +74,7 @@
                 {{ f }}
               </li>
             </ul>
-            <a href="https://buy.stripe.com/00w5kC25YeY04JqaP57Zu03" target="_blank" class="mkt-btn mkt-btn--outline mkt-btn--lg pcard__cta">Get Started</a>
+            <button type="button" :disabled="loadingTier === 'mentorship'" class="mkt-btn mkt-btn--outline mkt-btn--lg pcard__cta" @click="handleCta('mentorship')">{{ loadingTier === 'mentorship' ? 'Redirecting…' : 'Get Started' }}</button>
           </div>
 
         </div>
@@ -191,7 +194,46 @@
 </template>
 
 <script setup lang="ts">
+import type { CheckoutTier } from '~/composables/useCheckout'
+
 definePageMeta({ layout: false })
+
+const route = useRoute()
+const router = useRouter()
+const { isAuthenticated } = useAuth()
+const { startCheckout } = useCheckout()
+
+const loadingTier = ref<CheckoutTier | null>(null)
+const cancelled = computed(() => route.query.cancelled === '1')
+
+const handleCta = async (tier: CheckoutTier): Promise<void> => {
+  if (!isAuthenticated.value) {
+    await router.push({ path: '/register', query: { next: '/pricing', tier } })
+    return
+  }
+
+  if (loadingTier.value) return
+  loadingTier.value = tier
+
+  try {
+    const { url } = await startCheckout(tier)
+    window.location.href = url
+  } catch (err) {
+    loadingTier.value = null
+    const message = (err as { data?: { message?: string }; message?: string })?.data?.message
+      || (err as { message?: string })?.message
+      || 'Checkout failed. Please try again.'
+    alert(message)
+  }
+}
+
+onMounted(() => {
+  const tier = route.query.tier as CheckoutTier | undefined
+  if (tier && isAuthenticated.value && ['accelerator', 'bootcamp', 'mentorship'].includes(tier)) {
+    handleCta(tier)
+  }
+})
+
 useSeoMeta({
   title: 'Pricing',
   description: 'Three plans for IT career growth in Ireland: from AI-powered self-service tools to 1-on-1 coaching with senior consultants. Choose what fits your goals.',
@@ -311,6 +353,17 @@ const faqs = [
   margin: 14px 0 18px;
 }
 .ph__sub { font-size: 17px; color: var(--muted); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+.ph__cancelled {
+  display: inline-block;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
 
 /* PLANS */
 .plans-section { padding: 20px 0 100px; }

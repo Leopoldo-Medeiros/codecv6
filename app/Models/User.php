@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'consultant_id');
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     /**
      * Prepare the model for indexing.
      *
