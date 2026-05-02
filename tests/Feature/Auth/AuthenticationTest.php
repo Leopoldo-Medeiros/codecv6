@@ -5,9 +5,11 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -303,5 +305,80 @@ class AuthenticationTest extends TestCase
             ->postJson('/api/refresh')
             ->assertOk()
             ->assertJsonPath('user.profile.profile_image_url', null);
+    }
+
+    // ── Email Verification ────────────────────────────────────
+
+    public function test_verify_email_notification_sent_on_registration(): void
+    {
+        Notification::fake();
+
+        $this->postJson('/api/register', [
+            'fullname' => 'Verify User',
+            'email' => 'verify@example.com',
+            'password' => self::STRONG_PASSWORD,
+            'password_confirmation' => self::STRONG_PASSWORD,
+        ])->assertCreated();
+
+        $user = User::where('email', 'verify@example.com')->first();
+        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertSentTo($user, WelcomeNotification::class);
+    }
+
+    public function test_email_verification_marks_user_verified(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        $url = URL::temporarySignedRoute(
+            'api.email.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
+
+        $this->get($url)->assertRedirect();
+
+        $this->assertNotNull($user->fresh()->email_verified_at);
+    }
+
+    public function test_expired_verification_link_is_rejected(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        $url = URL::temporarySignedRoute(
+            'api.email.verify',
+            now()->subMinutes(1),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
+
+        $this->get($url)->assertForbidden();
+
+        $this->assertNull($user->fresh()->email_verified_at);
+    }
+
+    public function test_verification_link_redirects_to_frontend_dashboard(): void
+    {
+        config(['app.frontend_url' => 'http://localhost:3000']);
+        $user = User::factory()->unverified()->create();
+
+        $url = URL::temporarySignedRoute(
+            'api.email.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
+
+        $this->get($url)->assertRedirectContains('localhost:3000/dashboard?verified=1');
+    }
+
+    public function test_already_verified_user_is_redirected_without_error(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+
+        $url = URL::temporarySignedRoute(
+            'api.email.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)],
+        );
+
+        $this->get($url)->assertRedirect();
     }
 }

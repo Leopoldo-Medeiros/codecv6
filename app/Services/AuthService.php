@@ -7,6 +7,7 @@ use App\Exceptions\AuthenticationException;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -43,6 +44,7 @@ class AuthService
             $user->profile()->create($data['profile']);
         }
 
+        event(new Registered($user));
         $user->notify(new WelcomeNotification);
 
         $token = $user->createToken('auth-token')->plainTextToken;

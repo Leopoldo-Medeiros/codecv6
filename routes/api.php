@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CvController;
 use App\Http\Controllers\Api\JobController;
@@ -12,7 +13,9 @@ use App\Http\Controllers\Api\PathStepController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +30,14 @@ use Illuminate\Support\Facades\Route;
 // Google OAuth
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+
+// Stripe webhook (signature-verified, no auth, no CSRF)
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
+
+// Email verification (signed URL, no session auth required)
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('api.email.verify');
 
 // Public routes — rate limited to prevent brute force
 Route::middleware('throttle:5,1')->group(function () {
@@ -62,6 +73,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // CV & LinkedIn analysis (all authenticated users)
     Route::post('/cv/analyze', [CvController::class, 'analyze']);
     Route::post('/linkedin/analyze', [LinkedInController::class, 'analyze']);
+
+    // Stripe Checkout (all authenticated users)
+    Route::post('/checkout/session', [CheckoutController::class, 'createSession']);
+    Route::get('/checkout/{sessionId}/status', [CheckoutController::class, 'status']);
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);

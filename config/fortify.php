@@ -150,8 +150,8 @@ return [
         // Password Reset
         Features::resetPasswords(),
 
-        // Email Verification (uncomment to enable)
-        // Features::emailVerification(),
+        // Email Verification
+        Features::emailVerification(),
 
         // Profile Management
         Features::updateProfileInformation(),
