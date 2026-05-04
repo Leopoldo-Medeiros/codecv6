@@ -4,4 +4,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
     if (!user.value) {
         return navigateTo('/login')
     }
+
+    if (user.value.needs_onboarding && to.path !== '/onboarding') {
+        return navigateTo('/onboarding')
+    }
 })
