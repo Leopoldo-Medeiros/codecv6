@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -13,7 +14,7 @@ class CvController extends Controller
     {
         $request->validate([
             'cv' => 'required|file|mimes:pdf|max:5120',
-            'job_description' => 'required_without:job_url|nullable|string|min:50|max:5000',
+            'job_description' => 'required_without:job_url|nullable|string|min:50|max:15000',
             'job_url' => 'required_without:job_description|nullable|url|max:2048',
         ]);
 
@@ -104,9 +105,13 @@ PROMPT;
 
     private function fetchJobFromUrl(string $url): ?string
     {
-        $response = Http::timeout(15)
-            ->withHeaders(['Accept' => 'text/plain'])
-            ->get('https://r.jina.ai/'.$url);
+        try {
+            $response = Http::timeout(15)
+                ->withHeaders(['Accept' => 'text/plain'])
+                ->get('https://r.jina.ai/'.$url);
+        } catch (ConnectionException) {
+            return null;
+        }
 
         if ($response->failed()) {
             return null;
@@ -114,6 +119,10 @@ PROMPT;
 
         $text = trim($response->body());
 
-        return strlen($text) >= 50 ? $text : null;
+        if (strlen($text) < 50) {
+            return null;
+        }
+
+        return mb_substr($text, 0, 15000);
     }
 }
