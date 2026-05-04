@@ -53,6 +53,25 @@ class StripeWebhookTest extends TestCase
         $this->assertSame(PaymentStatus::PAID, $payment->status);
         $this->assertSame('pi_test_complete', $payment->stripe_payment_intent_id);
         $this->assertNotNull($payment->paid_at);
+        $this->assertTrue($user->fresh()->needs_onboarding);
+    }
+
+    public function test_checkout_session_completed_for_subscription_marks_payment_paid(): void
+    {
+        $user = User::factory()->create();
+        $payment = $this->makePendingPayment($user, 'cs_test_sub', PaymentTier::MENTORSHIP);
+
+        $event = $this->checkoutCompletedEvent('cs_test_sub');
+        $event['data']['object']['payment_intent'] = null;
+        $event['data']['object']['subscription'] = 'sub_test_123';
+
+        $this->postWebhook($event)->assertOk();
+
+        $payment->refresh();
+        $this->assertSame(PaymentStatus::PAID, $payment->status);
+        $this->assertSame('sub_test_123', $payment->stripe_payment_intent_id);
+        $this->assertNotNull($payment->paid_at);
+        $this->assertTrue($user->fresh()->needs_onboarding);
     }
 
     public function test_async_payment_succeeded_marks_payment_paid(): void
@@ -69,6 +88,7 @@ class StripeWebhookTest extends TestCase
         $payment->refresh();
         $this->assertSame(PaymentStatus::PAID, $payment->status);
         $this->assertSame('pi_test_async', $payment->stripe_payment_intent_id);
+        $this->assertTrue($user->fresh()->needs_onboarding);
     }
 
     public function test_async_payment_failed_marks_payment_failed(): void
@@ -158,12 +178,12 @@ class StripeWebhookTest extends TestCase
         );
     }
 
-    private function makePendingPayment(User $user, string $sessionId): Payment
+    private function makePendingPayment(User $user, string $sessionId, PaymentTier $tier = PaymentTier::ACCELERATOR): Payment
     {
         return Payment::create([
             'user_id' => $user->id,
             'stripe_session_id' => $sessionId,
-            'tier' => PaymentTier::ACCELERATOR,
+            'tier' => $tier,
             'amount' => 9900,
             'currency' => 'eur',
             'status' => PaymentStatus::PENDING,

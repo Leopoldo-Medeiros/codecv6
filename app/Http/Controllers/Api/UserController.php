@@ -291,7 +291,7 @@ class UserController extends Controller
             'product_interest' => 'required|in:self-serve,bootcamp,mentorship',
             'availability_hours' => 'required|integer|min:1|max:80',
             'timeline' => 'required|in:1-3m,3-6m,6-12m,flexible',
-            'goal' => 'nullable|string|max:500',
+            'goal' => 'required|string|max:255',
         ]);
 
         $user->profile()->updateOrCreate(
@@ -299,6 +299,7 @@ class UserController extends Controller
             $data
         );
 
+        $user->update(['needs_onboarding' => false]);
         $user->load('profile', 'roles');
 
         User::role('admin')->each(fn (User $admin) => $admin->notify(new NewClientOnboarded($user)));
