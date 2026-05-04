@@ -106,7 +106,7 @@ class StripeService
 
     private function markSessionPaid(Session $session): void
     {
-        $payment = Payment::where('stripe_session_id', $session->id)->first();
+        $payment = Payment::with('user')->where('stripe_session_id', $session->id)->first();
 
         if (! $payment) {
             Log::warning("Stripe checkout.session.completed for unknown session: {$session->id}");
@@ -118,11 +118,16 @@ class StripeService
             return;
         }
 
+        // subscriptions expose $session->subscription, one-time payments expose $session->payment_intent
+        $stripeReference = $session->subscription ?? $session->payment_intent;
+
         $payment->update([
-            'stripe_payment_intent_id' => $session->payment_intent,
+            'stripe_payment_intent_id' => $stripeReference,
             'status' => PaymentStatus::PAID,
             'paid_at' => now(),
         ]);
+
+        $payment->user->update(['needs_onboarding' => true]);
     }
 
     private function markSessionFailed(Session $session): void
