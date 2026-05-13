@@ -22,6 +22,7 @@ class PathStep extends Model
         'lab_url',
         'instructions',
         'challenge_prompt',
+        'challenge_slug',
     ];
 
     protected $casts = [
@@ -38,6 +39,11 @@ class PathStep extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function challenge(): BelongsTo
+    {
+        return $this->belongsTo(Challenge::class, 'challenge_slug', 'slug');
     }
 
     public function userProgress(): HasMany

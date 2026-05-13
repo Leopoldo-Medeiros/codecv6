@@ -35,7 +35,7 @@ ddev artisan migrate:fresh --seed                                               
 ddev artisan db:seed --class=RoleSeeder                                            # Specific seeder
 ddev exec vendor/bin/pint --dirty                                                  # Format changed PHP files
 ddev artisan test --compact                                                        # Run all tests
-ddev artisan test --compact tests/Feature/Api/UserTest.php                         # Single test file
+ddev artisan test --compact tests/Feature/Api/UserApiTest.php                      # Single test file
 ddev artisan test --compact --filter=testName                                      # Filter by test name
 ddev artisan cache:clear && ddev artisan config:clear && ddev artisan route:clear  # Clear caches
 ddev artisan storage:link                                                          # Link public storage
@@ -103,8 +103,10 @@ Uses Spatie Laravel Permission with `RoleEnum` (`app/Enums/RoleEnum.php`):
 ### API Route Access Levels
 
 Routes in `routes/api.php` are grouped by access:
+- **No auth (signature-verified)**: `GET /email/verify/{id}/{hash}` — email verification link from Fortify emails; throttled 6/min; redirects to `APP_FRONTEND_URL/dashboard?verified=1`
+- **No auth (Stripe signature)**: `POST /webhooks/stripe` — Stripe webhook; verified via `STRIPE_WEBHOOK_SECRET`, no CSRF
 - **Public** (rate-limited 5/min): `/login`, `/register`, `/forgot-password`, `/reset-password`
-- **All authenticated**: Read paths, courses, plans, jobs; update own profile; CV/LinkedIn analysis
+- **All authenticated**: Read paths, courses, plans, jobs; update own profile; CV/LinkedIn analysis; Stripe checkout; challenges (`GET /challenges`, `GET /challenges/{slug}`, `POST /challenges/{slug}/run`); notifications (`GET /notifications`, `PATCH /notifications/{id}/read`, `PATCH /notifications/read-all`)
 - **Admin + Consultant**: Create/edit/delete courses, plans, paths; manage path steps
 - **Consultant only**: `/my-clients` — view clients, assign/remove paths
 - **Admin only**: User CRUD, role management, consultant assignment, GDPR export/erase
@@ -118,10 +120,13 @@ Routes in `routes/api.php` are grouped by access:
 | `Plan` | Belongs to consultant (User), has many clients (users) and paths via pivots (`plan_user`, `path_plan`) |
 | `Course` | Soft-deletable, belongs to User (creator) |
 | `Path` | Learning paths, soft-deletable; has ordered `PathStep`s |
-| `PathStep` | Ordered steps within a Path; tracked per-user via `UserStepProgress` |
+| `PathStep` | Ordered steps within a Path; type can be `reading`, `lab`, or `challenge`; `challenge_slug` FK links to `Challenge`; tracked per-user via `UserStepProgress` |
+| `Challenge` | Coding challenge with `slug` (unique), `boilerplate_code`, `tests_code`, `ChallengeDifficulty` enum; soft-deletable; `is_premium` + `price_eur` for monetization |
 | `Job` | Job listings, soft-deletable |
+| `Payment` | Stripe payment record; created `PENDING` on checkout, updated to `PAID` by webhook; belongs to `User` |
+| `UserStepProgress` | Tracks per-user completion of individual `PathStep`s; `status` can be `not_started`, `in_progress`, `completed` |
 
-`Course`, `Path`, `Job`, and `Plan` all use `SoftDeletes`. Services manage pivot relationships with `.sync()` (e.g., `PlanService` manages `plan_user` and `path_plan`; uses `syncWithoutDetaching` to append paths).
+`Course`, `Path`, `Job`, `Plan`, and `Challenge` all use `SoftDeletes`. Services manage pivot relationships with `.sync()` (e.g., `PlanService` manages `plan_user` and `path_plan`; uses `syncWithoutDetaching` to append paths).
 
 ### API Authentication
 
@@ -156,7 +161,7 @@ Resources use `$this->when($this->relationLoaded('relationship'), ...)` to avoid
 - **UI Library:** `@nuxt/ui` v2 (emerald primary, slate gray) — use UCard, UButton, UTable, UBadge, UAvatar, UProgress, UIcon, UDropdown components in **authenticated/admin pages**. Marketing pages do NOT use `@nuxt/ui` — they use the custom `.mkt-*` design system (see Marketing Design System section)
 - **Dark mode:** enabled by default for authenticated pages; marketing pages force light theme via `useColorMode()` in their layout
 - **Types:** defined in `frontend/app/types/models.ts` — `User`, `Profile`, `Course`, `Plan`, `Path`, `Job`, `PathStep`, `Role`, `PaginatedResponse<T>`, `ApiResponse<T>`, auth types
-- **SSR:** disabled globally (`ssr: false`) — runs as a client-side SPA. Public marketing/auth pages opt back in to **prerendering** via `routeRules` in `nuxt.config.ts` (built once at deploy time, served as static HTML for SEO and social previews)
+- **SSR:** enabled globally (`ssr: true`) — authenticated app routes opt out via `ssr: false` in `routeRules` (SPA). Marketing/auth-public pages use `prerender: true` in `routeRules` (built once at deploy time, served as static HTML for SEO and social previews)
 - **Tailwind:** pinned to v3 via `package.json` `overrides` because `@nuxt/ui` v2 is incompatible with Tailwind v4. Do not bump.
 
 ### Frontend Composables
@@ -172,6 +177,7 @@ Located in `frontend/app/composables/`:
 | `useMyClients` | Consultant client management |
 | `useNotifications` | Notification state management |
 | `useAuthTheme` | Theme state management for auth/marketing pages |
+| `useCheckout` | Stripe Checkout — `startCheckout(tier, currency)` → redirects to Stripe; `getStatus(sessionId)` polls payment status; `detectCurrency()` picks `eur`/`brl` from `navigator.language` |
 
 Pattern: each returns `readonly()` reactive refs (`data`, `loading`, `error`) and async methods with try/catch error extraction.
 
@@ -224,7 +230,7 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 **Search:** `User` model uses Laravel Scout (Algolia) — `toSearchableArray()` indexes `id`, `fullname`, and `email`. Requires `SCOUT_QUEUE=true` in env.
 
-**Pricing Page:** `frontend/app/pages/pricing.vue` uses the `.mkt-*` design system with `.pcard` cards and a `.ctable` compare table. Three tiers are hardcoded with embedded Stripe checkout links — replace these when migrating to a real Stripe webhook flow.
+**Stripe Payments:** `StripeService` drives the checkout flow. Tiers and prices are defined in `config/pricing.php` — amounts are in **minor units** (cents for EUR, centavos for BRL). `PaymentTier` enum has `ACCELERATOR`, `BOOTCAMP` (one-time), and `MENTORSHIP` (recurring subscription). Flow: `POST /checkout/session` → `StripeService::createCheckoutSession()` creates a Stripe Checkout Session and records a `PENDING` `Payment` row → user is redirected to Stripe → `POST /webhooks/stripe` receives `checkout.session.completed` and marks the payment `PAID`. The webhook is excluded from CSRF middleware via `bootstrap/app.php`. Required env: `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`. For local testing use the Stripe CLI: `stripe listen --forward-to codecv6.ddev.site/api/webhooks/stripe`.
 
 **Social Auth (Google OAuth):** `SocialAuthController` handles the provider redirect and callback. The frontend hits `/auth/google/redirect`, then the callback exchanges the code via `AuthService`. The `User` model has a `google_id` column. Requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` in `.env`. The post-OAuth browser redirect uses `config('app.frontend_url')` (set via `APP_FRONTEND_URL` in `.env`) — must be a single canonical URL, NOT the comma-separated `FRONTEND_URL`.
 
@@ -236,216 +242,43 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 - Site config: `site.url = 'https://codecv.ie'`, `site.name = 'CODECV'`
 
 **AI Integrations:** Two separate AI features, each with its own API key:
-- CV Analysis — `CvController` calls Gemini API (`GEMINI_API_KEY`). Analyzes uploaded CV PDFs and returns structured feedback.
+- CV Analysis — `CvController` calls Gemini API (`GEMINI_API_KEY`; model configurable via `services.gemini.model`, defaults to `gemini-flash-latest`). Accepts a PDF (max 5 MB) plus either `job_description` (text) or `job_url`. When `job_url` is provided, the controller fetches the page content via `https://r.jina.ai/{url}` (Jina AI reader) and caps it at 15 000 characters. Returns a JSON object with `score`, `matched_keywords`, `missing_keywords`, `strengths`, `improvements`, and `summary`.
 - LinkedIn Analyser — `LinkedInController` calls Anthropic API (`ANTHROPIC_API_KEY`). Accepts a LinkedIn profile URL and scores it.
 
 **DDEV Nuxt Config:** `frontend/nuxt.config.ts` uses `process.env.DDEV_HOSTNAME` (auto-injected by DDEV inside the container) with fallback to `codecv6.ddev.site`. The Vite HMR is configured for WSS through DDEV's HTTPS reverse proxy. When running on host (`npm run dev`), `DDEV_HOSTNAME` is unset → fallback applies.
 
 **DDEV node_modules isolation:** `.ddev/docker-compose.frontend.yaml` mounts a named Docker volume on top of `frontend/node_modules` inside the web container. This isolates Linux x64 binaries (container) from macOS arm64 binaries (host) — they no longer collide. Each environment must be populated separately (`ddev npm install` for container, `npm install` for host). Note: the named volume is created as `root` by Docker, so the first `ddev npm install` after `ddev restart` may need `ddev exec sudo chown -R $(id -u):$(id -g) /var/www/html/frontend/node_modules` first.
 
-===
+**Coding Challenges (Judge0):** `ChallengeExecutionService` executes user-submitted PHP code in a Judge0 sandbox. Flow: `POST /challenges/{slug}/run` → service concatenates a minimal PHPUnit bootstrap + solution + test class + a reflection-based test runner → submits base64-encoded PHP to Judge0 as a single submission with `wait=true` → parses JSON output to determine per-test pass/fail. Judge0 status IDs 5 (TLE) and 6 (compilation error) are handled explicitly. Required env: `JUDGE0_URL` (defaults to `https://judge0-ce.p.rapidapi.com`), `JUDGE0_TOKEN`, `JUDGE0_LANGUAGE_ID` (defaults to 68 = PHP 7.4; set higher for PHP 8.x on self-hosted). A `PathStep` links to a `Challenge` via `challenge_slug` (FK on `slug`); the step's `type` field should be `challenge` in this case.
 
-<laravel-boost-guidelines>
-=== foundation rules ===
+**Notifications:** The `notifications` table is the standard Laravel notifications table; `GET /notifications` returns unread + recent read notifications for the authenticated user.
+- **Database-only:** `ClientAssigned` (consultant assigned a client), `PathAssigned` (path assigned to a client)
+- **Email:** `NewClientOnboarded` (sent to consultant on new client payment), `ClientPathCompleted` / `ClientPathHalfway` / `ClientStartedLearning` (progress milestones), `WelcomeNotification`, `ResetPasswordNotification`
 
-# Laravel Boost Guidelines
+### Frontend Component Patterns
 
-The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to ensure the best experience when building Laravel applications.
+**MarkdownContent (`app/components/MarkdownContent.vue`):** Splits step descriptions into typed segments. Fenced code blocks with special language tags are extracted and rendered as interactive components:
 
-## Foundational Context
+| Block type | Renders as |
+|---|---|
+| ` ```mermaid ` | `<MermaidDiagram>` |
+| ` ```lifecycle-diagram ` | `<LaravelLifecycleDiagramCard>` |
+| Everything else | `renderMarkdown()` → `v-html` |
 
-This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
+To embed a new interactive component in step content, add its block type to the `blockPattern` regex and the segment type union in `MarkdownContent.vue`.
 
-- php - 8.4
-- laravel/fortify (FORTIFY) - v1
-- laravel/framework (LARAVEL) - v12
-- laravel/prompts (PROMPTS) - v0
-- laravel/sanctum (SANCTUM) - v4
-- laravel/scout (SCOUT) - v10
-- laravel/socialite (SOCIALITE) - v5
-- laravel/boost (BOOST) - v2
-- laravel/mcp (MCP) - v0
-- laravel/pint (PINT) - v1
-- laravel/sail (SAIL) - v1
-- phpunit/phpunit (PHPUNIT) - v11
+**ChallengeEditor (`app/components/ChallengeEditor.vue`):** Full-screen fixed overlay rendered on top of the `admin` layout (see `pages/step/[step_id].vue`). The layout stays mounted underneath so navigation is preserved.
 
-## Skills Activation
+**DiagramCanvas / RoadmapFlow:** `DiagramCanvas.vue` uses `@vue-flow/core` for interactive flowcharts. `RoadmapFlow.vue` + `RoadmapStepNode.vue` are the learning path visualisation. Separate from `LaravelLifecycleDiagram.vue` which is plain HTML/SVG (no Vue Flow).
 
-This project has domain-specific skills available. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
+**PathStep page (`pages/step/[step_id].vue`):** Step `type` drives the rendered UI:
+- `reading` (or no type) → two-column layout: `MarkdownContent` left, progress/resources sidebar right
+- `challenge` with linked `Challenge` → `ChallengeEditor` full-screen overlay
+- `challenge`/`lab` with no linked exercise → placeholder card
+- anything else → fallback card
 
-- `fortify-development` — ACTIVATE when the user works on authentication in Laravel. This includes login, registration, password reset, email verification, two-factor authentication (2FA/TOTP/QR codes/recovery codes), profile updates, password confirmation, or any auth-related routes and controllers. Activate when the user mentions Fortify, auth, authentication, login, register, signup, forgot password, verify email, 2FA, or references app/Actions/Fortify/, CreateNewUser, UpdateUserProfileInformation, FortifyServiceProvider, config/fortify.php, or auth guards. Fortify is the frontend-agnostic authentication backend for Laravel that registers all auth routes and controllers. Also activate when building SPA or headless authentication, customizing login redirects, overriding response contracts like LoginResponse, or configuring login throttling. Do NOT activate for Laravel Passport (OAuth2 API tokens), Socialite (OAuth social login), or non-auth Laravel features.
-- `laravel-best-practices` — Apply this skill whenever writing, reviewing, or refactoring Laravel PHP code. This includes creating or modifying controllers, models, migrations, form requests, policies, jobs, scheduled commands, service classes, and Eloquent queries. Triggers for N+1 and query performance issues, caching strategies, authorization and security patterns, validation, error handling, queue and job configuration, route definitions, and architectural decisions. Also use for Laravel code reviews and refactoring existing Laravel code to follow best practices. Covers any task involving Laravel backend PHP code patterns.
-- `scout-development` — Develops full-text search with Laravel Scout. Activates when installing or configuring Scout; choosing a search engine (Algolia, Meilisearch, Typesense, Database, Collection); adding the Searchable trait to models; customizing toSearchableArray or searchableAs; importing or flushing search indexes; writing search queries with where clauses, pagination, or soft deletes; configuring index settings; troubleshooting search results; or when the user mentions Scout, full-text search, search indexing, or search engines in a Laravel project. Make sure to use this skill whenever the user works with search functionality in Laravel, even if they don't explicitly mention Scout.
-- `socialite-development` — Manages OAuth social authentication with Laravel Socialite. Activate when adding social login providers; configuring OAuth redirect/callback flows; retrieving authenticated user details; customizing scopes or parameters; setting up community providers; testing with Socialite fakes; or when the user mentions social login, OAuth, Socialite, or third-party authentication.
+Progress update calls `updateStepProgress(stepId, status)` which catches `{ data: { blocking_step } }` errors and shows a blocking modal.
 
-## Conventions
+**Type co-location:** `PathStep.user_status` union type is defined in `frontend/app/composables/usePaths.ts`, not in `models.ts`.
 
-- You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
-- Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
-- Check for existing components to reuse before writing a new one.
-
-## Verification Scripts
-
-- Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
-
-## Application Structure & Architecture
-
-- Stick to existing directory structure; don't create new base folders without approval.
-- Do not change the application's dependencies without approval.
-
-## Frontend Bundling
-
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
-
-## Documentation Files
-
-- You must only create documentation files if explicitly requested by the user.
-
-## Replies
-
-- Be concise in your explanations - focus on what's important rather than explaining obvious details.
-
-=== boost rules ===
-
-# Laravel Boost
-
-## Tools
-
-- Laravel Boost is an MCP server with tools designed specifically for this application. Prefer Boost tools over manual alternatives like shell commands or file reads.
-- Use `database-query` to run read-only queries against the database instead of writing raw SQL in tinker.
-- Use `database-schema` to inspect table structure before writing migrations or models.
-- Use `get-absolute-url` to resolve the correct scheme, domain, and port for project URLs. Always use this before sharing a URL with the user.
-- Use `browser-logs` to read browser logs, errors, and exceptions. Only recent logs are useful, ignore old entries.
-
-## Searching Documentation (IMPORTANT)
-
-- Always use `search-docs` before making code changes. Do not skip this step. It returns version-specific docs based on installed packages automatically.
-- Pass a `packages` array to scope results when you know which packages are relevant.
-- Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
-- Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
-
-### Search Syntax
-
-1. Use words for auto-stemmed AND logic: `rate limit` matches both "rate" AND "limit".
-2. Use `"quoted phrases"` for exact position matching: `"infinite scroll"` requires adjacent words in order.
-3. Combine words and phrases for mixed queries: `middleware "rate limit"`.
-4. Use multiple queries for OR logic: `queries=["authentication", "middleware"]`.
-
-## Artisan
-
-- Run Artisan commands directly via the command line (e.g., `php artisan route:list`). Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
-- Inspect routes with `php artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
-- Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
-- To check environment variables, read the `.env` file directly.
-
-## Tinker
-
-- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
-
-=== php rules ===
-
-# PHP
-
-- Always use curly braces for control structures, even for single-line bodies.
-- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
-- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
-- Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
-- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
-- Use array shape type definitions in PHPDoc blocks.
-
-=== deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
-
-=== tests rules ===
-
-# Test Enforcement
-
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
-
-=== laravel/core rules ===
-
-# Do Things the Laravel Way
-
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `php artisan list` and check their parameters with `php artisan [command] --help`.
-- If you're creating a generic PHP class, use `php artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
-
-### Model Creation
-
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
-
-## APIs & Eloquent Resources
-
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-## URL Generation
-
-- When generating links to other pages, prefer named routes and the `route()` function.
-
-## Testing
-
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-## Vite Error
-
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
-
-=== laravel/v12 rules ===
-
-# Laravel 12
-
-- CRITICAL: ALWAYS use `search-docs` tool for version-specific Laravel documentation and updated code examples.
-- Since Laravel 11, Laravel has a new streamlined file structure which this project uses.
-
-## Laravel 12 Structure
-
-- In Laravel 12, middleware are no longer registered in `app/Http/Kernel.php`.
-- Middleware are configured declaratively in `bootstrap/app.php` using `Application::configure()->withMiddleware()`.
-- `bootstrap/app.php` is the file to register middleware, exceptions, and routing files.
-- `bootstrap/providers.php` contains application specific service providers.
-- The `app/Console/Kernel.php` file no longer exists; use `bootstrap/app.php` or `routes/console.php` for console configuration.
-- Console commands in `app/Console/Commands/` are automatically available and do not require manual registration.
-
-## Database
-
-- When modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped and lost.
-- Laravel 12 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
-
-### Models
-
-- Casts can and likely should be set in a `casts()` method on a model rather than the `$casts` property. Follow existing conventions from other models.
-
-=== pint/core rules ===
-
-# Laravel Pint Code Formatter
-
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-
-=== phpunit/core rules ===
-
-# PHPUnit
-
-- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit {name}` to create a new test.
-- If you see a test using "Pest", convert it to PHPUnit.
-- Every time a test has been updated, run that singular test.
-- When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
-- Tests should cover all happy paths, failure paths, and edge cases.
-- You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files; these are core to the application.
-
-## Running Tests
-
-- Run the minimal number of tests, using an appropriate filter, before finalizing.
-- To run all tests: `php artisan test --compact`.
-- To run all tests in a file: `php artisan test --compact tests/Feature/ExampleTest.php`.
-- To filter on a particular test name: `php artisan test --compact --filter=testName` (recommended after making a change to a related file).
-
-</laravel-boost-guidelines>
+> **Frontend-specific detail:** `frontend/CLAUDE.md` documents composable patterns, component internals, and layout rules in a compact reference. The root CLAUDE.md covers the same topics but at a higher level.

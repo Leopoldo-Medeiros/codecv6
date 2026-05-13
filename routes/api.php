@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ChallengeController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CvController;
@@ -64,6 +65,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/paths/{path}', [PathController::class, 'show']);
     Route::get('/paths/{path}/steps', [PathStepController::class, 'index']);
     Route::get('/path-steps/{step}', [PathStepController::class, 'show']);
+
+    // Challenges
+    Route::get('/challenges', [ChallengeController::class, 'index']);
+    Route::get('/challenges/{challenge:slug}', [ChallengeController::class, 'show']);
+    Route::post('/challenges/{challenge:slug}/run', [ChallengeController::class, 'run']);
 
     // Step progress (all authenticated users update their own progress)
     Route::put('/path-steps/{step}/progress', [PathStepController::class, 'updateProgress']);

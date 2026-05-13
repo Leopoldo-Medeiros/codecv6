@@ -8,6 +8,9 @@
         <div v-if="cancelled" class="ph__cancelled">
           Payment cancelled — no charge was made. You can pick a plan again any time.
         </div>
+        <div v-if="checkoutError" class="ph__error">
+          {{ checkoutError }}
+        </div>
         <span class="section-badge">Pricing</span>
         <h1 class="ph__title">Simple, flexible pricing</h1>
         <p class="ph__sub">Choose the plan that fits your career goals — from self-paced CV services to full bootcamp training.</p>
@@ -203,8 +206,9 @@ const router = useRouter()
 const { isAuthenticated } = useAuth()
 const { startCheckout } = useCheckout()
 
-const loadingTier = ref<CheckoutTier | null>(null)
-const cancelled = computed(() => route.query.cancelled === '1')
+const loadingTier   = ref<CheckoutTier | null>(null)
+const checkoutError = ref<string | null>(null)
+const cancelled     = computed(() => route.query.cancelled === '1')
 
 const handleCta = async (tier: CheckoutTier): Promise<void> => {
   if (!isAuthenticated.value) {
@@ -213,6 +217,7 @@ const handleCta = async (tier: CheckoutTier): Promise<void> => {
   }
 
   if (loadingTier.value) return
+  checkoutError.value = null
   loadingTier.value = tier
 
   try {
@@ -220,10 +225,9 @@ const handleCta = async (tier: CheckoutTier): Promise<void> => {
     window.location.href = url
   } catch (err) {
     loadingTier.value = null
-    const message = (err as { data?: { message?: string }; message?: string })?.data?.message
+    checkoutError.value = (err as { data?: { message?: string }; message?: string })?.data?.message
       || (err as { message?: string })?.message
       || 'Checkout failed. Please try again.'
-    alert(message)
   }
 }
 
@@ -358,6 +362,17 @@ const faqs = [
   background: #fef3c7;
   color: #92400e;
   border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+.ph__error {
+  display: inline-block;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
   border-radius: 10px;
   padding: 10px 18px;
   font-size: 14px;

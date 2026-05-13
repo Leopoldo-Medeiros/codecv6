@@ -3,9 +3,11 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use App\Notifications\ClientAssigned;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -515,6 +517,75 @@ class UserApiTest extends TestCase
     public function test_unauthenticated_cannot_list_roles(): void
     {
         $this->getJson('/api/roles')->assertUnauthorized();
+    }
+
+    // ── Assign consultant ────────────────────────────────────
+
+    public function test_admin_can_assign_consultant_to_client(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->patchJson("/api/users/{$this->client->id}/consultant", [
+                'consultant_id' => $this->consultant->id,
+            ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Consultant assigned successfully.');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $this->client->id,
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_assigning_consultant_sends_notification_to_consultant(): void
+    {
+        Notification::fake();
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->patchJson("/api/users/{$this->client->id}/consultant", [
+                'consultant_id' => $this->consultant->id,
+            ])
+            ->assertOk();
+
+        Notification::assertSentTo($this->consultant, ClientAssigned::class);
+    }
+
+    public function test_reassigning_same_consultant_does_not_send_duplicate_notification(): void
+    {
+        $this->client->update(['consultant_id' => $this->consultant->id]);
+
+        Notification::fake();
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->patchJson("/api/users/{$this->client->id}/consultant", [
+                'consultant_id' => $this->consultant->id,
+            ])
+            ->assertOk();
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_removing_consultant_sends_no_notification(): void
+    {
+        $this->client->update(['consultant_id' => $this->consultant->id]);
+
+        Notification::fake();
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->patchJson("/api/users/{$this->client->id}/consultant", [
+                'consultant_id' => null,
+            ])
+            ->assertOk();
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_non_admin_cannot_assign_consultant(): void
+    {
+        $this->actingAs($this->consultant, 'sanctum')
+            ->patchJson("/api/users/{$this->client->id}/consultant", [
+                'consultant_id' => $this->consultant->id,
+            ])
+            ->assertForbidden();
     }
 
     // ── Helpers ───────────────────────────────────────────────

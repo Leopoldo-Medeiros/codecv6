@@ -1,10 +1,12 @@
 // Core domain types for the application
 
+export type UserRole = 'admin' | 'client' | 'consultant'
+
 export interface User {
   id: number
   fullname: string
   email: string
-  role?: string
+  role?: UserRole
   consultant_id?: number | null
   needs_onboarding?: boolean
   profile?: Profile
@@ -115,6 +117,22 @@ export interface LoginResponse {
   user: User
   access_token: string
   token_type: string
+}
+
+export interface Challenge {
+  id: number
+  title: string
+  slug: string
+  description: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  boilerplate_code: string
+  tests_code: string
+  is_premium: boolean
+  price_eur?: number | null
+  created_by: number
+  creator?: User
+  created_at?: string
+  updated_at?: string
 }
 
 export interface AuthState {

@@ -13,8 +13,8 @@ use_dns_when_possible: true
 composer_version: "2"
 disable_settings_management: true
 web_environment:
-    - FRONTEND_URL=http://codecv6.ddev.site:3000,http://192.168.1.39:3000,http://localhost:3000
-    - SANCTUM_STATEFUL_DOMAINS=codecv6.ddev.site,codecv6.ddev.site:3000,192.168.1.39:3000,localhost:3000
+    - FRONTEND_URL=http://localhost:3001,http://codecv6.ddev.site:3001,http://192.168.1.39:3001
+    - SANCTUM_STATEFUL_DOMAINS=localhost:3001,codecv6.ddev.site:3001,192.168.1.39:3001
     - XDEBUG_MODE=develop,coverage
 corepack_enable: false
 web_extra_exposed_ports:

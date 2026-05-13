@@ -36,7 +36,7 @@ class PathStepController extends Controller
 
     public function show(PathStep $step): JsonResponse
     {
-        $step->load('course');
+        $step->load('course', 'challenge');
 
         $userStatus = UserStepProgress::where('user_id', Auth::id())
             ->where('path_step_id', $step->id)
@@ -52,28 +52,14 @@ class PathStepController extends Controller
 
     public function store(Request $request, Path $path): JsonResponse
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'course_id' => 'nullable|exists:courses,id',
-            'resources' => 'nullable|array',
-            'resources.*.label' => 'required|string|max:100',
-            'resources.*.url' => 'required|url|max:500',
-            'order' => 'nullable|integer|min:0',
-            'type' => 'nullable|in:reading,lab,challenge,quiz',
-            'lab_url' => 'nullable|url|max:1000',
-            'instructions' => 'nullable|array',
-            'instructions.*.id' => 'required|integer',
-            'instructions.*.text' => 'required|string|max:500',
-            'challenge_prompt' => 'nullable|string',
-        ]);
+        $validated = $request->validate($this->stepRules());
 
         if (! isset($validated['order'])) {
             $validated['order'] = $path->steps()->max('order') + 1;
         }
 
         $step = $path->steps()->create($validated);
-        $step->load('course');
+        $step->load('course', 'challenge');
 
         return response()->json([
             'message' => 'Step created',
@@ -85,8 +71,23 @@ class PathStepController extends Controller
     {
         abort_if($step->path_id !== $path->id, 404);
 
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
+        $validated = $request->validate($this->stepRules(forUpdate: true));
+
+        $step->update($validated);
+        $step->load('course', 'challenge');
+
+        return response()->json([
+            'message' => 'Step updated',
+            'data' => new PathStepResource($step),
+        ]);
+    }
+
+    private function stepRules(bool $forUpdate = false): array
+    {
+        $titleRule = $forUpdate ? 'sometimes|required|string|max:255' : 'required|string|max:255';
+
+        return [
+            'title' => $titleRule,
             'description' => 'nullable|string',
             'course_id' => 'nullable|exists:courses,id',
             'resources' => 'nullable|array',
@@ -99,15 +100,8 @@ class PathStepController extends Controller
             'instructions.*.id' => 'required|integer',
             'instructions.*.text' => 'required|string|max:500',
             'challenge_prompt' => 'nullable|string',
-        ]);
-
-        $step->update($validated);
-        $step->load('course');
-
-        return response()->json([
-            'message' => 'Step updated',
-            'data' => new PathStepResource($step),
-        ]);
+            'challenge_slug' => 'nullable|string|exists:challenges,slug',
+        ];
     }
 
     public function destroy(Path $path, PathStep $step): JsonResponse
@@ -175,7 +169,7 @@ class PathStepController extends Controller
 
         UserStepProgress::updateOrCreate(
             ['user_id' => $userId, 'path_step_id' => $step->id],
-            ['status'  => $request->status]
+            ['status' => $request->status]
         );
 
         $this->dispatchProgressNotifications(
@@ -186,17 +180,17 @@ class PathStepController extends Controller
     }
 
     private function dispatchProgressNotifications(
-        User     $client,
+        User $client,
         PathStep $step,
-        string   $newStatus,
-        bool     $hadAnyProgress,
+        string $newStatus,
+        bool $hadAnyProgress,
     ): void {
         $consultant = $client->consultant;
         if (! $consultant) {
             return;
         }
 
-        $path       = $step->path;
+        $path = $step->path;
         $allStepIds = PathStep::where('path_id', $step->path_id)->pluck('id');
         $totalSteps = $allStepIds->count();
 
@@ -212,12 +206,14 @@ class PathStepController extends Controller
         // 1. First ever step started
         if ($newStatus === 'in_progress' && ! $hadAnyProgress) {
             $consultant->notify(new ClientStartedLearning($client, $path));
+
             return;
         }
 
         // 2. Path completed (all steps done)
         if ($newStatus === 'done' && $doneCount === $totalSteps) {
             $consultant->notify(new ClientPathCompleted($client, $path, $totalSteps));
+
             return;
         }
 

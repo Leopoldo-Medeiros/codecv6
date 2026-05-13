@@ -34,6 +34,11 @@
       <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
     </div>
 
+    <div v-else-if="loadingError" class="flex flex-col items-center py-20 text-center">
+      <UIcon name="i-heroicons-exclamation-triangle" class="mb-4 h-10 w-10 text-red-400" />
+      <p class="text-sm text-red-500 dark:text-red-400">{{ loadingError }}</p>
+    </div>
+
     <template v-else>
 
       <!-- Empty -->
@@ -209,11 +214,13 @@
                         </button>
                       </div>
 
-                      <!-- Lab / Challenge CTA -->
-                      <div v-if="step.type === 'lab' || step.type === 'challenge'">
-                        <UButton size="sm" color="emerald" variant="solid" :icon="stepTypeIcon(step.type)"
-                          @click.stop="navigateTo(`/labs/${step.id}`)">
-                          {{ step.type === 'lab' ? 'Open Lab Environment' : 'Start Challenge' }}
+                      <!-- Step CTA -->
+                      <div v-if="step.type === 'reading' || step.type === 'lab' || step.type === 'challenge'">
+                        <UButton
+                          size="sm" color="emerald" variant="solid" :icon="stepTypeIcon(step.type)"
+                          @click.stop="navigateTo(`/step/${step.id}`)"
+                        >
+                          {{ step.type === 'challenge' || step.type === 'lab' ? 'Start Exercise' : 'Read' }}
                         </UButton>
                       </div>
 
@@ -363,11 +370,13 @@
           </button>
         </div>
 
-        <!-- Lab / Challenge CTA -->
-        <div v-if="modalStep.type === 'lab' || modalStep.type === 'challenge'">
-          <UButton size="sm" color="emerald" variant="solid" :icon="stepTypeIcon(modalStep.type)"
-            @click="navigateTo(`/labs/${modalStep.id}`)">
-            {{ modalStep.type === 'lab' ? 'Open Lab Environment' : 'Start Challenge' }}
+        <!-- Step CTA -->
+        <div v-if="modalStep.type === 'reading' || modalStep.type === 'lab' || modalStep.type === 'challenge'">
+          <UButton
+            size="sm" color="emerald" variant="solid" :icon="stepTypeIcon(modalStep.type)"
+            @click="navigateTo(`/step/${modalStep.id}`)"
+          >
+            {{ modalStep.type === 'challenge' || modalStep.type === 'lab' ? 'Start Exercise' : 'Read' }}
           </UButton>
         </div>
 
@@ -412,7 +421,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PathStep } from '~/composables/usePaths'
+import type { Path, PathStep } from '~/composables/usePaths'
 
 definePageMeta({ layout: false, middleware: 'auth' })
 useHead({ title: 'My Learning Paths — CODECV' })
@@ -422,9 +431,10 @@ const { paths, loading, fetchMyPaths, fetchSteps, updateStepProgress } = usePath
 const view = ref<'timeline' | 'roadmap'>('timeline')
 
 // local step state per path: pathId → steps with user_status
-const pathSteps = ref<Record<number, PathStep[]>>({})
-const expanded  = ref(new Set<number>())
-const saving    = ref(new Set<number>())
+const pathSteps    = ref<Record<number, PathStep[]>>({})
+const expanded     = ref(new Set<number>())
+const saving       = ref(new Set<number>())
+const loadingError = ref<string | null>(null)
 
 // Step order blocking modal
 const showBlockModal  = ref(false)
@@ -433,9 +443,9 @@ const blockedByStep   = ref<PathStep | null>(null)
 // Step detail modal (roadmap view)
 const showStepModal = ref(false)
 const modalStep     = ref<PathStep | null>(null)
-const modalPath     = ref<any | null>(null)
+const modalPath     = ref<Path | null>(null)
 
-function openStepModal(step: any, path: any) {
+function openStepModal(step: PathStep, path: Path) {
   modalStep.value = step
   modalPath.value = path
   showStepModal.value = true
@@ -451,11 +461,21 @@ async function setStatusModal(status: PathStep['user_status']) {
 }
 
 onMounted(async () => {
-  const all = await fetchMyPaths()
-  await Promise.all(all.map(async (p) => {
-    const steps = await fetchSteps(p.id)
-    pathSteps.value[p.id] = steps
-  }))
+  try {
+    const all = await fetchMyPaths()
+    const results = await Promise.allSettled(
+      all.map(async (p) => {
+        const steps = await fetchSteps(p.id)
+        pathSteps.value[p.id] = steps
+      })
+    )
+    const failed = results.filter(r => r.status === 'rejected')
+    if (failed.length > 0) {
+      console.error('Some steps failed to load', failed)
+    }
+  } catch (err: any) {
+    loadingError.value = err?.message || 'Failed to load learning paths'
+  }
 })
 
 const enrichedPaths = computed(() =>
@@ -482,12 +502,12 @@ const cycle: Record<string, PathStep['user_status']> = {
   done: 'not_started',
 }
 
-async function cycleStatus(path: any, step: PathStep) {
+async function cycleStatus(path: Path, step: PathStep) {
   const next = cycle[step.user_status ?? 'not_started'] ?? 'done'
   await setStatus(path, step, next)
 }
 
-async function setStatus(path: any, step: PathStep, status: PathStep['user_status']) {
+async function setStatus(path: Path, step: PathStep, status: PathStep['user_status']) {
   if (status === 'in_progress') {
     const arr = pathSteps.value[path.id] ?? []
     const blocker = arr.find(s => s.order < step.order && s.user_status === 'in_progress')
@@ -549,14 +569,14 @@ function progressColor(pct: number) {
   return 'text-gray-500 dark:text-gray-400'
 }
 
-function pathIncludes(path: any) {
-  const steps: any[] = path.steps ?? []
+function pathIncludes(path: Path & { steps: PathStep[] }) {
+  const steps = path.steps ?? []
   const items = []
   const reading   = steps.filter(s => !s.type || s.type === 'reading').length
   const labs      = steps.filter(s => s.type === 'lab').length
   const challenges = steps.filter(s => s.type === 'challenge').length
   const quizzes   = steps.filter(s => s.type === 'quiz').length
-  const resources = steps.reduce((n: number, s: any) => n + (s.resources?.length ?? 0), 0)
+  const resources = steps.reduce((n: number, s: PathStep) => n + (s.resources?.length ?? 0), 0)
   if (reading)    items.push({ icon: 'i-heroicons-book-open',      label: `${reading} reading step${reading !== 1 ? 's' : ''}` })
   if (labs)       items.push({ icon: 'i-heroicons-command-line',   label: `${labs} hands-on lab${labs !== 1 ? 's' : ''}` })
   if (challenges) items.push({ icon: 'i-heroicons-trophy',         label: `${challenges} challenge${challenges !== 1 ? 's' : ''}` })
@@ -565,8 +585,8 @@ function pathIncludes(path: any) {
   return items
 }
 
-function resourceTotal(path: any) {
-  return (path.steps ?? []).reduce((n: number, s: any) => n + (s.resources?.length ?? 0), 0)
+function resourceTotal(path: Path & { steps: PathStep[] }) {
+  return path.steps.reduce((n: number, s: PathStep) => n + (s.resources?.length ?? 0), 0)
 }
 
 function stepTypeIcon(type?: string) {

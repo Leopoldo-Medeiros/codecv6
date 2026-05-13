@@ -53,4 +53,12 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'judge0' => [
+        'url' => env('JUDGE0_URL', 'https://judge0-ce.p.rapidapi.com'),
+        'token' => env('JUDGE0_TOKEN'),
+        // Language ID 68 = PHP 7.4 on Judge0 CE public instance.
+        // Set to a higher ID if using a self-hosted instance with PHP 8.x.
+        'language_id' => env('JUDGE0_LANGUAGE_ID', 68),
+    ],
+
 ];
