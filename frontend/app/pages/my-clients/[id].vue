@@ -97,7 +97,10 @@
               <UIcon name="i-heroicons-map" class="h-5 w-5 text-emerald-500" />
             </div>
             <div class="min-w-0 flex-1">
-              <p class="font-semibold text-gray-900 dark:text-white">{{ clientPath.name }}</p>
+              <NuxtLink :to="`/paths/${clientPath.id}`"
+                class="font-semibold text-gray-900 hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400 transition-colors">
+                {{ clientPath.name }}
+              </NuxtLink>
               <p v-if="clientPath.description" class="text-xs text-gray-500 dark:text-gray-400">{{ clientPath.description }}</p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
@@ -140,6 +143,16 @@
               <UBadge v-if="step.type && step.type !== 'reading'" color="blue" variant="soft" size="xs">
                 {{ step.type }}
               </UBadge>
+              <UButton
+                v-if="step.type === 'challenge' || step.type === 'lab'"
+                size="xs"
+                color="violet"
+                variant="ghost"
+                icon="i-heroicons-link"
+                @click="navigateTo(`/paths/${clientPath.id}`)"
+              >
+                Link Exercise
+              </UButton>
             </div>
           </div>
         </div>

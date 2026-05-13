@@ -206,16 +206,20 @@ function notifIcon(type: string) {
   if (type === 'client_started_learning') return 'i-heroicons-play-circle'
   if (type === 'client_path_halfway')     return 'i-heroicons-chart-bar'
   if (type === 'client_path_completed')   return 'i-heroicons-trophy'
-  return 'i-heroicons-user-plus'
+  if (type === 'path_assigned')           return 'i-heroicons-map'
+  if (type === 'client_assigned')         return 'i-heroicons-user-plus'
+  return 'i-heroicons-bell'
 }
 function notifIconBg(type: string) {
   if (type === 'client_path_completed') return 'bg-amber-100 dark:bg-amber-900/40'
   if (type === 'client_path_halfway')   return 'bg-blue-100 dark:bg-blue-900/40'
+  if (type === 'path_assigned')         return 'bg-violet-100 dark:bg-violet-900/40'
   return 'bg-emerald-100 dark:bg-emerald-900/40'
 }
 function notifIconColor(type: string) {
   if (type === 'client_path_completed') return 'text-amber-500'
   if (type === 'client_path_halfway')   return 'text-blue-500'
+  if (type === 'path_assigned')         return 'text-violet-500'
   return 'text-emerald-500'
 }
 function notifTitle(data: any) {
@@ -225,6 +229,10 @@ function notifTitle(data: any) {
     return `${data.fullname} is halfway through a path`
   if (data.type === 'client_path_completed')
     return `${data.fullname} completed a path! 🎉`
+  if (data.type === 'path_assigned')
+    return 'New learning path assigned'
+  if (data.type === 'client_assigned')
+    return `New client assigned to you`
   return `${data.fullname} completed onboarding`
 }
 function notifSubtitle(data: any) {
@@ -234,6 +242,10 @@ function notifSubtitle(data: any) {
     return `${data.path_name} · ${data.done_count}/${data.total_count} steps done`
   if (data.type === 'client_path_completed')
     return `${data.path_name} · ${data.total_steps} steps`
+  if (data.type === 'path_assigned')
+    return `${data.path_name} · assigned by ${data.consultant_name}`
+  if (data.type === 'client_assigned')
+    return [data.fullname, data.profession, data.level].filter(Boolean).join(' · ')
   return `${data.profession ?? ''} · ${data.level ?? ''}`
 }
 
@@ -251,7 +263,9 @@ async function handleNotificationClick(n: any, close: () => void) {
   if (!n.read) await markRead(n.id)
   close()
   const type = n.data?.type
-  if (type === 'client_started_learning' || type === 'client_path_halfway' || type === 'client_path_completed') {
+  if (type === 'path_assigned') {
+    navigateTo('/my-paths')
+  } else if (type === 'client_assigned' || type === 'client_started_learning' || type === 'client_path_halfway' || type === 'client_path_completed') {
     navigateTo(`/my-clients/${n.data.client_id}`)
   } else if (n.data?.client_id) {
     navigateTo(`/users/${n.data.client_id}`)

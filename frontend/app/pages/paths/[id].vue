@@ -92,10 +92,16 @@
                       <UBadge v-if="step.type && step.type !== 'reading'" :color="stepTypeBadgeColor(step.type)" variant="subtle" size="xs">
                         {{ stepTypeLabel(step.type) }}
                       </UBadge>
-                      <UButton v-if="step.type === 'lab' || step.type === 'challenge'"
-                        size="xs" color="emerald" variant="soft" icon="i-heroicons-command-line"
-                        @click.stop="navigateTo(`/labs/${step.id}`)">
-                        Open Lab
+                      <UBadge v-if="step.challenge_slug" color="violet" variant="subtle" size="xs" icon="i-heroicons-code-bracket">
+                        {{ step.challenge_slug }}
+                      </UBadge>
+                      <UBadge v-else-if="step.type === 'lab' || step.type === 'challenge'" color="gray" variant="subtle" size="xs" icon="i-heroicons-exclamation-circle">
+                        No exercise linked
+                      </UBadge>
+                      <UButton v-if="(step.type === 'lab' || step.type === 'challenge') && step.challenge_slug"
+                        size="xs" color="emerald" variant="soft" icon="i-heroicons-code-bracket"
+                        @click.stop="navigateTo(`/step/${step.id}`)">
+                        Preview Exercise
                       </UButton>
                       <UBadge v-if="step.course" color="emerald" variant="subtle" size="xs" icon="i-heroicons-book-open">
                         {{ step.course.name }}
@@ -214,13 +220,19 @@
               placeholder="What will the student learn or do in this step?" />
           </div>
 
-          <!-- Lab URL (only for lab/challenge) -->
+          <!-- Linked challenge (for lab/challenge types) -->
           <div v-if="form.type === 'lab' || form.type === 'challenge'">
             <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">
-              Lab Environment URL
-              <span class="font-normal text-gray-400 ml-1">(StackBlitz, Killercoda, Codespace…)</span>
+              Linked Exercise
+              <span class="font-normal text-gray-400 ml-1">(coding challenge in the integrated editor)</span>
             </label>
-            <UInput v-model="form.lab_url" placeholder="https://stackblitz.com/edit/…" />
+            <USelect
+              v-model="form.challenge_slug"
+              :options="[{ label: 'None', value: '' }, ...challengeOptions]"
+              value-attribute="value"
+              option-attribute="label"
+              placeholder="Select a challenge…"
+            />
           </div>
 
           <!-- Challenge prompt (for challenge type) -->
@@ -297,6 +309,10 @@ const toast  = useToast()
 
 const { fetchPath, fetchSteps, createStep, updateStep, deleteStep, reorderSteps } = usePaths()
 const { courses, fetchCourses } = useCourses()
+const api = useApi()
+
+const challenges = ref<{ label: string; value: string }[]>([])
+const challengeOptions = computed(() => challenges.value)
 
 const currentPath = ref<any>(null)
 const steps       = ref<PathStep[]>([])
@@ -316,6 +332,7 @@ const emptyForm = () => ({
   lab_url: '',
   instructions: [] as { id: number; text: string }[],
   challenge_prompt: '',
+  challenge_slug: '',
   resources: [] as { label: string; url: string }[],
 })
 const form = reactive(emptyForm())
@@ -328,13 +345,16 @@ const courseOptions = computed(() =>
 
 onMounted(async () => {
   try {
-    const [p, s] = await Promise.all([
+    const [p, s, , chRes] = await Promise.all([
       fetchPath(pathId.value),
       fetchSteps(pathId.value),
       fetchCourses({ per_page: 100 }),
+      api.get('/challenges') as Promise<{ data: { id: number; title: string; slug: string }[] }>,
     ])
     currentPath.value = p
     steps.value = s
+    challenges.value = (chRes as { data: { id: number; title: string; slug: string }[] }).data
+      .map(c => ({ label: c.title, value: c.slug }))
   } finally {
     loading.value = false
   }
@@ -372,6 +392,7 @@ function openEditStep(step: PathStep) {
     lab_url:          step.lab_url ?? '',
     instructions:     step.instructions ? JSON.parse(JSON.stringify(step.instructions)) : [],
     challenge_prompt: step.challenge_prompt ?? '',
+    challenge_slug:   step.challenge_slug ?? '',
     resources:        step.resources ? JSON.parse(JSON.stringify(step.resources)) : [],
   })
   showModal.value = true
@@ -398,6 +419,7 @@ async function saveStep() {
       lab_url:          form.lab_url || null,
       instructions:     form.instructions.filter(i => i.text.trim()),
       challenge_prompt: form.challenge_prompt || null,
+      challenge_slug:   form.challenge_slug || null,
       resources:        form.resources.filter(r => r.label && r.url),
     }
     if (editingStep.value) {

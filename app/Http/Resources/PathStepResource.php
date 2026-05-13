@@ -18,6 +18,11 @@ class PathStepResource extends JsonResource
             'lab_url' => $this->lab_url,
             'instructions' => $this->instructions ?? [],
             'challenge_prompt' => $this->challenge_prompt,
+            'challenge_slug' => $this->challenge_slug,
+            'challenge' => $this->when(
+                $this->relationLoaded('challenge') && $this->challenge,
+                fn () => new ChallengeResource($this->challenge)
+            ),
             'resources' => $this->resources ?? [],
             'order' => $this->order,
             'course' => $this->when($this->relationLoaded('course') && $this->course, fn () => [
