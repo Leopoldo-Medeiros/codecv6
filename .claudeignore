@@ -1,0 +1,28 @@
+# Ignorar logs e caches persistentes
+storage/logs/
+storage/framework/
+.phpunit.cache/
+.phpunit.result.cache
+
+# Ignorar assets compilados e tráfego de build
+public/build/
+public/hot/
+frontend/.nuxt/
+frontend/.output/
+frontend/dist/
+
+# Ignorar dependências (mesmo que o .gitignore já tenha)
+vendor/
+node_modules/
+frontend/node_modules/
+
+# Ignorar arquivos de sistema e IDE
+.DS_Store
+.vscode/
+.idea/
+.fleet/
+
+# Ignorar arquivos grandes de dados/mídia
+public/storage/
+*.sql
+*.sqlite

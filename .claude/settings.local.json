@@ -72,7 +72,10 @@
       "Bash(python3 -c ' *)",
       "Bash(gh auth *)",
       "mcp__laravel-boost__application-info",
-      "Bash(git -C /Users/leopoldomedeiros/www/codecv6 ls-files frontend/app/pages/)"
+      "Bash(git -C /Users/leopoldomedeiros/www/codecv6 ls-files frontend/app/pages/)",
+      "Bash(rtk proxy *)",
+      "mcp__laravel-boost__read-log-entries",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\)]\")"
     ]
   },
   "enableAllProjectMcpServers": true,

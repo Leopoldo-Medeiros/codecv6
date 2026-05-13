@@ -15,18 +15,18 @@ class CoursesTableSeeder extends Seeder
 
         if ($user1) {
             Course::create([
-                'name' => 'Curso Batatinha',
-                'slug' => 'curso-batatinha',
-                'description' => 'Como fritar batata',
+                'name' => 'PHP Fundamentals',
+                'slug' => 'php-fundamentals',
+                'description' => 'An introduction to modern PHP basics, types, and object-oriented programming.',
                 'user_id' => $user1->id,
             ]);
         }
 
         if ($user2) {
             Course::create([
-                'name' => 'Curso Cadeirada',
-                'slug' => 'curso-cadeirada',
-                'description' => 'Como tacar a cadeira no seu amiguinho',
+                'name' => 'Laravel Essentials',
+                'slug' => 'laravel-essentials',
+                'description' => 'Core Laravel concepts for beginners: routing, controllers, Eloquent, and Blade.',
                 'user_id' => $user2->id,
             ]);
         }

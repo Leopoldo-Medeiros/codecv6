@@ -15,7 +15,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             CoursesTableSeeder::class,
+            ChallengeSeeder::class,
             LearningPathsSeeder::class,
+            PathStepSeeder::class,
         ]);
 
         $fakeClientes = $this->command->askWithCompletion('Do you want add fake clients', ['yes', 'no'], 'no');
