@@ -81,11 +81,23 @@ export function useMyClients() {
   }
 
   async function assignPath(clientId: number, pathId: number) {
-    await api.post(`/my-clients/${clientId}/paths`, { path_id: pathId })
+    try {
+      await api.post(`/my-clients/${clientId}/paths`, { path_id: pathId })
+      error.value = null
+    } catch (e: any) {
+      error.value = e?.data?.message ?? 'Failed to assign path'
+      throw e
+    }
   }
 
   async function removePath(clientId: number, pathId: number) {
-    await api.delete(`/my-clients/${clientId}/paths/${pathId}`)
+    try {
+      await api.delete(`/my-clients/${clientId}/paths/${pathId}`)
+      error.value = null
+    } catch (e: any) {
+      error.value = e?.data?.message ?? 'Failed to remove path'
+      throw e
+    }
   }
 
   return {

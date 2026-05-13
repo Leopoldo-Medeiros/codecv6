@@ -9,7 +9,9 @@ use App\Http\Resources\UserResource;
 use App\Models\Path;
 use App\Models\User;
 use App\Models\UserStepProgress;
+use App\Notifications\ClientAssigned;
 use App\Notifications\NewClientOnboarded;
+use App\Notifications\PathAssigned;
 use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
@@ -161,8 +163,14 @@ class UserController extends Controller
             }
         }
 
+        $previousConsultantId = $user->consultant_id;
+
         $user->update(['consultant_id' => $request->consultant_id]);
         $user->load(['profile', 'roles', 'consultant']);
+
+        if ($request->consultant_id && $request->consultant_id !== $previousConsultantId) {
+            $consultant->notify(new ClientAssigned($user));
+        }
 
         return response()->json([
             'message' => 'Consultant assigned successfully.',
@@ -176,38 +184,69 @@ class UserController extends Controller
 
         $clients = User::where('consultant_id', $consultant->id)
             ->with(['profile', 'roles'])
-            ->get()
-            ->map(function (User $client) {
-                $paths = Path::whereHas('plans', function ($q) use ($client) {
-                    $q->whereHas('clients', fn ($q2) => $q2->where('users.id', $client->id));
-                })->withCount('steps')->get();
+            ->get();
 
-                $stepIds = $paths->flatMap(fn ($p) => $p->steps()->pluck('id'));
-                $doneCount = UserStepProgress::where('user_id', $client->id)
-                    ->whereIn('path_step_id', $stepIds)
-                    ->where('status', 'done')
-                    ->count();
-                $totalSteps = $stepIds->count();
+        if ($clients->isEmpty()) {
+            return response()->json(['data' => []]);
+        }
 
-                return [
-                    'id' => $client->id,
-                    'fullname' => $client->fullname,
-                    'email' => $client->email,
-                    'profile' => $client->profile ? [
-                        'profession' => $client->profile->profession,
-                        'level' => $client->profile->level,
-                        'profile_image_url' => $client->profile->profile_image
-                            ? asset('storage/'.$client->profile->profile_image)
-                            : null,
-                    ] : null,
-                    'path_count' => $paths->count(),
-                    'progress_pct' => $totalSteps > 0 ? (int) round($doneCount / $totalSteps * 100) : 0,
-                    'done_steps' => $doneCount,
-                    'total_steps' => $totalSteps,
-                ];
-            });
+        $clientIds = $clients->pluck('id');
 
-        return response()->json(['data' => $clients]);
+        // Load all paths for all clients in a single query instead of N queries
+        $allPaths = Path::whereHas('plans', function ($q) use ($clientIds) {
+            $q->whereHas('clients', fn ($q2) => $q2->whereIn('users.id', $clientIds));
+        })
+        ->with([
+            'steps:id,path_id',
+            'plans.clients' => fn ($q) => $q->whereIn('users.id', $clientIds)->select('users.id'),
+        ])
+        ->get();
+
+        // Build client → paths map (keyed by path ID to deduplicate across plans)
+        $pathsByClient = [];
+        foreach ($allPaths as $path) {
+            foreach ($path->plans as $plan) {
+                foreach ($plan->clients as $planClient) {
+                    $pathsByClient[$planClient->id][$path->id] = $path;
+                }
+            }
+        }
+
+        // Load all done progress for all clients in a single query
+        $allStepIds = $allPaths->flatMap(fn ($p) => $p->steps->pluck('id'));
+        $progressByClient = UserStepProgress::whereIn('user_id', $clientIds)
+            ->whereIn('path_step_id', $allStepIds)
+            ->where('status', 'done')
+            ->get(['user_id', 'path_step_id'])
+            ->groupBy('user_id');
+
+        $data = $clients->map(function (User $client) use ($pathsByClient, $progressByClient) {
+            $paths = collect($pathsByClient[$client->id] ?? [])->values();
+            $stepIds = $paths->flatMap(fn ($p) => $p->steps->pluck('id'));
+            $doneCount = ($progressByClient->get($client->id) ?? collect())
+                ->whereIn('path_step_id', $stepIds->all())
+                ->count();
+            $totalSteps = $stepIds->count();
+
+            return [
+                'id' => $client->id,
+                'fullname' => $client->fullname,
+                'email' => $client->email,
+                'profile' => $client->profile ? [
+                    'profession' => $client->profile->profession,
+                    'level' => $client->profile->level,
+                    'profile_image_url' => $client->profile->profile_image
+                        ? asset('storage/'.$client->profile->profile_image)
+                        : null,
+                ] : null,
+                'path_count' => $paths->count(),
+                'progress_pct' => $totalSteps > 0 ? (int) round($doneCount / $totalSteps * 100) : 0,
+                'done_steps' => $doneCount,
+                'total_steps' => $totalSteps,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     public function clientDetail(User $client): JsonResponse
@@ -263,6 +302,9 @@ class UserController extends Controller
 
         $this->planService->assignPathToClient($consultant->id, $client->id, $request->path_id);
 
+        $path = Path::findOrFail($request->path_id);
+        $client->notify(new PathAssigned($consultant, $path));
+
         return response()->json(['message' => 'Path assigned successfully.']);
     }
 
@@ -286,7 +328,7 @@ class UserController extends Controller
         $data = $request->validate([
             'profession' => 'required|string|max:255',
             'level' => 'required|in:junior,mid,senior,manager',
-            'stack' => 'required|array|min:1',
+            'stack' => 'required|array|min:1|max:20',
             'stack.*' => 'string|max:50',
             'product_interest' => 'required|in:self-serve,bootcamp,mentorship',
             'availability_hours' => 'required|integer|min:1|max:80',

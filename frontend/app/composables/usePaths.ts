@@ -9,6 +9,8 @@ export interface PathStep {
   lab_url?: string | null
   instructions?: Array<{ id: number; text: string }>
   challenge_prompt?: string | null
+  challenge_slug?: string | null
+  challenge?: import('~/types/models').Challenge | null
   resources?: Array<{ label: string; url: string }>
   order: number
   course?: { id: number; name: string; slug: string } | null
@@ -138,12 +140,17 @@ export const usePaths = () => {
   // ── Step methods ───────────────────────────────────────────
 
   const fetchSteps = async (pathId: number): Promise<PathStep[]> => {
-    const res = await api.get(`/paths/${pathId}/steps`) as { data: PathStep[] }
-    return res.data
+    try {
+      const res = await api.get(`/paths/${pathId}/steps`) as { data: PathStep[] }
+      return res.data
+    } catch (err: any) {
+      error.value = err.message || 'Failed to fetch steps'
+      throw err
+    }
   }
 
-  const fetchStep = async (stepId: number): Promise<PathStep & { user_status: string }> => {
-    const res = await api.get(`/path-steps/${stepId}`) as { data: PathStep & { user_status: string } }
+  const fetchStep = async (stepId: number): Promise<PathStep> => {
+    const res = await api.get(`/path-steps/${stepId}`) as { data: PathStep }
     return res.data
   }
 

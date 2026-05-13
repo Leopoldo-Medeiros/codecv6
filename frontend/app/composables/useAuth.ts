@@ -156,7 +156,8 @@ export const useAuth = () => {
     }
 
     const updateUser = (patch: Partial<User>) => {
-        user.value = { ...user.value!, ...patch }
+        if (!user.value) return
+        user.value = { ...user.value, ...patch }
         if (import.meta.client) {
             localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user.value))
         }
