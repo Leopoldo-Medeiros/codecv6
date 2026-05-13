@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewClientOnboarded extends Notification
+class ClientAssigned extends Notification
 {
     public function __construct(private readonly User $client) {}
 
@@ -21,23 +21,15 @@ class NewClientOnboarded extends Notification
         $clientUrl = config('app.frontend_url').'/my-clients/'.$this->client->id;
 
         $mail = (new MailMessage)
-            ->subject('New client onboarded: '.$this->client->fullname)
+            ->subject('New client assigned: '.$this->client->fullname)
             ->greeting('Hey '.$notifiable->fullname.'!')
-            ->line($this->client->fullname.' just completed onboarding and is ready to start.');
+            ->line($this->client->fullname.' has been assigned to you.');
 
         if ($profile?->profession) {
             $mail->line('**Profession:** '.$profile->profession);
         }
 
-        if ($profile?->goal) {
-            $mail->line('**Goal:** '.$profile->goal);
-        }
-
-        if ($profile?->product_interest) {
-            $mail->line('**Interested in:** '.$profile->product_interest);
-        }
-
-        return $mail->action('View Client Profile', $clientUrl);
+        return $mail->action('View Client', $clientUrl);
     }
 
     public function toArray(object $notifiable): array
@@ -45,16 +37,11 @@ class NewClientOnboarded extends Notification
         $profile = $this->client->profile;
 
         return [
-            'type' => 'new_client_onboarded',
+            'type' => 'client_assigned',
             'client_id' => $this->client->id,
             'fullname' => $this->client->fullname,
             'profession' => $profile?->profession,
             'level' => $profile?->level,
-            'stack' => $profile?->stack,
-            'product_interest' => $profile?->product_interest,
-            'availability_hours' => $profile?->availability_hours,
-            'timeline' => $profile?->timeline,
-            'goal' => $profile?->goal,
         ];
     }
 }
