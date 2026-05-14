@@ -128,7 +128,16 @@ const { isAuthenticated, logout } = useAuth()
 const route = useRoute()
 const mobileOpen = ref(false)
 const scrolled = ref(false)
-const isDarkHero = computed(() => route.path === '/')
+// Homepage now uses a light hero — keep the navbar in its light variant,
+// not the dark/transparent variant. Other routes can opt in via this flag
+// in future if needed.
+const isDarkHero = computed(() => false)
+
+// Force light color mode for every marketing page. The global default in
+// nuxt.config.ts is 'dark' (for the authenticated dashboard), which adds
+// `.dark` on <html> and tints @nuxt/ui defaults — we don't want that here.
+const colorMode = useColorMode()
+colorMode.preference = 'light'
 
 useHead({
   link: [
@@ -293,7 +302,10 @@ onMounted(() => {
   z-index: 1000;
   padding: 16px 24px;
   transition: background 0.3s, box-shadow 0.3s;
-  background: rgba(255, 255, 255, 0);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 .mkt-header--scrolled {
   background: rgba(255, 255, 255, 0.9);

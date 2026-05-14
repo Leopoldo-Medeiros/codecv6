@@ -15,7 +15,7 @@ CODECV connects consultants with clients to provide structured career developmen
 
 | Layer | Technology |
 |-------|------------|
-| Backend | Laravel 11 (PHP 8.4) |
+| Backend | Laravel 13 (PHP 8.4) |
 | Frontend | Nuxt 4 (Vue 3, TypeScript) |
 | Database | MySQL 8.0 |
 | Auth | Laravel Sanctum |
@@ -62,25 +62,23 @@ ddev artisan key:generate
 # Run migrations and seed the database
 ddev artisan migrate --seed
 
-# Install frontend dependencies
-ddev npm install
+# Install frontend dependencies (host — default)
+cd frontend && npm install && cd ..
 ```
 
 ### Running the Application
 
 ```bash
 # Backend runs automatically via DDEV
-# Access at: https://codecv6.localhost.ddev.site
+# Access at: http://codecv6.ddev.site
 
-# Start frontend development server
-ddev nuxt
-# Access at: https://codecv6.localhost.ddev.site:3000
+# Start frontend development server on the host
+cd frontend
+npm run dev
+# Access at: http://localhost:3000 (or your LAN IP — see frontend/CLAUDE.md)
 ```
 
-The `ddev nuxt` command starts the Nuxt dev server inside the DDEV container with:
-- Automatic `.env` loading from the project root (via `--dotenv`)
-- HTTPS served through the DDEV router at port 3000
-- HMR (Hot Module Replacement) websocket support
+The default frontend workflow runs on the **host** (native macOS/Linux node), loading `frontend/.env` automatically. `ddev nuxt` is also supported as an alternative for running inside the container — see `CLAUDE.md` for details.
 
 ### Default Users
 
@@ -97,8 +95,8 @@ The `ddev nuxt` command starts the Nuxt dev server inside the DDEV container wit
 ```bash
 ddev artisan migrate              # Run migrations
 ddev artisan db:seed              # Seed database
-ddev php vendor/bin/phpunit       # Run tests
-ddev exec ./vendor/bin/pint       # Format code
+ddev artisan test --compact       # Run tests
+ddev exec vendor/bin/pint --dirty # Format changed PHP files
 ddev artisan route:list           # List routes
 ddev artisan config:clear         # Clear config cache
 ```
@@ -106,9 +104,12 @@ ddev artisan config:clear         # Clear config cache
 ### Frontend Commands
 
 ```bash
-ddev nuxt                          # Development server (recommended)
-ddev npm run build                 # Production build
-ddev npm run preview               # Preview production build
+# Host (default)
+cd frontend
+npm run dev        # Development server
+npm run build      # Server build → frontend/.output/
+npm run generate   # Static build → frontend/dist/
+npm run preview    # Preview a built app locally
 ```
 
 ## Architecture
@@ -173,13 +174,13 @@ frontend/
 
 ```bash
 # Run all tests
-ddev php vendor/bin/phpunit
+ddev artisan test --compact
 
 # Run specific test file
-ddev php vendor/bin/phpunit tests/Feature/LoginTest.php
+ddev artisan test --compact tests/Feature/Api/UserApiTest.php
 
-# Run with coverage
-ddev php vendor/bin/phpunit --coverage-html coverage
+# Filter by test name
+ddev artisan test --compact --filter=testName
 ```
 
 ## License
