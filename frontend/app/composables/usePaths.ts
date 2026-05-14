@@ -1,10 +1,21 @@
 export type StepType = 'reading' | 'lab' | 'challenge' | 'quiz'
 
+export type StepDifficulty = 'beginner' | 'intermediate' | 'advanced'
+
 export interface PathStep {
   id: number
   path_id: number
   title: string
   description?: string
+  // Rich-content fields (added alongside the redesigned step page):
+  tldr?: string | null
+  concept_content?: string | null
+  estimated_minutes?: number | null
+  difficulty?: StepDifficulty | null
+  prerequisites?: Array<{ id: number; title: string }>
+  concepts?: string[]
+  has_playground?: boolean
+  playground_starter_code?: string | null
   type: StepType
   lab_url?: string | null
   instructions?: Array<{ id: number; text: string }>

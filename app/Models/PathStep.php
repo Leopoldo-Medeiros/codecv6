@@ -16,6 +16,14 @@ class PathStep extends Model
         'course_id',
         'title',
         'description',
+        'tldr',
+        'concept_content',
+        'estimated_minutes',
+        'difficulty',
+        'prerequisites',
+        'concepts',
+        'has_playground',
+        'playground_starter_code',
         'resources',
         'order',
         'type',
@@ -28,6 +36,10 @@ class PathStep extends Model
     protected $casts = [
         'resources' => 'array',
         'instructions' => 'array',
+        'prerequisites' => 'array',
+        'concepts' => 'array',
+        'has_playground' => 'boolean',
+        'estimated_minutes' => 'integer',
         'order' => 'integer',
     ];
 

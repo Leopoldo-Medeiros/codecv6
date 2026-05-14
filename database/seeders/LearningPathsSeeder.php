@@ -48,12 +48,175 @@ class LearningPathsSeeder extends Seeder
                         'title' => 'Modern PHP: Types, Nullables and Enums',
                         'type' => 'reading',
                         'description' => 'PHP 8+ introduced an expressive type system that eliminates an entire class of bugs before the code even runs. In this module you will understand typed properties, union types, intersection types, string/int-backed enums, and how strict_types mode changes the interpreter\'s behaviour. The difference between PHP code from 2015 and 2024 starts here.',
+                        'tldr' => 'PHP 8 turned a famously loose language into one with a real type system. Strict types catch a huge class of bugs at the call site; union, nullable and intersection types describe intent; enums replace the magic-string constants that have haunted PHP codebases for two decades.',
+                        'estimated_minutes' => 18,
+                        'difficulty' => 'intermediate',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'PHP installation & first script'],
+                            ['id' => 2, 'title' => 'Variables, control flow and functions'],
+                        ],
+                        'concepts' => ['strict_types', 'union-types', 'nullable', 'intersection-types', 'enums', 'type-juggling'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'EOT'
+<?php
+declare(strict_types=1);
+
+enum OrderStatus: string {
+    case Pending  = 'pending';
+    case Paid     = 'paid';
+    case Refunded = 'refunded';
+}
+
+function describe(OrderStatus $status): string {
+    return match ($status) {
+        OrderStatus::Pending  => 'Awaiting payment',
+        OrderStatus::Paid     => 'Paid in full',
+        OrderStatus::Refunded => 'Refunded to customer',
+    };
+}
+
+echo describe(OrderStatus::Paid);
+EOT,
+                        'concept_content' => <<<'EOT'
+## strict_types: opting out of type juggling
+
+Add this single line at the top of every PHP file you write:
+
+```php
+declare(strict_types=1);
+```
+
+It turns off automatic type coercion for the *current file*'s function calls. Without it, PHP silently converts `'42'` to `42` when you call a function expecting `int`. With it, you get a `TypeError` at the boundary — exactly where the bug is, not three layers deep where the wrong type finally explodes.
+
+```php
+declare(strict_types=1);
+
+function tax(int $cents): int {
+    return (int) round($cents * 0.23);
+}
+
+tax(150);     // 35
+tax('150');   // TypeError — strict types blocks the implicit cast
+```
+
+This is the single highest-impact line you can add to a PHP project that didn't have it.
+
+## Parameter, return and property types
+
+PHP supports type declarations on **parameters**, **return values**, and (since 7.4) **class properties**:
+
+```php
+class Invoice {
+    public int $number;
+    public float $total = 0.0;
+
+    public function addItem(string $sku, int $qty, float $price): void {
+        $this->total += $qty * $price;
+    }
+
+    public function format(): string {
+        return sprintf('#%d — €%.2f', $this->number, $this->total);
+    }
+}
+```
+
+The `void` return type means "this function returns nothing useful". Use it explicitly to make intent unambiguous to both readers and the IDE.
+
+## Nullable shorthand: `?string`
+
+Real data has gaps. A user might not have a `linkedin_url`. The `?` prefix means "this OR null":
+
+```php
+function profileUrl(?string $handle): ?string {
+    if ($handle === null) return null;
+    return "https://linkedin.com/in/{$handle}";
+}
+```
+
+`?string` is sugar for `string|null`. Both work; `?` reads cleaner for the common nullable case.
+
+## Union types: when a value can be more than one thing
+
+PHP 8 added the `|` syntax for parameters that legitimately accept multiple types:
+
+```php
+function formatId(int|string $id): string {
+    return is_int($id) ? "INT-{$id}" : "STR-{$id}";
+}
+
+formatId(42);       // "INT-42"
+formatId('abc');    // "STR-abc"
+```
+
+Use unions sparingly. If you find yourself writing `int|string|float|bool`, that's a smell — your function is doing too much.
+
+## Intersection types: combining contracts
+
+Where unions say "one of these", intersections say "all of these at once". Useful when a parameter must implement multiple interfaces:
+
+```php
+function dumpSize(Countable&Stringable $value): string {
+    return count($value) . ': ' . $value;
+}
+```
+
+The parameter must implement **both** `Countable` and `Stringable`. The compiler enforces it; you don't have to check at runtime.
+
+## Enums: the death of magic strings
+
+Before PHP 8.1, status fields were stored as untyped strings or class constants. Both invited typos:
+
+```php
+// ❌ Pre-enum: a typo silently becomes a wrong state
+if ($order->status === 'refunded') { /* ... */ }
+```
+
+Enums replace this with a *closed set* of values the type system knows about:
+
+```php
+enum OrderStatus: string {
+    case Pending  = 'pending';
+    case Paid     = 'paid';
+    case Refunded = 'refunded';
+
+    public function isFinal(): bool {
+        return match ($this) {
+            self::Paid, self::Refunded => true,
+            self::Pending              => false,
+        };
+    }
+}
+
+function notify(OrderStatus $status): void {
+    if ($status === OrderStatus::Refunded) { /* ... */ }
+}
+```
+
+Three real wins:
+- **No typos** — `OrderStatus::Refundd` won't compile.
+- **Exhaustive `match`** — add a new case and the compiler points at every `match` that doesn't handle it.
+- **Methods on the enum** — `isFinal()` lives next to the data, not scattered across helpers.
+
+Backed enums (`: string` or `: int`) serialise to the database and back via `OrderStatus::from('paid')`. Use string-backed for human-readable storage, int-backed for compact indexed columns.
+
+## Why this matters at work
+
+Code reviews stop arguing about defensive `is_string()` checks. IDEs autocomplete enum cases. New team members read a signature and understand the contract without reading the function body. Migrations from PHP 7 codebases recover dozens of latent bugs the moment strict types go on.
+
+If your team is still arguing about whether typed properties are worth it, point them at the next time prod 500s because someone passed `"true"` (the string) to a function expecting `bool`.
+EOT,
                         'resources' => [
                             ['label' => 'PHP 8.3 Type System', 'url' => 'https://www.php.net/manual/en/language.types.declarations.php'],
                             ['label' => 'PHP Enums — official docs', 'url' => 'https://www.php.net/manual/en/language.enumerations.php'],
                             ['label' => 'Typed Properties RFC', 'url' => 'https://wiki.php.net/rfc/typed_properties_v2'],
                         ],
-                        'instructions' => null,
+                        'instructions' => [
+                            ['id' => 1, 'text' => "Form payload sanitizer — write sanitizeSignup(array \$raw): array that takes \$_POST-style input and returns typed fields: email (trimmed string), age (int, 0 if missing), terms_accepted (bool from 'yes'/'1'/'true'), referral_code (?string). This is what every onboarding controller does on day one."],
+                            ['id' => 2, 'text' => "Strict types refactor — a teammate wrote function calculateDiscount(\$price, \$percent) { return \$price - (\$price * \$percent / 100); }. Add declare(strict_types=1), parameter types, and a return type. Then call it with ('10.50', 10) and explain what changes between strict and non-strict mode."],
+                            ['id' => 3, 'text' => "Security: type juggling bypass — explain why if (\$_GET['role'] == 'admin') is exploitable when a request is crafted as ?role=0 in PHP 7. Fix it with strict equality and a whitelist. Classic technical-screen question for senior backend roles."],
+                            ['id' => 4, 'text' => "Convert magic strings to an enum — find any model in your project that has a status column stored as a raw string. Define a backed enum, cast the property, and update one match() that checks the status to be exhaustive."],
+                            ['id' => 5, 'text' => "Money math — a junior writes \$total = 0.1 + 0.2 and asserts === 0.3. Explain why the assertion fails. Then implement sumCents(array \$stringPrices): int that takes ['9.99', '1.50', '0.01'] and returns the total in cents (integer) — the only safe way to handle money in any language."],
+                        ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
                     ],
