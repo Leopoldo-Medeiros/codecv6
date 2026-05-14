@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Full-stack application: Laravel 12 (backend) + Nuxt 4 (frontend). SaaS platform connecting consultants with clients to manage career development through courses, learning paths, job listings, and personalized training plans.
+Full-stack application: Laravel 13 (backend) + Nuxt 4 (frontend). SaaS platform connecting consultants with clients to manage career development through courses, learning paths, job listings, and personalized training plans.
 
 ## Language Policy
 
@@ -50,7 +50,9 @@ The frontend runs **on the host** (macOS/Linux native node) by default. The DDEV
 cd frontend
 npm install                    # Install macOS/host dependencies
 npm run dev                    # Dev server at http://localhost:3000 / http://<LAN-IP>:3000
+npm run build                  # Server build (outputs to frontend/.output/)
 npm run generate               # Static build for deploy (outputs to frontend/dist/)
+npm run preview                # Preview a built app locally
 
 # DDEV (alternative — Linux container, separate node_modules)
 ddev npm install               # Populates the named volume (Linux x64 binaries)
@@ -226,7 +228,7 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 **Path Progress Tracking:** `UserStepProgress` tracks per-user completion of individual `PathStep`s. Steps are ordered via `.orderBy('order')` in the Path relationship. Users can only update their own progress (enforced in the controller).
 
-**Testing:** Feature tests use `RefreshDatabase` and call `RoleSeeder` in `setUp()`. Tests live in `tests/Feature/Api/` (API tests) and `tests/Feature/Auth/`. PHPUnit 11 with a separate test database config.
+**Testing:** Feature tests use `RefreshDatabase` and call `RoleSeeder` in `setUp()`. Tests live in `tests/Feature/Api/` (API tests) and `tests/Feature/Auth/`. PHPUnit 12 with a separate test database config.
 
 **Search:** `User` model uses Laravel Scout (Algolia) — `toSearchableArray()` indexes `id`, `fullname`, and `email`. Requires `SCOUT_QUEUE=true` in env.
 
