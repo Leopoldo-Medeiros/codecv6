@@ -48,9 +48,9 @@
               Step {{ step }} of {{ TOTAL_STEPS }}
             </p>
             <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">
-              {{ stepMeta[step - 1].title }}
+              {{ stepMeta[step - 1]?.title }}
             </h1>
-            <p class="mt-3 text-base text-gray-400">{{ stepMeta[step - 1].subtitle }}</p>
+            <p class="mt-3 text-base text-gray-400">{{ stepMeta[step - 1]?.subtitle }}</p>
           </div>
         </Transition>
 
@@ -329,21 +329,21 @@ const stepMeta = [
   { stepLabel: 'Goal',         title: 'Where do you want to go?',      subtitle: 'Define your career goal and the timeline you\'re working with.' },
   { stepLabel: 'Stack',        title: 'What do you work with?',        subtitle: 'Select your technologies and how much time you can commit each week.' },
   { stepLabel: 'Style',        title: 'How do you grow best?',         subtitle: 'Choose the type of support that fits your learning style.' },
-]
+] as const
 
-const levelOptions = [
+const levelOptions = ([
   { value: 'junior',  label: 'Junior',    sub: '< 2 years' },
   { value: 'mid',     label: 'Mid-Level', sub: '2–5 years' },
   { value: 'senior',  label: 'Senior',    sub: '5+ years' },
   { value: 'manager', label: 'Manager',   sub: 'Tech lead / EM' },
-]
+] as const)
 
-const timelineOptions = [
+const timelineOptions = ([
   { value: '1-3m',     label: '1–3 months',  sub: 'Moving fast' },
   { value: '3-6m',     label: '3–6 months',  sub: 'Steady pace' },
   { value: '6-12m',    label: '6–12 months', sub: 'Thorough' },
   { value: 'flexible', label: 'Flexible',    sub: 'No rush' },
-]
+] as const)
 
 const availabilityOptions = [
   { value: 5,  label: '~5 h/week',  sub: 'Light commitment' },
@@ -352,7 +352,7 @@ const availabilityOptions = [
   { value: 40, label: '40+ h/week', sub: 'Full focus' },
 ]
 
-const productOptions = [
+const productOptions = ([
   {
     value: 'self-serve',
     label: 'Self-Directed',
@@ -377,7 +377,7 @@ const productOptions = [
     iconBg: 'bg-amber-500/10',
     iconColor: 'text-amber-400',
   },
-]
+] as const)
 
 const popularTags = [
   'JavaScript', 'TypeScript', 'Python', 'PHP', 'Java', 'Go', 'C#', 'Ruby', 'Rust', 'Swift',

@@ -168,7 +168,7 @@ const { fetchStep, updateStepProgress } = usePaths()
 
 const stepId = Number(route.params.step_id)
 
-const step = ref<(PathStep & { user_status: string }) | null>(null)
+const step = ref<PathStep | null>(null)
 const pending = ref(true)
 const error = ref(false)
 const saving = ref(false)
@@ -185,11 +185,11 @@ onMounted(async () => {
   }
 })
 
-async function setStatus(status: PathStep['user_status']) {
+async function setStatus(status: NonNullable<PathStep['user_status']>) {
   if (!step.value || saving.value) return
   saving.value = true
   const prev = step.value.user_status
-  step.value = { ...step.value, user_status: status as string }
+  step.value = { ...step.value, user_status: status }
   try {
     await updateStepProgress(stepId, status)
   } catch (err: unknown) {

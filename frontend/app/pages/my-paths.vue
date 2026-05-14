@@ -98,7 +98,7 @@
           <RoadmapFlow
             v-if="view === 'roadmap' && path.steps.length"
             :steps="path.steps"
-            @node-click="(step) => openStepModal(step, path)"
+            @node-click="(s) => { const full = path.steps.find(x => x.id === s.id); if (full) openStepModal(full, path) }"
           />
 
           <!-- Course content (Udemy-style accordion) -->
@@ -478,12 +478,16 @@ onMounted(async () => {
   }
 })
 
-const enrichedPaths = computed(() =>
+type EnrichedPath = Path & { steps: PathStep[]; doneCount: number; progressPct: number }
+
+const enrichedPaths = computed<EnrichedPath[]>(() =>
   paths.value.map(p => {
     const steps = pathSteps.value[p.id] ?? []
     const doneCount = steps.filter(s => s.user_status === 'done').length
     const progressPct = steps.length ? Math.round((doneCount / steps.length) * 100) : 0
-    return { ...p, steps, doneCount, progressPct }
+    // `paths` is exposed as readonly by the composable; clone via spread and
+    // re-assert as Path so the writable function signatures accept it.
+    return { ...(p as Path), steps, doneCount, progressPct }
   })
 )
 
@@ -535,7 +539,7 @@ async function setStatus(path: Path, step: PathStep, status: PathStep['user_stat
   // optimistic: update this step
   if (arr) {
     const idx = arr.findIndex(s => s.id === step.id)
-    if (idx !== -1) arr[idx] = { ...arr[idx], user_status: status }
+    if (idx !== -1) arr[idx] = { ...arr[idx]!, user_status: status }
   }
 
   try {

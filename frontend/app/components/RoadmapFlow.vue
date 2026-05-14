@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { VueFlow, Position } from '@vue-flow/core'
+import { VueFlow, Position, MarkerType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import { Controls } from '@vue-flow/controls'
@@ -66,7 +66,10 @@ const emit  = defineEmits<{ (e: 'nodeClick', step: Step): void }>()
 
 const colorMode = useColorMode()
 const isDark    = computed(() => colorMode.value === 'dark')
-const nodeTypes = { step: markRaw(RoadmapStepNode) }
+// vue-flow's NodeTypesObject expects raw component definitions; markRaw'd
+// SFC imports satisfy the runtime shape but TS sees a stricter generic.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const nodeTypes = { step: markRaw(RoadmapStepNode) } as any
 
 // Snake layout constants
 const NODE_W = 240, NODE_H = 90, V_GAP = 60, H_GAP = 100
@@ -98,7 +101,8 @@ const nodes = computed(() =>
 
 const edges = computed(() =>
   props.steps.slice(0, -1).map((step, i) => {
-    const next   = props.steps[i + 1]
+    // slice(0, -1) guarantees i+1 is always in range.
+    const next   = props.steps[i + 1]!
     const isDone = step.user_status === 'done'
     const isWip  = step.user_status === 'in_progress'
     const stroke = isDone ? '#00AC69' : isWip ? '#00d97e' : 'rgba(0,172,105,0.3)'
@@ -109,7 +113,7 @@ const edges = computed(() =>
       animated:  isWip,
       type:      'smoothstep',
       style:     { stroke, strokeWidth: isDone || isWip ? 2 : 1.5 },
-      markerEnd: { type: 'arrowclosed', color: stroke, width: 11, height: 11 },
+      markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 11, height: 11 },
     }
   })
 )

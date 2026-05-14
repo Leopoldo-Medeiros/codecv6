@@ -136,8 +136,8 @@
                     @click="handleNotificationClick(n, close)"
                   >
                     <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-                      :class="notifIconBg(n.data.type)">
-                      <UIcon :name="notifIcon(n.data.type)" class="h-4 w-4" :class="notifIconColor(n.data.type)" />
+                      :class="notifIconBg(String(n.data.type ?? ''))">
+                      <UIcon :name="notifIcon(String(n.data.type ?? ''))" class="h-4 w-4" :class="notifIconColor(String(n.data.type ?? ''))" />
                     </span>
                     <div class="min-w-0 flex-1">
                       <p class="text-[13px] font-medium text-gray-800 dark:text-slate-200 leading-snug">

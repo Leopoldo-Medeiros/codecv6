@@ -1,32 +1,6 @@
-interface User {
-  id: number
-  fullname: string
-  email: string
-  role: string
-  profile?: {
-    birth_date?: string
-    profession?: string
-    profile_image?: string
-    profile_image_url?: string
-    website?: string
-    github?: string
-    linkedin?: string
-    instagram?: string
-    facebook?: string
-  }
-  created_at: string
-  updated_at: string
-}
+import type { User, PaginatedResponse } from '~/types/models'
 
-interface UsersResponse {
-  data: User[]
-  meta?: {
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-  }
-}
+type UsersResponse = PaginatedResponse<User>
 
 export const useUsers = () => {
   const api = useApi()

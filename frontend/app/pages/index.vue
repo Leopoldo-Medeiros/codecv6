@@ -189,25 +189,25 @@
             </button>
           </div>
 
-          <div class="tabs__panel">
+          <div v-if="activeTabData" class="tabs__panel">
             <div class="tabs__panel-text">
-              <span class="eyebrow">{{ tabs[activeTab].badge }}</span>
-              <h3 class="h3">{{ tabs[activeTab].heading }}</h3>
-              <p>{{ tabs[activeTab].desc }}</p>
+              <span class="eyebrow">{{ activeTabData.badge }}</span>
+              <h3 class="h3">{{ activeTabData.heading }}</h3>
+              <p>{{ activeTabData.desc }}</p>
               <ul class="check-list">
-                <li v-for="b in tabs[activeTab].bullets" :key="b">
+                <li v-for="b in activeTabData.bullets" :key="b">
                   <span class="check-list__icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none"><path d="M5 13l4 4L19 7" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
                   {{ b }}
                 </li>
               </ul>
-              <NuxtLink :to="tabs[activeTab].cta" class="btn btn--em-soft">
+              <NuxtLink :to="activeTabData.cta" class="btn btn--em-soft">
                 Learn more →
               </NuxtLink>
             </div>
             <div class="tabs__panel-visual">
-              <img :src="tabs[activeTab].img" :alt="tabs[activeTab].title" />
+              <img :src="activeTabData.img" :alt="activeTabData.title" />
             </div>
           </div>
         </div>
@@ -230,7 +230,7 @@
             class="evercard"
             @mousemove="onVaultMove($event, i)"
             @mouseleave="onVaultLeave(i)"
-            :style="{ '--x': vaultPos[i].x + 'px', '--y': vaultPos[i].y + 'px', '--lit': vaultPos[i].lit }"
+            :style="{ '--x': (vaultPos[i]?.x ?? 0) + 'px', '--y': (vaultPos[i]?.y ?? 0) + 'px', '--lit': vaultPos[i]?.lit ?? 0 }"
           >
             <div class="evercard__pattern" aria-hidden="true"></div>
             <div class="evercard__cross evercard__cross--tl" aria-hidden="true"></div>
@@ -499,6 +499,7 @@ const tabs = [
   },
 ]
 const activeTab = ref(0)
+const activeTabData = computed(() => tabs[activeTab.value])
 
 /* === Evervault cards === */
 const IconBolt = () => h('svg', { viewBox: '0 0 24 24', width: 22, height: 22, fill: 'none' }, [
@@ -520,13 +521,16 @@ const vaultCards = [
 ]
 const vaultPos = reactive(vaultCards.map(() => ({ x: 0, y: 0, lit: 0 })))
 function onVaultMove(e: MouseEvent, i: number) {
+  const pos = vaultPos[i]
+  if (!pos) return
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  vaultPos[i].x = e.clientX - rect.left
-  vaultPos[i].y = e.clientY - rect.top
-  vaultPos[i].lit = 1
+  pos.x = e.clientX - rect.left
+  pos.y = e.clientY - rect.top
+  pos.lit = 1
 }
 function onVaultLeave(i: number) {
-  vaultPos[i].lit = 0
+  const pos = vaultPos[i]
+  if (pos) pos.lit = 0
 }
 
 /* === World map === */
@@ -547,28 +551,34 @@ const arcs = computed(() =>
     return `M${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`
   })
 )
-// Stylised dotted world map (clusters approximating continents)
+// Stylised dotted world map (clusters approximating continents).
+// Generated with a seeded PRNG so the dot positions are identical on the
+// server and the client — otherwise Vue would log a hydration mismatch
+// and the map would jump on hydrate.
 const mapDots = (() => {
+  let seed = 0x9E3779B1
+  const rand = () => {
+    seed = (seed + 0x6D2B79F5) | 0
+    let t = seed
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
   const dots: number[][] = []
-  const blobs = [
-    // North America
-    [120, 150, 200, 90, 12],
-    // South America
-    [255, 320, 60, 130, 7],
-    // Europe
-    [490, 170, 80, 50, 7],
-    // Africa
-    [540, 290, 80, 140, 9],
-    // Asia
-    [720, 200, 220, 90, 14],
-    // Australia
-    [860, 370, 70, 50, 6],
+  const blobs: Array<[number, number, number, number, number]> = [
+    // [cx, cy, w, h, density]
+    [120, 150, 200, 90, 12],  // North America
+    [255, 320,  60, 130, 7],  // South America
+    [490, 170,  80,  50, 7],  // Europe
+    [540, 290,  80, 140, 9],  // Africa
+    [720, 200, 220,  90, 14], // Asia
+    [860, 370,  70,  50, 6],  // Australia
   ]
   for (const [cx, cy, w, h2, n] of blobs) {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < (n - 2); j++) {
-        const x = cx + (Math.random() - 0.5) * w
-        const y = cy + (Math.random() - 0.5) * h2
+        const x = cx + (rand() - 0.5) * w
+        const y = cy + (rand() - 0.5) * h2
         const dx = (x - cx) / (w / 2)
         const dy = (y - cy) / (h2 / 2)
         if (dx * dx + dy * dy <= 1.05) dots.push([Math.round(x), Math.round(y)])
@@ -1405,9 +1415,6 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 @media (max-width: 1024px) {
   .hero__inner { grid-template-columns: 1fr; gap: 56px; }
   .hero__right { min-height: auto; }
-  .hero__photo-stage { max-width: 380px; margin: 0 auto; }
-  .float-card--plan { left: -4%; }
-  .float-card--cv { right: -4%; }
 
   .tabs__panel { grid-template-columns: 1fr; gap: 36px; }
   .vault__grid { grid-template-columns: 1fr 1fr; }
@@ -1417,10 +1424,6 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 
 @media (max-width: 768px) {
   .hero__metrics { gap: 18px; flex-wrap: wrap; }
-  .hero__photo-stage { max-width: 340px; }
-  .deco--waves { width: 28%; }
-  .deco--net { width: 26%; }
-  .deco--grid { width: 16%; }
 
   .tabs__nav { flex-wrap: wrap; }
   .vault__grid { grid-template-columns: 1fr; }
@@ -1435,7 +1438,5 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   .row-cta { width: 100%; flex-direction: column; align-items: stretch; }
   .row-cta .btn { width: 100%; }
   .row-cta--center { flex-direction: row; }
-  .float-card { padding: 10px 14px; }
-  .float-card__big { font-size: 1.3rem; }
 }
 </style>

@@ -169,7 +169,7 @@ const roleBadgeColor = (role?: string) => {
   }
 }
 
-const formatDate = (date: string) => new Date(date).toLocaleDateString()
+const formatDate = (date?: string) => (date ? new Date(date).toLocaleDateString() : 'N/A')
 
 const goToCreateUser = () => router.push('/users/create')
 const viewUser = (id: number) => router.push(`/users/${id}`)

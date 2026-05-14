@@ -8,6 +8,7 @@ export interface User {
   email: string
   role?: UserRole
   consultant_id?: number | null
+  consultant?: User | null
   needs_onboarding?: boolean
   profile?: Profile
   created_at?: string
@@ -26,6 +27,13 @@ export interface Profile {
   linkedin?: string
   instagram?: string
   facebook?: string
+  // Onboarding / career fields (added in 2026_04_19 migrations).
+  goal?: string
+  level?: string
+  stack?: string[]
+  product_interest?: string
+  availability_hours?: number
+  timeline?: string
 }
 
 export interface Course {

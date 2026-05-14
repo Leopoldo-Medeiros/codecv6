@@ -195,8 +195,9 @@ const router = useRouter()
 const toast  = useToast()
 
 const { fetchStep, updateStepProgress } = usePaths()
+type LabStep = Awaited<ReturnType<typeof fetchStep>>
 
-const step   = ref<any>(null)
+const step   = ref<LabStep | null>(null)
 const loading = ref(true)
 const saving  = ref(false)
 
@@ -241,11 +242,12 @@ const progressPct = computed(() => {
 })
 
 async function markStatus(status: 'in_progress' | 'done') {
-  if (saving.value) return
+  if (saving.value || !step.value) return
   saving.value = true
+  const current = step.value
   try {
-    await updateStepProgress(step.value.id, status)
-    step.value = { ...step.value, user_status: status }
+    await updateStepProgress(current.id, status)
+    step.value = { ...current, user_status: status }
     toast.add({ title: status === 'done' ? 'Step completed!' : 'Marked as in progress', color: 'emerald' })
   } catch {
     toast.add({ title: 'Could not save progress', color: 'red' })
@@ -269,11 +271,11 @@ const typeIcon = computed(() => ({
   reading:   'i-heroicons-book-open',
 }[step.value?.type ?? 'reading']))
 
-const typeBadgeColor = computed(() => ({
-  lab:       'emerald',
-  challenge: 'amber',
-  quiz:      'violet',
-  reading:   'gray',
+const typeBadgeColor = computed((): 'emerald' | 'amber' | 'violet' | 'gray' => ({
+  lab:       'emerald' as const,
+  challenge: 'amber'   as const,
+  quiz:      'violet'  as const,
+  reading:   'gray'    as const,
 }[step.value?.type ?? 'reading']))
 
 const statusLabel = computed(() => ({
@@ -282,9 +284,9 @@ const statusLabel = computed(() => ({
   not_started: 'Not Started',
 }[step.value?.user_status ?? 'not_started']))
 
-const statusColor = computed(() => ({
-  done:        'green',
-  in_progress: 'emerald',
-  not_started: 'gray',
+const statusColor = computed((): 'green' | 'emerald' | 'gray' => ({
+  done:        'green'   as const,
+  in_progress: 'emerald' as const,
+  not_started: 'gray'    as const,
 }[step.value?.user_status ?? 'not_started']))
 </script>

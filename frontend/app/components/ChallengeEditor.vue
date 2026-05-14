@@ -257,28 +257,28 @@ function parseDiff(message: string): AssertionDiff | null {
   let m: RegExpMatchArray | null
 
   m = message.match(/^Failed asserting that (.+) is identical to (.+)\.$/)
-  if (m) return { actual: m[1], expected: m[2] }
+  if (m) return { actual: m[1]!, expected: m[2]! }
 
   m = message.match(/^Failed asserting that (.+) equals (.+)\.$/)
-  if (m) return { actual: m[1], expected: m[2] }
+  if (m) return { actual: m[1]!, expected: m[2]! }
 
   m = message.match(/^Failed asserting that (.+) is greater than (.+)\.$/)
-  if (m) return { actual: m[1], expected: `> ${m[2]}` }
+  if (m) return { actual: m[1]!, expected: `> ${m[2]}` }
 
   m = message.match(/^Failed asserting that (.+) is less than (.+)\.$/)
-  if (m) return { actual: m[1], expected: `< ${m[2]}` }
+  if (m) return { actual: m[1]!, expected: `< ${m[2]}` }
 
   m = message.match(/^Failed asserting that actual size (\d+) matches expected size (\d+)\.$/)
   if (m) return { actual: `count: ${m[1]}`, expected: `count: ${m[2]}` }
 
   m = message.match(/^Failed asserting that (.+) is an instance of (.+)\.$/)
-  if (m) return { actual: m[1], expected: `instanceof ${m[2]}` }
+  if (m) return { actual: m[1]!, expected: `instanceof ${m[2]}` }
 
   m = message.match(/^Failed asserting that array contains (.+)\.$/)
-  if (m) return { actual: '(not in array)', expected: m[1] }
+  if (m) return { actual: '(not in array)', expected: m[1]! }
 
   m = message.match(/^Failed asserting that (.+) is null\.$/)
-  if (m) return { actual: m[1], expected: 'null' }
+  if (m) return { actual: m[1]!, expected: 'null' }
 
   return null
 }
