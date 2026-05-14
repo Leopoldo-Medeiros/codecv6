@@ -226,7 +226,9 @@ async function handleAssignConsultant() {
     const res = await patch<{ user: any }>(`/users/${userId.value}/consultant`, {
       consultant_id: selectedConsultantId.value,
     })
-    if (selectedUser.value) selectedUser.value = res.user
+    // The composable returns `user` as a readonly ref. Refetch instead of
+    // mutating .value directly so the UI reflects the new consultant.
+    await fetchUser(userId.value)
     selectedConsultantId.value = res.user.consultant_id ?? null
     toast.add({ title: 'Consultant assigned', color: 'green' })
   } catch (e: any) {
@@ -284,7 +286,7 @@ const timelineLabel = (t?: string) => {
   }
 }
 
-const formatDate = (date: string) => new Date(date).toLocaleDateString()
+const formatDate = (date?: string) => (date ? new Date(date).toLocaleDateString() : 'N/A')
 
 onMounted(async () => {
   await fetchUser(userId.value)

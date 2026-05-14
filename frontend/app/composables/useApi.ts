@@ -7,7 +7,7 @@ export const useApi = () => {
         const match = document.cookie
             .split('; ')
             .find(row => row.startsWith('XSRF-TOKEN='))
-        return match ? decodeURIComponent(match.split('=')[1]) : undefined
+        return match ? decodeURIComponent(match.split('=')[1] ?? '') : undefined
     }
 
     const getAuthToken = (): string | undefined => {
@@ -57,7 +57,7 @@ export const useApi = () => {
                 credentials: 'include',
                 headers,
                 signal: controller.signal,
-            })
+            }) as T
         } finally {
             clearTimeout(timer)
         }

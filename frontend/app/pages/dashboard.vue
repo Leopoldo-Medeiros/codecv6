@@ -285,7 +285,8 @@ const userColumns = [
   { key: 'actions',    label: '' },
 ]
 
-const roleBadgeColor = (r?: string) => ({ admin: 'red', consultant: 'purple' }[r ?? ''] ?? 'blue')
+const roleBadgeColor = (r?: string): 'red' | 'purple' | 'blue' =>
+  ({ admin: 'red', consultant: 'purple' } as Record<string, 'red' | 'purple'>)[r ?? ''] ?? 'blue'
 const formatDate     = (d: string)  => new Date(d).toLocaleDateString()
 const getUserActions = (u: any) => [[
   { label: 'View', icon: 'i-heroicons-user',   click: () => navigateTo(`/users/${u.id}`) },

@@ -6,8 +6,10 @@
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 onMounted(() => {
-  const canvas = canvasRef.value
-  if (!canvas) return
+  const canvasMaybe = canvasRef.value
+  if (!canvasMaybe) return
+  // Bind to a const with non-null type so nested closures keep the narrowing.
+  const canvas: HTMLCanvasElement = canvasMaybe
   const ctx = canvas.getContext('2d')!
   let raf: number
   let angle = 0
@@ -74,7 +76,7 @@ onMounted(() => {
     // Connections between nearby nodes
     for (let i = 0; i < proj.length; i++) {
       for (let j = i + 1; j < proj.length; j++) {
-        const a = proj[i], b = proj[j]
+        const a = proj[i]!, b = proj[j]!
         const dx = a.rx - b.rx, dy = a.ry - b.ry, dz = a.rz - b.rz
         const d  = Math.sqrt(dx * dx + dy * dy + dz * dz)
         if (d < 0.46) {

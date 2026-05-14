@@ -118,7 +118,7 @@ const errors = ref<Record<string, string>>({})
 
 interface RoleOption { label: string; value: number }
 const roleOptions = ref<RoleOption[]>([])
-const selectedRole = ref<RoleOption | null>(null)
+const selectedRole = ref<RoleOption | undefined>(undefined)
 
 const form = ref({
   fullname: '',
@@ -177,7 +177,7 @@ const handleSubmit = async () => {
     if (data?.errors) {
       Object.entries(data.errors as Record<string, string[]>).forEach(([field, messages]) => {
         const key = field.replace('profile.', '')
-        errors.value[key] = (messages as string[])[0]
+        errors.value[key] = messages[0] ?? 'Validation error'
       })
       apiError.value = data.message ?? 'Please fix the errors below.'
     } else {

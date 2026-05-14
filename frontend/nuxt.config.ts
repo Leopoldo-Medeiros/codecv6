@@ -18,11 +18,6 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/ui', '@nuxtjs/seo'],
 
-  ui: {
-    primary: 'emerald',
-    gray: 'slate',
-  },
-
   // @nuxtjs/seo — site-wide config consumed by sitemap, robots,
   // schema.org, and canonical URLs.
   site: {

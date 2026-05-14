@@ -125,7 +125,6 @@
 
 <script setup lang="ts">
 const { isAuthenticated, logout } = useAuth()
-const route = useRoute()
 const mobileOpen = ref(false)
 const scrolled = ref(false)
 // Homepage now uses a light hero — keep the navbar in its light variant,

@@ -56,7 +56,7 @@ const segments = computed(() => {
     if (match.index > lastIndex) {
       result.push({ type: 'html', content: renderMarkdown(props.content.slice(lastIndex, match.index)) })
     }
-    result.push({ type: match[1] as 'mermaid' | 'lifecycle-diagram', content: match[2].trim() })
+    result.push({ type: match[1] as 'mermaid' | 'lifecycle-diagram', content: (match[2] ?? '').trim() })
     lastIndex = match.index + match[0].length
   }
 

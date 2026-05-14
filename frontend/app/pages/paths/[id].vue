@@ -52,7 +52,7 @@
           <RoadmapFlow
             v-if="view === 'roadmap' && steps.length"
             :steps="steps"
-            @node-click="openEditStep"
+            @node-click="(s) => { const full = steps.find(x => x.id === s.id); if (full) openEditStep(full) }"
           />
 
           <!-- Empty -->
@@ -265,7 +265,7 @@
           <div>
             <label class="mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300">Linked Course (optional)</label>
             <USelect v-model="form.course_id"
-              :options="[{ label: 'None', value: null }, ...courseOptions]"
+              :options="[{ label: 'None', value: undefined }, ...courseOptions]"
               value-attribute="value"
               option-attribute="label"
               placeholder="Select a course…" />
@@ -327,7 +327,7 @@ const editingStep = ref<PathStep | null>(null)
 const emptyForm = () => ({
   title: '',
   description: '',
-  course_id: null as number | null,
+  course_id: undefined as number | undefined,
   type: 'reading' as 'reading' | 'lab' | 'challenge' | 'quiz',
   lab_url: '',
   instructions: [] as { id: number; text: string }[],
@@ -371,7 +371,10 @@ function stepTypeLabel(type: string) {
 }
 
 function stepTypeBadgeColor(type: string) {
-  return { lab: 'emerald', challenge: 'amber', quiz: 'violet', reading: 'gray' }[type] ?? 'gray'
+  const map: Record<string, 'emerald' | 'amber' | 'violet' | 'gray'> = {
+    lab: 'emerald', challenge: 'amber', quiz: 'violet', reading: 'gray',
+  }
+  return map[type] ?? 'gray'
 }
 
 function openAddStep() {
@@ -461,7 +464,9 @@ async function moveStep(index: number, dir: -1 | 1) {
   const newIndex = index + dir
   if (newIndex < 0 || newIndex >= steps.value.length) return
   const arr = [...steps.value]
-  ;[arr[index], arr[newIndex]] = [arr[newIndex], arr[index]]
+  // Both indices are bounds-checked above; the non-null assertions narrow
+  // TS's noUncheckedIndexedAccess result back to PathStep.
+  ;[arr[index], arr[newIndex]] = [arr[newIndex]!, arr[index]!]
   steps.value = arr
   try {
     await reorderSteps(pathId.value, arr.map(s => s.id))

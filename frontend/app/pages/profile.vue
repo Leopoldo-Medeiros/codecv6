@@ -38,7 +38,7 @@
                      hover:bg-emerald-700 dark:border-gray-800"
               title="Change photo"
               :disabled="uploadingAvatar"
-              @click="$refs.avatarInput.click()"
+              @click="avatarInput?.click()"
             >
               <UIcon v-if="uploadingAvatar" name="i-heroicons-arrow-path" class="h-3.5 w-3.5 animate-spin" />
               <UIcon v-else name="i-heroicons-camera" class="h-3.5 w-3.5" />
@@ -88,7 +88,7 @@
                     :href="user.profile[link.key]" target="_blank" rel="noopener"
                     :title="user.profile[link.key]"
                     class="block truncate text-xs text-emerald-700 hover:text-emerald-600 hover:underline dark:text-emerald-400">
-                    {{ user.profile[link.key].replace(/^https?:\/\/(www\.)?/, '') }}
+                    {{ (user.profile[link.key] ?? '').replace(/^https?:\/\/(www\.)?/, '') }}
                   </a>
                   <p v-else class="text-xs italic text-gray-400 dark:text-gray-500">Not set</p>
                 </template>
@@ -239,6 +239,7 @@ const editing          = ref(false)
 const saving           = ref(false)
 const showPasswordForm = ref(false)
 const uploadingAvatar  = ref(false)
+const avatarInput      = ref<HTMLInputElement | null>(null)
 const avatarPreview    = ref<string | null>(null)
 
 const { upload, put } = useApi()
@@ -262,7 +263,7 @@ const socialLinks = [
   { key: 'instagram', label: 'Instagram', icon: 'i-heroicons-camera',       color: '#e1306c' },
   { key: 'facebook',  label: 'Facebook',  icon: 'i-heroicons-user-group',   color: '#1877f2' },
   { key: 'website',   label: 'Website',   icon: 'i-heroicons-globe-alt',    color: '#059669' },
-]
+] as const
 
 function startEdit() {
   form.fullname  = user.value?.fullname  ?? ''
@@ -324,10 +325,14 @@ async function handleAvatarUpload(event: Event) {
 async function saveProfile() {
   saving.value = true
   try {
+    // Backend UserRequest expects `role: roles.id` (numeric). UserResource
+    // only returns the role NAME, so map it back via the RoleEnum ids
+    // (admin=1, client=2, consultant=3). Falls back to client for safety.
+    const roleIds = { admin: 1, client: 2, consultant: 3 } as const
     await put(`/users/${user.value?.id}`, {
       fullname: form.fullname,
       email:    user.value?.email,
-      role:     user.value?.role_id ?? user.value?.roles?.[0]?.id ?? 2,
+      role:     roleIds[user.value?.role ?? 'client'] ?? 2,
       profile: {
         github:    form.github    || null,
         linkedin:  form.linkedin  || null,
