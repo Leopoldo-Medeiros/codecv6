@@ -408,54 +408,734 @@ PHP,
                     [
                         'title' => 'Laravel Request Lifecycle: What Happens Before Your Code Runs',
                         'type' => 'reading',
-                        'description' => <<<'EOT'
-                        Most juniors treat Laravel as magic. Understanding the lifecycle — from index.php to the Response — is what separates problem-solvers from tutorial-followers. We will dissect the bootstrap process, Service Providers, the IoC Container, and how middlewares form a pipeline.
+                        'description' => 'Most juniors treat Laravel as magic. Understanding the lifecycle — from index.php to the Response — is what separates problem-solvers from tutorial-followers. We dissect bootstrap, Service Providers, the IoC Container, and how middleware forms a pipeline.',
+                        'tldr' => 'Every HTTP request walks the same eight-stage road: index.php → Application → Service Providers → HTTP Kernel → global middleware → router → route middleware → your controller. Knowing where you are on that road turns "Laravel is magic" debugging into "I can put a breakpoint anywhere".',
+                        'estimated_minutes' => 22,
+                        'difficulty' => 'intermediate',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'Modern PHP: Types, Nullables and Enums'],
+                            ['id' => 2, 'title' => 'Basic Laravel routing & controllers'],
+                        ],
+                        'concepts' => ['lifecycle', 'service-providers', 'ioc-container', 'middleware', 'http-kernel', 'service-resolution'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
 
-                        ## The Full Request Journey
+// A toy middleware that logs each request's path + duration.
+// Copy this into app/Http/Middleware/ in a real Laravel app and
+// register it in bootstrap/app.php to see it in your laravel.log.
 
-                        ```mermaid
-                        flowchart TD
-                            REQ(["🌐 HTTP Request"]):::emerald
+class LogRequestDuration
+{
+    public function handle(\Illuminate\Http\Request $request, \Closure $next)
+    {
+        $startedAt = microtime(true);
 
-                            REQ --> ENTRY["public/index.php\nApp entry point"]:::slate
-                            ENTRY --> BOOTSTRAP["bootstrap/app.php\ncreates Application"]:::slate
-                            BOOTSTRAP --> PROVIDERS["Service Providers\nregister() → boot()"]:::blue
+        // ── Pre-handle phase: runs BEFORE the controller. Authentication,
+        //    rate limiting, header massaging all happen here.
+        \Log::info('→ request', ['path' => $request->path()]);
 
-                            PROVIDERS --> KERNEL["HTTP Kernel\nhandle()"]:::slate
-                            KERNEL --> GMID["Global Middleware Pipeline\n(TrimStrings, VerifyCsrf…)"]:::slate
-                            GMID --> ROUTER["Router\nmatches URI + HTTP verb"]:::emerald
+        $response = $next($request);  // ← controller (and everything after) runs here
 
-                            ROUTER --> RMID["Route Middleware\n(auth, throttle, role…)"]:::slate
-                            RMID --> CTRL["Controller Action\n← your code runs here"]:::emerald
-                            CTRL --> RES["Eloquent Resource\nshapes the response"]:::emerald
-                            RES --> RESP(["✅ HTTP Response\nJSON / HTML / Redirect"]):::emerald
+        // ── Post-handle phase: runs AFTER the response is built.
+        //    Logging, header injection, span finalisation belong here.
+        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+        \Log::info('← response', [
+            'path' => $request->path(),
+            'status' => $response->getStatusCode(),
+            'duration_ms' => $durationMs,
+        ]);
 
-                            classDef emerald fill:#d1fae5,stroke:#059669,color:#065f46,font-weight:600
-                            classDef slate   fill:#f1f5f9,stroke:#64748b,color:#1e293b,font-weight:500
-                            classDef blue    fill:#dbeafe,stroke:#3b82f6,color:#1e40af,font-weight:500
-                        ```
+        return $response;
+    }
+}
 
-                        Understanding where your code sits in this chain is what separates a problem-solver from someone who just adds `dd()` and hopes for the best.
-                        EOT,
+echo "Middleware skeleton compiled OK\n";
+PHP,
+                        'concept_content' => <<<'EOT'
+## Core (PHP fundamentals)
+
+### The journey of a request
+
+Every request to a Laravel app walks the same road. Burn this picture into your head — it tells you where to put a breakpoint when something goes wrong.
+
+```mermaid
+flowchart TD
+    REQ(["HTTP Request"]):::emerald
+    REQ --> ENTRY["public/index.php\nApp entry point"]:::slate
+    ENTRY --> BOOTSTRAP["bootstrap/app.php\ncreates Application"]:::slate
+    BOOTSTRAP --> PROVIDERS["Service Providers\nregister() → boot()"]:::blue
+    PROVIDERS --> KERNEL["HTTP Kernel\nhandle()"]:::slate
+    KERNEL --> GMID["Global Middleware\nTrimStrings, VerifyCsrf, …"]:::slate
+    GMID --> ROUTER["Router\nmatches URI + HTTP verb"]:::emerald
+    ROUTER --> RMID["Route Middleware\nauth, throttle, role, …"]:::slate
+    RMID --> CTRL["Controller Action\n← your code runs here"]:::emerald
+    CTRL --> RES["Eloquent Resource\nshapes the response"]:::emerald
+    RES --> RESP(["HTTP Response"]):::emerald
+    classDef emerald fill:#d1fae5,stroke:#059669,color:#065f46,font-weight:600
+    classDef slate   fill:#f1f5f9,stroke:#64748b,color:#1e293b,font-weight:500
+    classDef blue    fill:#dbeafe,stroke:#3b82f6,color:#1e40af,font-weight:500
+```
+
+If you're debugging a 500 and don't know which arrow to inspect first, you're guessing. After this step you should be able to point at one box and say *"the bug is between here and here"*.
+
+### The entry point
+
+Every web request first hits `public/index.php`. It does four things in order:
+
+```php
+require __DIR__.'/../vendor/autoload.php';
+
+$app = require_once __DIR__.'/../bootstrap/app.php';
+
+$app->handleRequest(Request::capture());
+```
+
+1. **Autoload** PSR-4 classes through Composer.
+2. **Build** the `Application` instance (the IoC container).
+3. **Capture** the incoming HTTP request into an `Illuminate\Http\Request`.
+4. **Run** it through the HTTP Kernel.
+
+Everything else is sugar on top of these four lines.
+
+### Service Providers — register vs boot
+
+A Service Provider is the bridge between *features Laravel ships with* and *your application's bindings*. Each provider runs two phases:
+
+```php
+class AppServiceProvider extends ServiceProvider
+{
+    // register(): bind things into the container.
+    // The container isn't fully populated yet — DO NOT use other services here.
+    public function register(): void
+    {
+        $this->app->singleton(BillingClient::class, fn () => new StripeBillingClient(
+            config('services.stripe.secret')
+        ));
+    }
+
+    // boot(): everything is registered. Now you can safely USE other services.
+    public function boot(): void
+    {
+        Gate::define('manage-billing', fn ($user) => $user->hasRole('admin'));
+    }
+}
+```
+
+If you put `Gate::define` inside `register()`, the Auth service might not exist yet and your app crashes at boot time. The two-phase split is the framework's way of avoiding circular dependencies.
+
+### Middleware pipeline
+
+Middleware sits *between* the request reaching the router and your controller running. Each middleware can:
+
+- **Reject** the request early (return a response without calling `$next`).
+- **Mutate** the request before the controller sees it.
+- **Mutate** the response before the client sees it.
+
+```php
+public function handle(Request $request, Closure $next)
+{
+    // pre-handle phase
+    if (! $request->bearerToken()) {
+        return response()->json(['error' => 'unauthenticated'], 401);
+    }
+
+    $response = $next($request);
+
+    // post-handle phase
+    $response->headers->set('X-Trace-Id', request()->header('X-Trace-Id', uniqid()));
+    return $response;
+}
+```
+
+The `$next($request)` call is the seam: everything before it runs on the way **in**, everything after runs on the way **out**. Authentication, rate limiting, and request rewriting belong before; logging, header injection and tracing belong after.
+
+## Deeper dive (container internals)
+
+### Bindings: `bind`, `singleton`, `instance`, `scoped`
+
+The container has four primary registration modes. Pick wrong and you either leak state or pay for object construction on every request:
+
+| Method                       | New instance per resolve? | Lives for…          | Use when…                                                |
+| ---------------------------- | ------------------------- | ------------------- | -------------------------------------------------------- |
+| `bind`                       | Yes                       | One resolve         | The dependency holds per-request state (request stamper, transient builder). |
+| `singleton`                  | No                        | The whole process   | The dependency is stateless or expensive to build (HTTP clients, DB connections via the factory). |
+| `instance`                   | No                        | The whole process   | You already have the object and just want to register it. |
+| `scoped`                     | No                        | One request/job     | Per-request caching (the request id, an idempotency key store). Octane-safe. |
+
+Choosing `singleton` for a stateful service is the classic Octane footgun: state from one request leaks into the next. When you migrate a Laravel app to Octane, every `singleton` becomes suspect.
+
+### Contextual binding
+
+Same interface, different implementation depending on who's asking:
+
+```php
+$this->app
+    ->when(EmailNotifier::class)
+    ->needs(MailerInterface::class)
+    ->give(ResendMailer::class);
+
+$this->app
+    ->when(InvoiceJob::class)
+    ->needs(MailerInterface::class)
+    ->give(SmtpMailer::class);
+```
+
+`EmailNotifier` gets the Resend client (fast, transactional). `InvoiceJob` gets the SMTP client (slower but uses the audit-logged corporate relay). The consumer doesn't change; the wiring does.
+
+### Route caching and what it actually caches
+
+`php artisan route:cache` serialises the matched route definitions to a single file. It doesn't cache responses. The big gotcha: **closure-based routes can't be cached** — they aren't serialisable. If your bootstrap suddenly fails in production, that's almost always why. Convert closures to controller actions before caching.
+
+### The deferred-loading optimisation
+
+Service Providers run on every request by default. If you only need a provider when a specific job runs, mark it `deferred`:
+
+```php
+class HeavyAnalyticsProvider extends ServiceProvider implements DeferrableProvider
+{
+    public function provides(): array
+    {
+        return [AnalyticsClient::class];
+    }
+}
+```
+
+The provider's `register()` won't fire until something type-hints `AnalyticsClient`. For background jobs that don't touch analytics, you skip the bootstrap cost entirely.
+
+## Senior insights (debugging & interview prep)
+
+### Reading a Laravel stack trace efficiently
+
+When prod 500s, you have a 60-line stack trace. The trick: read from the **bottom up** until you cross the framework/app boundary. Every line under `vendor/laravel/framework/...` is the framework calling your code; the first line in `app/` is *your* bug.
+
+Practical tools:
+
+- `dd(debug_backtrace())` shows the same trace inline if you want to inspect a path without raising an exception.
+- `\Log::stack(['daily'])->channel('errors')->debug(...)` for production-safe instrumentation.
+- The `Throwable::getPrevious()` chain matters — the root cause is usually 2-3 wrappers deep (request → controller → service → repository → DB exception).
+
+### Common interview question: *"Walk me through what happens when you submit a form."*
+
+A senior answer hits these beats in order — short, no umm-ing:
+
+1. The browser POSTs to a URL. The web server (nginx/Apache) forwards to PHP-FPM which calls `public/index.php`.
+2. `bootstrap/app.php` builds the Application container.
+3. Service Providers register (and then boot) — anything your app depends on becomes resolvable.
+4. The HTTP Kernel runs global middleware: `TrimStrings`, `VerifyCsrfToken`, `EncryptCookies`, etc.
+5. The router matches the URI to a route definition.
+6. Route middleware runs: `auth`, `throttle`, custom role checks.
+7. Your controller resolves its dependencies through the container (constructor and method injection) and runs.
+8. The controller returns something the framework wraps in `Symfony\Component\HttpFoundation\Response`.
+9. The response walks back through every middleware that ran on the way in — this time their post-handle phase fires.
+10. PHP-FPM emits the response; the web server returns it to the browser.
+
+If you can recite that flow and pin a known framework feature (Sanctum's `EnsureFrontendRequestsAreStateful`, the new bootstrap/app.php fluent API) to each step, you're already past the senior bar most interviewers set.
+
+### Anti-patterns seniors flag at code review
+
+- **Container access inside loops.** `app(Foo::class)` resolves once per iteration. Inject once at the top.
+- **`request()` and `auth()` helpers deep inside service classes.** Couples the service to the HTTP cycle and makes it untestable from a queue worker. Inject what you need explicitly.
+- **Global middleware doing per-route work.** Authentication for an entire app belongs in global middleware. Authentication for `/admin/*` belongs on the route group. Mixing them is how you accidentally protect the wrong routes after a refactor.
+- **`Schema::create` in a service provider.** Service providers run on boot; migrations belong in migrations. Mixing them creates "works locally, doesn't work in production".
+
+### Custom middleware design tips
+
+When you write your own middleware:
+
+- Make the constructor injection explicit — no `app()` lookups.
+- Return early on rejection. Don't carry state past `$next($request)` if you don't need to.
+- If you mutate the request, add a clear `data-injected-by` header or a span attribute so the next person can find where the mutation happened.
+
+Middleware is the cleanest place to attach cross-cutting telemetry (trace ids, request logs). Resist the temptation to put business logic there — it runs on every request, including ones that have nothing to do with the feature.
+EOT,
                         'resources' => [
                             ['label' => 'Laravel Request Lifecycle', 'url' => 'https://laravel.com/docs/lifecycle'],
                             ['label' => 'Service Container', 'url' => 'https://laravel.com/docs/container'],
                             ['label' => 'Service Providers', 'url' => 'https://laravel.com/docs/providers'],
+                            ['label' => 'Middleware', 'url' => 'https://laravel.com/docs/middleware'],
                         ],
-                        'instructions' => null,
+                        'instructions' => [
+                            [
+                                'id' => 1,
+                                'text' => "Trace a real request — in a fresh Laravel app, add a route that returns 'hi'. Put dd(microtime(true)) calls in: bootstrap/app.php, your AppServiceProvider's boot(), the route definition. Compare the timestamps to see exactly how much time is spent in each phase.",
+                                'starter_code' => null,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Write a request-duration middleware — implement RequestTimer that logs request method/path/status/duration_ms via Log::info. Register it as global middleware. Confirm it fires for every route by hitting two endpoints and reading storage/logs/laravel.log.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class RequestTimer
+{
+    public function handle(Request $request, Closure $next)
+    {
+        // TODO: capture microtime(true) before calling $next.
+        // TODO: call $next($request) to get the response.
+        // TODO: log method, path, response status, duration_ms.
+        // TODO: return the response.
+    }
+}
+PHP,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Spot the register vs boot bug — given the snippet below, explain why putting Gate::define in register() can crash on certain Laravel versions, then fix it by moving the call to boot().",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
+
+class AuthServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        // BUG: Auth-related services may not exist yet when register() runs.
+        // Gate facade resolves the AuthManager from the container, which
+        // depends on the session, which depends on the cookie service, etc.
+        Gate::define('manage-billing', fn ($user) => $user->hasRole('admin'));
+    }
+
+    public function boot(): void
+    {
+        // TODO: move the Gate::define call here.
+    }
+}
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Container singleton vs bind — given an InvoiceClock that returns now(), explain what changes if you register it as singleton vs bind. Then think about Octane: which one is the footgun and why? Senior interview territory.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// In a real provider you would do either:
+// $this->app->bind(InvoiceClock::class, fn () => new InvoiceClock());
+// $this->app->singleton(InvoiceClock::class, fn () => new InvoiceClock());
+
+class InvoiceClock
+{
+    public readonly \DateTimeImmutable $bornAt;
+
+    public function __construct()
+    {
+        $this->bornAt = new \DateTimeImmutable();
+    }
+
+    public function now(): \DateTimeImmutable
+    {
+        return $this->bornAt;  // ← deliberately stale; mirrors a real bug we want to expose
+    }
+}
+
+// Simulate two requests by resolving the clock twice with a small sleep.
+$clockA = new InvoiceClock();
+sleep(1);
+$clockB = new InvoiceClock();   // ← in singleton mode you'd get the SAME instance here
+
+echo $clockA->now()->format('H:i:s.u') . PHP_EOL;
+echo $clockB->now()->format('H:i:s.u') . PHP_EOL;
+PHP,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Walk-through interview drill — write a 10-step walk-through of what happens between submitting a login form (POST /login) and the user seeing the dashboard. One sentence per step, no skipping middleware or the response phase. Read it back; if it sounds memorised rather than reasoned, that's exactly what an interviewer will catch.",
+                                'starter_code' => null,
+                            ],
+                        ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
                     ],
                     [
                         'title' => 'Advanced Eloquent: Scopes, Accessors and Events',
                         'type' => 'reading',
-                        'description' => 'Eloquent is powerful but easily misused. We will cover local and global query scopes to encapsulate business rules in queries, accessors/mutators with custom casts, and model events (creating, saved, deleted) for logic that needs to trigger on state changes. You will also learn when NOT to use Eloquent and write raw SQL instead.',
+                        'description' => 'Eloquent is powerful but easily misused. We cover query scopes for business rules, accessors/casts for shape transformation, model events and observers, and — most importantly — when to stop using Eloquent and write raw SQL.',
+                        'tldr' => 'Eloquent gives you four levers — scopes (reusable WHERE clauses), accessors/casts (column ↔ PHP type), observers (lifecycle hooks), and `whereRaw` (the escape hatch). Knowing which lever to pull for which problem is what separates a senior Laravel dev from someone who only writes `Model::all()->filter(...)`.',
+                        'estimated_minutes' => 25,
+                        'difficulty' => 'intermediate',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'Modern PHP: Types, Nullables and Enums'],
+                            ['id' => 2, 'title' => 'Laravel Request Lifecycle'],
+                        ],
+                        'concepts' => ['query-scopes', 'accessors', 'mutators', 'casts', 'observers', 'model-events', 'raw-sql', 'n+1'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// Sketch of an Order model showing accessor, cast, scope and observer
+// patterns side by side. In a real Laravel app each piece lives in its
+// own file/class; here they're inlined so you can see the relationships.
+
+class OrderStatus
+{
+    public const Pending  = 'pending';
+    public const Paid     = 'paid';
+    public const Refunded = 'refunded';
+}
+
+// In a real Laravel app: app/Models/Order.php
+// class Order extends Model
+// {
+//     // Cast: column → typed property automatically
+//     protected $casts = [
+//         'status'   => OrderStatus::class,  // string-backed enum
+//         'metadata' => 'array',             // JSON column → PHP array
+//         'paid_at'  => 'immutable_datetime',
+//     ];
+//
+//     // Accessor: derived property without a column
+//     public function getTotalEurosAttribute(): float
+//     {
+//         return $this->total_cents / 100;
+//     }
+//
+//     // Local scope: reusable WHERE clause
+//     public function scopeFinal(Builder $q): void
+//     {
+//         $q->whereIn('status', [OrderStatus::Paid, OrderStatus::Refunded]);
+//     }
+// }
+//
+// Usage from a controller:
+// Order::final()->where('paid_at', '>', now()->subDays(7))->get();
+
+echo "Patterns compile OK\n";
+PHP,
+                        'concept_content' => <<<'EOT'
+## Core (foundations)
+
+### Query scopes: reusable WHERE clauses
+
+A *local scope* gives a piece of query logic a name. Instead of repeating `where('status', 'paid')` in five controllers, you write it once on the model:
+
+```php
+class Order extends Model
+{
+    public function scopePaid(Builder $query): void
+    {
+        $query->where('status', 'paid');
+    }
+
+    public function scopeForCustomer(Builder $query, int $customerId): void
+    {
+        $query->where('customer_id', $customerId);
+    }
+}
+
+// At the call site, the `scope` prefix is dropped:
+Order::paid()->forCustomer(42)->get();
+```
+
+Two real wins:
+- **Refactor-safe.** Rename the `status` column once and every scope-using query updates.
+- **Composable.** Chain scopes the same way you'd chain query-builder methods.
+
+Global scopes apply to *every* query on the model (`Builder::addGlobalScope`). Use them for soft-deletes, multi-tenancy, or any "always filter by tenant_id" rule. Strip them per-query with `withoutGlobalScope(...)` when you need to.
+
+### Accessors and casts
+
+A **cast** turns a database column into a richer PHP type *automatically*. You declare it once on the model and every read/write goes through the conversion:
+
+```php
+class Order extends Model
+{
+    protected $casts = [
+        'status'     => OrderStatus::class,        // backed enum
+        'metadata'   => 'array',                   // JSON ↔ PHP array
+        'paid_at'    => 'immutable_datetime',      // DATETIME ↔ CarbonImmutable
+        'total_cents'=> 'integer',
+    ];
+}
+
+$order = Order::find(1);
+$order->status;          // OrderStatus::Paid (not a string)
+$order->metadata['ip'];  // works — already decoded
+```
+
+An **accessor** is a *derived* property that doesn't live in the database — it's computed every time you read it:
+
+```php
+class Order extends Model
+{
+    protected function totalEuros(): Attribute
+    {
+        return Attribute::get(fn () => $this->total_cents / 100);
+    }
+}
+
+$order->total_euros;  // float, calculated on the fly
+```
+
+Casts for storage shape. Accessors for derived presentation. Don't confuse the two — accessors in JSON responses are great, but accessing them in a `WHERE` clause won't work (they aren't columns).
+
+### Eager loading and N+1
+
+This is the most common Eloquent bug, and it shows up in every code review:
+
+```php
+// ❌ N+1: one query for users, then one per user for posts (101 queries for 100 users).
+$users = User::all();
+foreach ($users as $user) {
+    echo $user->name . ': ' . $user->posts->count();
+}
+
+// ✅ Eager loaded: 2 queries total.
+$users = User::with('posts')->get();
+```
+
+`with('relation')` joins-or-batches the related rows in *one* extra query. Use it any time you're going to access a relation in a loop. The N+1 problem is what `withCount()`, `whereHas()`, and `loadMissing()` exist to prevent — learn all three.
+
+## Deeper dive (intermediate Eloquent)
+
+### Model events and observers
+
+Every model emits lifecycle events: `creating`, `created`, `updating`, `updated`, `saving`, `saved`, `deleting`, `deleted`, `retrieved`. You can hook into them with closures or, more sustainably, with an **Observer** class:
+
+```php
+class OrderObserver
+{
+    public function creating(Order $order): void
+    {
+        $order->reference ??= Str::ulid();
+    }
+
+    public function updated(Order $order): void
+    {
+        if ($order->wasChanged('status') && $order->status === OrderStatus::Paid) {
+            event(new OrderPaid($order));
+        }
+    }
+}
+
+// Register in a Service Provider's boot():
+Order::observe(OrderObserver::class);
+```
+
+Why observers beat scattered model logic:
+- **One place** for "what happens when an order is created". A new dev grep's the observer; they don't trawl through six places that all call `Order::create()`.
+- **Mass operations bypass observers** (`Order::query()->update()`, `Order::query()->delete()`). That's both a feature (skip the side effects when you want a fast bulk update) and a footgun (forget that, ship a bug). When you intentionally bypass, drop a comment explaining why.
+
+### Custom Casts: when built-ins aren't enough
+
+Sometimes a column needs a non-standard PHP shape. Built-in casts cover scalars, JSON, dates, enums. For everything else, write a **custom cast**:
+
+```php
+class EuroMoneyCast implements CastsAttributes
+{
+    public function get($model, $key, $value, $attributes): Money
+    {
+        return new Money((int) $value, 'EUR');
+    }
+
+    public function set($model, $key, $value, $attributes): int
+    {
+        return $value instanceof Money ? $value->cents : (int) $value;
+    }
+}
+
+// On the model:
+protected $casts = ['total' => EuroMoneyCast::class];
+```
+
+The two-way conversion happens *every time* you touch the attribute. Use this for value objects — `Money`, `Coordinate`, `Range` — anything that's "a thing", not just a primitive.
+
+### When to drop down to raw SQL
+
+Eloquent is a sharp tool for CRUD. It's a terrible tool for:
+
+- **Bulk operations.** `Order::query()->where(...)->update(...)` is fine. `$orders->each(fn ($o) => $o->update(...))` runs 1000 separate queries.
+- **Window functions, CTEs, recursive queries.** The query builder doesn't speak `WITH RECURSIVE`. Use `DB::statement()` or write a stored procedure.
+- **Analytics queries.** A report that joins 5 tables, groups by 3 dimensions and aggregates 10 metrics: do it in raw SQL or a database view. Eloquent will hydrate millions of Model objects you don't need.
+
+Use `DB::raw()` for column expressions inside a builder:
+
+```php
+Order::select('region', DB::raw('SUM(total_cents) as total'))
+    ->groupBy('region')
+    ->get();
+```
+
+And `DB::select(...)` for an entirely hand-written query. Knowing when *not* to use Eloquent is the seniorest thing you can know about Eloquent.
+
+## Senior insights (architecture & code review)
+
+### Code-review patterns to call out
+
+Things a senior would flag on a PR involving Eloquent:
+
+- **`->get()` without `->select(['col1', 'col2'])`.** A `Model::all()` reads every column of every row. On a wide table with TEXT/JSON columns, that's hundreds of kB per row that never reach the response.
+- **`$model->relation->...` in a Blade loop without `@foreach ($models->with('relation'))` upstream.** Classic N+1 hidden behind a template.
+- **Mass assignment of `$request->all()`.** Always pass a *validated* array. `$model->fill($request->validated())` is the senior pattern.
+- **`Model::find($id)` instead of `findOrFail($id)`.** The difference between a 404 and a NullPointer-style crash three layers deep.
+- **Querying inside accessors.** `getNameAttribute()` that does `Country::find($this->country_id)->name` runs a query on every property access. It's silent N+1 on steroids.
+
+### Performance: the `chunk` family
+
+A standard `Order::all()->each(...)` loads every row into memory at once. For tables with millions of rows, that OOMs your worker. Use `chunk`:
+
+```php
+Order::query()->chunk(500, function ($orders) {
+    foreach ($orders as $order) { /* process */ }
+});
+```
+
+`chunk` pages through the result set in 500-row batches. `chunkById()` is safer if the table is mutating while you read (uses `id > last_id` instead of `OFFSET`). `lazy()` and `lazyById()` give you a `Generator` for the same pattern with cleaner syntax.
+
+### Multi-tenancy gotchas
+
+Tenant isolation usually rides on a global scope:
+
+```php
+static::addGlobalScope('tenant', fn ($q) => $q->where('tenant_id', auth()->user()->tenant_id));
+```
+
+What goes wrong:
+
+- **Background jobs.** The auth guard isn't bound in queue workers — `auth()->user()` is null and your scope filters everything out. Workers need an explicit `actAs($tenant)` helper that binds tenant context.
+- **Migration commands.** Same problem. Run with `--no-interaction` or scope-aware tenant commands.
+- **`withoutGlobalScope`.** Calling it once "to do something quick in admin" disables tenant isolation. Make those calls grep-able (`withoutTenantScope` wrapper) so security review can audit them.
+
+### Interview question: *"How would you optimise an Eloquent query that's slow?"*
+
+A senior answer walks the staircase, not the elevator:
+
+1. **EXPLAIN the query.** Look at the index usage. Half the time the column you're filtering on doesn't have an index.
+2. **Look for N+1.** Run with the Laravel debug bar (or Telescope). One query in the controller, fifty in the Blade template means you missed `with()`.
+3. **Profile column count.** Is `SELECT *` reading TEXT/JSON columns you don't need? Add an explicit `select()`.
+4. **Reconsider Eloquent itself.** If you're aggregating across half a million rows, raw SQL or a database view is the answer. Hydration cost is real.
+5. **Cache the result.** If the query is read-heavy and rarely changes, `Cache::remember(...)` it. But only after you've fixed the underlying query — caching a slow query just spreads the cost across the cache TTL.
+
+If the candidate jumps straight to "I'd add Redis", they're optimising the wrong layer.
+EOT,
                         'resources' => [
                             ['label' => 'Eloquent Scopes', 'url' => 'https://laravel.com/docs/eloquent#query-scopes'],
                             ['label' => 'Eloquent Mutators & Casting', 'url' => 'https://laravel.com/docs/eloquent-mutators'],
                             ['label' => 'Model Events & Observers', 'url' => 'https://laravel.com/docs/eloquent#events'],
+                            ['label' => 'Eloquent chunk + lazy', 'url' => 'https://laravel.com/docs/eloquent#chunking-results'],
                         ],
-                        'instructions' => null,
+                        'instructions' => [
+                            [
+                                'id' => 1,
+                                'text' => "Extract a scope — find a controller where the same Eloquent where() is repeated across two or more actions. Move it to a scope on the model and refactor the call sites. Confirm `Model::yourScope()` produces the same SQL via toSql().",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// Take this repetitive controller code and refactor `where('status', 'active')->where('paid_at', '!=', null)`
+// into a single scope `active()` on the model.
+
+class OrderController
+{
+    public function index()
+    {
+        return Order::where('status', 'active')->where('paid_at', '!=', null)->paginate(20);
+    }
+
+    public function export()
+    {
+        return Order::where('status', 'active')->where('paid_at', '!=', null)->get()->toCsv();
+    }
+}
+
+// TODO: on the Order model, define scopeActive(Builder $query): void
+// TODO: rewrite both controller actions to call Order::active() instead.
+PHP,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Spot the N+1 — given the snippet below, identify how many DB queries it issues. Fix it with the right with() call so it issues exactly two queries regardless of the number of orders.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// N+1 bug: one query for orders + one per order for customer.name.
+// 100 orders → 101 queries. Add a `with()` to fix it.
+
+$orders = Order::where('status', 'paid')->get();
+
+foreach ($orders as $order) {
+    echo $order->customer->name . ' bought ' . $order->total_cents . PHP_EOL;
+}
+
+// TODO: rewrite the first line so the loop above runs in 2 queries total.
+PHP,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Build a backed-enum cast — define an OrderStatus enum (pending/paid/refunded) and cast it on the Order model. Then prove with a tinker session that \$order->status === OrderStatus::Paid works (not a string compare).",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+enum OrderStatus: string
+{
+    case Pending  = 'pending';
+    case Paid     = 'paid';
+    case Refunded = 'refunded';
+}
+
+// In a real Order model you would add:
+// protected $casts = [
+//     'status' => OrderStatus::class,
+// ];
+//
+// Then this should evaluate to true (using === — not ==):
+
+$status = OrderStatus::Paid;
+var_dump($status === OrderStatus::Paid);            // true
+var_dump($status === 'paid');                        // false — different types
+var_dump(OrderStatus::tryFrom('paid') === $status);  // true
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Write an Observer — implement OrderObserver with a `creating` hook that fills `reference` with a ULID when null, and an `updated` hook that fires an OrderPaid event when status changes to Paid. Register it in a Service Provider's boot().",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+namespace App\Observers;
+
+class OrderObserver
+{
+    public function creating(/* Order $order */): void
+    {
+        // TODO: if $order->reference is null, assign a ULID
+        // ($order->reference ??= Str::ulid())
+    }
+
+    public function updated(/* Order $order */): void
+    {
+        // TODO: if status was just changed to "paid", fire an OrderPaid event
+        // Hint: $order->wasChanged('status') tells you if the column changed in this save.
+    }
+}
+
+// In your AppServiceProvider::boot():
+// Order::observe(OrderObserver::class);
+PHP,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Senior interview drill — given a report query that joins 6 tables and aggregates 12 metrics over 2 years of data, decide: do you write it in Eloquent, raw SQL, or a database view? Justify the choice in 2 sentences. (Hint: there's a 'right' answer that interviewers listen for — and it's not Eloquent.)",
+                                'starter_code' => null,
+                            ],
+                        ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
                     ],
