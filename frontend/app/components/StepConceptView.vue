@@ -253,19 +253,33 @@
           </div>
 
           <div class="playground-editor">
-            <pre><code><span
-              v-for="(line, idx) in playgroundLines"
-              :key="idx"
-              class="playground-line"
-            ><span class="playground-line__num">{{ idx + 1 }}</span><!-- eslint-disable-next-line vue/no-v-html
-            --><span class="playground-line__src" v-html="line || '&nbsp;'" /></span></code></pre>
+            <ClientOnly>
+              <VueMonacoEditor
+                v-model:value="playgroundCode"
+                language="php"
+                theme="vs-dark"
+                :options="monacoOptions"
+                class="h-full"
+              />
+              <template #fallback>
+                <div class="flex items-center justify-center px-6 py-10 text-xs text-slate-500">
+                  Loading editor…
+                </div>
+              </template>
+            </ClientOnly>
           </div>
 
           <div class="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-            <p class="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-              Output
-            </p>
-            <pre v-if="playgroundOutput" class="playground-output">{{ playgroundOutput }}</pre>
+            <div class="mb-1.5 flex items-center justify-between gap-3">
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                Output
+              </p>
+              <p v-if="playgroundDurationMs !== null" class="text-[10px] text-gray-400 dark:text-gray-600">
+                {{ playgroundDurationMs }} ms
+              </p>
+            </div>
+            <pre v-if="playgroundError" class="playground-output playground-output--err">{{ playgroundError }}</pre>
+            <pre v-else-if="playgroundOutput" class="playground-output">{{ playgroundOutput }}</pre>
             <p v-else class="font-mono text-xs italic text-gray-400 dark:text-gray-600">
               Press Run to see the output here.
             </p>
@@ -372,6 +386,7 @@
 </template>
 
 <script setup lang="ts">
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import type { PathStep, StepDifficulty } from '~/composables/usePaths'
 
 const props = defineProps<{
@@ -636,33 +651,85 @@ onMounted(() => {
   onUnmounted(() => observer.disconnect())
 })
 
-// ─── Playground (mocked; execution will land in a follow-up PR) ───────
+// ─── Playground (Monaco-backed editor, Judge0-backed Run) ─────────────
 const playgroundCode = ref(props.step.playground_starter_code ?? '')
 const playgroundOutput = ref('')
+const playgroundError = ref('')
 const playgroundRunning = ref(false)
+const playgroundDurationMs = ref<number | null>(null)
 const playgroundCard = ref<{ $el?: HTMLElement } | null>(null)
 const activeTaskId = ref<number | null>(null)
-const playgroundLines = computed(() => playgroundCode.value.split('\n').map(highlightPhp))
 const toast = useToast()
+const api = useApi()
+
+const monacoOptions = {
+  fontSize: 13,
+  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+  fontLigatures: true,
+  lineHeight: 20,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  padding: { top: 16, bottom: 16 },
+  tabSize: 4,
+  wordWrap: 'on' as const,
+  renderLineHighlight: 'gutter' as const,
+  overviewRulerBorder: false,
+  hideCursorInOverviewRuler: true,
+}
+
+interface PlaygroundResult {
+  ok: boolean
+  stdout: string
+  stderr: string
+  exit_code: number
+  duration_ms: number
+  status: string
+}
 
 function resetPlayground() {
   playgroundCode.value = props.step.playground_starter_code ?? ''
   playgroundOutput.value = ''
+  playgroundError.value = ''
+  playgroundDurationMs.value = null
   activeTaskId.value = null
 }
 
 async function runPlayground() {
+  if (playgroundRunning.value) return
   playgroundRunning.value = true
   playgroundOutput.value = ''
-  // TODO: replace with a real call to a playground endpoint (Judge0 backed)
-  // that executes arbitrary PHP without comparing against tests_code.
-  await new Promise(r => setTimeout(r, 500))
-  playgroundRunning.value = false
-  toast.add({
-    title: 'Playground execution coming soon',
-    description: 'Wire-up to Judge0 lands in a follow-up PR.',
-    color: 'amber',
-  })
+  playgroundError.value = ''
+  playgroundDurationMs.value = null
+  try {
+    const result = await api.post<PlaygroundResult>('/playground/run', {
+      code: playgroundCode.value,
+      language: 'php',
+    })
+    playgroundDurationMs.value = result.duration_ms
+    // Compile errors and timeouts already arrive as stderr in our shape.
+    if (result.stderr && !result.ok) {
+      playgroundError.value = result.stderr
+    } else {
+      playgroundOutput.value = result.stdout || '(no output)'
+      // Surface stderr separately if both stdout and stderr came through.
+      if (result.stderr) {
+        playgroundError.value = result.stderr
+      }
+    }
+  } catch (err: unknown) {
+    const data = (err as { data?: { message?: string }, status?: number })
+    if (data?.status === 429) {
+      toast.add({
+        title: 'Slow down',
+        description: 'Too many runs in a short window. Try again in a minute.',
+        color: 'amber',
+      })
+    } else {
+      playgroundError.value = data?.data?.message ?? 'Sandbox request failed. Please try again.'
+    }
+  } finally {
+    playgroundRunning.value = false
+  }
 }
 
 // Load a task's starter into the playground and scroll the editor into
@@ -879,39 +946,16 @@ function loadTaskIntoPlayground(starter: string | null | undefined) {
 :global(.dark) .step-concept :deep(.t-op) { color: #d4d4d4; }
 :global(.dark) .step-concept :deep(.t-tg) { color: #569cd6; font-weight: 600; }
 
-/* Code playground (read-only mock — Monaco lands in a follow-up) */
+/* Code playground (Monaco-backed editor) */
 .playground-editor {
-  background: rgb(15 23 42);
-  color: rgb(226 232 240);
-  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-  font-size: 0.82rem;
-  line-height: 1.65;
-  overflow-x: auto;
+  background: rgb(30 30 30); /* matches vs-dark theme */
+  height: 320px;
+  min-height: 320px;
+  overflow: hidden;
 }
-.playground-editor pre {
-  margin: 0;
-  padding: 12px 0;
-}
-.playground-editor code { display: block; }
-.playground-line {
-  display: flex;
-  align-items: baseline;
-  padding-right: 16px;
-}
-.playground-line:hover { background: rgba(255, 255, 255, 0.03); }
-.playground-line__num {
-  display: inline-block;
-  width: 44px;
-  flex-shrink: 0;
-  padding-right: 14px;
-  text-align: right;
-  color: rgb(100 116 139);
-  user-select: none;
-}
-.playground-line__src {
-  white-space: pre;
-  flex: 1;
-  min-width: 0;
+.playground-editor :deep(.monaco-editor) {
+  /* Let Monaco fill the container without inheriting any prose font-size. */
+  font-size: 13px;
 }
 .playground-output {
   margin: 0;
@@ -920,6 +964,13 @@ function loadTaskIntoPlayground(starter: string | null | undefined) {
   line-height: 1.6;
   color: rgb(55 65 81);
   white-space: pre-wrap;
+  word-break: break-word;
 }
 :global(.dark) .playground-output { color: rgb(203 213 225); }
+.playground-output--err {
+  color: rgb(220 38 38);
+}
+:global(.dark) .playground-output--err {
+  color: rgb(252 165 165);
+}
 </style>

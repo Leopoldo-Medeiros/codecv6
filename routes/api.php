@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\PathController;
 use App\Http\Controllers\Api\PathStepController;
 use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\Api\PlaygroundController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\StripeWebhookController;
@@ -70,6 +71,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/challenges', [ChallengeController::class, 'index']);
     Route::get('/challenges/{challenge:slug}', [ChallengeController::class, 'show']);
     Route::post('/challenges/{challenge:slug}/run', [ChallengeController::class, 'run']);
+
+    // Scratch playground — runs arbitrary PHP via Judge0 (no tests). Lightly
+    // throttled per-user to keep Judge0 calls bounded; the front-end shows
+    // the response as plain stdout/stderr.
+    Route::post('/playground/run', [PlaygroundController::class, 'run'])->middleware('throttle:30,1');
 
     // Step progress (all authenticated users update their own progress)
     Route::put('/path-steps/{step}/progress', [PathStepController::class, 'updateProgress']);
