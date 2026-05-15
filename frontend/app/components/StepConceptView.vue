@@ -63,24 +63,32 @@
             </div>
           </UCard>
 
-          <!-- TOC -->
+          <!-- TOC (tier → subsections) -->
           <UCard v-if="toc.length" :ui="{ body: { padding: 'p-4' } }">
             <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
               On this step
             </p>
             <nav class="space-y-1">
-              <a
-                v-for="t in toc"
-                :key="t.id"
-                :href="`#${t.id}`"
-                class="block rounded-md px-2 py-1 text-xs transition-colors"
-                :class="activeTocId === t.id
-                  ? 'bg-emerald-50 font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-slate-800/60 dark:hover:text-gray-200'"
-                @click.prevent="scrollTo(t.id)"
-              >
-                {{ t.text }}
-              </a>
+              <template v-for="t in toc" :key="t.id">
+                <a
+                  v-show="isTierVisible(t.tier)"
+                  :href="`#${t.id}`"
+                  class="block rounded-md px-2 py-1 transition-colors"
+                  :class="[
+                    t.level === 2
+                      ? 'text-[11px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300'
+                      : 'pl-4 text-xs',
+                    activeTocId === t.id
+                      ? 'bg-emerald-50 font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
+                      : t.level === 2
+                        ? 'mt-2 hover:text-gray-900 dark:hover:text-gray-100'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-slate-800/60 dark:hover:text-gray-200',
+                  ]"
+                  @click.prevent="scrollTo(t.id)"
+                >
+                  {{ t.text }}
+                </a>
+              </template>
             </nav>
           </UCard>
 
@@ -154,9 +162,49 @@
 
         <!-- Concept content -->
         <UCard v-if="step.concept_content">
+          <!-- Seniority filter pill bar (only renders if step has tiered content) -->
+          <template v-if="hasTiers" #header>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
+                <UIcon name="i-heroicons-book-open" class="h-5 w-5 text-emerald-500" />
+                Concept
+              </h2>
+              <div class="flex items-center gap-1.5">
+                <span class="mr-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                  Showing for
+                </span>
+                <button
+                  v-for="opt in tierFilterOptions"
+                  :key="opt.value"
+                  class="rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                  :class="activeFilter === opt.value
+                    ? 'border-emerald-500 bg-emerald-500 text-white'
+                    : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200'"
+                  @click="activeFilter = opt.value"
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
+            </div>
+          </template>
+
           <article ref="contentRef" class="step-concept">
+            <!-- Tiered render: one <section> per tier so we can hide them via CSS. -->
+            <template v-if="hasTiers">
+              <section
+                v-for="(t, i) in tierSections"
+                :key="i"
+                v-show="isTierVisible(t.tier)"
+                :data-tier="t.tier"
+                class="step-concept__tier"
+              >
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-html="t.html" />
+              </section>
+            </template>
+            <!-- Untiered fallback (legacy steps without tier markers). -->
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <div v-html="renderedConcept" />
+            <div v-else v-html="renderedConcept" />
           </article>
         </UCard>
 
@@ -435,12 +483,111 @@ function renderMarkdown(md: string): string {
     .replace(/(^|\n)([^<\n][^\n]+)(?=\n|$)/g, (_, prefix: string, line: string) => `${prefix}<p>${line}</p>`)
 }
 
+// ─── Seniority tier parsing ───────────────────────────────────────────
+// Convention: a step's concept_content is structured as up to three
+// top-level H2 sections whose heading text begins with "Core",
+// "Deeper dive" or "Senior". Steps that don't follow the convention
+// render untouched via the fallback below.
+type Tier = 'core' | 'mid' | 'senior'
+
+function classifyHeading(text: string): Tier {
+  const lower = text.toLowerCase().trim()
+  if (lower.startsWith('deeper dive')) return 'mid'
+  if (lower.startsWith('senior')) return 'senior'
+  return 'core'
+}
+
+interface TocEntry {
+  id: string
+  text: string
+  level: 2 | 3
+  tier: Tier
+}
+
+interface TierSection {
+  tier: Tier
+  markdown: string
+  html: string
+  headings: TocEntry[]
+}
+
+const tierSections = computed<TierSection[]>(() => {
+  const md = props.step.concept_content ?? ''
+  // Split right BEFORE every "## " (lookahead). Drop the leading chunk if
+  // it doesn't start with a tier H2 — that's intro prose, prepended to
+  // the first real tier so we don't lose it.
+  const chunks = md.split(/(?=^## )/m).filter(c => c.trim())
+  if (!chunks.length) return []
+
+  const sections: TierSection[] = []
+  let prelude = ''
+  if (!chunks[0]!.startsWith('## ')) {
+    prelude = chunks.shift()!
+  }
+
+  for (const chunk of chunks) {
+    const lines = chunk.split('\n')
+    const h2Line = lines[0]!.match(/^## (.+)$/)
+    if (!h2Line) continue
+    const h2Text = h2Line[1]!
+    const tier = classifyHeading(h2Text)
+
+    const headings: TocEntry[] = [{ id: slug(h2Text), text: h2Text, level: 2, tier }]
+    for (const line of lines.slice(1)) {
+      const h3 = line.match(/^### (.+)$/)
+      if (h3) headings.push({ id: slug(h3[1]!), text: h3[1]!, level: 3, tier })
+    }
+
+    // The first section absorbs any prelude so untiered intro prose
+    // stays visible.
+    const markdown = prelude && sections.length === 0 ? prelude + chunk : chunk
+    sections.push({ tier, markdown, html: renderMarkdown(markdown), headings })
+  }
+
+  return sections
+})
+
+const hasTiers = computed(() => {
+  // Only treat content as tiered if at least one section is non-core OR
+  // an explicit "Core" header is present. Otherwise fall back to flat
+  // rendering for legacy steps.
+  const tiers = new Set(tierSections.value.map(s => s.tier))
+  if (tiers.size > 1) return true
+  const firstH2 = (props.step.concept_content ?? '').match(/^## (.+)$/m)
+  return firstH2 ? /^(core|deeper dive|senior)/i.test(firstH2[1]!) : false
+})
+
+// Untiered fallback render.
 const renderedConcept = computed(() => renderMarkdown(props.step.concept_content ?? ''))
 
-const toc = computed(() => {
+const toc = computed<TocEntry[]>(() => {
+  if (hasTiers.value) {
+    return tierSections.value.flatMap(s => s.headings)
+  }
+  // Untiered: only show H2 entries as before.
   const matches = [...(props.step.concept_content ?? '').matchAll(/^## (.+)$/gm)]
-  return matches.map(m => ({ id: slug(m[1]!), text: m[1]! }))
+  return matches.map(m => ({ id: slug(m[1]!), text: m[1]!, level: 2 as const, tier: 'core' as const }))
 })
+
+// ─── Filter pill bar ──────────────────────────────────────────────────
+type Filter = 'all' | 'junior' | 'mid' | 'senior'
+const activeFilter = ref<Filter>('all')
+const tierFilterOptions: Array<{ value: Filter; label: string }> = [
+  { value: 'all',    label: 'All' },
+  { value: 'junior', label: 'Junior' },
+  { value: 'mid',    label: 'Mid' },
+  { value: 'senior', label: 'Senior' },
+]
+
+// Map filter intent → which tiers are visible. Each filter focuses on a
+// single tier; "All" shows everything.
+function isTierVisible(tier: Tier): boolean {
+  if (activeFilter.value === 'all') return true
+  if (activeFilter.value === 'junior') return tier === 'core'
+  if (activeFilter.value === 'mid')    return tier === 'mid'
+  if (activeFilter.value === 'senior') return tier === 'senior'
+  return true
+}
 
 // ─── Scroll-spy ────────────────────────────────────────────────────────
 const contentRef = ref<HTMLElement | null>(null)
@@ -466,7 +613,7 @@ onMounted(() => {
 
   nextTick(() => {
     if (!contentRef.value) return
-    contentRef.value.querySelectorAll('h2[id]').forEach(h => observer.observe(h))
+    contentRef.value.querySelectorAll('h2[id], h3[id]').forEach(h => observer.observe(h))
   })
 
   onUnmounted(() => observer.disconnect())
@@ -510,6 +657,58 @@ async function runPlayground() {
 }
 :global(.dark) .step-concept :deep(h2) { color: rgb(243 244 246); }
 .step-concept :deep(h2:first-child) { margin-top: 0; }
+
+/* ── Tier sections ─────────────────────────────────────────────── */
+/* Each tier is rendered inside its own <section data-tier="...">.
+   The section's own H2 (the tier name) gets a stronger visual treatment
+   with a colored eyebrow tag so the reader feels the level change. */
+.step-concept__tier {
+  position: relative;
+  padding-top: 8px;
+}
+.step-concept__tier + .step-concept__tier {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px dashed rgb(226 232 240);
+}
+:global(.dark) .step-concept__tier + .step-concept__tier {
+  border-color: rgb(51 65 85);
+}
+
+.step-concept__tier :deep(h2) {
+  position: relative;
+  margin-top: 12px;
+  margin-bottom: 18px;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+.step-concept__tier :deep(h2)::before {
+  content: attr(data-tier-label);
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.step-concept__tier[data-tier="core"] :deep(h2)::before {
+  content: 'Core — foundations';
+  color: rgb(5 150 105);
+}
+.step-concept__tier[data-tier="mid"] :deep(h2)::before {
+  content: 'Deeper dive — for mid-level engineers';
+  color: rgb(217 119 6);
+}
+.step-concept__tier[data-tier="senior"] :deep(h2)::before {
+  content: 'Senior insights — interview & architecture';
+  color: rgb(124 58 237);
+}
+.step-concept__tier[data-tier="core"]   :deep(h2) { color: rgb(6 95 70); }
+.step-concept__tier[data-tier="mid"]    :deep(h2) { color: rgb(146 64 14); }
+.step-concept__tier[data-tier="senior"] :deep(h2) { color: rgb(91 33 182); }
+:global(.dark) .step-concept__tier[data-tier="core"]   :deep(h2) { color: rgb(110 231 183); }
+:global(.dark) .step-concept__tier[data-tier="mid"]    :deep(h2) { color: rgb(252 211 77); }
+:global(.dark) .step-concept__tier[data-tier="senior"] :deep(h2) { color: rgb(196 181 253); }
 
 .step-concept :deep(h3) {
   scroll-margin-top: 80px;
