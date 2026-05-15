@@ -1163,13 +1163,388 @@ PHP,
                     [
                         'title' => 'Code Review: What a Senior Would See in Your Code',
                         'type' => 'reading',
-                        'description' => 'You wrote the code, the tests pass, but the PR was rejected. Why? This module covers patterns seniors look for in code reviews: N+1 queries, fat controllers vs thin controllers, methods with multiple responsibilities, names that lie, and the principle of least surprise. You will review real bad code and rewrite it with the right mindset.',
+                        'description' => 'You wrote the code, the tests pass, but the PR sits open for a week. This module covers what a senior actually looks at — naming, single responsibility, dependency direction, fat controllers, names that lie — and how to write reviews that change behaviour without being a jerk.',
+                        'tldr' => 'Tests passing is the floor, not the ceiling. A senior reads a diff and asks four questions: "Does the name match the behaviour?", "Is anything doing more than one thing?", "Will the next developer be surprised?", and "What did this change break that we won\'t notice for three months?". Internalise those questions and your PRs stop sitting open.',
+                        'estimated_minutes' => 28,
+                        'difficulty' => 'intermediate',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'Laravel Request Lifecycle'],
+                            ['id' => 2, 'title' => 'Advanced Eloquent'],
+                        ],
+                        'concepts' => ['code-review', 'naming', 'single-responsibility', 'fat-controllers', 'cyclomatic-complexity', 'dependency-direction', 'review-communication'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// A real example of code that ships every week — and fails review for
+// at least five reasons. Refactor it in place. The four-question test:
+//   1. Does the name match the behaviour?           (process? user?)
+//   2. Is anything doing more than one thing?       (this method does six)
+//   3. Will the next developer be surprised?        (returns array OR throws OR commits)
+//   4. What did this change break for old callers?  (silent contract drift)
+
+class UserController
+{
+    public function process($request)
+    {
+        $user = \DB::table('users')->where('email', $request->email)->first();
+
+        if ($user) {
+            \DB::table('users')->where('id', $user->id)->update([
+                'last_login' => date('Y-m-d H:i:s'),
+                'login_count' => $user->login_count + 1,
+            ]);
+
+            \Mail::raw('You logged in.', function ($m) use ($user) {
+                $m->to($user->email)->subject('Welcome back');
+            });
+
+            \Cache::forget('user_dashboard_' . $user->id);
+
+            return [
+                'status' => 'ok',
+                'user' => $user,
+                'token' => bin2hex(random_bytes(16)),
+            ];
+        }
+
+        return ['status' => 'error'];
+    }
+}
+
+// Suggested refactor sketch — five smaller methods, each named for its job:
+//   - findUserByEmail(string $email): ?User
+//   - recordLogin(User $user): void          (last_login + counter)
+//   - sendWelcomeBackEmail(User $user): void
+//   - invalidateDashboardCache(User $user): void
+//   - issueLoginToken(User $user): string
+// Then `login()` (NOT `process()`) orchestrates them.
+PHP,
+                        'concept_content' => <<<'EOT'
+## Core (foundations)
+
+### Naming: the name is the contract
+
+Half of all code-review feedback comes down to one question: *does the name match the behaviour?* When it doesn''t, the reader has to mentally translate every call site, which is where bugs hide.
+
+```php
+// ❌ Names that lie
+function getUser(int $id): User
+{
+    $user = User::find($id);
+    if (! $user) {
+        $user = User::create(['id' => $id, 'name' => 'Guest']);  // ← surprise: it creates one
+    }
+    return $user;
+}
+
+// ✅ Name that matches behaviour
+function findOrCreateUser(int $id): User { /* ... */ }
+```
+
+Rules of thumb:
+
+- `get` / `find` should be cheap and side-effect free.
+- `create` / `make` / `build` allocate something new.
+- `process` / `handle` / `do` — these are red flags. They tell you nothing about what the function actually does.
+- Boolean methods read like questions: `isPaid()`, `hasRefund()`, not `paid()` or `refund()`.
+
+### One method, one job (Single Responsibility)
+
+A method should have **one reason to change**. The reasons aren''t lines of code or branches — they''re the business reasons someone might modify it.
+
+```php
+// ❌ Three reasons to change: invoice format, email content, audit log shape.
+public function bill(Order $order): void
+{
+    $pdf = $this->buildInvoicePdf($order);          // reason 1
+    Mail::to($order->user)->send(new InvoiceMail($pdf));  // reason 2
+    AuditLog::record('order.billed', ['order_id' => $order->id]);  // reason 3
+}
+
+// ✅ Three small methods, plus an orchestrator that does only the orchestration.
+public function bill(Order $order): void
+{
+    $this->generateInvoice($order);
+    $this->emailInvoice($order);
+    $this->auditBilling($order);
+}
+```
+
+The orchestrator is allowed to be longer — it''s describing the workflow, not implementing it. The implementations sit next to it where you can test each one in isolation.
+
+### The "fat controller" anti-pattern
+
+Controllers are HTTP adapters. Their job is to:
+
+1. Translate request → typed input.
+2. Hand it to a service / action / use-case.
+3. Translate result → response.
+
+That''s it. Anything else — database calls, mail sending, business rules — belongs elsewhere. When you see a controller method past 30 lines, that''s 30 lines that can''t be reused from a queue worker, a CLI command, or a test.
+
+```php
+// ❌ Fat controller
+class CheckoutController extends Controller
+{
+    public function complete(Request $request)
+    {
+        // 80 lines: validates, charges Stripe, writes Order, emails receipt,
+        // dispatches inventory job, updates user_stats…
+    }
+}
+
+// ✅ Thin controller
+class CheckoutController extends Controller
+{
+    public function complete(CompleteCheckoutRequest $request, CompleteCheckout $action): JsonResponse
+    {
+        $order = $action->handle($request->validated());
+
+        return new OrderResource($order)->response()->setStatusCode(201);
+    }
+}
+```
+
+The `CompleteCheckout` action is also callable from `php artisan checkout:complete 42` and from a Stripe webhook handler. The fat controller version is callable from exactly one place.
+
+### Names that lie — boolean returns
+
+The single nastiest naming bug is a function whose **name implies a question** but whose **body has side effects**:
+
+```php
+public function hasInventory(Product $p): bool
+{
+    if (! Cache::has("stock.{$p->id}")) {
+        Cache::put("stock.{$p->id}", $p->refreshStock());  // ← side effect
+    }
+    return Cache::get("stock.{$p->id}") > 0;
+}
+```
+
+That cache prime is hiding inside what looks like a pure query. The next dev writes `if ($product->hasInventory()) { ... }` in a `Promise.all`-style parallel job and the cache stampedes. Split it: `refreshStockIfStale()` for the side effect, `hasInventory()` for the question.
+
+## Deeper dive (intermediate)
+
+### Cyclomatic complexity: just count the ifs
+
+A senior eye can spot a method that''s too complex in about three seconds. The technical name is **cyclomatic complexity** — the number of independent paths through a function. The practical version: count your `if`, `match`, `&&`, `||`, and `?:`. More than 5 and you''re looking at a method that needs to be split.
+
+```php
+// CC ≈ 7 — every level of nesting is another path to test.
+function calculateDiscount($order)
+{
+    if ($order->user->isVip()) {
+        if ($order->total > 1000) {
+            return $order->total * 0.20;
+        } elseif ($order->total > 500) {
+            return $order->total * 0.15;
+        }
+        return $order->total * 0.10;
+    } else {
+        if (now()->isWeekend()) {
+            return $order->total * 0.05;
+        }
+    }
+    return 0;
+}
+```
+
+The refactored version pushes the decisions into a data structure:
+
+```php
+function calculateDiscount(Order $order): int
+{
+    $rules = match (true) {
+        $order->user->isVip() && $order->total > 1000 => 0.20,
+        $order->user->isVip() && $order->total > 500  => 0.15,
+        $order->user->isVip()                          => 0.10,
+        now()->isWeekend()                             => 0.05,
+        default                                        => 0.00,
+    };
+
+    return (int) round($order->total * $rules);
+}
+```
+
+Same six paths, but every path is on one line and the discount table is now greppable.
+
+### Dependency direction: stable things don''t depend on unstable things
+
+A core rule of architecture: **dependencies should point toward stability**. The hot, changes-every-week parts of your codebase (controllers, CLI commands, schedulers) should depend on the slow, rarely-changing parts (entities, domain services). Not the other way around.
+
+Concretely:
+
+- Your `Order` model should know nothing about HTTP requests.
+- Your domain services should accept typed input, not `Illuminate\Http\Request`.
+- Your business logic should not call `auth()->user()` — it should accept a `User` parameter.
+
+When dependencies point the wrong way, the symptom is "I can''t test this without spinning up the whole app". When they point the right way, you can unit-test the business logic against plain PHP objects.
+
+### When DRY is the wrong principle
+
+"Don''t Repeat Yourself" is the principle most often weaponised against good code. Three real-world misapplications:
+
+- **Two different rules that happen to look the same.** If the business logic for "VIP discount" and "weekend discount" are calculated the same way today but for unrelated reasons, *don''t* extract them. They''ll drift, and the abstraction that joined them will become tribal knowledge.
+- **A shared helper that breaks one caller every time it changes.** This is the "I tried to fix the bug, broke prod for two teams" situation. The shared utility has too many opinionated callers.
+- **Inheritance to remove repetition.** `class PaidOrder extends Order` looks DRY. It''s actually the worst kind of repetition because now every change to `Order` is a change to `PaidOrder` you didn''t intend.
+
+Senior heuristic: **prefer duplication over the wrong abstraction**. Three similar functions are easier to fix than one over-general abstraction with eight optional flags.
+
+### The "principle of least surprise"
+
+Code is read 10x more than it''s written. Two equally-correct implementations should be judged by *which one will surprise the next reader less*.
+
+```php
+// Surprising: the cache TTL silently shadows the method param.
+public function fetch(string $key, int $ttl = 60): mixed
+{
+    $ttl = config('cache.default_ttl', $ttl);  // ← config wins; param is ignored when set
+    return Cache::remember($key, $ttl, ...);
+}
+
+// Less surprising: explicit precedence in the name.
+public function fetchWithConfigTtl(string $key): mixed { /* ... */ }
+public function fetchWithCustomTtl(string $key, int $ttl): mixed { /* ... */ }
+```
+
+If you read the surprising version six months from now, you''ll think the `$ttl = 30` you passed is being used. It isn''t. That''s a bug born at write-time and discovered at 2am.
+
+## Senior insights (giving reviews + strategic)
+
+### How to give a code review that actually helps
+
+The hardest part of code review isn''t spotting issues — it''s communicating them so the author wants to fix them. Three habits:
+
+- **Distinguish must-fix from nice-to-have.** Tag every comment with one of: `BLOCKING`, `SUGGESTION`, `QUESTION`, `NIT`. Reviewers who don''t tag end up with a 40-comment PR that looks impossible to address; tagged PRs get merged in a day.
+- **Phrase suggestions as questions.** "Did you consider naming this `findOrFetch` so the side effect is in the name?" lands better than "Bad name." even though both want the same change.
+- **Approve incrementally.** If the diff is mostly good but has one BLOCKING issue, leave the BLOCKING comment and *approve* the rest. The author feels progress; you also gave a clear bar.
+
+### What to NOT comment on
+
+The most senior reviewers comment on fewer things than the second-most-senior reviewers, not more. Things to skip:
+
+- **Formatting.** That''s the linter''s job. If your project doesn''t have one, fix that, not the diff.
+- **Personal style preferences.** "I would have used a match instead of switch" is noise unless there''s a reason the match is meaningfully better here.
+- **Pre-existing code in the diff''s context.** Unless the PR is specifically refactoring it, don''t hijack the PR.
+
+Every noise comment makes the next signal comment less effective. Reviewers have a budget.
+
+### Strategic review: what won''t we notice for six months?
+
+After you''ve covered correctness, naming, and structure, ask the long-horizon questions. These are what mid-level reviewers miss and what makes a senior''s review distinctive:
+
+- **Is this change reversible?** A column rename can be backed out in a sprint. A column *removal* requires a multi-deploy migration. Surface the difference.
+- **Did this PR shift a load to a hot path?** A new `with('relation')` looks like an N+1 fix; if the relation hydrates 50,000 rows on the index page, you just made the index page 10s slower.
+- **Will this still make sense after the next feature?** If the team is about to add multi-region, the `now()` call you''re reviewing should already be `now()->in($region)`. Block the PR on the missing seam, not on its absence today.
+
+### Interview question: *"Walk me through how you''d review this PR."*
+
+A senior answer for a hypothetical 200-line PR:
+
+1. **Read the description first.** What was the author trying to do? If the description doesn''t say, that''s the first comment.
+2. **Skim the diff structurally.** Which files changed? A diff that touches a controller + a migration + a queue worker is doing three things, and the PR description should explain why.
+3. **Read tests before code.** Tests show what the author considers important. Missing test for the new branch you spot? Note it.
+4. **Read the code top-down.** Entry points first (route → controller → service), then the leaves (domain methods, queries).
+5. **Run the changed file mentally with the failure case.** "What happens if the API returns 500?" "What happens if the user clicks twice?"
+6. **Leave comments grouped by file**, with BLOCKING/SUGGESTION/NIT tags.
+7. **Approve or request changes — never both.** Pick a state.
+
+If the candidate skips steps 1, 2, 5 and jumps to "I look for code style", they''re an LGTM-clicker, not a reviewer.
+EOT,
                         'resources' => [
                             ['label' => 'Clean Code — Robert C. Martin (summary)', 'url' => 'https://gist.github.com/wojteklu/73c6914cc446146b8b533c0988cf8d29'],
                             ['label' => 'Laravel Best Practices', 'url' => 'https://github.com/alexeymezenin/laravel-best-practices'],
                             ['label' => 'SOLID in PHP — practical examples', 'url' => 'https://www.youtube.com/watch?v=_jDNAcej0JE'],
+                            ['label' => 'Google\'s code-review guide', 'url' => 'https://google.github.io/eng-practices/review/reviewer/'],
                         ],
-                        'instructions' => null,
+                        'instructions' => [
+                            [
+                                'id' => 1,
+                                'text' => "Refactor the lying name — given findOrCreateUser() that''s declared as getUser(), rename it AND find the three call sites in your own current project where this kind of name lies. Take 60 seconds per call site to decide whether the right fix is renaming the function or splitting it.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// The function is named getUser but creates one as a side effect.
+// Two acceptable refactors:
+//   (a) rename to findOrCreateUser — explicit about the side effect
+//   (b) split into two functions: findUser(): ?User and createGuest(int $id): User
+// Decide which one fits your codebase better and apply it.
+
+class User { public int $id; public string $name; }
+
+function getUser(int $id): User
+{
+    $user = User::find($id);
+    if (! $user) {
+        $user = User::create(['id' => $id, 'name' => 'Guest']);
+    }
+    return $user;
+}
+
+// TODO: rename or split. Then audit your current project for three more
+// functions whose names don''t match their behaviour. Common offenders:
+//   - process(), handle(), do() in controllers
+//   - get*() methods that hit the DB and write
+//   - is*() / has*() methods with side effects
+PHP,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Slim down a fat controller — refactor the UserController::process() in the playground above. Extract at least three smaller methods, name them for their behaviour, and rewrite process() as a thin orchestrator. Note in a comment which of those new methods could be reused outside this controller.",
+                                'starter_code' => null,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Cyclomatic complexity hunt — pick the most-branchy function in your current project (or use the discount example below). Count the ifs/&&/?:/match arms. If you go past 5, refactor with a match() table the way the Deeper dive section does.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// Cyclomatic complexity ≈ 7. Rewrite as a single match() table so the
+// discount rules become greppable data instead of nested branches.
+
+class Order
+{
+    public int $total = 0;
+    public bool $userIsVip = false;
+}
+
+function calculateDiscount(Order $order): float
+{
+    if ($order->userIsVip) {
+        if ($order->total > 1000) {
+            return $order->total * 0.20;
+        } elseif ($order->total > 500) {
+            return $order->total * 0.15;
+        }
+        return $order->total * 0.10;
+    } else {
+        if (date('N') >= 6) {  // weekend
+            return $order->total * 0.05;
+        }
+    }
+    return 0;
+}
+
+// TODO: rewrite using `match (true)` with one arm per rule.
+// Bonus: extract the rules into a static array so future rules are
+// added without touching the function body.
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Write a real code-review comment — paste a 30–80 line piece of code you wrote in the last month into the playground. Comment on it as if you''re reviewing a stranger''s PR. Use BLOCKING / SUGGESTION / NIT tags. If you make more than 10 comments on your own 80 lines, you''ve learned something about your own habits.",
+                                'starter_code' => null,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Surface a reversibility question — find a PR you opened in the last month. Write one paragraph answering: \"What did this change make harder to undo?\". This is the question that distinguishes senior reviewers from mid-level — train yourself to ask it before the merge button, not after.",
+                                'starter_code' => null,
+                            ],
+                        ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
                     ],
@@ -1195,19 +1570,407 @@ PHP,
                     ],
                     [
                         'title' => 'Testing Mindset: Tests That Actually Protect',
-                        'type' => 'lab',
-                        'description' => 'Poorly written tests give false confidence and slow down development. We will cover the difference between unit, feature and integration tests in the Laravel context, when to use mocks vs a real database, how to structure factories with states, and how to write assertions that capture real regressions. Feature tests that cover the full HTTP path end-to-end are your best defence.',
+                        'type' => 'reading',
+                        'description' => 'Poorly written tests give false confidence and slow down development. We cover the difference between unit, feature and integration tests in Laravel, when to mock vs hit a real database, factory states, the N+1 regression detector, and what to *not* test.',
+                        'tldr' => 'A test suite\'s value isn\'t the green checkmark — it\'s the bugs it catches at 3am before a customer does. Feature tests covering real HTTP paths are your highest-leverage tool; mocks should be the exception, not the default; and the most important assertion is the one you skip when you\'re tired (the negative case).',
+                        'estimated_minutes' => 26,
+                        'difficulty' => 'intermediate',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'Laravel Request Lifecycle'],
+                            ['id' => 2, 'title' => 'Advanced Eloquent'],
+                            ['id' => 3, 'title' => 'Code Review: What a Senior Would See'],
+                        ],
+                        'concepts' => ['feature-tests', 'unit-tests', 'factories', 'states', 'mocks-vs-fakes', 'n+1-detector', 'refresh-database', 'tdd'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// A Laravel feature test that does the three things every test should do:
+//   1. ARRANGE — build the world the test needs (factories with state).
+//   2. ACT     — perform one action.
+//   3. ASSERT  — check exactly the consequences you care about.
+//
+// In a real project this lives in tests/Feature/Task/CreateTaskTest.php.
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CreateTaskTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authenticated_user_can_create_a_task(): void
+    {
+        // ── ARRANGE
+        $user = \App\Models\User::factory()->create();
+
+        // ── ACT
+        $response = $this->actingAs($user)->postJson('/api/tasks', [
+            'title' => 'Write the test before the code',
+            'due_at' => now()->addDay()->toIsoString(),
+        ]);
+
+        // ── ASSERT — three layers: HTTP, DB, and shape of returned data
+        $response->assertCreated();
+        $this->assertDatabaseHas('tasks', [
+            'user_id' => $user->id,
+            'title'   => 'Write the test before the code',
+        ]);
+        $response->assertJsonPath('data.user_id', $user->id);
+    }
+}
+PHP,
+                        'concept_content' => <<<'EOT'
+## Core (foundations)
+
+### The test pyramid in a Laravel app
+
+Three layers, in order of cost-vs-confidence:
+
+| Layer        | What it tests                                | Speed | Use when…                                              |
+| ------------ | -------------------------------------------- | ----- | ------------------------------------------------------ |
+| **Unit**     | One class/function in isolation              | ms    | The thing has clear inputs and outputs and no I/O.     |
+| **Feature**  | A full HTTP request → response               | tens of ms | The thing crosses controller, service, DB, validation. |
+| **Integration** | Multiple services together (queue, mail) | seconds | You''re testing an end-to-end workflow.              |
+
+Most Laravel apps lean too far into unit tests. **Feature tests are where the bugs hide** — they exercise routing, middleware, validation, DB, response shape, all in one go. A feature test that fails after a refactor is worth ten unit tests that all pass.
+
+### The Arrange / Act / Assert structure
+
+Every test has three sections, in order:
+
+```php
+public function test_orders_can_be_filtered_by_status(): void
+{
+    // ── ARRANGE: build only what this test needs
+    $user = User::factory()->create();
+    Order::factory()->for($user)->paid()->count(3)->create();
+    Order::factory()->for($user)->refunded()->count(2)->create();
+
+    // ── ACT: one action — usually one HTTP call or one method call
+    $response = $this->actingAs($user)->getJson('/api/orders?status=paid');
+
+    // ── ASSERT: prove the consequence
+    $response->assertOk();
+    $this->assertCount(3, $response->json('data'));
+}
+```
+
+If your test has two ACT blocks, it''s two tests. If your test has zero ASSERT calls, it''s a coverage decoration — passing it tells you nothing.
+
+### Factories and states
+
+Factories are your tests'' world-builder. Without them every test starts with 15 lines of `Model::create([...])`. With them, the test reads as a sentence.
+
+```php
+class OrderFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'user_id' => User::factory(),
+            'total_cents' => 9999,
+            'status' => 'pending',
+        ];
+    }
+
+    // States — call them after factory() to vary the world.
+    public function paid(): self
+    {
+        return $this->state(fn () => ['status' => 'paid', 'paid_at' => now()]);
+    }
+
+    public function overdue(): self
+    {
+        return $this->state(fn () => [
+            'due_at' => now()->subWeek(),
+            'status' => 'pending',
+        ]);
+    }
+}
+
+// Usage:
+Order::factory()->paid()->count(5)->for($user)->create();
+Order::factory()->overdue()->create();
+```
+
+States are the single biggest win you can give your test suite. They turn "create a paid order due last week" from a 6-line block into a one-liner.
+
+### RefreshDatabase and the in-memory SQLite trick
+
+Two things make a Laravel test suite fast:
+
+1. The `RefreshDatabase` trait runs each test inside a transaction that''s rolled back at the end. The DB state from test A doesn''t leak into test B.
+2. Pointing the test DB at SQLite in-memory: every test starts with a clean migrated schema in milliseconds.
+
+```xml
+<!-- phpunit.xml -->
+<env name="DB_CONNECTION" value="sqlite"/>
+<env name="DB_DATABASE" value=":memory:"/>
+```
+
+If your CI takes 5 minutes per push, half of that is probably the test DB. Switching to in-memory SQLite can drop a 400-test suite from 4 minutes to 40 seconds. *Caveat:* SQLite isn''t MySQL. If your code uses MySQL-specific SQL (window functions, JSON_TABLE), you have to run those tests against MySQL — a separate, slower lane in CI.
+
+## Deeper dive (intermediate)
+
+### Mocks, fakes, spies — and when to use which
+
+These three things are not synonyms. Knowing which to reach for is what separates a clean test suite from a brittle one.
+
+| Tool       | What it does                          | Use when…                                                       |
+| ---------- | ------------------------------------- | --------------------------------------------------------------- |
+| **Fake**   | A real, in-memory implementation      | The dependency is owned by the framework (`Mail::fake()`, `Queue::fake()`, `Storage::fake()`). |
+| **Mock**  | Specifies exact expected calls         | You need to assert "this method was called with these args". Rare. |
+| **Spy**    | Records calls without specifying them | You want to check after the fact what happened. Less brittle than a mock. |
+
+**Reach for fakes first.** Laravel ships them for Mail, Queue, Storage, Notification, Bus, Event. They give you real assertions (`Mail::assertSent(InvoiceMail::class)`) without testing implementation details.
+
+Mocks are the test smell of last resort. Every `->shouldReceive(...)->with(...)->once()` is a coupling between your test and your code. Refactor the production code and the test fails for no reason.
+
+### Testing the unhappy paths
+
+Junior tests look like this:
+
+```php
+public function test_user_can_log_in(): void
+{
+    $user = User::factory()->create(['password' => Hash::make('secret')]);
+    $this->postJson('/api/login', ['email' => $user->email, 'password' => 'secret'])
+        ->assertOk();
+}
+```
+
+The bug lives in the path this test doesn''t check. Add these — they''re the regressions you actually ship:
+
+```php
+public function test_login_fails_with_wrong_password(): void { /* ... */ }
+public function test_login_throttles_after_five_failed_attempts(): void { /* ... */ }
+public function test_login_locks_account_for_an_hour_after_ten_failures(): void { /* ... */ }
+```
+
+For every happy-path test, ask: *"What''s the bug we''d ship if I forget to handle this branch?"* — and write the test that would catch it.
+
+### The N+1 regression detector
+
+N+1 bugs love hiding behind passing tests. Catch them with a custom assertion:
+
+```php
+trait AssertsQueryCount
+{
+    protected function assertQueryCountAtMost(int $max, callable $action): void
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $action();
+
+        $queries = count(DB::getQueryLog());
+        $this->assertLessThanOrEqual(
+            $max,
+            $queries,
+            "Expected ≤ {$max} queries, got {$queries}."
+        );
+    }
+}
+
+// In your feature test:
+public function test_index_does_not_n_plus_one(): void
+{
+    Order::factory()->for(User::factory())->count(20)->create();
+
+    $this->assertQueryCountAtMost(3, function () {
+        $this->actingAs(User::factory()->create())->getJson('/api/orders');
+    });
+}
+```
+
+The threshold is empirical: run the test, see how many queries it takes today, set the bound at that number. The next dev who adds an N+1 will see a *test failure*, not a Datadog alert at 11pm.
+
+### TDD as a design tool (not a religion)
+
+TDD = write the test first. The reason isn''t purity — it''s that writing the test forces you to commit to a contract before you implement. You decide what the function''s name is, what its inputs are, what its output should look like — before you can lose those decisions in implementation details.
+
+In practice, the move is **TDD for the public-facing contract, regular development for the leaves**. Write the feature test that says "POST /api/orders creates an Order and returns its id". Then implement until it passes. Inside the controller, you can move freely; you have an executable specification on top.
+
+If you find yourself writing tests *after* the code, that''s fine — just make sure the test would fail without your change. Comment out the implementation, watch the test go red, uncomment.
+
+## Senior insights (testing strategy)
+
+### What to NOT test
+
+The senior trap isn''t writing too few tests — it''s writing too many of the wrong ones. Things to skip:
+
+- **Framework code.** Don''t test that Laravel''s validator validates. Don''t test that Eloquent saves to the DB.
+- **Trivial getters and setters.** `$user->name = 'Ada'; $this->assertSame('Ada', $user->name);` is a coverage tax.
+- **Behaviour that''s really configuration.** If a test is "did I set this config value correctly", that''s not a test — that''s reading `config/app.php`.
+- **Generated code.** Models from a code generator are tested by the generator. Don''t re-test them downstream.
+
+The cost of a useless test isn''t zero — it''s maintenance time every time the implementation changes. Every test you add is a brake on future refactoring. Add them deliberately.
+
+### How tests guide design
+
+When something is hard to test, that''s a *design signal*, not a testing problem. Look at the symptom:
+
+- **Need to mock six things to test one method?** The method has too many dependencies. Split it.
+- **The test needs `now()` to return a specific time?** Inject a `Clock` instead of calling `now()` directly. Same applies to `auth()->user()`, `request()`, `Cache::get()`.
+- **The test reaches deep into private state?** The public API doesn''t expose what you actually need to verify. Add a query method.
+- **Setup is 30 lines?** The unit under test has too much implicit context. Pull dependencies into the signature so the test can build them explicitly.
+
+The line "this is hard to test" is a hint to refactor, not to write a more complex test.
+
+### CI integration that actually matters
+
+A test suite that isn''t run on every PR may as well not exist. The minimum bar:
+
+1. **Run tests on every PR.** GitHub Actions, GitLab CI, Bitbucket Pipelines — whichever your team uses.
+2. **Block merge on red.** Branch protection rules in GitHub. Not "ask people nicely".
+3. **Fail fast.** Order tests roughly from cheapest to most expensive (unit → feature → integration). The first failure should appear inside two minutes.
+4. **Cache dependencies.** `actions/cache` for `~/.composer` and `node_modules`. The difference between a 2-minute build and an 8-minute build is dev velocity.
+5. **Surface flakes.** A test that passes 95% of the time will pass 95% of your PRs and fail 5% — exactly often enough to teach the team "just rerun the CI". That habit is fatal. Quarantine flakes (skip them while you fix them); don''t let them rot trust in the suite.
+
+### Interview question: *"What''s your testing strategy?"*
+
+A senior answer in three sentences:
+
+1. **Feature tests** cover the happy path of every endpoint and the unhappy path of anything sensitive (auth, payments, permissions).
+2. **Unit tests** for pure logic that''s hard to exercise through a feature test — calculations, parsers, anything stateless and gnarly.
+3. **No tests** for getters/setters, configuration, framework-provided behaviour, or for "coverage" alone.
+
+If the candidate names a coverage percentage as their strategy, they''re measuring the wrong thing. The strategy is "tests that would catch the bugs we''re actually shipping". Coverage is a side effect.
+EOT,
                         'resources' => [
                             ['label' => 'Laravel Testing', 'url' => 'https://laravel.com/docs/testing'],
                             ['label' => 'Model Factories', 'url' => 'https://laravel.com/docs/eloquent-factories'],
                             ['label' => 'Pest PHP — modern testing', 'url' => 'https://pestphp.com/docs/installation'],
+                            ['label' => 'Mocks aren\'t stubs (Martin Fowler)', 'url' => 'https://martinfowler.com/articles/mocksArentStubs.html'],
                         ],
                         'instructions' => [
-                            ['id' => 1, 'text' => 'Configure the test environment with SQLite in-memory in phpunit.xml'],
-                            ['id' => 2, 'text' => 'Create factories with states: TaskFactory::pending(), TaskFactory::overdue()'],
-                            ['id' => 3, 'text' => 'Write feature tests for: authentication, authorisation, and input validation'],
-                            ['id' => 4, 'text' => 'Add a test that detects N+1 using `DB::getQueryLog()`'],
-                            ['id' => 5, 'text' => 'Configure GitHub Actions to run tests on every PR'],
+                            [
+                                'id' => 1,
+                                'text' => "Configure the test environment — set DB_CONNECTION=sqlite and DB_DATABASE=:memory: in phpunit.xml. Time a 10-test run before and after. The difference is what you''ll save on every CI build for the rest of the project''s life.",
+                                'starter_code' => null,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Build factories with states — implement TaskFactory with pending() and overdue() states (overdue = due_at < now AND status != done). Use the states in a feature test that asserts the /api/tasks/overdue endpoint returns exactly the overdue rows.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+namespace Database\Factories;
+
+use App\Models\Task;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class TaskFactory extends Factory
+{
+    protected $model = Task::class;
+
+    public function definition(): array
+    {
+        return [
+            'user_id' => User::factory(),
+            'title'   => $this->faker->sentence(),
+            'status'  => 'pending',
+            'due_at'  => now()->addDays(7),
+        ];
+    }
+
+    public function pending(): self
+    {
+        // TODO: state for explicitly-pending tasks (status = 'pending').
+    }
+
+    public function overdue(): self
+    {
+        // TODO: state for overdue tasks (due_at in the past AND status != 'done').
+    }
+}
+PHP,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Write the three feature tests that protect login: success, wrong password (returns 422), and throttled after five failed attempts (returns 429). Junior tests cover (1); the bugs that ship are (2) and (3).",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
+
+class LoginTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_user_can_log_in_with_valid_credentials(): void
+    {
+        // ARRANGE: create a user with a known password
+        // ACT:     post valid credentials to /api/login
+        // ASSERT:  200, response carries an access_token, DB shows last_login bumped
+    }
+
+    public function test_login_rejects_wrong_password(): void
+    {
+        // TODO: 422 + no token in response + DB unchanged
+    }
+
+    public function test_login_throttles_after_five_failed_attempts(): void
+    {
+        // TODO: 5 failed posts, then the 6th returns 429
+    }
+}
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Add an N+1 detector — implement the AssertsQueryCount trait from the Deeper dive section. Use it in a feature test for /api/orders that creates 20 orders and asserts the index endpoint runs at most 3 queries. The 4th query that future-you adds for a relation will fail the test instead of fail in prod.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+namespace Tests\Traits;
+
+use Illuminate\Support\Facades\DB;
+
+trait AssertsQueryCount
+{
+    protected function assertQueryCountAtMost(int $max, callable $action): void
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $action();
+
+        // TODO: count DB::getQueryLog() and assertLessThanOrEqual($max, $count)
+        // with a helpful message including the actual count.
+    }
+}
+
+// Usage in tests/Feature/Order/IndexTest.php:
+//
+// use AssertsQueryCount;
+//
+// public function test_index_does_not_n_plus_one(): void
+// {
+//     Order::factory()->for(User::factory())->count(20)->create();
+//
+//     $this->assertQueryCountAtMost(3, function () {
+//         $this->getJson('/api/orders')->assertOk();
+//     });
+// }
+PHP,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Senior interview drill — write a three-sentence answer to \"What''s your testing strategy?\" *without* mentioning coverage percentage. If you can''t avoid the word coverage, you''re measuring the wrong thing and an interviewer will catch it.",
+                                'starter_code' => null,
+                            ],
                         ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
