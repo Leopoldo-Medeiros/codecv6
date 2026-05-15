@@ -78,7 +78,9 @@ function describe(OrderStatus $status): string {
 echo describe(OrderStatus::Paid);
 EOT,
                         'concept_content' => <<<'EOT'
-## strict_types: opting out of type juggling
+## Core (PHP fundamentals)
+
+### strict_types: opting out of type juggling
 
 Add this single line at the top of every PHP file you write:
 
@@ -101,7 +103,7 @@ tax('150');   // TypeError — strict types blocks the implicit cast
 
 This is the single highest-impact line you can add to a PHP project that didn't have it.
 
-## Parameter, return and property types
+### Parameter, return and property types
 
 PHP supports type declarations on **parameters**, **return values**, and (since 7.4) **class properties**:
 
@@ -122,7 +124,7 @@ class Invoice {
 
 The `void` return type means "this function returns nothing useful". Use it explicitly to make intent unambiguous to both readers and the IDE.
 
-## Nullable shorthand: `?string`
+### Nullable shorthand: ?string
 
 Real data has gaps. A user might not have a `linkedin_url`. The `?` prefix means "this OR null":
 
@@ -135,7 +137,7 @@ function profileUrl(?string $handle): ?string {
 
 `?string` is sugar for `string|null`. Both work; `?` reads cleaner for the common nullable case.
 
-## Union types: when a value can be more than one thing
+### Union types: one of several
 
 PHP 8 added the `|` syntax for parameters that legitimately accept multiple types:
 
@@ -150,9 +152,11 @@ formatId('abc');    // "STR-abc"
 
 Use unions sparingly. If you find yourself writing `int|string|float|bool`, that's a smell — your function is doing too much.
 
-## Intersection types: combining contracts
+## Deeper dive (intermediate territory)
 
-Where unions say "one of these", intersections say "all of these at once". Useful when a parameter must implement multiple interfaces:
+### Intersection types: combining contracts
+
+Where unions say "one of these", intersections say "all of these at once". Useful when a parameter must implement multiple interfaces simultaneously:
 
 ```php
 function dumpSize(Countable&Stringable $value): string {
@@ -160,9 +164,9 @@ function dumpSize(Countable&Stringable $value): string {
 }
 ```
 
-The parameter must implement **both** `Countable` and `Stringable`. The compiler enforces it; you don't have to check at runtime.
+The parameter must implement **both** `Countable` and `Stringable`. The compiler enforces it; no runtime checks needed. Intersections compose well with the standard SPL interfaces (`Iterator`, `Countable`, `Stringable`, `JsonSerializable`) and your own contracts.
 
-## Enums: the death of magic strings
+### Enums: the death of magic strings
 
 Before PHP 8.1, status fields were stored as untyped strings or class constants. Both invited typos:
 
@@ -197,13 +201,69 @@ Three real wins:
 - **Exhaustive `match`** — add a new case and the compiler points at every `match` that doesn't handle it.
 - **Methods on the enum** — `isFinal()` lives next to the data, not scattered across helpers.
 
-Backed enums (`: string` or `: int`) serialise to the database and back via `OrderStatus::from('paid')`. Use string-backed for human-readable storage, int-backed for compact indexed columns.
+### Backed enums for persistence
 
-## Why this matters at work
+Backed enums (`: string` or `: int`) serialise to the database and back. Use `OrderStatus::from('paid')` to hydrate, `OrderStatus::tryFrom($value)` when the input might be invalid:
 
-Code reviews stop arguing about defensive `is_string()` checks. IDEs autocomplete enum cases. New team members read a signature and understand the contract without reading the function body. Migrations from PHP 7 codebases recover dozens of latent bugs the moment strict types go on.
+```php
+$status = OrderStatus::tryFrom($row['status']) ?? OrderStatus::Pending;
+```
 
-If your team is still arguing about whether typed properties are worth it, point them at the next time prod 500s because someone passed `"true"` (the string) to a function expecting `bool`.
+String-backed for human-readable storage. Int-backed when you need compact indexed columns (e.g. a high-write events table). Laravel's `Eloquent` casts (`'status' => OrderStatus::class`) make the model property a real enum without lifting a finger.
+
+### Property covariance and variance gotchas
+
+PHP allows return-type **covariance** (a child can narrow the return) but parameter types are **invariant** in most cases. This bites when refactoring inheritance:
+
+```php
+class Repository {
+    public function find(int $id): ?Model { /* ... */ }
+}
+
+class UserRepository extends Repository {
+    public function find(int $id): ?User { /* OK — covariant return */ }
+}
+```
+
+But you cannot widen a parameter in a child — that breaks LSP and PHP rightly refuses. When you hit one of these errors, the fix is almost always to redesign the contract rather than fight the type system.
+
+## Senior insights (architecture & interview prep)
+
+### Code-review red flags
+
+Things to call out the next time you review a teammate's PR:
+
+- **`mixed` everywhere.** A function returning `mixed` is a function that gave up on types. Push for a union or a value-object wrapper.
+- **`@param string $foo` PHPDoc instead of a real type.** PHPDoc is hints; only the declaration is enforced. If the parameter can be typed, type it.
+- **`stdClass` instead of a DTO.** "We'll just decode JSON to stdClass for now" is how every PHP codebase ends up with untyped property access bugs in production. Decode into a typed class.
+- **`null` returned from a method whose name promises a value.** `getUser(): ?User` is sometimes right, but `currentUser(): ?User` smells — call sites end up with `if ($user === null)` everywhere. A `requireUser(): User` that throws is often the right contract.
+- **A method that accepts `string|int|array`.** That's a function doing three jobs. Split it.
+
+### When to adopt strict_types in a legacy codebase
+
+Strict types is per-file. You don't have to migrate everything at once — that's a feature, not a workaround. A pragmatic rollout:
+
+1. **Add it to new files only.** Set a lint rule (`php-cs-fixer` `declare_strict_types`) so every new PHP file ships with `declare(strict_types=1)` at the top.
+2. **Migrate file-by-file when you touch a file for another reason.** Boy-scout rule: leave it cleaner than you found it. Don't open dedicated "add strict types to module X" PRs — they're large, mechanical, and high-blast-radius.
+3. **Run the test suite after each batch.** Strict types surfaces real bugs (typically: `$_GET`/`$_POST` strings being passed unchanged to int-typed functions). The test suite is your safety net.
+
+If a function genuinely needs to accept loose input (e.g. an HTTP request handler before validation), normalise at the boundary — don't disable strict types for the entire file.
+
+### Trade-offs to discuss with your team
+
+- **Enums vs. database-friendly constants.** Enums break older Laravel ecosystems that didn't expect them; some packages serialise them inconsistently. Keep an `->value` accessor handy.
+- **Union types vs. polymorphism.** A union of two types in one function is often a missed opportunity for two methods or a small interface. Use unions when the two types have legitimately the same processing path.
+- **Performance.** Type declarations cost nothing at runtime — opcache caches the parsed AST. Don't let anyone tell you otherwise.
+
+### What interviewers listen for
+
+Common technical-screen prompts and the bullet they're waiting for:
+
+- *"How do PHP comparisons work?"* — Mention strict (`===`) vs loose (`==`), then go straight to the security angle: type-juggling in `==` is exploitable when comparing user input against tokens or roles.
+- *"What's the difference between an abstract class and an interface?"* — Senior answer: interfaces describe a contract; abstract classes share *implementation*. PHP 8 added interface intersection types — interfaces have grown more expressive, abstract classes less necessary.
+- *"How would you refactor a function that returns `mixed`?"* — Start by enumerating the actual return shapes the function produces. Replace with a union, a value object, or a sealed hierarchy of result types. Show that you reach for types as a *design* tool, not a syntax tax.
+
+The senior bar isn't memorising every union/intersection rule. It's reaching for the type system as a way to make wrong code unrepresentable.
 EOT,
                         'resources' => [
                             ['label' => 'PHP 8.3 Type System', 'url' => 'https://www.php.net/manual/en/language.types.declarations.php'],
