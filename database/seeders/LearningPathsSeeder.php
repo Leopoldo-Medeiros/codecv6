@@ -271,11 +271,136 @@ EOT,
                             ['label' => 'Typed Properties RFC', 'url' => 'https://wiki.php.net/rfc/typed_properties_v2'],
                         ],
                         'instructions' => [
-                            ['id' => 1, 'text' => "Form payload sanitizer — write sanitizeSignup(array \$raw): array that takes \$_POST-style input and returns typed fields: email (trimmed string), age (int, 0 if missing), terms_accepted (bool from 'yes'/'1'/'true'), referral_code (?string). This is what every onboarding controller does on day one."],
-                            ['id' => 2, 'text' => "Strict types refactor — a teammate wrote function calculateDiscount(\$price, \$percent) { return \$price - (\$price * \$percent / 100); }. Add declare(strict_types=1), parameter types, and a return type. Then call it with ('10.50', 10) and explain what changes between strict and non-strict mode."],
-                            ['id' => 3, 'text' => "Security: type juggling bypass — explain why if (\$_GET['role'] == 'admin') is exploitable when a request is crafted as ?role=0 in PHP 7. Fix it with strict equality and a whitelist. Classic technical-screen question for senior backend roles."],
-                            ['id' => 4, 'text' => "Convert magic strings to an enum — find any model in your project that has a status column stored as a raw string. Define a backed enum, cast the property, and update one match() that checks the status to be exhaustive."],
-                            ['id' => 5, 'text' => "Money math — a junior writes \$total = 0.1 + 0.2 and asserts === 0.3. Explain why the assertion fails. Then implement sumCents(array \$stringPrices): int that takes ['9.99', '1.50', '0.01'] and returns the total in cents (integer) — the only safe way to handle money in any language."],
+                            [
+                                'id' => 1,
+                                'text' => "Form payload sanitizer — write sanitizeSignup(array \$raw): array that takes \$_POST-style input and returns typed fields: email (trimmed string), age (int, 0 if missing), terms_accepted (bool from 'yes'/'1'/'true'), referral_code (?string). This is what every onboarding controller does on day one.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+/**
+ * Sanitize a raw $_POST-style array into typed fields.
+ *   - email          → trimmed string
+ *   - age            → int (0 if missing)
+ *   - terms_accepted → bool, true when value is 'yes' / '1' / 'true' (case-insensitive)
+ *   - referral_code  → string or null
+ */
+function sanitizeSignup(array $raw): array
+{
+    // TODO: implement
+    return [];
+}
+
+// Try your implementation against these:
+var_dump(sanitizeSignup([
+    'email' => '  alice@example.com  ',
+    'age' => '25',
+    'terms_accepted' => 'yes',
+    'referral_code' => 'WELCOME10',
+]));
+var_dump(sanitizeSignup([]));
+var_dump(sanitizeSignup(['terms_accepted' => 'no']));
+PHP,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Strict types refactor — a teammate wrote function calculateDiscount(\$price, \$percent) { return \$price - (\$price * \$percent / 100); }. Add declare(strict_types=1), parameter types, and a return type. Then call it with ('10.50', 10) and explain what changes between strict and non-strict mode.",
+                                'starter_code' => <<<'PHP'
+<?php
+// Step 1: add declare(strict_types=1); on the line above this comment.
+
+// Step 2: add parameter types and a return type to this function.
+function calculateDiscount($price, $percent)
+{
+    return $price - ($price * $percent / 100);
+}
+
+// Step 3: run BOTH calls and see what changes between strict and non-strict mode.
+echo calculateDiscount(10.50, 10) . PHP_EOL;     // 9.45
+echo calculateDiscount('10.50', 10) . PHP_EOL;   // ← with strict_types this throws TypeError
+PHP,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Security: type juggling bypass — explain why if (\$_GET['role'] == 'admin') is exploitable when a request is crafted as ?role=0 in PHP 7. Fix it with strict equality and a whitelist. Classic technical-screen question for senior backend roles.",
+                                'starter_code' => <<<'PHP'
+<?php
+// The vulnerable controller below is in production. Two things to do:
+//
+//  1. In a comment, explain WHY this returns true when an attacker sends
+//     ?role=0 under PHP 7 semantics. (Hint: 'admin' == 0)
+//
+//  2. Rewrite isAdmin() using strict equality and a whitelist of allowed
+//     roles. Make it impossible to bypass with crafted input.
+
+function isAdmin(array $request): bool
+{
+    return $request['role'] == 'admin'; // ← exploitable
+}
+
+// Crafted requests — your fixed version must return false for both.
+var_dump(isAdmin(['role' => 0]));        // current code: true (BUG)
+var_dump(isAdmin(['role' => 'admin']));  // legitimate admin: true
+var_dump(isAdmin(['role' => 'user']));   // regular user: false
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Convert magic strings to an enum — find any model in your project that has a status column stored as a raw string. Define a backed enum, cast the property, and update one match() that checks the status to be exhaustive.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// Define a string-backed enum OrderStatus with three cases:
+//   Pending = 'pending', Paid = 'paid', Refunded = 'refunded'
+//
+// Then add a method isFinal(): bool that uses an exhaustive match()
+// — Paid and Refunded are final, Pending is not.
+
+enum OrderStatus: string
+{
+    // TODO: cases
+}
+
+// Once defined, this should compile and run.
+function describe(OrderStatus $status): string
+{
+    return match ($status) {
+        // TODO: cover every case exhaustively — drop any case here and
+        // your IDE/PHPStan should immediately flag it as unhandled.
+    };
+}
+
+// echo describe(OrderStatus::Paid);
+// var_dump(OrderStatus::Pending->isFinal());   // false
+// var_dump(OrderStatus::Refunded->isFinal());  // true
+PHP,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Money math — a junior writes \$total = 0.1 + 0.2 and asserts === 0.3. Explain why the assertion fails. Then implement sumCents(array \$stringPrices): int that takes ['9.99', '1.50', '0.01'] and returns the total in cents (integer) — the only safe way to handle money in any language.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// Part 1 — convince yourself the float assertion fails.
+var_dump(0.1 + 0.2);                  // 0.30000000000000004
+var_dump(0.1 + 0.2 === 0.3);          // false  ← IEEE 754 talking
+
+// Part 2 — implement sumCents.
+// Take prices as strings (the way HTTP forms and CSV files give them),
+// convert each to integer cents (e.g. '9.99' → 999), and sum.
+function sumCents(array $stringPrices): int
+{
+    // TODO: implement — avoid floats entirely if you can.
+    return 0;
+}
+
+echo sumCents(['9.99', '1.50', '0.01']) . PHP_EOL;   // expected: 1150
+echo sumCents(['100.00', '0.99']) . PHP_EOL;         // expected: 10099
+echo sumCents([]) . PHP_EOL;                          // expected: 0
+PHP,
+                            ],
                         ],
                         'challenge_prompt' => null,
                         'lab_url' => null,

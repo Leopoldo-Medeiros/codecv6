@@ -110,6 +110,7 @@ class PathStepController extends Controller
             'instructions' => 'nullable|array',
             'instructions.*.id' => 'required|integer',
             'instructions.*.text' => 'required|string|max:2000',
+            'instructions.*.starter_code' => 'nullable|string|max:10000',
             'challenge_prompt' => 'nullable|string',
             'challenge_slug' => 'nullable|string|exists:challenges,slug',
         ];

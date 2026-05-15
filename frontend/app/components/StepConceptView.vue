@@ -209,7 +209,7 @@
         </UCard>
 
         <!-- Code playground (read-only mock for now; execution comes in a follow-up PR) -->
-        <UCard v-if="step.has_playground && step.playground_starter_code" :ui="{ body: { padding: 'p-0' } }">
+        <UCard v-if="step.has_playground && step.playground_starter_code" ref="playgroundCard" :ui="{ body: { padding: 'p-0' } }">
           <template #header>
             <div class="flex items-center justify-between">
               <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
@@ -288,27 +288,44 @@
             <li
               v-for="(ins, i) in step.instructions"
               :key="ins.id"
-              class="group flex items-start gap-3 rounded-lg border border-gray-100 px-3 py-2.5 transition-colors hover:border-gray-200 dark:border-gray-700 dark:hover:border-gray-600"
+              class="group rounded-lg border border-gray-100 px-3 py-2.5 transition-colors hover:border-gray-200 dark:border-gray-700 dark:hover:border-gray-600"
               :class="checked.has(ins.id) && 'bg-emerald-50/60 dark:bg-emerald-950/20'"
             >
-              <button
-                type="button"
-                class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors"
-                :class="checked.has(ins.id)
-                  ? 'border-emerald-500 bg-emerald-500 text-white'
-                  : 'border-gray-300 dark:border-gray-600'"
-                @click="toggleCheck(ins.id)"
-              >
-                <UIcon v-if="checked.has(ins.id)" name="i-heroicons-check" class="h-3.5 w-3.5" />
-              </button>
-              <div class="min-w-0">
-                <p
-                  class="text-sm leading-relaxed text-gray-800 dark:text-gray-200"
-                  :class="checked.has(ins.id) && 'text-gray-400 line-through dark:text-gray-500'"
+              <div class="flex items-start gap-3">
+                <button
+                  type="button"
+                  class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors"
+                  :class="checked.has(ins.id)
+                    ? 'border-emerald-500 bg-emerald-500 text-white'
+                    : 'border-gray-300 dark:border-gray-600'"
+                  @click="toggleCheck(ins.id)"
                 >
-                  <span class="mr-2 text-xs font-semibold text-gray-400">{{ String(i + 1).padStart(2, '0') }}.</span>
-                  {{ ins.text }}
-                </p>
+                  <UIcon v-if="checked.has(ins.id)" name="i-heroicons-check" class="h-3.5 w-3.5" />
+                </button>
+                <div class="min-w-0 flex-1">
+                  <p
+                    class="text-sm leading-relaxed text-gray-800 dark:text-gray-200"
+                    :class="checked.has(ins.id) && 'text-gray-400 line-through dark:text-gray-500'"
+                  >
+                    <span class="mr-2 text-xs font-semibold text-gray-400">{{ String(i + 1).padStart(2, '0') }}.</span>
+                    {{ ins.text }}
+                  </p>
+                  <!-- "Try this" button — only when the task ships with starter_code -->
+                  <div v-if="ins.starter_code" class="mt-2 flex items-center gap-2">
+                    <UButton
+                      size="xs"
+                      color="emerald"
+                      variant="soft"
+                      icon="i-heroicons-command-line"
+                      @click="loadTaskIntoPlayground(ins.starter_code)"
+                    >
+                      Try this in the playground
+                    </UButton>
+                    <span v-if="activeTaskId === ins.id" class="text-[10px] font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                      Loaded ↑
+                    </span>
+                  </div>
+                </div>
               </div>
             </li>
           </ul>
@@ -623,12 +640,15 @@ onMounted(() => {
 const playgroundCode = ref(props.step.playground_starter_code ?? '')
 const playgroundOutput = ref('')
 const playgroundRunning = ref(false)
+const playgroundCard = ref<{ $el?: HTMLElement } | null>(null)
+const activeTaskId = ref<number | null>(null)
 const playgroundLines = computed(() => playgroundCode.value.split('\n').map(highlightPhp))
 const toast = useToast()
 
 function resetPlayground() {
   playgroundCode.value = props.step.playground_starter_code ?? ''
   playgroundOutput.value = ''
+  activeTaskId.value = null
 }
 
 async function runPlayground() {
@@ -642,6 +662,24 @@ async function runPlayground() {
     title: 'Playground execution coming soon',
     description: 'Wire-up to Judge0 lands in a follow-up PR.',
     color: 'amber',
+  })
+}
+
+// Load a task's starter into the playground and scroll the editor into
+// view. Always overwrites — users can click Reset on the playground to
+// go back to the step's primary starter.
+function loadTaskIntoPlayground(starter: string | null | undefined) {
+  if (!starter) return
+  const instructions = props.step.instructions ?? []
+  const task = instructions.find(t => t.starter_code === starter)
+  activeTaskId.value = task?.id ?? null
+  playgroundCode.value = starter
+  playgroundOutput.value = ''
+  nextTick(() => {
+    const el = playgroundCard.value?.$el ?? (playgroundCard.value as unknown as HTMLElement | null)
+    if (el && typeof (el as HTMLElement).scrollIntoView === 'function') {
+      (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   })
 }
 </script>

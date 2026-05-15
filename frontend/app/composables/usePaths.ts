@@ -18,7 +18,7 @@ export interface PathStep {
   playground_starter_code?: string | null
   type: StepType
   lab_url?: string | null
-  instructions?: Array<{ id: number; text: string }>
+  instructions?: Array<{ id: number; text: string; starter_code?: string | null }>
   challenge_prompt?: string | null
   challenge_slug?: string | null
   challenge?: import('~/types/models').Challenge | null
