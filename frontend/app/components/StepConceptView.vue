@@ -208,8 +208,9 @@
           </article>
         </UCard>
 
-        <!-- Code playground (read-only mock for now; execution comes in a follow-up PR) -->
-        <UCard v-if="step.has_playground && step.playground_starter_code" ref="playgroundCard" :ui="{ body: { padding: 'p-0' } }">
+        <!-- Code playground — Monaco editor + Judge0-backed Run. -->
+        <div v-if="step.has_playground && step.playground_starter_code" ref="playgroundAnchor">
+        <UCard :ui="{ body: { padding: 'p-0' } }">
           <template #header>
             <div class="flex items-center justify-between">
               <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
@@ -285,6 +286,7 @@
             </p>
           </div>
         </UCard>
+        </div>
 
         <!-- Practice tasks -->
         <UCard v-if="step.instructions?.length">
@@ -331,7 +333,7 @@
                       color="emerald"
                       variant="soft"
                       icon="i-heroicons-command-line"
-                      @click="loadTaskIntoPlayground(ins.starter_code)"
+                      @click="loadTaskIntoPlayground(ins)"
                     >
                       Try this in the playground
                     </UButton>
@@ -345,41 +347,6 @@
           </ul>
         </UCard>
 
-        <!-- Linked challenge card -->
-        <div
-          v-if="step.challenge"
-          class="overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-emerald-50 p-5 shadow-sm dark:border-emerald-900/40 dark:from-emerald-950/40 dark:via-slate-900 dark:to-emerald-950/30"
-        >
-          <div class="flex flex-wrap items-center gap-5">
-            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30">
-              <UIcon name="i-heroicons-trophy" class="h-7 w-7" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <p class="mb-1 text-[11px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-                Graded challenge
-              </p>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ step.challenge.title }}</h3>
-              <p v-if="step.challenge.description" class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ step.challenge.description }}
-              </p>
-              <div class="mt-2.5 flex flex-wrap items-center gap-2">
-                <UBadge color="emerald" variant="subtle" size="xs" icon="i-heroicons-bolt">
-                  {{ step.challenge.difficulty }}
-                </UBadge>
-              </div>
-            </div>
-            <div class="flex shrink-0 items-center gap-2 self-stretch sm:self-center">
-              <UButton
-                color="emerald"
-                size="md"
-                trailing-icon="i-heroicons-arrow-right"
-                @click="$emit('open-challenge')"
-              >
-                Open challenge
-              </UButton>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -387,7 +354,7 @@
 
 <script setup lang="ts">
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
-import type { PathStep, StepDifficulty } from '~/composables/usePaths'
+import type { PathStep } from '~/composables/usePaths'
 
 const props = defineProps<{
   step: PathStep
@@ -396,7 +363,6 @@ const props = defineProps<{
 
 defineEmits<{
   (e: 'status', value: NonNullable<PathStep['user_status']>): void
-  (e: 'open-challenge'): void
 }>()
 
 // ─── Status sidebar buttons ───────────────────────────────────────────
@@ -419,7 +385,7 @@ const statusBadge = computed(() => {
 
 // ─── Difficulty badge ─────────────────────────────────────────────────
 const difficultyColor = computed((): 'emerald' | 'amber' | 'red' | 'gray' => {
-  switch (props.step.difficulty as StepDifficulty | null | undefined) {
+  switch (props.step.difficulty) {
     case 'beginner':     return 'emerald'
     case 'intermediate': return 'amber'
     case 'advanced':     return 'red'
@@ -657,7 +623,7 @@ const playgroundOutput = ref('')
 const playgroundError = ref('')
 const playgroundRunning = ref(false)
 const playgroundDurationMs = ref<number | null>(null)
-const playgroundCard = ref<{ $el?: HTMLElement } | null>(null)
+const playgroundAnchor = ref<HTMLElement | null>(null)
 const activeTaskId = ref<number | null>(null)
 const toast = useToast()
 const api = useApi()
@@ -735,18 +701,14 @@ async function runPlayground() {
 // Load a task's starter into the playground and scroll the editor into
 // view. Always overwrites — users can click Reset on the playground to
 // go back to the step's primary starter.
-function loadTaskIntoPlayground(starter: string | null | undefined) {
-  if (!starter) return
-  const instructions = props.step.instructions ?? []
-  const task = instructions.find(t => t.starter_code === starter)
-  activeTaskId.value = task?.id ?? null
-  playgroundCode.value = starter
+function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null }) {
+  if (!task.starter_code) return
+  activeTaskId.value = task.id
+  playgroundCode.value = task.starter_code
   playgroundOutput.value = ''
+  playgroundError.value = ''
   nextTick(() => {
-    const el = playgroundCard.value?.$el ?? (playgroundCard.value as unknown as HTMLElement | null)
-    if (el && typeof (el as HTMLElement).scrollIntoView === 'function') {
-      (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    playgroundAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   })
 }
 </script>
