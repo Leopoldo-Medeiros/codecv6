@@ -2385,40 +2385,323 @@ PHP,
                     [
                         'title' => 'OTel 101: Traces, Spans, Metrics and Logs',
                         'type' => 'reading',
-                        'description' => <<<'EOT'
-                        OpenTelemetry unifies the three pillars of observability — traces, metrics and logs — under a single API and SDK. We will understand the data model: what a Trace ID is, how Spans relate in parent-child relationships, the difference between gauge and counter metrics, and how W3C TraceContext propagates context between services.
+                        'description' => 'OpenTelemetry unifies the three pillars of observability — traces, metrics and logs — under a single API and SDK. Understand the data model (TraceId, parent-child spans, W3C TraceContext) and how a single instrumentation lets you swap backends without rewriting code.',
+                        'tldr' => 'OpenTelemetry is the vendor-neutral standard that finally killed "rip out our APM agent next quarter." A trace is a tree of spans, a span is one timed operation, a metric is an aggregated number, and a log is a contextual event. Once your code emits all four via the OTel SDK, swapping New Relic for Datadog (or vice versa) is a one-line config change.',
+                        'estimated_minutes' => 22,
+                        'difficulty' => 'beginner',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'Basic HTTP request/response flow'],
+                            ['id' => 2, 'title' => 'Comfortable reading a stack trace'],
+                        ],
+                        'concepts' => ['traces', 'spans', 'metrics', 'logs', 'trace-context', 'otlp', 'context-propagation', 'sampling'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
 
-                        ## The Three Pillars — and How OTel Connects Them
+// A minimal trace, by hand — no OTel SDK yet, just the data model.
+// This is what the SDK builds for you on every HTTP request.
 
-                        ```mermaid
-                        flowchart TB
-                            subgraph pillars["Three Pillars of Observability"]
-                                direction LR
-                                TRACES["📊 Traces\nFull journey of a request\nacross all services\n(parent → child spans)"]:::emerald
-                                METRICS["📈 Metrics\nAggregated numbers:\nreq/sec · cpu · memory\nerror rate · p99"]:::blue
-                                LOGS["📝 Logs\nStructured events\nwith context:\ntrace_id · span_id\nuser_id · severity"]:::yellow
-                            end
+final class Span
+{
+    public function __construct(
+        public readonly string $traceId,
+        public readonly string $spanId,
+        public readonly ?string $parentSpanId,
+        public readonly string $name,
+        public readonly float $startedAt,
+        public ?float $endedAt = null,
+        public array $attributes = [],
+    ) {}
 
-                            SDK["OpenTelemetry SDK\nCollects all three pillars\nvia one unified API"]:::slate
+    public function end(): void { $this->endedAt = microtime(true); }
 
-                            pillars --> SDK
-                            SDK --> OTLP["OTLP Exporter\n(gRPC or HTTP)"]:::slate
-                            OTLP --> BACKEND["Any Observability Backend\nNew Relic · Datadog\nJaeger · Grafana Tempo"]:::emerald
+    public function durationMs(): int
+    {
+        return (int) ((($this->endedAt ?? microtime(true)) - $this->startedAt) * 1000);
+    }
+}
 
-                            classDef emerald fill:#d1fae5,stroke:#059669,color:#065f46,font-weight:600
-                            classDef slate   fill:#f1f5f9,stroke:#64748b,color:#1e293b,font-weight:500
-                            classDef blue    fill:#dbeafe,stroke:#3b82f6,color:#1e40af,font-weight:500
-                            classDef yellow  fill:#fef3c7,stroke:#f59e0b,color:#92400e,font-weight:500
-                        ```
+// Build a tiny trace for a synthetic checkout request.
+$traceId = bin2hex(random_bytes(16));     // 128-bit
+$root    = new Span($traceId, bin2hex(random_bytes(8)), null,            'POST /checkout',  microtime(true));
+$db      = new Span($traceId, bin2hex(random_bytes(8)), $root->spanId,   'db.query',        microtime(true));
+usleep(2_000); $db->end();
+$pay     = new Span($traceId, bin2hex(random_bytes(8)), $root->spanId,   'payment.charge',  microtime(true));
+usleep(8_000); $pay->end();
+$root->end();
 
-                        Before OTel, you needed a different SDK for every backend. Now you instrument once and swap the exporter.
-                        EOT,
+foreach ([$root, $db, $pay] as $s) {
+    printf("[%s] %-18s %4d ms  (parent=%s)\n",
+        substr($s->spanId, 0, 6),
+        $s->name,
+        $s->durationMs(),
+        $s->parentSpanId ? substr($s->parentSpanId, 0, 6) : '─');
+}
+PHP,
+                        'concept_content' => <<<'EOT'
+## Core (foundations)
+
+### The three pillars, and what they actually answer
+
+OpenTelemetry collects three kinds of telemetry. Each answers a different question:
+
+| Pillar    | Question it answers                                              | Cardinality / cost   |
+| --------- | ---------------------------------------------------------------- | -------------------- |
+| **Traces**| *"Where did this single request spend its time?"*                | High — every request |
+| **Metrics**| *"How is the system behaving in aggregate right now?"*          | Low — pre-aggregated |
+| **Logs**  | *"What exactly happened at this moment in the code?"*            | Highest — every line |
+
+You need all three. Metrics alone tell you the error rate spiked but not why. Traces alone tell you one request was slow but not whether it's representative. Logs alone are a haystack with no needle.
+
+```mermaid
+flowchart LR
+    APP["Your application"]:::slate
+    SDK["OpenTelemetry SDK\n(traces + metrics + logs)"]:::emerald
+    OTLP["OTLP Exporter\n(gRPC or HTTP)"]:::slate
+    BACKEND["Any backend\nNew Relic · Datadog\nJaeger · Tempo · Loki"]:::emerald
+
+    APP --> SDK --> OTLP --> BACKEND
+
+    classDef emerald fill:#d1fae5,stroke:#059669,color:#065f46,font-weight:600
+    classDef slate   fill:#f1f5f9,stroke:#64748b,color:#1e293b,font-weight:500
+```
+
+The win OTel gives you: **instrument once, swap backends**. Before OTel you needed a different SDK per vendor. Now you change `OTEL_EXPORTER_OTLP_ENDPOINT` and the code stays put.
+
+### A trace is a tree of spans
+
+A **Trace** is a single request's journey through your system. It's made of **Spans** — each span is one timed operation (a DB query, an HTTP call, a function execution). Spans relate to each other in a parent-child tree, anchored by a shared **TraceId**.
+
+```
+TraceId: 4bf92f3577b34da6a3ce929d0e0e4736
+│
+├── span: POST /checkout            ← root span (no parent)
+│   ├── span: db.query              ← child, parent = root
+│   ├── span: payment.charge        ← child, parent = root
+│   │   └── span: stripe.api.call   ← grandchild, parent = payment.charge
+│   └── span: email.send
+```
+
+Every span carries:
+
+- A **TraceId** (128-bit, hex) — same across every span in the request.
+- A **SpanId** (64-bit, hex) — unique to this one span.
+- A **parent_span_id** — points to its parent (null only on the root).
+- `name`, `start_time`, `end_time`, and a bag of **attributes** (`http.method`, `db.statement`, `user.id`, etc.).
+- A **status** — OK, ERROR, or unset.
+
+When a backend "shows you the trace", it's rendering this tree with timing — that's what makes a flame graph.
+
+### Metrics: aggregate, not per-event
+
+A **metric** is a number recorded over time, aggregated before it leaves your process. You don't ship every `http_request_duration_ms` — you ship the histogram bucket counts. Three core instrument types:
+
+```
+Counter   — only goes up. Total requests, total errors, bytes sent.
+Gauge     — instantaneous value. CPU %, queue depth, connection-pool size.
+Histogram — distribution of observations. Latency, request size, response size.
+```
+
+The economics matter: a histogram of `p99 latency` costs roughly the same as a counter, no matter how many requests fed into it. That's why metrics scale to high-RPS services where shipping every request as a trace would melt your invoice.
+
+### Logs: events with context
+
+A **log** is a single point-in-time event. OTel's value-add is that logs *carry the active TraceId and SpanId* automatically — so when you see an `ERROR: payment declined` log, the backend can jump you to the exact trace it happened during.
+
+```
+2026-05-15T14:32:01Z  ERROR  payment.declined
+  trace_id=4bf92f3577b34da6a3ce929d0e0e4736
+  span_id=00f067aa0ba902b7
+  user_id=42
+  reason=insufficient_funds
+```
+
+This single feature collapses two screens of console grep'ing into one click.
+
+## Deeper dive (intermediate)
+
+### W3C TraceContext: how distributed tracing actually works
+
+When service A calls service B, the trace has to continue — not start fresh. The W3C **Trace Context** spec defines two HTTP headers that propagate the context:
+
+```
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+             ^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^
+             ver  trace-id (128-bit)              parent-span-id   flags
+
+tracestate:  rojo=00f067aa0ba902b7,congo=t61rcWkgMzE
+             ↑ vendor-specific key=value pairs (Datadog, NR, X-Ray, etc.)
+```
+
+The flow:
+
+1. Service A starts a span, generates the `traceparent` header.
+2. Service A calls Service B via HTTP, attaches `traceparent`.
+3. Service B's OTel SDK reads the header, creates its own span using the same TraceId and the received SpanId as the new span's `parent_span_id`.
+4. Both services emit their spans to the backend, which reassembles the tree.
+
+If you skip step 2 — or worse, regenerate the header — your backend shows two disconnected traces and you've spent ten minutes finding "the other half of the request."
+
+### Sampling: why you never trace 100% of production
+
+Tracing every request in a high-RPS service costs more than the service itself. **Sampling** decides which traces to keep. Three common strategies:
+
+- **Head-based, probabilistic.** "Keep 1% of traces at random." Cheap, decided at root span. Misses rare errors.
+- **Tail-based.** Buffer the whole trace, decide after it finishes ("keep all error traces + 1% of OK"). Catches errors. Needs a Collector in front. More expensive.
+- **Adaptive / dynamic.** Sample rate moves with load. Default in some vendor SDKs.
+
+The choice has cost and debugging implications. A senior engineer can talk about both. Junior interview answers say "I'd use sampling"; senior answers say "head-based at the edge, tail-based at the Collector if we can afford the buffer."
+
+### Auto-instrumentation vs manual instrumentation
+
+OpenTelemetry ships two layers:
+
+- **Auto-instrumentation** — drop-in libraries that hook into common frameworks (Laravel, PDO, Guzzle, Redis). You add the package, set env vars, and traces appear. Covers infrastructure.
+- **Manual instrumentation** — you write the code: `$tracer->spanBuilder('checkout.process')->startSpan()`. Covers your *business logic*, which auto-instrumentation can't see.
+
+The right answer is **always both**. Auto-instrumentation gives you the framework view for free; manual is where you add the spans that matter to the business (`order.total`, `payment.gateway`, `checkout.success_rate`).
+
+### OTLP: the wire protocol
+
+OTLP (OpenTelemetry Protocol) is the spec for shipping telemetry to a backend. Two transports:
+
+- **OTLP/gRPC** — binary, faster, default for high-volume.
+- **OTLP/HTTP** — plain HTTP+protobuf (or JSON), works through corporate firewalls that block gRPC.
+
+You almost never write OTLP yourself — the exporter does it. But knowing the protocol exists is what lets you say "let me check if our Collector is healthy" instead of "I think the data is just gone".
+
+## Senior insights (telemetry economics & interview prep)
+
+### The telemetry-cost conversation no one prepares juniors for
+
+Observability vendors charge by ingest. A naive instrumentation can 100x your bill overnight. Things a senior actively manages:
+
+- **Cardinality.** A metric tagged with `user_id` has as many time-series as you have users. Backends charge per series. The rule: tag with **bounded** dimensions (`http.status_code`, `region`, `service.version`), never **unbounded** (`user_id`, `request_id`, `email`).
+- **Span attributes.** Each attribute is shipped. A `db.statement` containing a 4kB SQL string sent on every query multiplies your trace bytes. Trim or redact in the exporter.
+- **Log volume.** A single `Log::info` in a hot loop ships millions of lines a day. Move to metrics for things you only care about in aggregate.
+
+When a vendor invoice spikes, the postmortem is almost always one of those three. A senior reads a PR and asks *"did this new attribute add cardinality?"* the same way they ask *"did this change introduce an N+1?"*.
+
+### Choosing a backend (and when to switch)
+
+The senior decision tree:
+
+| Need                                        | Recommended backend type        | Why                                          |
+| ------------------------------------------- | ------------------------------- | -------------------------------------------- |
+| Production app, full-stack, paid budget     | Vendor-hosted (New Relic, Datadog, Honeycomb) | Battery-included, integrated alerts, you don't run a Cassandra cluster |
+| Cost-sensitive, in-house ops                | Self-hosted (Grafana stack: Tempo + Mimir + Loki) | Cheaper at high volume; you own the pager   |
+| Local dev / CI                              | Jaeger or Tempo in a docker-compose | Free, ephemeral, no API key in the repo  |
+
+The vendor-lock-in conversation matters less now that OTel is universal. You can move backends in a sprint. The harder migration is *naming conventions* — your dashboards and alerts encode "we call it `order.create`" everywhere. Pick semantic conventions early and stick with them.
+
+### Common interview questions (with the senior-bar answers)
+
+**Q: *"What's the difference between a metric and a trace?"***
+Junior answer: "Metric is a number, trace is a request." Senior answer: a metric is **aggregated before it leaves the process** — you ship histogram buckets, not individual events. A trace is **per-event** — every request becomes data. That difference is why metrics scale linearly with services and traces scale linearly with traffic.
+
+**Q: *"How would you instrument a new service?"***
+Senior answer follows the cost gradient: (1) auto-instrumentation for HTTP/DB/Redis — free, get baseline. (2) Manual spans on business-critical operations — checkout, payment, scoring. (3) Metrics for things you'll alert on. (4) Logs with trace context for the inevitable "why exactly did this fail?" moment. Mention OTLP gRPC + a Collector if the conversation goes that deep.
+
+**Q: *"How do you debug a slow API in production?"***
+Senior pattern: open dashboards (metrics) → identify which endpoint and when → open a slow trace (sampled to ERROR or P99) → walk the flame graph until you find the bottleneck span → open the log line with that span's `trace_id`. Two minutes from "the alert fired" to "I know what to fix". Junior version is `tail -f` + grep, which is 30 minutes minimum.
+
+**Q: *"How do you avoid blowing up your observability bill?"***
+The cardinality answer wins this. Know the three offenders (cardinality, attribute size, log volume) and how to detect each (vendor cardinality dashboards, span size histograms, log rate graphs).
+
+### What separates a senior observability engineer
+
+Three habits, in order of how rare they are:
+
+1. **Naming discipline.** They have semantic conventions written down somewhere and enforce them in code review. `order.create` everywhere, not `createOrder` in one service and `Order.create` in another.
+2. **They alert on user-impact, not infrastructure.** "CPU > 80%" is a junior alert. "Checkout success rate < 99.5% over 5 minutes" is a senior alert.
+3. **They know the telemetry stack's failure modes.** When the Collector is down, what happens to spans? When the backend rate-limits, do you drop or queue? Junior engineers treat telemetry as infallible until it isn't.
+EOT,
                         'resources' => [
                             ['label' => 'OpenTelemetry Concepts', 'url' => 'https://opentelemetry.io/docs/concepts/'],
                             ['label' => 'Observability Primer', 'url' => 'https://opentelemetry.io/docs/concepts/observability-primer/'],
                             ['label' => 'W3C Trace Context spec', 'url' => 'https://www.w3.org/TR/trace-context/'],
+                            ['label' => 'Semantic Conventions', 'url' => 'https://opentelemetry.io/docs/specs/semconv/'],
                         ],
-                        'instructions' => null,
+                        'instructions' => [
+                            [
+                                'id' => 1,
+                                'text' => "Build a trace by hand — extend the playground Span class so it carries a status (`ok`/`error`) and records an error message when one is set. Print it alongside the duration. This is exactly the shape OTel sends over the wire.",
+                                'starter_code' => null,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Identify the three offenders — pick a real service you've worked on (or a sample app). Write down: which metric attribute would explode cardinality? Which span attribute could blow up size on hot paths? Which log line is the noisiest? This is the senior PR review you should be doing on yourself.",
+                                'starter_code' => null,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Parse a traceparent header — write parseTraceparent(string \$header) that returns ['trace_id' => ..., 'parent_span_id' => ..., 'flags' => ...]. Reject malformed inputs. This is the parser every distributed-tracing SDK ships internally.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+/**
+ * Parse a W3C TraceContext "traceparent" header.
+ *
+ * Format: VERSION-TRACE_ID-PARENT_SPAN_ID-FLAGS
+ *   - VERSION:        2 hex chars (must be "00" for v1)
+ *   - TRACE_ID:       32 hex chars (128 bits; all-zero is invalid)
+ *   - PARENT_SPAN_ID: 16 hex chars (64 bits;  all-zero is invalid)
+ *   - FLAGS:          2 hex chars (bit 0 = sampled)
+ *
+ * Return null when the header is missing or malformed.
+ *
+ * Spec: https://www.w3.org/TR/trace-context/
+ *
+ * @return array{trace_id: string, parent_span_id: string, flags: int}|null
+ */
+function parseTraceparent(string $header): ?array
+{
+    // TODO: implement. Watch out for: wrong length parts, non-hex chars,
+    //       all-zero trace_id / parent_span_id, version != 00.
+    return null;
+}
+
+// Test cases — uncomment to verify your implementation
+// var_dump(parseTraceparent('00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'));
+// expected: ['trace_id' => '4bf92f3577b34da6a3ce929d0e0e4736', 'parent_span_id' => '00f067aa0ba902b7', 'flags' => 1]
+// var_dump(parseTraceparent(''));                          // null
+// var_dump(parseTraceparent('00-00000000000000000000000000000000-...-01'));  // null (zero trace_id)
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Cardinality interview drill — given this code, explain in one sentence which line would 100x a vendor's bill: `Metrics::counter('http_request')->increment(['user_email' => \$user->email, 'status' => \$response->status]);`. Then rewrite it without the offending dimension while preserving the alerting value.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// Pseudo-OTel API for the purposes of this drill.
+class Metrics
+{
+    public static function counter(string $name): self { return new self(); }
+    public function increment(array $attributes = []): void { /* ships ONE time-series per unique attribute combination */ }
+}
+
+// ❌ Bug — what's wrong here?
+// (Hint: the metrics backend will create one time-series per UNIQUE attribute combo.)
+Metrics::counter('http_request')->increment([
+    'user_email' => 'alice@example.com',
+    'status'     => 200,
+]);
+
+// TODO: rewrite the counter call so it has alert value (status, route, method)
+//       without per-user-identity cardinality. The user_id belongs on the trace,
+//       not the metric.
+PHP,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Senior interview drill — answer \"How do you debug a slow API endpoint in production?\" in five steps. Each step should map to a different telemetry pillar (metrics → traces → logs). If your answer starts with \"I'd SSH in and tail the logs\", you're on the wrong end of the seniority bar.",
+                                'starter_code' => null,
+                            ],
+                        ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
                     ],
@@ -2444,21 +2727,405 @@ PHP,
                     ],
                     [
                         'title' => 'Manual Instrumentation: Creating Custom Spans',
-                        'type' => 'lab',
-                        'description' => 'Auto-instrumentation covers frameworks and libraries. For your own business logic — checkout processes, score calculations, proprietary integrations — you need to create spans manually. We will cover how to create child spans, add semantic attributes, record events within spans, and mark spans as errors with the correct status.',
+                        'type' => 'reading',
+                        'description' => 'Auto-instrumentation covers frameworks and libraries. For your own business logic — checkout, scoring, third-party integrations — you create spans manually. Cover Tracer injection, semantic attributes, recording events, and marking spans as errors with the right status.',
+                        'tldr' => 'Auto-instrumentation gets you HTTP, DB and cache spans for free. Everything that matters to the business — checkout, payment, score — needs a span you write by hand. The recipe never changes: get the tracer, start a span, set semantic attributes, end the span in a `finally` block, record exceptions on the way out.',
+                        'estimated_minutes' => 25,
+                        'difficulty' => 'intermediate',
+                        'prerequisites' => [
+                            ['id' => 1, 'title' => 'OTel 101: Traces, Spans, Metrics and Logs'],
+                            ['id' => 2, 'title' => 'OpenTelemetry PHP SDK installed and exporting'],
+                        ],
+                        'concepts' => ['custom-spans', 'tracer-provider', 'semantic-attributes', 'span-status', 'record-exception', 'span-events', 'context-propagation'],
+                        'has_playground' => true,
+                        'playground_starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+// The canonical "start → attributes → end" recipe for a manual span.
+// Auto-instrumentation gives you the HTTP/DB spans around this; this is
+// the BUSINESS span you add on top.
+
+use OpenTelemetry\API\Globals;
+use OpenTelemetry\API\Trace\StatusCode;
+
+final class CheckoutService
+{
+    public function process(array $cart, int $userId): string
+    {
+        $tracer = Globals::tracerProvider()->getTracer('checkout-service');
+
+        // Start the span before any I/O. Attributes that are KNOWN at start
+        // go here; later attributes can be added before $span->end().
+        $span = $tracer->spanBuilder('checkout.process')
+            ->setAttribute('user.id',          $userId)
+            ->setAttribute('checkout.items',   count($cart))
+            ->setAttribute('checkout.currency','EUR')
+            ->startSpan();
+
+        // Activate the span so child spans (DB, payment) attach to it.
+        $scope = $span->activate();
+
+        try {
+            $totalCents = array_sum(array_column($cart, 'price_cents'));
+            $span->setAttribute('checkout.total_cents', $totalCents);
+
+            // ... your real work would happen here, opening child spans
+            //     for validation, payment, notification, etc.
+
+            $orderId = 'ord_' . bin2hex(random_bytes(8));
+            $span->setAttribute('order.id', $orderId);
+
+            return $orderId;
+        } catch (\Throwable $e) {
+            // BOTH calls are needed: recordException ATTACHES the exception,
+            // setStatus MARKS the span as error so it shows up in error queries.
+            $span->recordException($e);
+            $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());
+            throw $e;
+        } finally {
+            // The two finalisers go in `finally`, ALWAYS, so a return or
+            // exception above doesn't leave a dangling span.
+            $scope->detach();
+            $span->end();
+        }
+    }
+}
+PHP,
+                        'concept_content' => <<<'EOT'
+## Core (the canonical recipe)
+
+### Why manual spans
+
+Auto-instrumentation covers everything *the framework knows about*: HTTP routes, DB queries, cache hits, Guzzle calls. It can't see your business logic — there's no Laravel hook for `the checkout total was €230` or `the credit score was recalculated`. Those spans, you write.
+
+The litmus test: if a span name reads like a *technical* operation (`db.query`, `http.request`), auto-instrumentation probably already emits it. If it reads like a *business* operation (`order.create`, `score.recalculate`, `invoice.send`), you have to add it.
+
+### The four-step recipe
+
+Every manual span follows the same shape:
+
+```php
+use OpenTelemetry\API\Globals;
+use OpenTelemetry\API\Trace\StatusCode;
+
+$tracer = Globals::tracerProvider()->getTracer('my-service');
+
+$span = $tracer->spanBuilder('checkout.process')
+    ->setAttribute('user.id', $userId)
+    ->setAttribute('checkout.items', count($cart))
+    ->startSpan();
+
+$scope = $span->activate();   // makes this the "current" span — child spans attach here
+
+try {
+    // ... your work
+    return $result;
+} catch (\Throwable $e) {
+    $span->recordException($e);                                    // attach
+    $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());  // mark
+    throw $e;
+} finally {
+    $scope->detach();
+    $span->end();
+}
+```
+
+Four moves: **start, activate, end in `finally`, error on exception**. Internalise this and you'll write the rest fluently.
+
+### Semantic attributes (and why naming matters)
+
+OTel ships **Semantic Conventions** — a registry of attribute names every backend already understands. Use them. The difference between using and not using them is whether your dashboards "just work" or you spend an afternoon renaming columns.
+
+```php
+// ✅ Standard names — every backend renders these the same way
+$span->setAttribute('http.method',     'POST');
+$span->setAttribute('http.route',      '/checkout');
+$span->setAttribute('http.status_code', 200);
+$span->setAttribute('db.system',       'mysql');
+$span->setAttribute('db.statement',    $sql);
+$span->setAttribute('user.id',         $userId);
+
+// ❌ Vendor-specific or ad-hoc names — your dashboard doesn't auto-link them
+$span->setAttribute('userId',          $userId);
+$span->setAttribute('order_total',     $total);
+$span->setAttribute('the_route',       '/checkout');
+```
+
+For your own business attributes (no semconv exists for `checkout.total_cents`), use a stable **namespace prefix** and lowercase dotted names: `checkout.total_cents`, `score.algorithm_version`, `payment.gateway`. Your future self pinned to those names will thank you.
+
+### Always close the span — and always do it in `finally`
+
+A span that's started but never `end()`ed is a memory leak in the OTel SDK and a missing data point in your backend. The `try/finally` pattern is non-negotiable:
+
+```php
+$span = $tracer->spanBuilder('charge')->startSpan();
+$scope = $span->activate();
+try {
+    return $this->charge($order);
+} finally {
+    $scope->detach();
+    $span->end();   // ← happens even if charge() throws
+}
+```
+
+The most common manual-span bug: people put `$span->end()` after the work but before the `finally`. An exception skips it. The span leaks. The trace shows a dangling parent with no end time.
+
+## Deeper dive (intermediate)
+
+### Span hierarchy and the active context
+
+Spans form a tree because OTel maintains an **active context**. When you call `$span->activate()`, you're saying "any span started while I'm active is my child". When you `$scope->detach()`, the previous active span becomes current again.
+
+```php
+$root = $tracer->spanBuilder('checkout.process')->startSpan();
+$rootScope = $root->activate();
+
+  // → these are children of `checkout.process` because root is active
+  $validate = $tracer->spanBuilder('checkout.validate')->startSpan();
+  $vScope = $validate->activate();
+    // → grandchildren of root, children of validate
+    $rules = $tracer->spanBuilder('rules.evaluate')->startSpan();
+    $rules->end();
+  $vScope->detach();
+  $validate->end();
+
+$rootScope->detach();
+$root->end();
+```
+
+If you forget to `activate()`, your child spans still get created but they're attached to whatever span was active at the time (often the auto-instrumentation HTTP span — they end up as siblings of your manual span instead of children). Hierarchies silently flatten. Hard to debug because the spans *exist*; they just point at the wrong parent.
+
+### Events: timeline markers inside a span
+
+A span has a duration. Sometimes you want to mark *specific moments inside* that duration — a retry, a cache miss, a fallback triggering. Those are **span events**: timestamped points with their own attributes.
+
+```php
+$span = $tracer->spanBuilder('payment.charge')->startSpan();
+
+try {
+    $this->stripe->charge($order);
+} catch (RateLimited $e) {
+    $span->addEvent('payment.rate_limited', [
+        'retry_after_ms' => $e->retryAfterMs,
+    ]);
+    sleep(1);
+    $this->stripe->charge($order);
+}
+```
+
+In a backend, the span's flame-graph bar shows the event as a tick mark with the attributes on hover. Junior version: a `Log::info('rate limited')` somewhere. Senior version: an event attached to the right span, with attributes you can query later.
+
+### Recording exceptions correctly
+
+The pattern looks like this:
+
+```php
+try {
+    $this->doWork();
+} catch (\Throwable $e) {
+    $span->recordException($e);                                    // attaches
+    $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());  // marks
+    throw $e;                                                       // rethrow
+}
+```
+
+Three things going on:
+
+1. **`recordException`** adds an event to the span with the exception's class, message, and stack trace as attributes. The data is *attached*.
+2. **`setStatus(STATUS_ERROR)`** is what makes the span appear in **error views** in the backend. Without it, the exception is attached but the span looks "OK" — error dashboards miss it.
+3. **`throw $e`** re-raises so callers handle it normally. A senior anti-pattern: instrument by *swallowing* exceptions. Don't.
+
+### Context propagation across processes
+
+When your service calls another service over HTTP or via a queue, the active context doesn't follow automatically — you have to **inject** it into the outbound request and **extract** it on the receiving side. The OTel HTTP client wraps both Guzzle and PSR-18 to do this transparently:
+
+```php
+use OpenTelemetry\Contrib\Propagation\TraceContext\TraceContextPropagator;
+
+$propagator = TraceContextPropagator::getInstance();
+$headers = [];
+$propagator->inject($headers);          // adds `traceparent` (and `tracestate`)
+$response = $this->http->post('/api', ['headers' => $headers, 'json' => $payload]);
+```
+
+If you skip this, the downstream service starts a *new* trace — and you've spent half an afternoon finding "where the rest of the request went". Auto-instrumentation handles this for the common HTTP clients; for custom transports (raw sockets, gRPC outside the OTel grpc package, SQS messages with custom envelopes) you do it yourself.
+
+## Senior insights (when manual spans become a code smell)
+
+### Don't span everything
+
+The temptation is to wrap every method in a span. Two reasons not to:
+
+- **Each span costs money.** Backends charge per ingested span. A function called a thousand times per request × a thousand requests per second = 1 million spans/sec. That's a real bill.
+- **Spans become noise.** A flame graph with 200 bars is unreadable. You want spans where the **boundary matters**: external calls, business operations, anything you'd want to alert on.
+
+Rule of thumb: span the *boundary*, not the *step*. `checkout.process` is a span. The 14 internal helper calls inside it are not.
+
+### Span attributes vs metrics vs logs — the senior decision
+
+Same data, three places to put it. The choice has cost and queryability consequences:
+
+| Use case                                                   | Where it goes                  |
+| ---------------------------------------------------------- | ------------------------------ |
+| "What was the total of this specific order?"               | Span attribute on the trace    |
+| "What's the average order total this hour?"                | Metric (histogram or gauge)    |
+| "We charged user 42 €230.50 at 14:32:01 with no errors"    | Structured log (with trace_id) |
+
+Senior PR-review move: a teammate adds `Metrics::counter('order_total', ['user_id' => $userId])`. Two bugs:
+1. Counters don't accept business values like totals — those are histograms.
+2. `user_id` is unbounded cardinality on a metric. It belongs on the *trace*, not the metric.
+
+### Naming conventions you should enforce
+
+The single biggest source of "our observability is unusable" is naming drift. Three rules a senior puts in the team's contributing guide and enforces in PR review:
+
+1. **Lowercase dotted names** for spans: `checkout.process`, `score.recalculate`, NOT `CheckoutProcess` or `score_recalculate`.
+2. **Bounded prefixes per domain**: `order.*` for everything order-related, `payment.*` for payments, etc. Lets you filter dashboards by namespace.
+3. **Standard verbs**: `create`, `update`, `delete`, `process`, `send`, `recalculate`. Not `do`, `handle`, `manage`.
+
+If you can't filter `service.name = checkout AND span.name LIKE order.*` and get a useful answer, your naming is broken.
+
+### Interview questions you'll get
+
+**Q: *"How would you instrument a checkout that calls Stripe, sends an email, and writes to two databases?"***
+
+Senior answer (roughly): one root span `checkout.process`. Child spans for `db.write` (auto-instrumented twice if you're using two PDOs), `payment.charge` (manual, semantic `payment.gateway=stripe`), `email.send` (manual). Span events on retries. Attributes for `order.id`, `payment.id`, `order.total_cents` — NOT `user.email`. Status ERROR on the root span if any child throws.
+
+**Q: *"What happens when the OTel Collector is down?"***
+
+Senior answer: the SDK buffers in memory up to its configured limit, then drops. Your application keeps serving requests — telemetry is best-effort, not on the critical path. If telemetry was on the critical path you'd page on Collector outages as if they were customer outages, which most teams don't. (Bonus: mention BatchSpanProcessor's queue settings.)
+
+**Q: *"When would you NOT add a manual span?"***
+
+Senior answer hits three: (1) function called in a hot loop (cardinality + cost), (2) function whose timing is already captured by auto-instrumentation (don't double-count), (3) the metric or log would be more useful (aggregate or specific event vs per-request boundary).
+
+### Failure modes a senior knows
+
+When tracing breaks, it's almost always one of these:
+
+- **Forgotten `end()`** → dangling spans, parent times wrong.
+- **Forgotten `activate()`** → spans exist but tree is flat.
+- **Forgotten exception recording** → spans appear OK in error views.
+- **Exception caught and swallowed before `recordException`** → span is OK, no record of the problem.
+- **Header propagation missed on an outbound call** → trace splits, downstream is orphaned.
+
+A senior asked to debug "we're missing traces" runs through this checklist before opening the SDK source.
+EOT,
                         'resources' => [
                             ['label' => 'Creating Spans manually', 'url' => 'https://opentelemetry.io/docs/languages/php/instrumentation/'],
                             ['label' => 'Semantic Conventions', 'url' => 'https://opentelemetry.io/docs/specs/semconv/'],
                             ['label' => 'OTel PHP examples', 'url' => 'https://github.com/open-telemetry/opentelemetry-php/tree/main/examples'],
+                            ['label' => 'Trace Context propagation', 'url' => 'https://opentelemetry.io/docs/specs/otel/context/api-propagators/'],
                         ],
                         'instructions' => [
-                            ['id' => 1, 'text' => 'Inject the Tracer into your Service via constructor: `OpenTelemetry\\API\\Globals::tracerProvider()->getTracer(\'my-service\')`'],
-                            ['id' => 2, 'text' => 'Create a span for the checkout process: `$span = $tracer->spanBuilder(\'checkout.process\')->startSpan()`'],
-                            ['id' => 3, 'text' => 'Add attributes: `$span->setAttribute(\'checkout.total\', $total)->setAttribute(\'checkout.items\', count($items))`'],
-                            ['id' => 4, 'text' => 'Create child spans for each step: validation, shipping calculation, payment processing'],
-                            ['id' => 5, 'text' => 'On exception: `$span->recordException($e)->setStatus(StatusCode::STATUS_ERROR, $e->getMessage())`'],
-                            ['id' => 6, 'text' => 'Always finalise with `$span->end()` in the finally block'],
-                            ['id' => 7, 'text' => 'Visualise the complete trace in the backend and confirm the parent-child span hierarchy'],
+                            [
+                                'id' => 1,
+                                'text' => "Wrap a real method — pick any service method in your current project that takes >100ms (a checkout, a CSV import, an API integration). Add the four-step manual-span recipe around it: tracer, start, activate, end in finally. Run the request and confirm the span appears in your backend with the right name.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+use OpenTelemetry\API\Globals;
+use OpenTelemetry\API\Trace\StatusCode;
+
+final class ScoreService
+{
+    public function recalculate(int $userId): int
+    {
+        // TODO: get a tracer.
+        // TODO: start span 'score.recalculate' with attribute user.id=$userId.
+        // TODO: activate the span so any child auto-instrumented work (DB, HTTP) attaches.
+        // try {
+        //    ... do the actual work, capture the score.
+        //    Add the resulting score as an attribute: score.value=<int>
+        //    return $score;
+        // } catch (\Throwable $e) {
+        //    recordException + setStatus STATUS_ERROR + rethrow
+        // } finally {
+        //    scope->detach + span->end
+        // }
+        return 0;
+    }
+}
+PHP,
+                            ],
+                            [
+                                'id' => 2,
+                                'text' => "Span hierarchy debug — given the snippet below, the child span doesn't appear under the parent in the backend. Find the bug. (Hint: there's exactly one missing call. The flame graph would show the child as a sibling of the parent, both attached to the HTTP span.)",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+use OpenTelemetry\API\Globals;
+
+$tracer = Globals::tracerProvider()->getTracer('checkout');
+
+$parent = $tracer->spanBuilder('checkout.process')->startSpan();
+// BUG: missing one line here. The next span won't attach to $parent.
+
+$child = $tracer->spanBuilder('checkout.validate')->startSpan();
+$child->end();
+
+$parent->end();
+
+// TODO: add the missing call (and the matching detach in the right place)
+//       so $child shows up as a CHILD of $parent in the trace tree.
+PHP,
+                            ],
+                            [
+                                'id' => 3,
+                                'text' => "Refactor span attributes — the snippet below has three antipatterns: a vendor-specific attribute name, an unbounded-cardinality attribute, and a missing semantic-convention name. Fix all three.",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+use OpenTelemetry\API\Globals;
+
+$tracer = Globals::tracerProvider()->getTracer('checkout');
+
+$span = $tracer->spanBuilder('CheckoutProcess')   // ← antipattern 1: span name casing
+    ->setAttribute('userEmail', 'alice@example.com')  // ← antipattern 2: bad name + unbounded
+    ->setAttribute('the_total', 12345)                // ← antipattern 3: not a semantic convention
+    ->startSpan();
+
+// TODO:
+//   - rename span to lowercase dotted: 'checkout.process'
+//   - replace 'userEmail' with semantic convention 'user.id' (an integer/UUID),
+//     NOT the email (PII + cardinality).
+//   - replace 'the_total' with a stable namespaced 'checkout.total_cents'.
+PHP,
+                            ],
+                            [
+                                'id' => 4,
+                                'text' => "Add exception recording — the catch block below attaches the exception but the span still shows as OK in error views. Fix it. (Bonus: explain in a comment why recordException alone isn't enough.)",
+                                'starter_code' => <<<'PHP'
+<?php
+declare(strict_types=1);
+
+use OpenTelemetry\API\Globals;
+use OpenTelemetry\API\Trace\StatusCode;
+
+$tracer = Globals::tracerProvider()->getTracer('payment');
+$span = $tracer->spanBuilder('payment.charge')->startSpan();
+
+try {
+    throw new \RuntimeException('Card declined: insufficient funds');
+} catch (\Throwable $e) {
+    $span->recordException($e);
+    // BUG: span still appears OK in NR > Errors / Datadog > Traces?error=true.
+    // TODO: add the missing call that flips the span's STATUS to error.
+    // throw $e;  // ← in real code rethrow; for the drill, comment-out is fine.
+} finally {
+    $span->end();
+}
+PHP,
+                            ],
+                            [
+                                'id' => 5,
+                                'text' => "Senior interview drill — answer \"When would you NOT add a manual span?\" with three concrete cases. If your answer is \"never\" or \"every method\", you're junior. The senior answer names hot-path cost, double-counting with auto-instrumentation, and 'a metric or log would tell us more'.",
+                                'starter_code' => null,
+                            ],
                         ],
                         'challenge_prompt' => null,
                         'lab_url' => null,
