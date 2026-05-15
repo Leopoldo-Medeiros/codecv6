@@ -2598,24 +2598,20 @@ The vendor-lock-in conversation matters less now that OTel is universal. You can
 ### Common interview questions (with the senior-bar answers)
 
 **Q: *"What's the difference between a metric and a trace?"***
-Junior answer: "Metric is a number, trace is a request." Senior answer: a metric is **aggregated before it leaves the process** — you ship histogram buckets, not individual events. A trace is **per-event** — every request becomes data. That difference is why metrics scale linearly with services and traces scale linearly with traffic.
-
-**Q: *"How would you instrument a new service?"***
-Senior answer follows the cost gradient: (1) auto-instrumentation for HTTP/DB/Redis — free, get baseline. (2) Manual spans on business-critical operations — checkout, payment, scoring. (3) Metrics for things you'll alert on. (4) Logs with trace context for the inevitable "why exactly did this fail?" moment. Mention OTLP gRPC + a Collector if the conversation goes that deep.
+Junior answer: "Metric is a number, trace is a request." Senior answer: a metric is **aggregated before it leaves the process** — you ship histogram buckets, not individual events. A trace is **per-event**. That difference is why metrics scale linearly with services and traces scale linearly with traffic.
 
 **Q: *"How do you debug a slow API in production?"***
-Senior pattern: open dashboards (metrics) → identify which endpoint and when → open a slow trace (sampled to ERROR or P99) → walk the flame graph until you find the bottleneck span → open the log line with that span's `trace_id`. Two minutes from "the alert fired" to "I know what to fix". Junior version is `tail -f` + grep, which is 30 minutes minimum.
+Senior pattern: dashboards (metrics) → identify which endpoint and when → open a slow trace (P99 or ERROR-sampled) → walk the flame graph to the bottleneck span → open the log line with that span's `trace_id`. Two minutes from alert to root cause. Junior version is `tail -f` + grep — 30 minutes minimum.
 
 **Q: *"How do you avoid blowing up your observability bill?"***
-The cardinality answer wins this. Know the three offenders (cardinality, attribute size, log volume) and how to detect each (vendor cardinality dashboards, span size histograms, log rate graphs).
+Know the three offenders (cardinality, attribute size, log volume) and how to detect each (vendor cardinality dashboards, span-size histograms, log-rate graphs). Junior answer is "sampling"; senior answer names the actual cost drivers.
 
 ### What separates a senior observability engineer
 
-Three habits, in order of how rare they are:
+Two habits, in order of how rare they are:
 
 1. **Naming discipline.** They have semantic conventions written down somewhere and enforce them in code review. `order.create` everywhere, not `createOrder` in one service and `Order.create` in another.
 2. **They alert on user-impact, not infrastructure.** "CPU > 80%" is a junior alert. "Checkout success rate < 99.5% over 5 minutes" is a senior alert.
-3. **They know the telemetry stack's failure modes.** When the Collector is down, what happens to spans? When the backend rate-limits, do you drop or queue? Junior engineers treat telemetry as infallible until it isn't.
 EOT,
                         'resources' => [
                             ['label' => 'OpenTelemetry Concepts', 'url' => 'https://opentelemetry.io/docs/concepts/'],
@@ -2742,9 +2738,9 @@ PHP,
 <?php
 declare(strict_types=1);
 
-// The canonical "start → attributes → end" recipe for a manual span.
-// Auto-instrumentation gives you the HTTP/DB spans around this; this is
-// the BUSINESS span you add on top.
+// The canonical four-step manual-span recipe. Auto-instrumentation
+// already gives you HTTP/DB/cache spans — this is the BUSINESS span
+// you add on top (checkout, payment, score recalculation, etc.).
 
 use OpenTelemetry\API\Globals;
 use OpenTelemetry\API\Trace\StatusCode;
@@ -2755,37 +2751,27 @@ final class CheckoutService
     {
         $tracer = Globals::tracerProvider()->getTracer('checkout-service');
 
-        // Start the span before any I/O. Attributes that are KNOWN at start
-        // go here; later attributes can be added before $span->end().
         $span = $tracer->spanBuilder('checkout.process')
-            ->setAttribute('user.id',          $userId)
-            ->setAttribute('checkout.items',   count($cart))
-            ->setAttribute('checkout.currency','EUR')
+            ->setAttribute('user.id',           $userId)
+            ->setAttribute('checkout.items',    count($cart))
+            ->setAttribute('checkout.currency', 'EUR')
             ->startSpan();
 
-        // Activate the span so child spans (DB, payment) attach to it.
-        $scope = $span->activate();
+        $scope = $span->activate();  // child spans attach to this one
 
         try {
             $totalCents = array_sum(array_column($cart, 'price_cents'));
+            $orderId    = 'ord_' . bin2hex(random_bytes(8));
+
             $span->setAttribute('checkout.total_cents', $totalCents);
-
-            // ... your real work would happen here, opening child spans
-            //     for validation, payment, notification, etc.
-
-            $orderId = 'ord_' . bin2hex(random_bytes(8));
             $span->setAttribute('order.id', $orderId);
 
             return $orderId;
         } catch (\Throwable $e) {
-            // BOTH calls are needed: recordException ATTACHES the exception,
-            // setStatus MARKS the span as error so it shows up in error queries.
-            $span->recordException($e);
-            $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());
+            $span->recordException($e);                                    // attach
+            $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());  // mark
             throw $e;
         } finally {
-            // The two finalisers go in `finally`, ALWAYS, so a return or
-            // exception above doesn't leave a dangling span.
             $scope->detach();
             $span->end();
         }
@@ -3004,11 +2990,9 @@ Senior answer hits three: (1) function called in a hot loop (cardinality + cost)
 
 When tracing breaks, it's almost always one of these:
 
-- **Forgotten `end()`** → dangling spans, parent times wrong.
-- **Forgotten `activate()`** → spans exist but tree is flat.
-- **Forgotten exception recording** → spans appear OK in error views.
-- **Exception caught and swallowed before `recordException`** → span is OK, no record of the problem.
-- **Header propagation missed on an outbound call** → trace splits, downstream is orphaned.
+- **Missing lifecycle calls** — forgetting `activate()` flattens the tree; forgetting `end()` leaves dangling spans with no end time.
+- **Exception recorded but status not set** — `recordException` attaches the throwable, but the span still appears OK in error views until you `setStatus(STATUS_ERROR)`.
+- **Header propagation missed on an outbound call** — trace splits and the downstream service is orphaned in its own trace.
 
 A senior asked to debug "we're missing traces" runs through this checklist before opening the SDK source.
 EOT,
@@ -3033,18 +3017,12 @@ final class ScoreService
 {
     public function recalculate(int $userId): int
     {
-        // TODO: get a tracer.
-        // TODO: start span 'score.recalculate' with attribute user.id=$userId.
-        // TODO: activate the span so any child auto-instrumented work (DB, HTTP) attaches.
-        // try {
-        //    ... do the actual work, capture the score.
-        //    Add the resulting score as an attribute: score.value=<int>
-        //    return $score;
-        // } catch (\Throwable $e) {
-        //    recordException + setStatus STATUS_ERROR + rethrow
-        // } finally {
-        //    scope->detach + span->end
-        // }
+        // TODO: 1. get a tracer, 2. spanBuilder('score.recalculate')
+        //       with user.id attribute, 3. activate so DB/HTTP children
+        //       attach to it, 4. wrap the work in try / catch / finally
+        //       with recordException + setStatus on error, end + detach
+        //       in the finally. Add score.value as a span attribute on
+        //       the happy path.
         return 0;
     }
 }
