@@ -209,7 +209,7 @@
         </UCard>
 
         <!-- Code playground (read-only mock for now; execution comes in a follow-up PR) -->
-        <UCard v-if="step.has_playground && step.playground_starter_code" :ui="{ body: { padding: 'p-0' } }">
+        <UCard v-if="step.has_playground && step.playground_starter_code" ref="playgroundCard" :ui="{ body: { padding: 'p-0' } }">
           <template #header>
             <div class="flex items-center justify-between">
               <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
@@ -253,19 +253,33 @@
           </div>
 
           <div class="playground-editor">
-            <pre><code><span
-              v-for="(line, idx) in playgroundLines"
-              :key="idx"
-              class="playground-line"
-            ><span class="playground-line__num">{{ idx + 1 }}</span><!-- eslint-disable-next-line vue/no-v-html
-            --><span class="playground-line__src" v-html="line || '&nbsp;'" /></span></code></pre>
+            <ClientOnly>
+              <VueMonacoEditor
+                v-model:value="playgroundCode"
+                language="php"
+                theme="vs-dark"
+                :options="monacoOptions"
+                class="h-full"
+              />
+              <template #fallback>
+                <div class="flex items-center justify-center px-6 py-10 text-xs text-slate-500">
+                  Loading editor…
+                </div>
+              </template>
+            </ClientOnly>
           </div>
 
           <div class="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-            <p class="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-              Output
-            </p>
-            <pre v-if="playgroundOutput" class="playground-output">{{ playgroundOutput }}</pre>
+            <div class="mb-1.5 flex items-center justify-between gap-3">
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                Output
+              </p>
+              <p v-if="playgroundDurationMs !== null" class="text-[10px] text-gray-400 dark:text-gray-600">
+                {{ playgroundDurationMs }} ms
+              </p>
+            </div>
+            <pre v-if="playgroundError" class="playground-output playground-output--err">{{ playgroundError }}</pre>
+            <pre v-else-if="playgroundOutput" class="playground-output">{{ playgroundOutput }}</pre>
             <p v-else class="font-mono text-xs italic text-gray-400 dark:text-gray-600">
               Press Run to see the output here.
             </p>
@@ -288,27 +302,44 @@
             <li
               v-for="(ins, i) in step.instructions"
               :key="ins.id"
-              class="group flex items-start gap-3 rounded-lg border border-gray-100 px-3 py-2.5 transition-colors hover:border-gray-200 dark:border-gray-700 dark:hover:border-gray-600"
+              class="group rounded-lg border border-gray-100 px-3 py-2.5 transition-colors hover:border-gray-200 dark:border-gray-700 dark:hover:border-gray-600"
               :class="checked.has(ins.id) && 'bg-emerald-50/60 dark:bg-emerald-950/20'"
             >
-              <button
-                type="button"
-                class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors"
-                :class="checked.has(ins.id)
-                  ? 'border-emerald-500 bg-emerald-500 text-white'
-                  : 'border-gray-300 dark:border-gray-600'"
-                @click="toggleCheck(ins.id)"
-              >
-                <UIcon v-if="checked.has(ins.id)" name="i-heroicons-check" class="h-3.5 w-3.5" />
-              </button>
-              <div class="min-w-0">
-                <p
-                  class="text-sm leading-relaxed text-gray-800 dark:text-gray-200"
-                  :class="checked.has(ins.id) && 'text-gray-400 line-through dark:text-gray-500'"
+              <div class="flex items-start gap-3">
+                <button
+                  type="button"
+                  class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors"
+                  :class="checked.has(ins.id)
+                    ? 'border-emerald-500 bg-emerald-500 text-white'
+                    : 'border-gray-300 dark:border-gray-600'"
+                  @click="toggleCheck(ins.id)"
                 >
-                  <span class="mr-2 text-xs font-semibold text-gray-400">{{ String(i + 1).padStart(2, '0') }}.</span>
-                  {{ ins.text }}
-                </p>
+                  <UIcon v-if="checked.has(ins.id)" name="i-heroicons-check" class="h-3.5 w-3.5" />
+                </button>
+                <div class="min-w-0 flex-1">
+                  <p
+                    class="text-sm leading-relaxed text-gray-800 dark:text-gray-200"
+                    :class="checked.has(ins.id) && 'text-gray-400 line-through dark:text-gray-500'"
+                  >
+                    <span class="mr-2 text-xs font-semibold text-gray-400">{{ String(i + 1).padStart(2, '0') }}.</span>
+                    {{ ins.text }}
+                  </p>
+                  <!-- "Try this" button — only when the task ships with starter_code -->
+                  <div v-if="ins.starter_code" class="mt-2 flex items-center gap-2">
+                    <UButton
+                      size="xs"
+                      color="emerald"
+                      variant="soft"
+                      icon="i-heroicons-command-line"
+                      @click="loadTaskIntoPlayground(ins.starter_code)"
+                    >
+                      Try this in the playground
+                    </UButton>
+                    <span v-if="activeTaskId === ins.id" class="text-[10px] font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                      Loaded ↑
+                    </span>
+                  </div>
+                </div>
               </div>
             </li>
           </ul>
@@ -355,6 +386,7 @@
 </template>
 
 <script setup lang="ts">
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import type { PathStep, StepDifficulty } from '~/composables/usePaths'
 
 const props = defineProps<{
@@ -619,29 +651,102 @@ onMounted(() => {
   onUnmounted(() => observer.disconnect())
 })
 
-// ─── Playground (mocked; execution will land in a follow-up PR) ───────
+// ─── Playground (Monaco-backed editor, Judge0-backed Run) ─────────────
 const playgroundCode = ref(props.step.playground_starter_code ?? '')
 const playgroundOutput = ref('')
+const playgroundError = ref('')
 const playgroundRunning = ref(false)
-const playgroundLines = computed(() => playgroundCode.value.split('\n').map(highlightPhp))
+const playgroundDurationMs = ref<number | null>(null)
+const playgroundCard = ref<{ $el?: HTMLElement } | null>(null)
+const activeTaskId = ref<number | null>(null)
 const toast = useToast()
+const api = useApi()
+
+const monacoOptions = {
+  fontSize: 13,
+  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+  fontLigatures: true,
+  lineHeight: 20,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  padding: { top: 16, bottom: 16 },
+  tabSize: 4,
+  wordWrap: 'on' as const,
+  renderLineHighlight: 'gutter' as const,
+  overviewRulerBorder: false,
+  hideCursorInOverviewRuler: true,
+}
+
+interface PlaygroundResult {
+  ok: boolean
+  stdout: string
+  stderr: string
+  exit_code: number
+  duration_ms: number
+  status: string
+}
 
 function resetPlayground() {
   playgroundCode.value = props.step.playground_starter_code ?? ''
   playgroundOutput.value = ''
+  playgroundError.value = ''
+  playgroundDurationMs.value = null
+  activeTaskId.value = null
 }
 
 async function runPlayground() {
+  if (playgroundRunning.value) return
   playgroundRunning.value = true
   playgroundOutput.value = ''
-  // TODO: replace with a real call to a playground endpoint (Judge0 backed)
-  // that executes arbitrary PHP without comparing against tests_code.
-  await new Promise(r => setTimeout(r, 500))
-  playgroundRunning.value = false
-  toast.add({
-    title: 'Playground execution coming soon',
-    description: 'Wire-up to Judge0 lands in a follow-up PR.',
-    color: 'amber',
+  playgroundError.value = ''
+  playgroundDurationMs.value = null
+  try {
+    const result = await api.post<PlaygroundResult>('/playground/run', {
+      code: playgroundCode.value,
+      language: 'php',
+    })
+    playgroundDurationMs.value = result.duration_ms
+    // Compile errors and timeouts already arrive as stderr in our shape.
+    if (result.stderr && !result.ok) {
+      playgroundError.value = result.stderr
+    } else {
+      playgroundOutput.value = result.stdout || '(no output)'
+      // Surface stderr separately if both stdout and stderr came through.
+      if (result.stderr) {
+        playgroundError.value = result.stderr
+      }
+    }
+  } catch (err: unknown) {
+    const data = (err as { data?: { message?: string }, status?: number })
+    if (data?.status === 429) {
+      toast.add({
+        title: 'Slow down',
+        description: 'Too many runs in a short window. Try again in a minute.',
+        color: 'amber',
+      })
+    } else {
+      playgroundError.value = data?.data?.message ?? 'Sandbox request failed. Please try again.'
+    }
+  } finally {
+    playgroundRunning.value = false
+  }
+}
+
+// Load a task's starter into the playground and scroll the editor into
+// view. Always overwrites — users can click Reset on the playground to
+// go back to the step's primary starter.
+function loadTaskIntoPlayground(starter: string | null | undefined) {
+  if (!starter) return
+  const instructions = props.step.instructions ?? []
+  const task = instructions.find(t => t.starter_code === starter)
+  activeTaskId.value = task?.id ?? null
+  playgroundCode.value = starter
+  playgroundOutput.value = ''
+  nextTick(() => {
+    const el = playgroundCard.value?.$el ?? (playgroundCard.value as unknown as HTMLElement | null)
+    if (el && typeof (el as HTMLElement).scrollIntoView === 'function') {
+      (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   })
 }
 </script>
@@ -841,39 +946,16 @@ async function runPlayground() {
 :global(.dark) .step-concept :deep(.t-op) { color: #d4d4d4; }
 :global(.dark) .step-concept :deep(.t-tg) { color: #569cd6; font-weight: 600; }
 
-/* Code playground (read-only mock — Monaco lands in a follow-up) */
+/* Code playground (Monaco-backed editor) */
 .playground-editor {
-  background: rgb(15 23 42);
-  color: rgb(226 232 240);
-  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-  font-size: 0.82rem;
-  line-height: 1.65;
-  overflow-x: auto;
+  background: rgb(30 30 30); /* matches vs-dark theme */
+  height: 320px;
+  min-height: 320px;
+  overflow: hidden;
 }
-.playground-editor pre {
-  margin: 0;
-  padding: 12px 0;
-}
-.playground-editor code { display: block; }
-.playground-line {
-  display: flex;
-  align-items: baseline;
-  padding-right: 16px;
-}
-.playground-line:hover { background: rgba(255, 255, 255, 0.03); }
-.playground-line__num {
-  display: inline-block;
-  width: 44px;
-  flex-shrink: 0;
-  padding-right: 14px;
-  text-align: right;
-  color: rgb(100 116 139);
-  user-select: none;
-}
-.playground-line__src {
-  white-space: pre;
-  flex: 1;
-  min-width: 0;
+.playground-editor :deep(.monaco-editor) {
+  /* Let Monaco fill the container without inheriting any prose font-size. */
+  font-size: 13px;
 }
 .playground-output {
   margin: 0;
@@ -882,6 +964,13 @@ async function runPlayground() {
   line-height: 1.6;
   color: rgb(55 65 81);
   white-space: pre-wrap;
+  word-break: break-word;
 }
 :global(.dark) .playground-output { color: rgb(203 213 225); }
+.playground-output--err {
+  color: rgb(220 38 38);
+}
+:global(.dark) .playground-output--err {
+  color: rgb(252 165 165);
+}
 </style>
