@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Full-stack application: Laravel 13 (backend) + Nuxt 4 (frontend). SaaS platform connecting consultants with clients to manage career development through courses, learning paths, job listings, and personalized training plans.
 
+> **Deep-dive docs:** `docs/` contains topic-specific guides (`authentication.md`, `development-workflow.md`, `environment-variables.md`, `testing-guide.md`, `troubleshooting.md`, plus `docs/backend/` and `docs/frontend/`). Read these for the full surface area; this file covers the architecture-level "big picture".
+
 ## Language Policy
 
 **CRITICAL**: This project has specific language requirements:
@@ -213,10 +215,15 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 ### Database Seeding Order
 
+`DatabaseSeeder` calls these in order:
+
 1. `RoleSeeder` — creates admin, client, consultant roles
 2. `UserSeeder` — creates initial users (runs `RoleSeeder` internally)
 3. `CoursesTableSeeder` — seeds courses
-4. Optional: `ClientsSeeder` — interactive prompt for fake clients
+4. `ChallengeSeeder` — seeds coding challenges with boilerplate + test code
+5. `LearningPathsSeeder` — seeds `Path` records
+6. `PathStepSeeder` — seeds `PathStep` records (links steps to paths and challenges)
+7. Optional: `ClientsSeeder` — interactive prompt for fake clients
 
 `UserFactory` uses `afterCreating()` to auto-create a `Profile` and assign the `client` role.
 
@@ -253,6 +260,8 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 **Coding Challenges (Judge0):** `ChallengeExecutionService` executes user-submitted PHP code in a Judge0 sandbox. Flow: `POST /challenges/{slug}/run` → service concatenates a minimal PHPUnit bootstrap + solution + test class + a reflection-based test runner → submits base64-encoded PHP to Judge0 as a single submission with `wait=true` → parses JSON output to determine per-test pass/fail. Judge0 status IDs 5 (TLE) and 6 (compilation error) are handled explicitly. Required env: `JUDGE0_URL` (defaults to `https://judge0-ce.p.rapidapi.com`), `JUDGE0_TOKEN`, `JUDGE0_LANGUAGE_ID` (defaults to 68 = PHP 7.4; set higher for PHP 8.x on self-hosted). A `PathStep` links to a `Challenge` via `challenge_slug` (FK on `slug`); the step's `type` field should be `challenge` in this case.
 
+**Scratch Playground (Judge0):** `PlaygroundExecutionService` is the sibling of `ChallengeExecutionService` for the in-step "Try this in the playground" feature. Unlike challenges there is no PHPUnit wrapper — the submitted PHP runs verbatim and stdout/stderr are returned as-is. Route: `POST /playground/run` (throttled 30/min per user). Shares the same `services.judge0.*` config (URL/token/language ID). Use it for free-form exploration inside step content; use the challenge flow only when you need pass/fail tests.
+
 **Notifications:** The `notifications` table is the standard Laravel notifications table; `GET /notifications` returns unread + recent read notifications for the authenticated user.
 - **Database-only:** `ClientAssigned` (consultant assigned a client), `PathAssigned` (path assigned to a client)
 - **Email:** `NewClientOnboarded` (sent to consultant on new client payment), `ClientPathCompleted` / `ClientPathHalfway` / `ClientStartedLearning` (progress milestones), `WelcomeNotification`, `ResetPasswordNotification`
@@ -273,8 +282,47 @@ To embed a new interactive component in step content, add its block type to the 
 
 **DiagramCanvas / RoadmapFlow:** `DiagramCanvas.vue` uses `@vue-flow/core` for interactive flowcharts. `RoadmapFlow.vue` + `RoadmapStepNode.vue` are the learning path visualisation. Separate from `LaravelLifecycleDiagram.vue` which is plain HTML/SVG (no Vue Flow).
 
+**StepConceptView (`app/components/StepConceptView.vue`):** The rich `reading`-step renderer used by `pages/step/[step_id].vue`. Owns the two-column layout (concept content + sidebar), the TL;DR card, and the **tiered content sections** — "Core / Deeper dive / Senior" — for seniority filtering. It also hosts the per-task "Try this in the playground" entry points that call `POST /playground/run`.
+
+**PathStep full schema** (all columns across migrations):
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `path_id` | FK | Parent path |
+| `course_id` | FK nullable | Optional linked course |
+| `title` | string | Step title |
+| `description` | text | Short summary |
+| `tldr` | string(500) | One-liner shown in the TL;DR card |
+| `concept_content` | longText | Main Markdown body (see tiered content below) |
+| `resources` | json | `[{ label, url }]` — sidebar links |
+| `order` | smallint | Display order within the path |
+| `type` | enum | `reading` / `lab` / `challenge` / `quiz` |
+| `lab_url` | string | External lab URL (type=lab) |
+| `instructions` | json | `[{ id, text }]` — lab instructions |
+| `challenge_prompt` | text | (deprecated — use linked Challenge) |
+| `challenge_slug` | string FK | Links to `challenges.slug` (type=challenge) |
+| `estimated_minutes` | smallint | Sidebar time estimate |
+| `difficulty` | enum | `beginner` / `intermediate` / `advanced` |
+| `prerequisites` | json | `[{ id, title }]` — prerequisite steps |
+| `concepts` | json | `['string', ...]` — concept tags |
+| `has_playground` | bool | Shows in-step playground |
+| `playground_starter_code` | text | Starter code for the playground |
+
+**Tiered content convention:** `concept_content` is Markdown. When H2 headings begin with `"Core"`, `"Deeper dive"`, or `"Senior"`, `StepConceptView` splits the content into three seniority tiers. Users filter with "Junior / Mid / Senior" pills. Steps without these heading prefixes render as flat content (legacy fallback). Example structure:
+
+```markdown
+## Core — What it is
+…junior-friendly explanation…
+
+## Deeper dive — How it works
+…intermediate concepts…
+
+## Senior insights — When and why
+…architectural tradeoffs…
+```
+
 **PathStep page (`pages/step/[step_id].vue`):** Step `type` drives the rendered UI:
-- `reading` (or no type) → two-column layout: `MarkdownContent` left, progress/resources sidebar right
+- `reading` (or no type) → `StepConceptView` two-column layout: concept/tiered content left, progress/resources sidebar right
 - `challenge` with linked `Challenge` → `ChallengeEditor` full-screen overlay
 - `challenge`/`lab` with no linked exercise → placeholder card
 - anything else → fallback card
