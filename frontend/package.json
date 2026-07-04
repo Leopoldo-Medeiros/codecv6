@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@nuxt/ui": "^2.22.3",
     "@nuxtjs/seo": "^5.1.3",

@@ -10,6 +10,8 @@
     <div class="rn__shine" :style="shineStyle" />
 
     <div class="rn__content">
+      <div class="rn__eyebrow">STEP {{ String(data.order).padStart(2, '0') }}</div>
+
       <div class="rn__header">
         <div class="rn__badge" :class="`rn__badge--${status}`">
           <svg v-if="status === 'done'" viewBox="0 0 14 14" fill="none" class="rn__check">
@@ -30,16 +32,24 @@
           <svg viewBox="0 0 12 12" fill="none"><path d="M1 3l5 2.5L11 3M1 3v6l5 2.5M1 3l5-2.5L11 3v6L6 11.5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
           {{ data.course }}
         </span>
-        <span v-if="data.resourceCount" class="rn__tag rn__tag--res">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M3 6h6M3 3.5h6M3 8.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          {{ data.resourceCount }}
+        <span v-if="data.difficulty" class="rn__tag rn__tag--difficulty">
+          <svg viewBox="0 0 12 12" fill="none"><path d="M2 9V6M6 9V3M10 9V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          {{ data.difficulty }}
+        </span>
+        <span v-if="data.estimatedMinutes" class="rn__tag rn__tag--time">
+          <svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.6" stroke="currentColor" stroke-width="1.2"/><path d="M6 3.5V6l1.8 1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          {{ data.estimatedMinutes }}m
         </span>
         <span class="rn__tag" :class="`rn__tag--${status}`">{{ statusLabel }}</span>
       </div>
     </div>
 
-    <Handle type="target" :position="(props.targetPosition as Position) ?? Position.Top"    style="opacity:0;pointer-events:none;background:transparent;border:none" />
-    <Handle type="source" :position="(props.sourcePosition as Position) ?? Position.Bottom" style="opacity:0;pointer-events:none;background:transparent;border:none" />
+    <!-- Main sequential chain: one target (in) + one source (out) -->
+    <Handle id="top"    type="target" :position="Position.Top"    style="opacity:0;pointer-events:none;background:transparent;border:none" />
+    <Handle id="bottom" type="source" :position="Position.Bottom" style="opacity:0;pointer-events:none;background:transparent;border:none" />
+    <!-- Satellite (concept/resource) sources — exit from whichever side the satellite sits on -->
+    <Handle id="right"  type="source" :position="Position.Right"  style="opacity:0;pointer-events:none;background:transparent;border:none" />
+    <Handle id="left"   type="source" :position="Position.Left"   style="opacity:0;pointer-events:none;background:transparent;border:none" />
   </div>
 </template>
 
@@ -52,12 +62,11 @@ const props = defineProps<{
     index: number
     title: string
     course?: string | null
-    resourceCount?: number
+    difficulty?: string | null
+    estimatedMinutes?: number | null
     status?: 'not_started' | 'in_progress' | 'done'
     step: any
   }
-  sourcePosition?: string
-  targetPosition?: string
 }>()
 
 defineEmits(['click'])
@@ -101,7 +110,7 @@ const shineStyle = computed(() => ({
 
 .rn {
   position: relative;
-  width: 240px;
+  width: 264px;
   border-radius: 10px;
   padding: 12px 14px;
   cursor: pointer;
@@ -116,7 +125,7 @@ const shineStyle = computed(() => ({
   to   { opacity: 1; translate: 0 0; }
 }
 
-/* ── Dark (NR product dark theme: charcoal #1D252C) ───── */
+/* ── Dark (product dark theme: charcoal #1D252C) ───── */
 .rn--dark.rn--not_started {
   background: #1d252c;
   border: 1px solid rgba(0,172,105,0.3);
@@ -135,6 +144,9 @@ const shineStyle = computed(() => ({
 .rn--dark.rn--not_started:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.55), 0 0 12px rgba(0,172,105,0.12); }
 .rn--dark.rn--in_progress:hover { box-shadow: 0 4px 20px rgba(0,172,105,0.22); }
 .rn--dark.rn--done:hover        { box-shadow: 0 4px 18px rgba(0,172,105,0.2); }
+
+/* Eyebrow (mono step label) dark */
+.rn--dark .rn__eyebrow { color: rgba(93, 217, 164, 0.65); }
 
 /* Title dark */
 .rn--dark .rn__title      { color: #e8edf0; }
@@ -160,6 +172,7 @@ const shineStyle = computed(() => ({
 .rn--light.rn--in_progress:hover { box-shadow: 0 4px 16px rgba(0,172,105,0.18), 0 0 0 1px #00AC69; }
 .rn--light.rn--done:hover        { box-shadow: 0 4px 14px rgba(0,172,105,0.16), 0 0 0 1px #00AC69; }
 
+.rn--light .rn__eyebrow { color: #4d9578; }
 .rn--light .rn__title      { color: #1a2e25; }
 .rn--light .rn__title--done { color: #8f9ab8; text-decoration: line-through; }
 
@@ -177,6 +190,15 @@ const shineStyle = computed(() => ({
 
 /* Content */
 .rn__content { position: relative; z-index: 2; }
+
+.rn__eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 5px;
+}
+
 .rn__header  { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
 
 /* Badge */
@@ -184,6 +206,7 @@ const shineStyle = computed(() => ({
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 10px; font-weight: 800; margin-top: 1px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 .rn__badge--not_started { background: rgba(0,172,105,0.15); border: 1.5px solid rgba(0,172,105,0.5); color: #00AC69; }
 .rn__badge--in_progress { background: #00AC69; border: none; color: #fff; }
@@ -192,27 +215,29 @@ const shineStyle = computed(() => ({
 .rn__num   { line-height: 1; }
 
 /* Title base */
-.rn__title { font-size: 0.8rem; font-weight: 600; line-height: 1.4; flex: 1; min-width: 0; font-family: 'Inter', system-ui, sans-serif; }
+.rn__title { font-size: 0.82rem; font-weight: 600; line-height: 1.4; flex: 1; min-width: 0; }
 
 /* Meta */
 .rn__meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .rn__tag {
   display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px;
   border-radius: 4px; font-size: 9px; font-weight: 600; letter-spacing: 0.03em;
-  text-transform: uppercase; font-family: 'Inter', system-ui, sans-serif;
+  text-transform: uppercase;
 }
 .rn__tag svg { width: 9px; height: 9px; }
 
 /* Light tags */
 .rn__tag--course      { background: #e0f5ec; color: #007D4A; border: 1px solid #b2dfce; }
-.rn__tag--res         { background: #e0f5ec; color: #007D4A; border: 1px solid #b2dfce; }
+.rn__tag--difficulty  { background: #fdf3e3; color: #8a5f19; border: 1px solid #e8c88a; }
+.rn__tag--time        { background: #eef1f5; color: #566270; border: 1px solid #d6dce3; }
 .rn__tag--not_started { background: #f0f5f3; color: #5a7a6e; border: 1px solid #c8ddd6; }
 .rn__tag--in_progress { background: #e0f5ec; color: #007D4A; border: 1px solid #7ecfb0; }
 .rn__tag--done        { background: #d0eedf; color: #005c34; border: 1px solid #7ecfb0; }
 
 /* Dark tag overrides */
 .rn--dark .rn__tag--course      { background: rgba(0,172,105,0.14); color: #5dd9a4; border-color: rgba(0,172,105,0.28); }
-.rn--dark .rn__tag--res         { background: rgba(0,172,105,0.12); color: #5dd9a4; border-color: rgba(0,172,105,0.24); }
+.rn--dark .rn__tag--difficulty  { background: rgba(217,155,49,0.12); color: #e8b969; border-color: rgba(217,155,49,0.3); }
+.rn--dark .rn__tag--time        { background: rgba(148,163,184,0.12); color: #a8b3c1; border-color: rgba(148,163,184,0.25); }
 .rn--dark .rn__tag--not_started { background: rgba(110,122,135,0.2); color: #8f9ab8; border-color: rgba(110,122,135,0.3); }
 .rn--dark .rn__tag--in_progress { background: rgba(0,172,105,0.18); color: #5dd9a4; border-color: rgba(0,172,105,0.32); }
 .rn--dark .rn__tag--done        { background: rgba(0,172,105,0.22); color: #3dcc8f; border-color: rgba(0,172,105,0.38); }
