@@ -231,6 +231,22 @@ class JobApiTest extends TestCase
             ->assertOk();
     }
 
+    public function test_updating_job_does_not_reassign_consultant_id(): void
+    {
+        $job = Job::factory()->create(['consultant_id' => $this->consultant->id]);
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->putJson("/api/jobs/{$job->id}", [
+                'title' => 'Updated by someone else',
+                'company' => 'Corp',
+            ])->assertOk();
+
+        $this->assertDatabaseHas('job_listings', [
+            'id' => $job->id,
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
     #[DataProvider('invalidJobUpdateProvider')]
     public function test_job_update_fails_validation(array $payload): void
     {

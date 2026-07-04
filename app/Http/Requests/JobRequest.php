@@ -33,7 +33,10 @@ class JobRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (! $this->has('consultant_id')) {
+        // Only default consultant_id on create — on update, an absent
+        // consultant_id must leave the existing owner untouched rather than
+        // silently reassigning the job to whoever is editing it.
+        if ($this->isMethod('POST') && ! $this->has('consultant_id')) {
             $this->merge([
                 'consultant_id' => Auth::id(),
             ]);
