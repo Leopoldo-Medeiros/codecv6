@@ -11,7 +11,7 @@
             Browse and manage job listings
           </p>
         </div>
-        <UButton color="primary">
+        <UButton v-if="canManage" color="primary" @click="router.push('/jobs/create')">
           <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
           Add Job
         </UButton>
@@ -86,9 +86,10 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(job.created_at) }}</p>
               </td>
               <td class="p-4">
-                <UDropdown :items="getActionItems(job)" :popper="{ placement: 'bottom-end' }">
+                <UDropdown v-if="canManage" :items="getActionItems(job)" :popper="{ placement: 'bottom-end' }">
                   <UButton icon="i-heroicons-ellipsis-horizontal" color="gray" variant="ghost" size="sm" />
                 </UDropdown>
+                <span v-else class="text-gray-300 dark:text-gray-600">—</span>
               </td>
             </tr>
           </tbody>
@@ -121,8 +122,12 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const router = useRouter()
 const toast = useToast()
+const { isAdmin, isConsultant } = useAuth()
 const { jobs, loading, error, fetchJobs, deleteJob } = useJobs()
+
+const canManage = computed(() => isAdmin.value || isConsultant.value)
 
 const currentPage = ref(1)
 const totalJobs = ref(0)
@@ -143,6 +148,11 @@ const changePage = (page: number) => {
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
 
 const getActionItems = (job: any) => [[
+  {
+    label: 'Edit',
+    icon: 'i-heroicons-pencil-square',
+    click: () => router.push(`/jobs/${job.id}/edit`)
+  },
   {
     label: 'Delete',
     icon: 'i-heroicons-trash',

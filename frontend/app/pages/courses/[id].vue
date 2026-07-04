@@ -27,8 +27,8 @@
             </p>
           </div>
         </div>
-        <!-- Admin actions -->
-        <div v-if="isAdmin" class="flex gap-2">
+        <!-- Admin / owning-consultant actions -->
+        <div v-if="canManage" class="flex gap-2">
           <UButton size="sm" color="gray" variant="outline" icon="i-heroicons-pencil-square"
             @click="navigateTo(`/courses/${course.id}/edit`)">
             Edit
@@ -149,13 +149,15 @@ definePageMeta({ layout: false, middleware: 'auth' })
 const route  = useRoute()
 const router = useRouter()
 const toast  = useToast()
-const { user } = useAuth()
-const isAdmin  = computed(() => user.value?.role === 'admin')
+const { user, isAdmin, isConsultant } = useAuth()
 
 const { fetchCourses, deleteCourse } = useCourses()
 const course  = ref<any>(null)
 const loading = ref(true)
 const error   = ref(false)
+
+// Admin can manage any course; consultant only the ones they created (mirrors the backend 403 in CourseController)
+const canManage = computed(() => isAdmin.value || (isConsultant.value && course.value?.user?.id === user.value?.id))
 
 onMounted(async () => {
   try {

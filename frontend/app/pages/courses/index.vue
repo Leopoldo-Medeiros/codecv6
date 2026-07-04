@@ -11,7 +11,7 @@
             Manage your course catalog and content
           </p>
         </div>
-        <UButton v-if="isAdmin" @click="goToCreateCourse" color="primary">
+        <UButton v-if="canManage" @click="goToCreateCourse" color="primary">
           <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
           Create Course
         </UButton>
@@ -78,7 +78,7 @@
         <p class="text-gray-500 dark:text-gray-400 mb-4">
           {{ searchQuery ? 'Try adjusting your search terms' : 'Get started by creating your first course' }}
         </p>
-        <UButton v-if="isAdmin" @click="goToCreateCourse" color="primary">
+        <UButton v-if="canManage" @click="goToCreateCourse" color="primary">
           <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
           Create Course
         </UButton>
@@ -144,7 +144,7 @@
             >
               <Icon name="heroicons:eye" class="w-4 h-4" />
             </UButton>
-            <template v-if="isAdmin">
+            <template v-if="isAdmin || (isConsultant && row.user?.id === user?.id)">
               <UButton
                 @click="goToEditCourse(row.id)"
                 variant="ghost"
@@ -195,8 +195,8 @@ definePageMeta({
 
 const router = useRouter()
 const toast  = useToast()
-const { user } = useAuth()
-const isAdmin = computed(() => user.value?.role === 'admin')
+const { user, isAdmin, isConsultant } = useAuth()
+const canManage = computed(() => isAdmin.value || isConsultant.value)
 
 // Clients have no business on the management page
 onMounted(() => {
@@ -256,10 +256,10 @@ const confirmDelete = async (courseId: number) => {
         color: 'green'
       })
       await loadCourses()
-    } catch (err) {
+    } catch (err: any) {
       toast.add({
         title: 'Error',
-        description: 'Failed to delete course',
+        description: err?.data?.message || 'Failed to delete course',
         color: 'red'
       })
     }
