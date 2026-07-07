@@ -39,6 +39,7 @@ ddev exec vendor/bin/pint --dirty                                               
 ddev artisan test --compact                                                        # Run all tests
 ddev artisan test --compact tests/Feature/Api/UserApiTest.php                      # Single test file
 ddev artisan test --compact --filter=testName                                      # Filter by test name
+ddev artisan test --coverage                                                       # Coverage report (Xdebug enabled in DDEV)
 ddev artisan cache:clear && ddev artisan config:clear && ddev artisan route:clear  # Clear caches
 ddev artisan storage:link                                                          # Link public storage
 ```
@@ -110,10 +111,9 @@ Routes in `routes/api.php` are grouped by access:
 - **No auth (signature-verified)**: `GET /email/verify/{id}/{hash}` — email verification link from Fortify emails; throttled 6/min; redirects to `APP_FRONTEND_URL/dashboard?verified=1`
 - **No auth (Stripe signature)**: `POST /webhooks/stripe` — Stripe webhook; verified via `STRIPE_WEBHOOK_SECRET`, no CSRF
 - **Public** (rate-limited 5/min): `/login`, `/register`, `/forgot-password`, `/reset-password`
-- **All authenticated**: Read paths, courses, plans, jobs; update own profile; CV/LinkedIn analysis; Stripe checkout; challenges (`GET /challenges`, `GET /challenges/{slug}`, `POST /challenges/{slug}/run`); notifications (`GET /notifications`, `PATCH /notifications/{id}/read`, `PATCH /notifications/read-all`)
-- **Admin + Consultant**: Create/edit/delete courses, plans, paths; manage path steps
-- **Consultant only**: `/my-clients` — view clients, assign/remove paths
-- **Admin only**: User CRUD, role management, consultant assignment, GDPR export/erase
+- **All authenticated**: Read paths (`GET /paths`, `GET /my-paths`), courses, plans, jobs; view/update own user + avatar (`/users/{user}`, ownership enforced in controller/service); `PATCH /me/onboarding`; CV/LinkedIn analysis; Stripe checkout; challenges (`GET /challenges`, `GET /challenges/{slug}`, `POST /challenges/{slug}/run`); playground (`POST /playground/run`, throttled 30/min); step progress (`PUT /path-steps/{step}/progress`); notifications (`GET /notifications`, `PATCH /notifications/{id}/read`, `PATCH /notifications/read-all`); GDPR export (`GET /users/{user}/export` — self or admin, checked in controller)
+- **Admin + Consultant** (`role:admin|consultant`): Create/edit/delete courses, plans, paths, jobs; manage path steps (`POST/PUT/DELETE/reorder /paths/{path}/steps`); `/my-clients` — view clients, assign/remove paths
+- **Admin only** (`role:admin`): User list/create/delete, role management (`GET /roles`), consultant listing + assignment. GDPR erase (`DELETE /users/{user}/erase`) is admin-only too, but enforced in the controller rather than route middleware
 
 ### Core Domain Models
 
@@ -124,7 +124,7 @@ Routes in `routes/api.php` are grouped by access:
 | `Plan` | Belongs to consultant (User), has many clients (users) and paths via pivots (`plan_user`, `path_plan`) |
 | `Course` | Soft-deletable, belongs to User (creator) |
 | `Path` | Learning paths, soft-deletable; has ordered `PathStep`s |
-| `PathStep` | Ordered steps within a Path; type can be `reading`, `lab`, or `challenge`; `challenge_slug` FK links to `Challenge`; tracked per-user via `UserStepProgress` |
+| `PathStep` | Ordered steps within a Path; type can be `reading`, `lab`, `challenge`, or `quiz`; `challenge_slug` FK links to `Challenge`; tracked per-user via `UserStepProgress` |
 | `Challenge` | Coding challenge with `slug` (unique), `boilerplate_code`, `tests_code`, `ChallengeDifficulty` enum; soft-deletable; `is_premium` + `price_eur` for monetization |
 | `Job` | Job listings, soft-deletable |
 | `Payment` | Stripe payment record; created `PENDING` on checkout, updated to `PAID` by webhook; belongs to `User` |
@@ -278,9 +278,9 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 To embed a new interactive component in step content, add its block type to the `blockPattern` regex and the segment type union in `MarkdownContent.vue`.
 
-**ChallengeEditor (`app/components/ChallengeEditor.vue`):** Full-screen fixed overlay rendered on top of the `admin` layout (see `pages/step/[step_id].vue`). The layout stays mounted underneath so navigation is preserved.
+**ChallengeEditor (`app/components/ChallengeEditor.vue`):** Full-screen fixed overlay rendered on top of the `admin` layout (see `pages/step/[step_id].vue`). The layout stays mounted underneath so navigation is preserved. Code editing uses Monaco via `@guolao/vue-monaco-editor`.
 
-**DiagramCanvas / RoadmapFlow:** `DiagramCanvas.vue` uses `@vue-flow/core` for interactive flowcharts. `RoadmapFlow.vue` + `RoadmapStepNode.vue` are the learning path visualisation. Separate from `LaravelLifecycleDiagram.vue` which is plain HTML/SVG (no Vue Flow).
+**DiagramCanvas / RoadmapFlow:** `DiagramCanvas.vue` uses `@vue-flow/core` for interactive flowcharts. `RoadmapFlow.vue` + `RoadmapStepNode.vue` are the learning path visualisation — node positions are computed with `@dagrejs/dagre` auto-layout, not hand-placed. Separate from `LaravelLifecycleDiagram.vue` which is plain HTML/SVG (no Vue Flow).
 
 **StepConceptView (`app/components/StepConceptView.vue`):** The rich `reading`-step renderer used by `pages/step/[step_id].vue`. Owns the two-column layout (concept content + sidebar), the TL;DR card, and the **tiered content sections** — "Core / Deeper dive / Senior" — for seniority filtering. It also hosts the per-task "Try this in the playground" entry points that call `POST /playground/run`.
 
