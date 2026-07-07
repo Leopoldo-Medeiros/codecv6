@@ -78,6 +78,13 @@ class ChallengeExecutionService
         $tests = $this->stripPhpTag($testsCode);
 
         return '<?php'."\n\n"
+            // The runner's only output contract is a single JSON line on stdout.
+            // If the sandbox's php.ini sends warnings/notices to stdout (common
+            // default in generic PHP images), a triggered warning from the
+            // submitted code — e.g. an undefined array key — lands ahead of that
+            // JSON and breaks parsing. Force them to stderr regardless of the
+            // ambient ini so grading stays correct no matter what buggy code does.
+            ."ini_set('display_errors', 'stderr');\n\n"
             .$this->buildPhpUnitBootstrap()."\n\n"
             .'namespace {'."\n\n"
             .$solution."\n\n"

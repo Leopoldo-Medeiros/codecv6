@@ -2218,6 +2218,675 @@ PHP,
                 'is_premium' => false,
                 'price_eur' => null,
             ],
+
+            // ─────────────────────────────────────────────────────────────
+            // DEBUGGING CHALLENGES (pilot) — the boilerplate is NOT a stub;
+            // it is a complete, plausible implementation with a real bug.
+            // The tests are already written and currently fail. The task is
+            // to find and fix the bug, not to write the function from
+            // scratch — this is deliberately different from every other
+            // challenge above.
+            // ─────────────────────────────────────────────────────────────
+            [
+                'title' => 'Debug This: Off-By-One Pagination',
+                'slug' => 'debug-off-by-one-pagination',
+                'difficulty' => ChallengeDifficulty::Beginner,
+                'description' => <<<'MD'
+## Bug Report
+
+QA filed this ticket against the `paginate()` helper below:
+
+> "Page 1 of the product list is missing the first 3 items. Every page
+> seems to be showing items that belong on the *next* page instead."
+
+The function looks reasonable at a glance — it compiles, it returns an
+array, nothing crashes. The tests below are already written and they
+currently **fail**. Read the function carefully, find the bug, and fix it
+so all tests pass. Do not rewrite the function from scratch — the fix is
+a small, targeted change.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function paginate(array $items, int $page, int $perPage): array
+{
+    $offset = $page * $perPage;
+
+    return array_slice($items, $offset, $perPage);
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class PaginateTest extends TestCase
+{
+    public function test_first_page_returns_the_first_items(): void
+    {
+        $items = range(1, 10);
+
+        $this->assertSame([1, 2, 3], array_values(paginate($items, 1, 3)));
+    }
+
+    public function test_second_page_returns_the_next_items(): void
+    {
+        $items = range(1, 10);
+
+        $this->assertSame([4, 5, 6], array_values(paginate($items, 2, 3)));
+    }
+
+    public function test_last_partial_page_returns_the_remaining_item(): void
+    {
+        $items = range(1, 10);
+
+        $this->assertSame([10], array_values(paginate($items, 4, 3)));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Falsy Zero Trap',
+                'slug' => 'debug-falsy-zero-trap',
+                'difficulty' => ChallengeDifficulty::Intermediate,
+                'description' => <<<'MD'
+## Bug Report
+
+A teammate wrote `hasPermission()` to check whether a user's permission
+list contains a given permission. It shipped fine in testing — until a
+user whose *first* permission was the one being checked got a "permission
+denied" error in production.
+
+> "It's like the function forgets the very first permission in the list
+> exists."
+
+The tests below are already written and currently **fail**. Find the bug
+and fix it — the fix is a single operator, not a rewrite.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function hasPermission(array $permissions, string $permission): bool
+{
+    return array_search($permission, $permissions) ? true : false;
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class HasPermissionTest extends TestCase
+{
+    public function test_permission_found_at_the_first_index_is_true(): void
+    {
+        $permissions = ['edit-posts', 'delete-posts'];
+
+        $this->assertTrue(hasPermission($permissions, 'edit-posts'));
+    }
+
+    public function test_permission_found_later_in_the_list_is_true(): void
+    {
+        $permissions = ['view-posts', 'edit-posts'];
+
+        $this->assertTrue(hasPermission($permissions, 'edit-posts'));
+    }
+
+    public function test_permission_not_in_the_list_is_false(): void
+    {
+        $permissions = ['view-posts'];
+
+        $this->assertFalse(hasPermission($permissions, 'delete-posts'));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Foreach Reference Leak',
+                'slug' => 'debug-foreach-reference-leak',
+                'difficulty' => ChallengeDifficulty::Advanced,
+                'description' => <<<'MD'
+## Bug Report
+
+`normalizeNames()` cleans up a list of user-submitted names — trims
+whitespace, lowercases, then capitalizes the first letter. It has two
+loops: one that does the normalization, and a second one that used to log
+each name for debugging (the logging was removed, but the empty loop was
+left behind — it looked harmless).
+
+> "The last two names in the list keep coming out identical, no matter
+> what we submit."
+
+This is one of PHP's most notorious gotchas. The tests below are already
+written and currently **fail**. Find the bug and fix it — the fix is a
+single line, and it is not inside either loop's body.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function normalizeNames(array $names): array
+{
+    foreach ($names as &$name) {
+        $name = ucfirst(strtolower(trim($name)));
+    }
+
+    // Used to log each normalized name here for debugging. The logging
+    // call is gone, but the loop was left in — it looks like a no-op.
+    foreach ($names as $name) {
+    }
+
+    return $names;
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class NormalizeNamesTest extends TestCase
+{
+    public function test_trims_and_fixes_the_casing_of_every_name(): void
+    {
+        $result = normalizeNames(['ALICE', ' bob ', 'CAROL']);
+
+        $this->assertSame(['Alice', 'Bob', 'Carol'], $result);
+    }
+
+    public function test_does_not_duplicate_the_last_name_over_the_one_before_it(): void
+    {
+        $result = normalizeNames(['one', 'two', 'three', 'four']);
+
+        $this->assertSame(['One', 'Two', 'Three', 'Four'], $result);
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: Sort by Priority',
+                'slug' => 'debug-sort-by-priority',
+                'difficulty' => ChallengeDifficulty::Beginner,
+                'description' => <<<'MD'
+## Bug Report
+
+A support dashboard is supposed to list tickets with `high` priority
+first, then `medium`, then `low`. It compiles, it sorts, nothing crashes
+— but the order on screen is `high`, `low`, `medium`, which support agents
+keep complaining about.
+
+The test below is already written and currently **fails**. Find the bug
+in `sortByPriority()` and fix it.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function sortByPriority(array $tickets): array
+{
+    usort($tickets, fn ($a, $b) => $a['priority'] <=> $b['priority']);
+
+    return $tickets;
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class SortByPriorityTest extends TestCase
+{
+    public function test_orders_high_before_medium_before_low(): void
+    {
+        $tickets = [
+            ['title' => 'A', 'priority' => 'low'],
+            ['title' => 'B', 'priority' => 'high'],
+            ['title' => 'C', 'priority' => 'medium'],
+        ];
+
+        $sorted = sortByPriority($tickets);
+
+        $this->assertSame(['B', 'C', 'A'], array_column($sorted, 'title'));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Excerpt That Runs Long',
+                'slug' => 'debug-excerpt-length',
+                'difficulty' => ChallengeDifficulty::Beginner,
+                'description' => <<<'MD'
+## Bug Report
+
+`excerpt()` is supposed to cap a preview string at `$maxLength` characters
+**total**, appending `...` when it cuts the text short. QA reports that
+previews are consistently a few characters longer than the limit they
+configured — enough to break a fixed-width card layout.
+
+The test below is already written and currently **fails**. Find the bug
+and fix it.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function excerpt(string $text, int $maxLength): string
+{
+    if (strlen($text) <= $maxLength) {
+        return $text;
+    }
+
+    return substr($text, 0, $maxLength) . '...';
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class ExcerptTest extends TestCase
+{
+    public function test_short_text_is_returned_unchanged(): void
+    {
+        $this->assertSame('Hello', excerpt('Hello', 10));
+    }
+
+    public function test_long_text_is_truncated_to_max_length_including_ellipsis(): void
+    {
+        $result = excerpt('This is a fairly long sentence that needs cutting', 20);
+
+        $this->assertSame(20, strlen($result));
+        $this->assertStringContainsString('...', $result);
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: Last Name, First Name',
+                'slug' => 'debug-format-full-name',
+                'difficulty' => ChallengeDifficulty::Beginner,
+                'description' => <<<'MD'
+## Bug Report
+
+The client list is supposed to display names as `"Last, First"` — the
+standard format for sorted directories. `formatFullName()` builds the
+string, but every entry comes out as `"First, Last"` instead.
+
+The test below is already written and currently **fails**. Find the bug
+and fix it — no new variables needed, just reorder something.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function formatFullName(string $firstName, string $lastName): string
+{
+    return sprintf('%s, %s', $firstName, $lastName);
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class FormatFullNameTest extends TestCase
+{
+    public function test_formats_as_last_name_comma_first_name(): void
+    {
+        $this->assertSame('Doe, Jane', formatFullName('Jane', 'Doe'));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Generator That Remembers',
+                'slug' => 'debug-request-id-generator',
+                'difficulty' => ChallengeDifficulty::Intermediate,
+                'description' => <<<'MD'
+## Bug Report
+
+`RequestIdGenerator` hands out sequential IDs starting from 1 for each
+new generator instance. In an integration test, a teammate created a
+second, completely independent generator — and it started at 5 instead
+of 1, as if it remembered the first generator's history.
+
+The tests below are already written and one of them currently **fails**.
+Find the bug and fix it.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+class RequestIdGenerator
+{
+    private static int $counter = 0;
+
+    public function next(): int
+    {
+        self::$counter++;
+
+        return self::$counter;
+    }
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class RequestIdGeneratorTest extends TestCase
+{
+    public function test_first_instance_starts_at_one(): void
+    {
+        $gen = new RequestIdGenerator();
+
+        $this->assertSame(1, $gen->next());
+        $this->assertSame(2, $gen->next());
+    }
+
+    public function test_a_new_instance_starts_over_at_one(): void
+    {
+        $first = new RequestIdGenerator();
+        $first->next();
+        $first->next();
+
+        $second = new RequestIdGenerator();
+
+        $this->assertSame(1, $second->next());
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Quantity of Zero',
+                'slug' => 'debug-validate-quantity',
+                'difficulty' => ChallengeDifficulty::Intermediate,
+                'description' => <<<'MD'
+## Bug Report
+
+`validateQuantity()` should reject a request only when `quantity` is
+completely **missing**. A customer ordering `0` units (to remove an item,
+say) is a valid, present value — but the validator rejects it as if it
+were never submitted at all.
+
+The tests below are already written and one of them currently **fails**.
+Find the bug and fix it.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function validateQuantity(array $input): array
+{
+    $errors = [];
+
+    if (empty($input['quantity'])) {
+        $errors[] = 'Quantity is required.';
+    }
+
+    return $errors;
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class ValidateQuantityTest extends TestCase
+{
+    public function test_missing_quantity_is_invalid(): void
+    {
+        $this->assertCount(1, validateQuantity([]));
+    }
+
+    public function test_quantity_of_zero_is_valid(): void
+    {
+        $this->assertCount(0, validateQuantity(['quantity' => '0']));
+    }
+
+    public function test_quantity_present_is_valid(): void
+    {
+        $this->assertCount(0, validateQuantity(['quantity' => '5']));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Discount That Disappeared',
+                'slug' => 'debug-discount-overrides',
+                'difficulty' => ChallengeDifficulty::Intermediate,
+                'description' => <<<'MD'
+## Bug Report
+
+`applyDiscountOverrides()` takes a base list of per-product discounts
+(keyed by product ID) and a smaller list of overrides, and is supposed to
+return the base list with the overrides applied on top — same product ID,
+new discount value. In production, product 101's override is completely
+missing from the result, and the product IDs used to look up discounts
+elsewhere in the code stop working entirely.
+
+The test below is already written and currently **fails**. Find the bug
+and fix it — the fix is choosing a different built-in function.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function applyDiscountOverrides(array $baseDiscounts, array $overrides): array
+{
+    return array_merge($baseDiscounts, $overrides);
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class ApplyDiscountOverridesTest extends TestCase
+{
+    public function test_override_replaces_the_matching_product_discount(): void
+    {
+        $result = applyDiscountOverrides([101 => 10, 102 => 15], [101 => 20]);
+
+        $this->assertSame(20, $result[101]);
+        $this->assertSame(15, $result[102]);
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Case-Sensitive Login',
+                'slug' => 'debug-find-user-by-email',
+                'difficulty' => ChallengeDifficulty::Intermediate,
+                'description' => <<<'MD'
+## Bug Report
+
+A user signed up with `Jane@Example.com`, then tried to log back in
+typing `jane@example.com` (all lowercase, as most people do) — and got
+"account not found." `findUserByEmail()` is doing an exact match, and
+email addresses are effectively case-insensitive by convention.
+
+The tests below are already written and one of them currently **fails**.
+Find the bug and fix it.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function findUserByEmail(array $users, string $email): ?array
+{
+    foreach ($users as $user) {
+        if ($user['email'] === $email) {
+            return $user;
+        }
+    }
+
+    return null;
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class FindUserByEmailTest extends TestCase
+{
+    public function test_finds_user_regardless_of_email_casing(): void
+    {
+        $users = [['name' => 'John', 'email' => 'john@example.com']];
+
+        $result = findUserByEmail($users, 'John@Example.com');
+
+        $this->assertNotNull($result);
+        $this->assertSame('John', $result['name']);
+    }
+
+    public function test_returns_null_when_no_match(): void
+    {
+        $users = [['name' => 'John', 'email' => 'john@example.com']];
+
+        $this->assertNull(findUserByEmail($users, 'jane@example.com'));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Recursion That Comes Up Short',
+                'slug' => 'debug-sum-range-recursion',
+                'difficulty' => ChallengeDifficulty::Advanced,
+                'description' => <<<'MD'
+## Bug Report
+
+`sumRange()` recursively sums every integer from 1 to `$n`. For small
+inputs it looks fine at a glance, but every result is off by exactly 1 —
+too low. Recursive off-by-one bugs are notoriously hard to spot because
+the recursive call itself looks completely correct; the bug is almost
+always in the base case.
+
+The tests below are already written and both currently **fail**. Find the
+bug and fix it — the fix is a single character in the base case.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+function sumRange(int $n): int
+{
+    if ($n === 1) {
+        return 0;
+    }
+
+    return $n + sumRange($n - 1);
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class SumRangeTest extends TestCase
+{
+    public function test_sum_of_one_is_one(): void
+    {
+        $this->assertSame(1, sumRange(1));
+    }
+
+    public function test_sum_of_five_is_fifteen(): void
+    {
+        $this->assertSame(15, sumRange(5));
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
+            [
+                'title' => 'Debug This: The Cart That Shares Its Discount',
+                'slug' => 'debug-shopping-cart-clone',
+                'difficulty' => ChallengeDifficulty::Advanced,
+                'description' => <<<'MD'
+## Bug Report
+
+`cloneCartWithNewDiscount()` is supposed to duplicate a shopping cart and
+give the copy a different discount, leaving the original cart untouched.
+QA found that changing the clone's discount also changes the original
+cart's discount — as if they were the same object.
+
+PHP's `clone` keyword only does a **shallow** copy: nested objects are
+still shared between the original and the clone unless `__clone()` says
+otherwise. The tests below are already written and one of them currently
+**fails**. Find the bug and fix it.
+MD,
+                'boilerplate_code' => <<<'PHP'
+<?php
+
+class Discount
+{
+    public function __construct(public float $percentage) {}
+}
+
+class ShoppingCart
+{
+    public array $items = [];
+
+    public ?Discount $discount = null;
+
+    public function __clone(): void
+    {
+    }
+}
+
+function cloneCartWithNewDiscount(ShoppingCart $original, float $newPercentage): ShoppingCart
+{
+    $clone = clone $original;
+    $clone->discount->percentage = $newPercentage;
+
+    return $clone;
+}
+PHP,
+                'tests_code' => <<<'PHP'
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class ShoppingCartCloneTest extends TestCase
+{
+    public function test_cloned_cart_gets_the_new_discount(): void
+    {
+        $discount = new Discount(10.0);
+        $cart = new ShoppingCart();
+        $cart->discount = $discount;
+
+        $newCart = cloneCartWithNewDiscount($cart, 25.0);
+
+        $this->assertSame(25.0, $newCart->discount->percentage);
+    }
+
+    public function test_original_cart_discount_is_unaffected(): void
+    {
+        $discount = new Discount(10.0);
+        $cart = new ShoppingCart();
+        $cart->discount = $discount;
+
+        cloneCartWithNewDiscount($cart, 25.0);
+
+        $this->assertSame(10.0, $cart->discount->percentage);
+    }
+}
+PHP,
+                'is_premium' => false,
+                'price_eur' => null,
+            ],
         ];
     }
 }

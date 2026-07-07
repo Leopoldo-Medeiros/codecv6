@@ -129,6 +129,174 @@ class PathStepSeeder extends Seeder
             ],
 
             // ─────────────────────────────────────────────────────────────
+            // PATH 6b — Debug Katas: Find the Bug
+            // ─────────────────────────────────────────────────────────────
+            [
+                'name' => 'Debug Katas: Find the Bug',
+                'description' => 'Every tutorial shows you code that already works. This path does the opposite: every kata below hands you a function that compiles, runs, and looks completely reasonable — and is wrong. The tests are already written and already failing. Your job is not to build; it is to read someone else\'s code, form a hypothesis from a bug report, and fix exactly what is broken. This is the skill that separates "I followed the tutorial" from "I can be dropped into a real codebase."',
+                'steps' => [
+                    [
+                        'title' => 'Why Debugging Is a Different Skill Than Building',
+                        'type' => 'reading',
+                        'description' => 'Writing code from a blank page and fixing someone else\'s broken code use almost opposite muscles. Building rewards knowing the syntax for what you want. Debugging rewards reading code you did not write, forming a hypothesis from a vague symptom, and being comfortable being wrong before you are right. Most tutorials only ever exercise the first skill. Every kata after this one gives you working, plausible-looking code with a real bug and a failing test suite — the same starting point you get on your first day at any real job.',
+                        'resources' => [
+                            ['label' => 'Why Programmers Should Learn Debugging First — a contrarian take worth reading', 'url' => 'https://blog.regehr.org/archives/199'],
+                            ['label' => 'The Scientific Method of Debugging', 'url' => 'https://www.debuggingbook.org/html/Intro_Debugging.html'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => null,
+                        'challenge_slug' => null,
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — Off-By-One Pagination',
+                        'type' => 'challenge',
+                        'description' => 'Every kata so far asked you to build something from a blank slate. This one is different, and closer to what you will actually do on the job: a function already exists, it looks reasonable, and it is wrong. QA filed a bug report. The tests are already written and currently fail. Your job is to read the code, form a hypothesis about why the described symptom happens, and fix it — without touching the tests.',
+                        'resources' => [
+                            ['label' => 'array_slice() — PHP manual', 'url' => 'https://www.php.net/manual/en/function.array-slice.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'QA reports: "Page 1 of the product list is missing the first 3 items. Every page seems to be showing items that belong on the next page instead." The tests already encode the correct behaviour and are failing. Find the bug in `paginate()` and fix it.',
+                        'challenge_slug' => 'debug-off-by-one-pagination',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — Sort by Priority',
+                        'type' => 'challenge',
+                        'description' => 'A support dashboard is supposed to list tickets with high priority first, then medium, then low. It compiles, it sorts, nothing crashes — but the order on screen is wrong, and support agents keep complaining.',
+                        'resources' => [
+                            ['label' => 'usort() — PHP manual', 'url' => 'https://www.php.net/manual/en/function.usort.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'The ticket list shows high, low, medium instead of high, medium, low. The test already encodes the correct order and is failing. Find the bug in `sortByPriority()` and fix it.',
+                        'challenge_slug' => 'debug-sort-by-priority',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Excerpt That Runs Long',
+                        'type' => 'challenge',
+                        'description' => 'A preview string is supposed to be capped at a maximum length, ellipsis included. QA reports the previews are consistently a few characters too long, breaking a fixed-width layout.',
+                        'resources' => [
+                            ['label' => 'substr() — PHP manual', 'url' => 'https://www.php.net/manual/en/function.substr.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'Previews configured for 20 characters keep coming out at 23. The test already encodes the correct total length and is failing. Find the bug in `excerpt()` and fix it.',
+                        'challenge_slug' => 'debug-excerpt-length',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — Last Name, First Name',
+                        'type' => 'challenge',
+                        'description' => 'A client directory is supposed to display names as "Last, First" — the standard sorted-directory format. Every entry comes out reversed instead.',
+                        'resources' => [
+                            ['label' => 'sprintf() — PHP manual', 'url' => 'https://www.php.net/manual/en/function.sprintf.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'The directory shows "Jane, Doe" instead of "Doe, Jane". The test already encodes the correct order and is failing. Find the bug in `formatFullName()` and fix it.',
+                        'challenge_slug' => 'debug-format-full-name',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Falsy Zero Trap',
+                        'type' => 'challenge',
+                        'description' => 'PHP\'s loose truthiness rules are a classic source of production bugs: `0`, `\'0\'`, `null`, `false`, and `[]` are all falsy, which means a perfectly valid return value can be silently treated as "nothing happened." This kata is a real-world instance of that trap, hiding inside a permission check.',
+                        'resources' => [
+                            ['label' => 'array_search() — PHP manual (read the return value section carefully)', 'url' => 'https://www.php.net/manual/en/function.array-search.php'],
+                            ['label' => 'PHP type comparison tables', 'url' => 'https://www.php.net/manual/en/types.comparisons.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'A user whose FIRST permission in the list is the one being checked gets "permission denied" in production, even though they clearly have it. The tests are already written and one of them is failing. Find the bug in `hasPermission()` and fix it with a single operator change.',
+                        'challenge_slug' => 'debug-falsy-zero-trap',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Generator That Remembers',
+                        'type' => 'challenge',
+                        'description' => 'A request-ID generator is supposed to give each new instance its own independent counter starting at 1. A second, completely unrelated instance starts counting from wherever the first one left off — as if it remembers history it should have no access to.',
+                        'resources' => [
+                            ['label' => 'Static Properties — PHP manual', 'url' => 'https://www.php.net/manual/en/language.oop5.static.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'A brand-new `RequestIdGenerator` instance returns 5 as its first ID instead of 1. One of the tests already encodes the expected independence and is failing. Find the bug and fix it.',
+                        'challenge_slug' => 'debug-request-id-generator',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Quantity of Zero',
+                        'type' => 'challenge',
+                        'description' => 'A quantity field should be rejected only when it is completely missing from the request — a submitted value of zero is valid and present. The validator currently treats "present but zero" the same as "never submitted."',
+                        'resources' => [
+                            ['label' => 'empty() vs isset() vs array_key_exists() — PHP manual comparison', 'url' => 'https://www.php.net/manual/en/function.empty.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'A customer submitting `quantity: 0` gets a "Quantity is required" error, even though they clearly submitted a value. One of the tests already encodes the correct behaviour and is failing. Find the bug in `validateQuantity()` and fix it.',
+                        'challenge_slug' => 'debug-validate-quantity',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Discount That Disappeared',
+                        'type' => 'challenge',
+                        'description' => 'A function is supposed to apply per-product discount overrides on top of a base list, keyed by product ID, only replacing the products named in the override list. In production, the override goes missing entirely and every product ID lookup on the result breaks.',
+                        'resources' => [
+                            ['label' => 'array_merge() vs array_replace() — PHP manual (read the integer-key behaviour carefully)', 'url' => 'https://www.php.net/manual/en/function.array-replace.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'After applying an override for product 101, `$result[101]` does not exist anymore. The test already encodes the expected keys and values and is failing. Find the bug in `applyDiscountOverrides()` and fix it — the fix is a different built-in function, not new logic.',
+                        'challenge_slug' => 'debug-discount-overrides',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Case-Sensitive Login',
+                        'type' => 'challenge',
+                        'description' => 'A user who signed up with mixed-case letters in their email cannot log back in when they type it in lowercase — the standard, expected way most people type email addresses.',
+                        'resources' => [
+                            ['label' => 'strtolower() — PHP manual', 'url' => 'https://www.php.net/manual/en/function.strtolower.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'A user registered as `Jane@Example.com` gets "account not found" logging in as `jane@example.com`. One of the tests already encodes the case-insensitive expectation and is failing. Find the bug in `findUserByEmail()` and fix it.',
+                        'challenge_slug' => 'debug-find-user-by-email',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Foreach Reference Leak',
+                        'type' => 'challenge',
+                        'description' => 'One of PHP\'s most notorious gotchas: leaving a `foreach (...as &$value)` reference dangling after the loop ends, then reusing that same variable name in a later `foreach` — silently corrupting your own array. This is the kind of bug that survives code review because the second loop looks like harmless, do-nothing leftover code.',
+                        'resources' => [
+                            ['label' => 'PHP manual: references and foreach — the exact warning box on this bug', 'url' => 'https://www.php.net/manual/en/control-structures.foreach.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'A teammate says: "The last two names in the list keep coming out identical, no matter what we submit." The tests are already written and both are failing. Find the bug in `normalizeNames()` — the fix is a single line, and it is not inside either loop\'s body.',
+                        'challenge_slug' => 'debug-foreach-reference-leak',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Recursion That Comes Up Short',
+                        'type' => 'challenge',
+                        'description' => 'A recursive function sums every integer from 1 to N. For small inputs it looks fine at a glance, but every result is off by exactly 1 — too low. Recursive off-by-one bugs are notoriously hard to spot because the recursive call itself looks completely correct; the bug is almost always hiding in the base case.',
+                        'resources' => [
+                            ['label' => 'Recursive Functions — PHP manual', 'url' => 'https://www.php.net/manual/en/functions.user-defined.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => '`sumRange(5)` returns 14 instead of 15. Both tests are already written and both are failing. Find the bug in the base case of `sumRange()` and fix it — one character.',
+                        'challenge_slug' => 'debug-sum-range-recursion',
+                        'lab_url' => null,
+                    ],
+                    [
+                        'title' => 'Kata: Debug This — The Cart That Shares Its Discount',
+                        'type' => 'challenge',
+                        'description' => 'Cloning a shopping cart is supposed to produce two fully independent carts. QA found that changing the clone\'s discount also silently changes the original cart\'s discount — as if they were the same object. PHP\'s `clone` keyword only performs a shallow copy: nested objects stay shared between the original and the clone unless `__clone()` says otherwise.',
+                        'resources' => [
+                            ['label' => 'Object Cloning — PHP manual', 'url' => 'https://www.php.net/manual/en/language.oop5.cloning.php'],
+                        ],
+                        'instructions' => null,
+                        'challenge_prompt' => 'Giving a cloned cart a new discount also changes the original cart\'s discount. One of the tests already encodes the expected independence and is failing. Find the bug in `ShoppingCart::__clone()` and fix it.',
+                        'challenge_slug' => 'debug-shopping-cart-clone',
+                        'lab_url' => null,
+                    ],
+                ],
+            ],
+
+            // ─────────────────────────────────────────────────────────────
             // PATH 7 — Database Performance
             // ─────────────────────────────────────────────────────────────
             [
