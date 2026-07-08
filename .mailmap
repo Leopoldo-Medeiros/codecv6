@@ -1,0 +1,12 @@
+# Consolidates historical git identities so `git shortlog`, `git blame` and
+# contribution stats show one canonical name+email per person.
+# Display-only: does NOT rewrite history. Format:
+#   Canonical Name <canonical@email> <other@email-to-map>
+#   Canonical Name <canonical@email> Other Name <other@email>
+
+Leopoldo Medeiros <leopoldof.medeiros@gmail.com> leopoldomedeiros <leopldof.medeiros@gmail.com>
+Leopoldo Medeiros <leopoldof.medeiros@gmail.com> Leopoldo-Medeiros <leopoldof.medeiros@gmail.com>
+Leopoldo Medeiros <leopoldof.medeiros@gmail.com> Leopoldo Medeiros <32571375+Leopoldo-Medeiros@users.noreply.github.com>
+Leopoldo Medeiros <leopoldof.medeiros@gmail.com> Leopoldo <32571375+Leopoldo-Medeiros@users.noreply.github.com>
+
+Rodrigo Tschope <r_tschope@apple.com> <tschope@gmail.com>

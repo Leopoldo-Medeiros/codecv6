@@ -250,9 +250,9 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 - `og-image` module is **disabled** (`ogImage: { enabled: false }`) because it requires SSR, which is off. Provide a static `/public/og-image.png` (1200×630) for social previews
 - Site config: `site.url = 'https://codecv.ie'`, `site.name = 'CODECV'`
 
-**AI Integrations:** Two separate AI features, each with its own API key:
-- CV Analysis — `CvController` calls Gemini API (`GEMINI_API_KEY`; model configurable via `services.gemini.model`, defaults to `gemini-flash-latest`). Accepts a PDF (max 5 MB) plus either `job_description` (text) or `job_url`. When `job_url` is provided, the controller fetches the page content via `https://r.jina.ai/{url}` (Jina AI reader) and caps it at 15 000 characters. Returns a JSON object with `score`, `matched_keywords`, `missing_keywords`, `strengths`, `improvements`, and `summary`.
-- LinkedIn Analyser — `LinkedInController` calls Anthropic API (`ANTHROPIC_API_KEY`). Accepts a LinkedIn profile URL and scores it.
+**AI Integrations:** Two AI features, **both backed by Google Gemini** (single `GEMINI_API_KEY`; model configurable via `services.gemini.model`, defaults to `gemini-flash-latest`). There is no Anthropic integration in the codebase despite the historical name — do not reintroduce an `ANTHROPIC_API_KEY`.
+- CV Analysis — `CvController` calls Gemini. Accepts a PDF (max 5 MB) plus either `job_description` (text) or `job_url`. When `job_url` is provided, the controller fetches the page content via `https://r.jina.ai/{url}` (Jina AI reader) and caps it at 15 000 characters. Returns a JSON object with `score`, `matched_keywords`, `missing_keywords`, `strengths`, `improvements`, and `summary`.
+- LinkedIn Analyser — `LinkedInController` also calls Gemini (same key/model). Accepts a LinkedIn profile PDF and scores it.
 
 **DDEV Nuxt Config:** `frontend/nuxt.config.ts` uses `process.env.DDEV_HOSTNAME` (auto-injected by DDEV inside the container) with fallback to `codecv6.ddev.site`. The Vite HMR is configured for WSS through DDEV's HTTPS reverse proxy. When running on host (`npm run dev`), `DDEV_HOSTNAME` is unset → fallback applies.
 
