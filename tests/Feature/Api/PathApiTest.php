@@ -215,10 +215,30 @@ class PathApiTest extends TestCase
 
     public function test_consultant_can_update_path(): void
     {
-        $path = Path::factory()->create();
+        $path = Path::factory()->create(['consultant_id' => $this->consultant->id]);
 
         $this->actingAs($this->consultant, 'sanctum')
             ->putJson("/api/paths/{$path->id}", ['name' => 'Consultant Updated'])
+            ->assertOk();
+    }
+
+    public function test_consultant_cannot_update_another_consultants_path(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $path = Path::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->putJson("/api/paths/{$path->id}", ['name' => 'Hijacked'])
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_update_any_consultants_path(): void
+    {
+        $path = Path::factory()->create(['consultant_id' => $this->consultant->id]);
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->putJson("/api/paths/{$path->id}", ['name' => 'Admin Updated'])
             ->assertOk();
     }
 
@@ -278,11 +298,24 @@ class PathApiTest extends TestCase
 
     public function test_consultant_can_delete_path(): void
     {
-        $path = Path::factory()->create();
+        $path = Path::factory()->create(['consultant_id' => $this->consultant->id]);
 
         $this->actingAs($this->consultant, 'sanctum')
             ->deleteJson("/api/paths/{$path->id}")
             ->assertOk();
+    }
+
+    public function test_consultant_cannot_delete_another_consultants_path(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $path = Path::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->deleteJson("/api/paths/{$path->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('paths', ['id' => $path->id]);
     }
 
     public function test_client_cannot_delete_path(): void

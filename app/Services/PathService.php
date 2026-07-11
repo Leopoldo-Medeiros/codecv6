@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Models\Path;
 use App\Models\User;
+use App\Services\Concerns\EnsuresResourceOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class PathService
 {
+    use EnsuresResourceOwnership;
+
     public function paginate(?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         $query = Path::query()->with(['consultant', 'plans']);
@@ -45,6 +48,8 @@ class PathService
 
     public function update(Path $path, array $data): Path
     {
+        $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
+
         $path->update([
             'name' => $data['name'] ?? $path->name,
             'description' => $data['description'] ?? $path->description,
@@ -67,6 +72,8 @@ class PathService
 
     public function delete(Path $path): void
     {
+        $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
+
         $path->plans()->detach();
         $path->delete();
     }

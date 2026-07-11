@@ -246,10 +246,30 @@ class PlanApiTest extends TestCase
 
     public function test_consultant_can_update_plan(): void
     {
-        $plan = Plan::factory()->create();
+        $plan = Plan::factory()->create(['consultant_id' => $this->consultant->id]);
 
         $this->actingAs($this->consultant, 'sanctum')
             ->putJson("/api/plans/{$plan->id}", ['name' => 'Consultant Updated'])
+            ->assertOk();
+    }
+
+    public function test_consultant_cannot_update_another_consultants_plan(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $plan = Plan::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->putJson("/api/plans/{$plan->id}", ['name' => 'Hijacked'])
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_update_any_consultants_plan(): void
+    {
+        $plan = Plan::factory()->create(['consultant_id' => $this->consultant->id]);
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->putJson("/api/plans/{$plan->id}", ['name' => 'Admin Updated'])
             ->assertOk();
     }
 
@@ -305,11 +325,24 @@ class PlanApiTest extends TestCase
 
     public function test_consultant_can_delete_plan(): void
     {
-        $plan = Plan::factory()->create();
+        $plan = Plan::factory()->create(['consultant_id' => $this->consultant->id]);
 
         $this->actingAs($this->consultant, 'sanctum')
             ->deleteJson("/api/plans/{$plan->id}")
             ->assertOk();
+    }
+
+    public function test_consultant_cannot_delete_another_consultants_plan(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $plan = Plan::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->deleteJson("/api/plans/{$plan->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('plans', ['id' => $plan->id]);
     }
 
     public function test_client_cannot_delete_plan(): void
@@ -352,12 +385,24 @@ class PlanApiTest extends TestCase
 
     public function test_consultant_can_attach_client_to_plan(): void
     {
-        $plan = Plan::factory()->create();
+        $plan = Plan::factory()->create(['consultant_id' => $this->consultant->id]);
 
         $this->actingAs($this->consultant, 'sanctum')
             ->postJson("/api/plans/{$plan->id}/clients", [
                 'client_id' => $this->client->id,
             ])->assertOk();
+    }
+
+    public function test_consultant_cannot_attach_client_to_another_consultants_plan(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $plan = Plan::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->postJson("/api/plans/{$plan->id}/clients", [
+                'client_id' => $this->client->id,
+            ])->assertForbidden();
     }
 
     public function test_client_cannot_attach_to_plan(): void

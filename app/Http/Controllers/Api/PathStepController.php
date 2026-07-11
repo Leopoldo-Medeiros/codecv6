@@ -11,12 +11,15 @@ use App\Models\UserStepProgress;
 use App\Notifications\ClientPathCompleted;
 use App\Notifications\ClientPathHalfway;
 use App\Notifications\ClientStartedLearning;
+use App\Services\Concerns\EnsuresResourceOwnership;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PathStepController extends Controller
 {
+    use EnsuresResourceOwnership;
+
     public function index(Path $path): JsonResponse
     {
         $steps = $path->steps()->with('course')->orderBy('order')->get();
@@ -52,6 +55,8 @@ class PathStepController extends Controller
 
     public function store(Request $request, Path $path): JsonResponse
     {
+        $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
+
         $validated = $request->validate($this->stepRules());
 
         if (! isset($validated['order'])) {
@@ -70,6 +75,7 @@ class PathStepController extends Controller
     public function update(Request $request, Path $path, PathStep $step): JsonResponse
     {
         abort_if($step->path_id !== $path->id, 404);
+        $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
 
         $validated = $request->validate($this->stepRules(forUpdate: true));
 
@@ -119,6 +125,8 @@ class PathStepController extends Controller
     public function destroy(Path $path, PathStep $step): JsonResponse
     {
         abort_if($step->path_id !== $path->id, 404);
+        $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
+
         $step->delete();
 
         return response()->json(['message' => 'Step deleted']);
@@ -126,6 +134,8 @@ class PathStepController extends Controller
 
     public function reorder(Request $request, Path $path): JsonResponse
     {
+        $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
+
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'integer|exists:path_steps,id',

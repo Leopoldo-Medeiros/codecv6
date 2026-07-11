@@ -261,6 +261,17 @@ class JobApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_consultant_cannot_update_another_consultants_job(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $job = Job::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->putJson("/api/jobs/{$job->id}", ['title' => 'Hijacked', 'company' => 'Bad'])
+            ->assertForbidden();
+    }
+
     public function test_unauthenticated_cannot_update_job(): void
     {
         $job = Job::factory()->create();
@@ -331,6 +342,19 @@ class JobApiTest extends TestCase
         $this->actingAs($this->consultant, 'sanctum')
             ->deleteJson("/api/jobs/{$job->id}")
             ->assertOk();
+    }
+
+    public function test_consultant_cannot_delete_another_consultants_job(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+        $job = Job::factory()->create(['consultant_id' => $otherConsultant->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->deleteJson("/api/jobs/{$job->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('job_listings', ['id' => $job->id]);
     }
 
     public function test_client_cannot_delete_job(): void

@@ -4,10 +4,13 @@ namespace App\Services;
 
 use App\Models\Plan;
 use App\Models\User;
+use App\Services\Concerns\EnsuresResourceOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PlanService
 {
+    use EnsuresResourceOwnership;
+
     public function paginate(?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         $query = Plan::query()->with(['consultant', 'clients']);
@@ -49,6 +52,8 @@ class PlanService
 
     public function update(Plan $plan, array $data): Plan
     {
+        $this->ensureOwnerOrAdmin($plan->consultant_id, 'plan');
+
         $plan->update([
             'name' => $data['name'] ?? $plan->name,
             'description' => $data['description'] ?? $plan->description,
@@ -69,6 +74,8 @@ class PlanService
 
     public function delete(Plan $plan): void
     {
+        $this->ensureOwnerOrAdmin($plan->consultant_id, 'plan');
+
         $plan->clients()->detach();
         $plan->paths()->detach();
         $plan->delete();
@@ -76,11 +83,15 @@ class PlanService
 
     public function attachClient(Plan $plan, int $clientId): void
     {
+        $this->ensureOwnerOrAdmin($plan->consultant_id, 'plan');
+
         $plan->clients()->attach($clientId);
     }
 
     public function detachClient(Plan $plan, int $clientId): void
     {
+        $this->ensureOwnerOrAdmin($plan->consultant_id, 'plan');
+
         $plan->clients()->detach($clientId);
     }
 

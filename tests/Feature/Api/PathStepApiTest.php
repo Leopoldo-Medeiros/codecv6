@@ -40,7 +40,7 @@ class PathStepApiTest extends TestCase
         $this->client = User::factory()->create();
         $this->client->assignRole('client');
 
-        $this->path = Path::factory()->create();
+        $this->path = Path::factory()->create(['consultant_id' => $this->consultant->id]);
     }
 
     // ── Index ─────────────────────────────────────────────────
@@ -129,6 +129,16 @@ class PathStepApiTest extends TestCase
     {
         $this->actingAs($this->client, 'sanctum')
             ->postJson("/api/paths/{$this->path->id}/steps", ['title' => 'Hack'])
+            ->assertForbidden();
+    }
+
+    public function test_other_consultant_cannot_create_step_on_path_they_dont_own(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($otherConsultant, 'sanctum')
+            ->postJson("/api/paths/{$this->path->id}/steps", ['title' => 'Hijack'])
             ->assertForbidden();
     }
 
@@ -229,6 +239,17 @@ class PathStepApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_other_consultant_cannot_update_step_on_path_they_dont_own(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id]);
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($otherConsultant, 'sanctum')
+            ->putJson("/api/paths/{$this->path->id}/steps/{$step->id}", ['title' => 'Hijack'])
+            ->assertForbidden();
+    }
+
     public function test_update_fails_when_step_belongs_to_different_path(): void
     {
         $otherPath = Path::factory()->create();
@@ -290,6 +311,19 @@ class PathStepApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_other_consultant_cannot_delete_step_on_path_they_dont_own(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id]);
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($otherConsultant, 'sanctum')
+            ->deleteJson("/api/paths/{$this->path->id}/steps/{$step->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('path_steps', ['id' => $step->id]);
+    }
+
     public function test_unauthenticated_cannot_delete_step(): void
     {
         $step = PathStep::factory()->create(['path_id' => $this->path->id]);
@@ -323,6 +357,28 @@ class PathStepApiTest extends TestCase
                 'ids' => $reversedIds,
             ])->assertOk()
             ->assertJsonPath('message', 'Steps reordered');
+    }
+
+    public function test_owning_consultant_can_reorder_steps(): void
+    {
+        $steps = PathStep::factory()->count(2)->create(['path_id' => $this->path->id]);
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->postJson("/api/paths/{$this->path->id}/steps/reorder", [
+                'ids' => $steps->pluck('id')->reverse()->values()->toArray(),
+            ])->assertOk();
+    }
+
+    public function test_other_consultant_cannot_reorder_steps_on_path_they_dont_own(): void
+    {
+        $steps = PathStep::factory()->count(2)->create(['path_id' => $this->path->id]);
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($otherConsultant, 'sanctum')
+            ->postJson("/api/paths/{$this->path->id}/steps/reorder", [
+                'ids' => $steps->pluck('id')->reverse()->values()->toArray(),
+            ])->assertForbidden();
     }
 
     public function test_client_cannot_reorder_steps(): void

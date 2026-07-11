@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Models\Job;
+use App\Services\Concerns\EnsuresResourceOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class JobService
 {
+    use EnsuresResourceOwnership;
+
     public function paginate(?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         $query = Job::query()->with('consultant');
@@ -35,6 +38,8 @@ class JobService
 
     public function update(Job $job, array $data): Job
     {
+        $this->ensureOwnerOrAdmin($job->consultant_id, 'job');
+
         $job->update($data);
 
         return $job->fresh('consultant');
@@ -42,6 +47,8 @@ class JobService
 
     public function delete(Job $job): void
     {
+        $this->ensureOwnerOrAdmin($job->consultant_id, 'job');
+
         $job->delete();
     }
 }
