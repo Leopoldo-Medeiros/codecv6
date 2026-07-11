@@ -244,7 +244,7 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 **Path Progress Tracking:** `UserStepProgress` tracks per-user completion of individual `PathStep`s. Steps are ordered via `.orderBy('order')` in the Path relationship. Users can only update their own progress (enforced in the controller).
 
-**Testing:** Feature tests use `RefreshDatabase` and call `RoleSeeder` in `setUp()`. Tests live in `tests/Feature/Api/` (API tests) and `tests/Feature/Auth/`. PHPUnit 12 with a separate test database config.
+**Testing:** Feature tests use `RefreshDatabase` and call `RoleSeeder` in `setUp()`. Tests live in `tests/Feature/Api/` (API tests) and `tests/Feature/Auth/`. PHPUnit 12 with a separate test database config. The base `Tests\TestCase` calls `Http::preventStrayRequests()` in `setUp()` — any outbound HTTP call not covered by `Http::fake()` throws instead of silently reaching a live API (Judge0, Gemini, Jina, Stripe). All 6 previously-untested route groups now have coverage: `ChallengeApiTest`/`PlaygroundApiTest` (Judge0 outcomes: pass/fail/TLE/compile-error/down), `CvAnalysisTest`/`LinkedInAnalysisTest` (Gemini + Jina, including the markdown-fenced JSON fallback parse), `NotificationApiTest`, `OnboardingTest`.
 
 **Search:** `User` model uses Laravel Scout (Algolia) — `toSearchableArray()` indexes `id`, `fullname`, and `email`. Requires `SCOUT_QUEUE=true` in env.
 
