@@ -148,6 +148,52 @@ class JobApiTest extends TestCase
         $this->assertDatabaseHas('job_listings', ['title' => 'DB Test Job']);
     }
 
+    // ── consultant_id spoofing (regression) ──────────────────
+
+    public function test_consultant_cannot_create_job_owned_by_another_consultant(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->postJson('/api/jobs', [
+                'title' => 'Spoofed Job',
+                'company' => 'Acme',
+                'consultant_id' => $otherConsultant->id,
+            ])->assertCreated();
+
+        $this->assertDatabaseHas('job_listings', [
+            'title' => 'Spoofed Job',
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_admin_can_assign_job_to_a_consultant(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/jobs', [
+                'title' => 'Assigned Job',
+                'company' => 'Acme',
+                'consultant_id' => $this->consultant->id,
+            ])->assertCreated();
+
+        $this->assertDatabaseHas('job_listings', [
+            'title' => 'Assigned Job',
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_admin_cannot_assign_job_to_a_client(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/jobs', [
+                'title' => 'Bad Owner Job',
+                'company' => 'Acme',
+                'consultant_id' => $this->client->id,
+            ])->assertStatus(422)
+            ->assertJsonValidationErrors('consultant_id');
+    }
+
     #[DataProvider('invalidJobStoreProvider')]
     public function test_job_creation_fails_validation(array $overrides): void
     {

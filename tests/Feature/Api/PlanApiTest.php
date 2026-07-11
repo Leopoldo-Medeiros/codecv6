@@ -142,6 +142,49 @@ class PlanApiTest extends TestCase
         $this->assertDatabaseHas('plans', ['name' => 'DB Plan']);
     }
 
+    // ── consultant_id spoofing (regression) ──────────────────
+
+    public function test_consultant_cannot_create_plan_owned_by_another_consultant(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->postJson('/api/plans', [
+                'name' => 'Spoofed Plan',
+                'consultant_id' => $otherConsultant->id,
+            ])->assertCreated();
+
+        $this->assertDatabaseHas('plans', [
+            'name' => 'Spoofed Plan',
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_admin_can_assign_plan_to_a_consultant(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/plans', [
+                'name' => 'Assigned Plan',
+                'consultant_id' => $this->consultant->id,
+            ])->assertCreated();
+
+        $this->assertDatabaseHas('plans', [
+            'name' => 'Assigned Plan',
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_admin_cannot_assign_plan_to_a_client(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/plans', [
+                'name' => 'Bad Owner Plan',
+                'consultant_id' => $this->client->id,
+            ])->assertStatus(422)
+            ->assertJsonValidationErrors('consultant_id');
+    }
+
     #[DataProvider('invalidPlanStoreProvider')]
     public function test_plan_creation_fails_validation(array $overrides): void
     {

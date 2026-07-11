@@ -140,6 +140,49 @@ class PathApiTest extends TestCase
         $this->assertDatabaseHas('paths', ['name' => 'DB Path']);
     }
 
+    // ── consultant_id spoofing (regression) ──────────────────
+
+    public function test_consultant_cannot_create_path_owned_by_another_consultant(): void
+    {
+        $otherConsultant = User::factory()->create();
+        $otherConsultant->assignRole('consultant');
+
+        $this->actingAs($this->consultant, 'sanctum')
+            ->postJson('/api/paths', [
+                'name' => 'Spoofed Path',
+                'consultant_id' => $otherConsultant->id,
+            ])->assertCreated();
+
+        $this->assertDatabaseHas('paths', [
+            'name' => 'Spoofed Path',
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_admin_can_assign_path_to_a_consultant(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/paths', [
+                'name' => 'Assigned Path',
+                'consultant_id' => $this->consultant->id,
+            ])->assertCreated();
+
+        $this->assertDatabaseHas('paths', [
+            'name' => 'Assigned Path',
+            'consultant_id' => $this->consultant->id,
+        ]);
+    }
+
+    public function test_admin_cannot_assign_path_to_a_client(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/paths', [
+                'name' => 'Bad Owner Path',
+                'consultant_id' => $this->client->id,
+            ])->assertStatus(422)
+            ->assertJsonValidationErrors('consultant_id');
+    }
+
     #[DataProvider('invalidPathStoreProvider')]
     public function test_path_creation_fails_validation(array $overrides): void
     {

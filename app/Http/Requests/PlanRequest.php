@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AssignsConsultant;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Validator;
 
 class PlanRequest extends FormRequest
 {
+    use AssignsConsultant;
+
     public function authorize(): bool
     {
         return true;
@@ -34,10 +37,11 @@ class PlanRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (! $this->has('consultant_id')) {
-            $this->merge([
-                'consultant_id' => Auth::id(),
-            ]);
-        }
+        $this->normaliseConsultantId();
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(fn ($v) => $this->validateConsultantOwner($v));
     }
 }
