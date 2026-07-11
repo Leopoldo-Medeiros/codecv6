@@ -1,7 +1,7 @@
 <template>
   <NuxtLayout name="marketing">
 
-    <!-- ─── 1. HERO (splite-style) ───────────────────── -->
+    <!-- ─── 1. HERO (splite-style, original chart composition) ── -->
     <section class="hero">
       <div class="hero__decor" aria-hidden="true">
         <div class="blob blob--em"></div>
@@ -78,7 +78,7 @@
               </g>
 
               <!-- Y-axis labels -->
-              <g fill="rgba(15, 23, 42, 0.45)" font-family="Inter, sans-serif" font-size="11" font-weight="500" text-anchor="end">
+              <g fill="rgba(15, 23, 42, 0.45)" font-family="Poppins, sans-serif" font-size="11" font-weight="500" text-anchor="end">
                 <text x="50" y="44">80k</text>
                 <text x="50" y="104">60k</text>
                 <text x="50" y="164">40k</text>
@@ -102,7 +102,7 @@
               />
 
               <!-- X-axis labels -->
-              <g fill="rgba(15, 23, 42, 0.4)" font-family="Inter, sans-serif" font-size="10" font-weight="500" text-anchor="middle">
+              <g fill="rgba(15, 23, 42, 0.4)" font-family="Poppins, sans-serif" font-size="10" font-weight="500" text-anchor="middle">
                 <text x="140" y="305">Q1 2026</text>
                 <text x="225" y="305">Q2 2026</text>
                 <text x="345" y="305">Q3 2026</text>
@@ -147,7 +147,28 @@
     </section>
 
 
-    <!-- ─── 2. LOGO CLOUD ────────────────────────────── -->
+    <!-- ─── 2. SERVICE CARDS (NorthWest signature row) ── -->
+    <section class="scards">
+      <div class="mkt-container">
+        <div class="scards__grid">
+          <article v-for="c in serviceCards" :key="c.title" class="scard">
+            <div class="scard__icon" aria-hidden="true">
+              <component :is="c.icon" />
+            </div>
+            <span class="scard__kicker">{{ c.kicker }}</span>
+            <h3 class="scard__title">{{ c.title }}</h3>
+            <p class="scard__desc">{{ c.desc }}</p>
+            <NuxtLink :to="c.to" class="scard__more">
+              read more
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </NuxtLink>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ─── 3. LOGO CLOUD ────────────────────────────── -->
     <section class="logos">
       <div class="mkt-container">
         <p class="logos__lead">
@@ -160,12 +181,47 @@
     </section>
 
 
-    <!-- ─── 3. FEATURE TABS (feature108-style) ───────── -->
+    <!-- ─── 4. SPECIALISATIONS (icon grid, "industries") ── -->
+    <section class="igrid">
+      <div class="mkt-container">
+        <header class="sec-head">
+          <span class="kicker">Who we coach</span>
+          <h2 class="h2 h2--underline">There are Many Corners of IT<br>We Accelerate</h2>
+        </header>
+
+        <div class="igrid__grid">
+          <div v-for="s in specialisations" :key="s.title" class="igrid__item">
+            <div class="igrid__icon" aria-hidden="true">
+              <component :is="s.icon" />
+            </div>
+            <div>
+              <h3>{{ s.title }}</h3>
+              <p>{{ s.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ─── 5. COUNTERS BAND (emerald) ───────────────── -->
+    <section class="counters">
+      <div class="counters__pattern" aria-hidden="true"></div>
+      <div class="mkt-container counters__grid">
+        <div v-for="c in counters" :key="c.label" class="counters__item">
+          <strong>{{ c.val }}</strong>
+          <span>{{ c.label }}</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ─── 6. FEATURE TABS (our services) ───────────── -->
     <section class="features">
       <div class="mkt-container">
-        <header class="sec-head sec-head--center">
-          <span class="eyebrow">OUR SERVICES</span>
-          <h2 class="h2">Everything you need to<br>land your next role</h2>
+        <header class="sec-head">
+          <span class="kicker">Our services</span>
+          <h2 class="h2 h2--underline">Everything you need to<br>land your next role</h2>
           <p class="sec-sub">
             Four pillars working together to move your career forward —
             from CV to offer letter.
@@ -191,7 +247,7 @@
 
           <div v-if="activeTabData" class="tabs__panel">
             <div class="tabs__panel-text">
-              <span class="eyebrow">{{ activeTabData.badge }}</span>
+              <span class="kicker kicker--em">{{ activeTabData.badge }}</span>
               <h3 class="h3">{{ activeTabData.heading }}</h3>
               <p>{{ activeTabData.desc }}</p>
               <ul class="check-list">
@@ -215,58 +271,58 @@
     </section>
 
 
-    <!-- ─── 4. EVERVAULT-STYLE CARDS ─────────────────── -->
-    <section class="vault">
-      <div class="mkt-container">
-        <header class="sec-head sec-head--center">
-          <span class="eyebrow">CAPABILITIES</span>
-          <h2 class="h2">Built for serious career growth</h2>
-        </header>
+    <!-- ─── 7. TESTIMONIAL BAND (emerald) ────────────── -->
+    <!-- pointer events + mouse guard: on touch devices a tap fires a
+         synthetic mouseenter with no matching mouseleave, which would
+         freeze the auto-rotation permanently -->
+    <section class="tband" @pointerenter="onBandPointerEnter" @pointerleave="onBandPointerLeave">
+      <div class="tband__pattern" aria-hidden="true"></div>
+      <div class="mkt-container tband__inner">
+        <span class="kicker kicker--light">Our testimonials</span>
+        <h2 class="h2 h2--light h2--underline h2--underline-light">We care about your career</h2>
 
-        <div class="vault__grid">
-          <div
-            v-for="(c, i) in vaultCards"
-            :key="c.title"
-            class="evercard"
-            @mousemove="onVaultMove($event, i)"
-            @mouseleave="onVaultLeave(i)"
-            :style="{ '--x': (vaultPos[i]?.x ?? 0) + 'px', '--y': (vaultPos[i]?.y ?? 0) + 'px', '--lit': vaultPos[i]?.lit ?? 0 }"
-          >
-            <div class="evercard__pattern" aria-hidden="true"></div>
-            <div class="evercard__cross evercard__cross--tl" aria-hidden="true"></div>
-            <div class="evercard__cross evercard__cross--tr" aria-hidden="true"></div>
-            <div class="evercard__cross evercard__cross--bl" aria-hidden="true"></div>
-            <div class="evercard__cross evercard__cross--br" aria-hidden="true"></div>
-            <div class="evercard__content">
-              <div class="evercard__icon">
-                <component :is="c.icon" />
-              </div>
-              <h3>{{ c.title }}</h3>
-              <p>{{ c.desc }}</p>
-            </div>
-          </div>
+        <Transition name="qfade" mode="out-in">
+          <blockquote :key="quoteIndex" class="tband__quote">
+            <p class="tband__text">"{{ activeQuote.text }}"</p>
+            <footer class="tband__foot">
+              <img :src="activeQuote.img" :alt="activeQuote.author" class="tband__avatar" />
+              <strong>{{ activeQuote.author }}</strong>
+              <span>{{ activeQuote.role }}</span>
+            </footer>
+          </blockquote>
+        </Transition>
+
+        <div class="tband__nav">
+          <button type="button" aria-label="Previous testimonial" @click="prevQuote">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="tband__index">{{ quoteIndex + 1 }} / {{ quotes.length }}</span>
+          <button type="button" aria-label="Next testimonial" @click="nextQuote">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
       </div>
     </section>
 
 
-    <!-- ─── 5. WORLD MAP ─────────────────────────────── -->
+    <!-- ─── 8. WORLD MAP ─────────────────────────────── -->
     <section class="globe">
       <div class="mkt-container">
-        <header class="sec-head sec-head--center">
-          <span class="eyebrow eyebrow--light">GLOBAL REACH</span>
-          <h2 class="h2 h2--light">Connecting Irish IT talent<br>to teams worldwide</h2>
+        <header class="sec-head">
+          <span class="kicker kicker--em-bright">Global reach</span>
+          <h2 class="h2 h2--light h2--underline">Connecting Irish IT talent<br>to teams worldwide</h2>
           <p class="sec-sub sec-sub--light">
-            From Dublin to Berlin, London, New York, Tokyo, and Sydney —
-            our placements span the globe's leading tech hubs.
+            From Dublin to London, Berlin, New York, São Paulo, Tokyo, and
+            Sydney — our placements span the globe's leading tech hubs.
           </p>
         </header>
 
         <div class="globe__wrap">
-          <svg viewBox="0 0 1000 500" class="globe__svg" aria-hidden="true">
-            <!-- Stylised dotted world map -->
+          <svg :viewBox="WORLD_VIEWBOX" class="globe__svg" aria-hidden="true">
+            <!-- Dotted world map — real landmass geography, pre-generated
+                 by scripts/generate-world-map.mjs -->
             <g class="globe__dots">
-              <circle v-for="(d, i) in mapDots" :key="i" :cx="d[0]" :cy="d[1]" r="2.5" />
+              <circle v-for="(d, i) in mapDots" :key="i" :cx="d[0]" :cy="d[1]" :r="WORLD_DOT_RADIUS" />
             </g>
 
             <!-- Connection arcs from Dublin to other hubs -->
@@ -277,8 +333,8 @@
                 :d="arc"
                 fill="none"
                 stroke="#34D399"
-                stroke-width="1.2"
-                stroke-dasharray="4 4"
+                stroke-width="1.4"
+                stroke-dasharray="5 5"
                 stroke-linecap="round"
               />
             </g>
@@ -286,19 +342,20 @@
             <!-- City markers -->
             <g class="globe__markers">
               <g v-for="city in cities" :key="city.name" :transform="`translate(${city.x},${city.y})`">
-                <circle r="14" fill="rgba(52, 211, 153, 0.15)" />
+                <circle r="13" fill="rgba(52, 211, 153, 0.15)" />
                 <circle r="6" fill="rgba(52, 211, 153, 0.45)" />
                 <circle r="3" fill="#34D399" />
               </g>
             </g>
 
-            <!-- City labels -->
+            <!-- City labels (per-city offsets keep the EU cluster readable) -->
             <g class="globe__labels">
               <text
                 v-for="city in cities"
                 :key="city.name + '-l'"
-                :x="city.x + 14"
-                :y="city.y + 4"
+                :x="city.x + city.labelDx"
+                :y="city.y + city.labelDy"
+                :text-anchor="city.labelDx < 0 ? 'end' : 'start'"
               >{{ city.name }}</text>
             </g>
           </svg>
@@ -314,53 +371,15 @@
     </section>
 
 
-    <!-- ─── 6. TESTIMONIALS COLUMNS ──────────────────── -->
-    <section class="testi">
-      <div class="mkt-container">
-        <header class="sec-head sec-head--center">
-          <span class="eyebrow">TESTIMONIALS</span>
-          <h2 class="h2">Voices from our community</h2>
-          <p class="sec-sub">Real outcomes from professionals who've been through the programme.</p>
-        </header>
-
-        <div class="testi__cols">
-          <div
-            v-for="(col, ci) in testiCols"
-            :key="ci"
-            class="testi__col"
-            :class="`testi__col--${ci}`"
-          >
-            <div class="testi__col-inner">
-              <article v-for="(t, ti) in [...col, ...col]" :key="ci + '-' + ti" class="tcard">
-                <div class="tcard__stars">★★★★★</div>
-                <p class="tcard__text">"{{ t.text }}"</p>
-                <footer class="tcard__foot">
-                  <img :src="t.img" :alt="t.author" />
-                  <div>
-                    <strong>{{ t.author }}</strong>
-                    <span>{{ t.role }}</span>
-                  </div>
-                </footer>
-              </article>
-            </div>
-          </div>
-        </div>
-
-        <div class="testi__fade testi__fade--top" aria-hidden="true"></div>
-        <div class="testi__fade testi__fade--bot" aria-hidden="true"></div>
-      </div>
-    </section>
-
-
-    <!-- ─── 7. FAQ ───────────────────────────────────── -->
+    <!-- ─── 9. FAQ ───────────────────────────────────── -->
     <section class="faq">
       <div class="mkt-container faq__grid">
         <div class="faq__head">
-          <span class="eyebrow">FAQ</span>
-          <h2 class="h2">Got questions?<br>We've got answers.</h2>
+          <span class="kicker">FAQ</span>
+          <h2 class="h2 h2--underline h2--underline-left">Got questions?<br>We've got answers.</h2>
           <p>
             Can't find what you're looking for?
-            <NuxtLink to="/contact">Reach out directly →</NuxtLink>
+            <a href="mailto:codecvinfo@gmail.com">Reach out directly →</a>
           </p>
         </div>
 
@@ -389,10 +408,10 @@
     </section>
 
 
-    <!-- ─── 8. FINAL CTA ─────────────────────────────── -->
+    <!-- ─── 10. FINAL CTA ────────────────────────────── -->
     <section class="cta-final">
       <div class="mkt-container cta-final__inner">
-        <span class="eyebrow eyebrow--light">READY TO START?</span>
+        <span class="kicker kicker--em-bright">Ready to start?</span>
         <h2 class="h2 h2--light">Advance your IT career today.</h2>
         <p>Join 200+ IT professionals who've found their next role with CODECV.</p>
         <div class="row-cta row-cta--center">
@@ -405,21 +424,23 @@
   </NuxtLayout>
 </template>
 
+<script lang="ts">
+import { WORLD_CITIES, WORLD_DOTS, WORLD_DOT_RADIUS, WORLD_VIEWBOX } from '~/utils/world-map-data'
+
+/* Connection arcs from Dublin (first city) to every other hub — module
+   scope: the data is static, so it is computed once per app lifetime. */
+const HOME = WORLD_CITIES[0]!
+const MAP_ARCS = WORLD_CITIES.slice(1).map((c) => {
+  const cx = (HOME.x + c.x) / 2
+  const cy = Math.min(HOME.y, c.y) - Math.abs(c.x - HOME.x) * 0.2
+  return `M${HOME.x} ${HOME.y} Q ${cx} ${cy} ${c.x} ${c.y}`
+})
+</script>
+
 <script setup lang="ts">
-import { h, reactive } from 'vue'
+import { h } from 'vue'
 
 definePageMeta({ layout: false })
-
-useHead({
-  link: [
-    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap',
-    },
-  ],
-})
 
 useSeoMeta({
   title: 'IT Career Coaching Platform for Ireland',
@@ -438,24 +459,80 @@ const metrics = [
 
 const logos = ['Stripe', 'Workday', 'Intercom', 'HubSpot', 'Salesforce', 'LinkedIn']
 
-/* === Tab icons === */
-const stroke = '#0F172A'
-const IconDoc = () => h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none' }, [
-  h('path', { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', stroke, 'stroke-width': 1.8, 'stroke-linejoin': 'round' }),
-  h('path', { d: 'M14 2v6h6M8 13h8M8 17h5', stroke, 'stroke-width': 1.8, 'stroke-linecap': 'round' }),
+/* === Icons (stroke follows currentColor so CSS owns the palette) === */
+const iw = { viewBox: '0 0 24 24', width: 26, height: 26, fill: 'none' }
+const sw = { stroke: 'currentColor', 'stroke-width': 1.7, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' } as const
+
+const IconDoc = () => h('svg', iw, [
+  h('path', { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', ...sw }),
+  h('path', { d: 'M14 2v6h6M8 13h8M8 17h5', ...sw }),
 ])
-const IconChat = () => h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none' }, [
-  h('path', { d: 'M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z', stroke, 'stroke-width': 1.8, 'stroke-linejoin': 'round' }),
+const IconChat = () => h('svg', iw, [
+  h('path', { d: 'M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z', ...sw }),
 ])
-const IconRoad = () => h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none' }, [
-  h('path', { d: 'M3 6h10M3 12h14M3 18h7', stroke, 'stroke-width': 1.8, 'stroke-linecap': 'round' }),
-  h('circle', { cx: 19, cy: 6, r: 2, stroke, 'stroke-width': 1.8 }),
+const IconRoad = () => h('svg', iw, [
+  h('path', { d: 'M3 6h10M3 12h14M3 18h7', ...sw }),
+  h('circle', { cx: 19, cy: 6, r: 2, ...sw }),
 ])
-const IconBriefcase = () => h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none' }, [
-  h('rect', { x: 3, y: 7, width: 18, height: 13, rx: 2, stroke, 'stroke-width': 1.8 }),
-  h('path', { d: 'M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18', stroke, 'stroke-width': 1.8, 'stroke-linecap': 'round' }),
+const IconBriefcase = () => h('svg', iw, [
+  h('rect', { x: 3, y: 7, width: 18, height: 13, rx: 2, ...sw }),
+  h('path', { d: 'M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18', ...sw }),
+])
+const IconBolt = () => h('svg', iw, [
+  h('path', { d: 'M13 2L3 14h7l-1 8 10-12h-7l1-8z', ...sw }),
+])
+const IconShield = () => h('svg', iw, [
+  h('path', { d: 'M12 2l8 4v6c0 5-3.5 9.4-8 10-4.5-.6-8-5-8-10V6l8-4z', ...sw }),
+  h('path', { d: 'M9 12l2 2 4-4', ...sw }),
+])
+const IconCompass = () => h('svg', iw, [
+  h('circle', { cx: 12, cy: 12, r: 9, ...sw }),
+  h('path', { d: 'M16 8l-2 6-6 2 2-6 6-2z', ...sw }),
+])
+const IconCode = () => h('svg', iw, [
+  h('path', { d: 'M8 6l-6 6 6 6M16 6l6 6-6 6M13 4l-2 16', ...sw }),
+])
+const IconCloud = () => h('svg', iw, [
+  h('path', { d: 'M18 10a5 5 0 0 0-9.6-1.9A4.5 4.5 0 0 0 6.5 17H18a3.5 3.5 0 0 0 0-7z', ...sw }),
+])
+const IconChart = () => h('svg', iw, [
+  h('path', { d: 'M4 20V10M10 20V4M16 20v-8M21 20H3', ...sw }),
+])
+const IconUsers = () => h('svg', iw, [
+  h('circle', { cx: 9, cy: 8, r: 3.5, ...sw }),
+  h('path', { d: 'M2.5 20a6.5 6.5 0 0 1 13 0M16 5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4.5-6.2', ...sw }),
+])
+const IconBug = () => h('svg', iw, [
+  h('circle', { cx: 12, cy: 13, r: 5, ...sw }),
+  h('path', { d: 'M12 8V5M8.5 9L6 6.5M15.5 9L18 6.5M7 13H4M20 13h-3M8.5 17L6 19.5M15.5 17L18 19.5', ...sw }),
 ])
 
+/* === Service cards (NorthWest-style row) === */
+const serviceCards = [
+  { icon: IconBolt,    kicker: 'Career Service',   title: 'AI-powered CV review', desc: 'Instant ATS scoring and keyword analysis tuned for the Irish tech market.', to: '/about' },
+  { icon: IconShield,  kicker: 'Coaching Service', title: 'Verified placements',  desc: 'Every coach we work with has placed engineers at Dublin firms in the last 12 months.', to: '/about' },
+  { icon: IconCompass, kicker: 'Guidance Service', title: 'Career direction',     desc: 'Personalised guidance from where you are now to where you want to be in 12 months.', to: '/about' },
+]
+
+/* === Specialisations (icon grid) === */
+const specialisations = [
+  { icon: IconCode,   title: 'Software Engineering',   desc: 'Backend, full-stack, and platform engineers levelling up to senior roles.' },
+  { icon: IconCloud,  title: 'DevOps & Cloud',         desc: 'AWS, Kubernetes, and platform teams — the most in-demand skills in Dublin.' },
+  { icon: IconChart,  title: 'Data & Analytics',       desc: 'Data engineers and analysts moving into high-impact product teams.' },
+  { icon: IconBug,    title: 'QA & Testing',           desc: 'Automation engineers making the jump from manual testing to SDET roles.' },
+  { icon: IconRoad,   title: 'Career Switchers',       desc: 'Professionals transitioning into tech through structured learning paths.' },
+  { icon: IconUsers,  title: 'Engineering Leadership', desc: 'Senior engineers preparing for tech lead and engineering manager roles.' },
+]
+
+/* === Counters band === */
+const counters = [
+  { val: '200+', label: 'Professionals Coached' },
+  { val: '92%',  label: 'Placement Rate' },
+  { val: '12+',  label: 'Countries Served' },
+  { val: '4.9',  label: 'Client Rating' },
+]
+
+/* === Feature tabs === */
 const tabs = [
   {
     title: 'CV Writing',
@@ -501,116 +578,46 @@ const tabs = [
 const activeTab = ref(0)
 const activeTabData = computed(() => tabs[activeTab.value])
 
-/* === Evervault cards === */
-const IconBolt = () => h('svg', { viewBox: '0 0 24 24', width: 22, height: 22, fill: 'none' }, [
-  h('path', { d: 'M13 2L3 14h7l-1 8 10-12h-7l1-8z', stroke: '#059669', 'stroke-width': 1.8, 'stroke-linejoin': 'round' }),
-])
-const IconShield = () => h('svg', { viewBox: '0 0 24 24', width: 22, height: 22, fill: 'none' }, [
-  h('path', { d: 'M12 2l8 4v6c0 5-3.5 9.4-8 10-4.5-.6-8-5-8-10V6l8-4z', stroke: '#059669', 'stroke-width': 1.8, 'stroke-linejoin': 'round' }),
-  h('path', { d: 'M9 12l2 2 4-4', stroke: '#059669', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-])
-const IconCompass = () => h('svg', { viewBox: '0 0 24 24', width: 22, height: 22, fill: 'none' }, [
-  h('circle', { cx: 12, cy: 12, r: 9, stroke: '#059669', 'stroke-width': 1.8 }),
-  h('path', { d: 'M16 8l-2 6-6 2 2-6 6-2z', stroke: '#059669', 'stroke-width': 1.8, 'stroke-linejoin': 'round' }),
-])
-
-const vaultCards = [
-  { icon: IconBolt,    title: 'AI-powered CV review', desc: 'Instant ATS scoring and keyword analysis tuned for the Irish tech market.' },
-  { icon: IconShield,  title: 'Verified placements',  desc: 'Every coach we work with has placed engineers at Dublin firms in the last 12 months.' },
-  { icon: IconCompass, title: 'Career direction',     desc: 'Personalised guidance from where you are now to where you want to be in 12 months.' },
+/* === Testimonials — rotating quote on the emerald band === */
+const quotes = [
+  { text: 'CODECV helped me land a senior developer role in Dublin within 3 months. The CV rewrite was a complete game-changer.', author: 'Tomasz K.', role: 'Senior Java Developer', img: '/images/review-author-1.jpg' },
+  { text: 'I was stuck for years. CODECV got me into a tech lead role in four months — start to finish.', author: 'Ciara M.', role: 'Tech Lead', img: '/images/review-author-4.jpg' },
+  { text: 'Worth every euro. My CV went from getting rejected to getting 7 callbacks in the first week.', author: 'Patrick D.', role: 'Backend Engineer', img: '/images/review-author-3.jpg' },
+  { text: 'Mock interviews with senior engineers were brutal but exactly what I needed before going for FAANG.', author: 'Daniel R.', role: 'Software Engineer · Google', img: '/images/review-author-1.jpg' },
+  { text: 'The structured learning path gave me a clear roadmap. I went from junior to mid-level engineer in 6 months.', author: 'Maria S.', role: 'Software Engineer', img: '/images/review-author-2.jpg' },
+  { text: 'Coaches who actually work in the Irish market. Their advice was specific, not generic LinkedIn fluff.', author: 'Aoife N.', role: 'Data Engineer', img: '/images/review-author-4.jpg' },
+  { text: 'My consultant knew exactly which Dublin firms were hiring and helped me tailor every application.', author: 'Arun P.', role: 'Cloud Engineer', img: '/images/review-author-3.jpg' },
+  { text: 'The platform tracks every step. I always knew exactly what to do next, no more drifting.', author: 'Sofia L.', role: 'Frontend Engineer', img: '/images/review-author-2.jpg' },
+  { text: 'The salary negotiation playbook alone paid for the entire programme three times over.', author: 'Liam O.', role: 'Senior DevOps Engineer', img: '/images/review-author-1.jpg' },
 ]
-const vaultPos = reactive(vaultCards.map(() => ({ x: 0, y: 0, lit: 0 })))
-function onVaultMove(e: MouseEvent, i: number) {
-  const pos = vaultPos[i]
-  if (!pos) return
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  pos.x = e.clientX - rect.left
-  pos.y = e.clientY - rect.top
-  pos.lit = 1
-}
-function onVaultLeave(i: number) {
-  const pos = vaultPos[i]
-  if (pos) pos.lit = 0
-}
+const quoteIndex = ref(0)
+const activeQuote = computed(() => quotes[quoteIndex.value]!)
+function nextQuote() { quoteIndex.value = (quoteIndex.value + 1) % quotes.length }
+function prevQuote() { quoteIndex.value = (quoteIndex.value - 1 + quotes.length) % quotes.length }
 
-/* === World map === */
-const cities = [
-  { name: 'Dublin',   x: 470, y: 165 },
-  { name: 'London',   x: 490, y: 180 },
-  { name: 'Berlin',   x: 545, y: 175 },
-  { name: 'New York', x: 245, y: 200 },
-  { name: 'Tokyo',    x: 845, y: 215 },
-  { name: 'Sydney',   x: 875, y: 380 },
-]
-// Arcs Dublin → each other city
-const arcs = computed(() =>
-  cities.slice(1).map(c => {
-    const x1 = 470, y1 = 165, x2 = c.x, y2 = c.y
-    const cx = (x1 + x2) / 2
-    const cy = Math.min(y1, y2) - Math.abs(x2 - x1) * 0.25
-    return `M${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`
-  })
-)
-// Stylised dotted world map (clusters approximating continents).
-// Generated with a seeded PRNG so the dot positions are identical on the
-// server and the client — otherwise Vue would log a hydration mismatch
-// and the map would jump on hydrate.
-const mapDots = (() => {
-  let seed = 0x9E3779B1
-  const rand = () => {
-    seed = (seed + 0x6D2B79F5) | 0
-    let t = seed
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-  const dots: number[][] = []
-  const blobs: Array<[number, number, number, number, number]> = [
-    // [cx, cy, w, h, density]
-    [120, 150, 200, 90, 12],  // North America
-    [255, 320,  60, 130, 7],  // South America
-    [490, 170,  80,  50, 7],  // Europe
-    [540, 290,  80, 140, 9],  // Africa
-    [720, 200, 220,  90, 14], // Asia
-    [860, 370,  70,  50, 6],  // Australia
-  ]
-  for (const [cx, cy, w, h2, n] of blobs) {
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < (n - 2); j++) {
-        const x = cx + (rand() - 0.5) * w
-        const y = cy + (rand() - 0.5) * h2
-        const dx = (x - cx) / (w / 2)
-        const dy = (y - cy) / (h2 / 2)
-        if (dx * dx + dy * dy <= 1.05) dots.push([Math.round(x), Math.round(y)])
-      }
-    }
-  }
-  return dots
-})()
+let quoteTimer: ReturnType<typeof setInterval> | null = null
+function resumeQuotes() {
+  if (quoteTimer) return
+  quoteTimer = setInterval(nextQuote, 7000)
+}
+function pauseQuotes() {
+  if (quoteTimer) { clearInterval(quoteTimer); quoteTimer = null }
+}
+function onBandPointerEnter(e: PointerEvent) { if (e.pointerType === 'mouse') pauseQuotes() }
+function onBandPointerLeave(e: PointerEvent) { if (e.pointerType === 'mouse') resumeQuotes() }
+
+onMounted(resumeQuotes)
+onUnmounted(pauseQuotes)
+
+/* === World map (real geography — see app/utils/world-map-data.ts) === */
+const cities = WORLD_CITIES
+const arcs = MAP_ARCS
+const mapDots = WORLD_DOTS
 
 const globeStats = [
   { val: '12+', label: 'Countries served' },
   { val: '200+', label: 'Placements globally' },
   { val: '24/7', label: 'Consultant support' },
-]
-
-/* === Testimonials (3 columns) === */
-const testiCols = [
-  [
-    { text: 'CODECV helped me land a senior developer role in Dublin within 3 months. The CV rewrite was a complete game-changer.', author: 'Tomasz K.', role: 'Senior Java Developer', img: '/images/review-author-1.jpg' },
-    { text: 'The structured learning path gave me a clear roadmap. I went from junior to mid-level engineer in 6 months.', author: 'Maria S.', role: 'Software Engineer', img: '/images/review-author-2.jpg' },
-    { text: 'My consultant knew exactly which Dublin firms were hiring and helped me tailor every application.', author: 'Arun P.', role: 'Cloud Engineer', img: '/images/review-author-3.jpg' },
-  ],
-  [
-    { text: 'I was stuck for years. CODECV got me into a tech lead role in four months — start to finish.', author: 'Ciara M.', role: 'Tech Lead', img: '/images/review-author-4.jpg' },
-    { text: 'Mock interviews with senior engineers were brutal but exactly what I needed before going for FAANG.', author: 'Daniel R.', role: 'Software Engineer · Google', img: '/images/review-author-1.jpg' },
-    { text: 'The platform tracks every step. I always knew exactly what to do next, no more drifting.', author: 'Sofia L.', role: 'Frontend Engineer', img: '/images/review-author-2.jpg' },
-  ],
-  [
-    { text: 'Worth every euro. My CV went from getting rejected to getting 7 callbacks in the first week.', author: 'Patrick D.', role: 'Backend Engineer', img: '/images/review-author-3.jpg' },
-    { text: 'Coaches who actually work in the Irish market. Their advice was specific, not generic LinkedIn fluff.', author: 'Aoife N.', role: 'Data Engineer', img: '/images/review-author-4.jpg' },
-    { text: 'The salary negotiation playbook alone paid for the entire programme three times over.', author: 'Liam O.', role: 'Senior DevOps Engineer', img: '/images/review-author-1.jpg' },
-  ],
 ]
 
 /* === FAQ === */
@@ -628,17 +635,16 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 
 <style scoped>
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  DESIGN TOKENS — defined on every section root so they cascade   ║
-   ║  to children. (Vue scoped CSS rewrites :root so we can't use it.) ║
+   ║  DESIGN TOKENS — defined on every section root so they cascade.  ║
+   ║  (Vue scoped CSS rewrites :root so we can't use it.)             ║
    ╚══════════════════════════════════════════════════════════════════╝ */
-.hero, .logos, .features, .vault, .globe, .testi, .faq, .cta-final {
+.hero, .scards, .logos, .igrid, .counters, .features, .tband, .globe, .faq, .cta-final {
   /* Color */
   --em:       #059669;
   --em-2:     #047857;
   --em-3:     #064E3B;
   --em-soft:  #D1FAE5;
   --em-ring:  #A7F3D0;
-  --em-ring-2:#6EE7B7;
   --em-bright:#34D399;
   --ink:      #0F172A;
   --ink-2:    #1E293B;
@@ -652,111 +658,128 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   --bg-mute:  #F1F5F9;
   /* Spacing */
   --pad-sec:  clamp(72px, 9vw, 112px);
-  /* Radius */
-  --r-sm:     10px;
-  --r-md:     16px;
-  --r-lg:     24px;
-  --r-xl:     32px;
+  /* Radius — corporate: subtle, not pill */
+  --r-sm:     4px;
+  --r-md:     6px;
+  --r-lg:     8px;
   /* Shadow */
-  --s-sm:     0 2px 8px rgba(15, 23, 42, 0.06);
-  --s-md:     0 8px 24px rgba(15, 23, 42, 0.08);
+  --s-sm:     0 2px 10px rgba(15, 23, 42, 0.06);
+  --s-md:     0 14px 40px rgba(15, 23, 42, 0.10);
   --s-lg:     0 20px 50px rgba(15, 23, 42, 0.14);
 
-  font-family: 'Inter', sans-serif;
-  color: #0F172A;
+  font-family: var(--ff, 'Poppins', sans-serif);
+  color: #17212B;
 }
 
-/* ── TYPE SYSTEM (cohesive across the page) ────────────────────────── */
+/* ── TYPE SYSTEM ───────────────────────────────────────────────────── */
 .h1, .h2, .h3 {
-  font-family: 'Manrope', 'Inter', sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: var(--ink);
   margin: 0;
 }
 .h1 {
-  font-size: clamp(2.4rem, 4.4vw, 3.9rem);
-  line-height: 1.05;
+  font-size: clamp(2.3rem, 4.2vw, 3.6rem);
+  line-height: 1.12;
 }
 .h1__em { color: var(--em); }
 .h2 {
-  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
-  line-height: 1.12;
+  font-size: clamp(1.7rem, 3.1vw, 2.4rem);
+  line-height: 1.22;
 }
 .h2--light { color: #fff; }
+/* NorthWest motif: short green underline bar below the heading */
+.h2--underline {
+  position: relative;
+  padding-bottom: 22px;
+}
+.h2--underline::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: 54px; height: 3px;
+  background: var(--em);
+}
+.h2--underline-light::after { background: #fff; }
+.h2--underline-left { padding-bottom: 22px; }
+.h2--underline-left::after { left: 0; transform: none; }
 .h3 {
-  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  font-size: clamp(1.25rem, 1.9vw, 1.55rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .lead {
   font-size: 1.02rem;
-  line-height: 1.72;
+  line-height: 1.78;
   color: var(--slate);
   margin: 0;
-  max-width: 460px;
+  max-width: 470px;
+  font-weight: 400;
 }
-.eyebrow {
+.kicker {
   display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--em);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--muted);
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
-.eyebrow--light { color: var(--em-ring); }
+.kicker--em { color: var(--em); }
+.kicker--em-bright { color: var(--em-ring); }
+.kicker--light { color: rgba(255, 255, 255, 0.8); }
 .sec-sub {
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: 0.98rem;
+  line-height: 1.75;
   color: var(--muted);
   max-width: 560px;
-  margin: 16px auto 0;
+  margin: 20px auto 0;
 }
 .sec-sub--light { color: rgba(255, 255, 255, 0.65); }
 
-.sec-head { margin-bottom: 48px; }
-.sec-head--center { text-align: center; }
-.sec-head--center .h2 { margin-left: auto; margin-right: auto; }
+.sec-head { text-align: center; margin-bottom: 52px; }
+.sec-head .h2 { margin-left: auto; margin-right: auto; }
 
-/* ── BUTTONS ───────────────────────────────────────────────────────── */
+/* ── BUTTONS — rectangular, uppercase, consulting style ────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 13px 24px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.92rem;
+  padding: 13px 28px;
+  font-size: 0.82rem;
   font-weight: 600;
-  border-radius: 100px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 3px;
   text-decoration: none;
-  border: none;
+  border: 2px solid transparent;
   cursor: pointer;
   transition: background 0.2s, color 0.2s, transform 0.18s, box-shadow 0.2s, border-color 0.2s;
   white-space: nowrap;
+  font-family: inherit;
 }
-.btn--em { background: var(--em); color: #fff; }
-.btn--em:hover { background: var(--em-2); transform: translateY(-2px); box-shadow: 0 12px 26px rgba(5, 150, 105, 0.32); }
+.btn--em { background: var(--em); color: #fff; border-color: var(--em); }
+.btn--em:hover { background: var(--em-2); border-color: var(--em-2); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(5, 150, 105, 0.3); }
 .btn--ghost {
   background: transparent;
   color: var(--ink);
-  border: 1.5px solid var(--border-2);
+  border-color: var(--border-2);
 }
 .btn--ghost:hover { border-color: var(--ink); background: var(--bg-soft); }
 .btn--ghost-light {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
 }
-.btn--ghost-light:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.55); }
+.btn--ghost-light:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.6); }
 .btn--em-soft {
   background: var(--em-soft);
   color: var(--em-2);
 }
 .btn--em-soft:hover { background: var(--em-ring); }
-.btn--lg { padding: 16px 32px; font-size: 0.98rem; }
+.btn--lg { padding: 16px 36px; font-size: 0.86rem; }
 
 .row-cta {
   display: flex;
@@ -768,11 +791,11 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 .row-cta--center { justify-content: center; margin-bottom: 0; }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  1. HERO                                                         ║
+   ║  1. HERO (original splite-style composition)                     ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 .hero {
   position: relative;
-  padding: clamp(80px, 8vw, 120px) 0 var(--pad-sec);
+  padding: clamp(48px, 6vw, 88px) 0 40px;
   background: var(--bg);
   overflow: hidden;
 }
@@ -813,7 +836,7 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   font-size: 0.78rem;
   font-weight: 600;
   padding: 8px 14px;
-  border-radius: 100px;
+  border-radius: 3px;
   margin-bottom: 28px;
 }
 .pill-badge__dot {
@@ -840,7 +863,6 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 .metric { display: flex; flex-direction: column; gap: 4px; }
 .metric strong {
-  font-family: 'Manrope', sans-serif;
   font-size: 1.55rem;
   font-weight: 700;
   color: var(--ink);
@@ -853,13 +875,13 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   font-weight: 500;
 }
 
-/* Hero right column — dark composition card (New Relic style) */
+/* Hero right column — chart composition */
 .hero__right {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 700px;
+  min-height: 640px;
 }
 
 .comp {
@@ -917,13 +939,80 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 .comp__hex svg { width: 100%; height: auto; display: block; }
 
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  2. SERVICE CARDS (NorthWest row)                                 ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+.scards {
+  position: relative;
+  z-index: 2;
+  padding: 24px 0 var(--pad-sec);
+  background: var(--bg);
+}
+.scards__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.scard {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--s-sm);
+  padding: 36px 32px 32px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.scard:hover { transform: translateY(-5px); box-shadow: var(--s-md); }
+.scard__icon {
+  display: inline-flex;
+  color: var(--ink);
+  margin-bottom: 22px;
+  transition: color 0.25s;
+}
+.scard:hover .scard__icon { color: var(--em); }
+.scard__kicker {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.scard__title {
+  font-size: 1.14rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+  transition: color 0.25s;
+}
+.scard:hover .scard__title { color: var(--em); }
+.scard__desc {
+  font-size: 0.92rem;
+  line-height: 1.72;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.scard__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.2s, gap 0.2s;
+}
+.scard__more svg { color: var(--em); }
+.scard__more:hover { color: var(--em); gap: 12px; }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  2. LOGO CLOUD                                                   ║
+   ║  3. LOGO CLOUD                                                    ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 .logos {
-  padding: 56px 0;
-  background: var(--bg);
+  padding: 52px 0;
+  background: var(--bg-soft);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -943,9 +1032,8 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   flex-wrap: wrap;
 }
 .logos__item {
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: 1.35rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--muted-2);
   opacity: 0.75;
@@ -954,7 +1042,92 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 .logos__item:hover { opacity: 1; color: var(--ink); }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  3. FEATURE TABS                                                 ║
+   ║  4. SPECIALISATIONS (icon grid)                                   ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+.igrid { padding: var(--pad-sec) 0; background: var(--bg); }
+.igrid__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(36px, 4vw, 56px) clamp(32px, 4vw, 56px);
+}
+.igrid__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.igrid__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px; height: 58px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-md);
+  color: var(--ink);
+  transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.25s;
+}
+.igrid__item:hover .igrid__icon {
+  background: var(--em);
+  border-color: var(--em);
+  color: #fff;
+  transform: translateY(-3px);
+}
+.igrid__item h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 4px 0 8px;
+  line-height: 1.35;
+}
+.igrid__item p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  5. COUNTERS BAND (emerald)                                       ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+.counters {
+  position: relative;
+  background: var(--em);
+  padding: clamp(52px, 6vw, 72px) 0;
+  overflow: hidden;
+}
+.counters__pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(90deg, transparent, #000 40%, #000 60%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%, #000 60%, transparent);
+  pointer-events: none;
+}
+.counters__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+.counters__item strong {
+  display: block;
+  font-size: clamp(2.1rem, 3.6vw, 2.9rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.counters__item span {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  6. FEATURE TABS                                                  ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 .features {
   padding: var(--pad-sec) 0;
@@ -966,37 +1139,33 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 48px;
-  padding: 6px;
-  background: var(--bg-soft);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 44px;
 }
 .tab-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  border: none;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--slate);
-  padding: 10px 20px;
-  border-radius: 100px;
+  padding: 11px 20px;
+  border-radius: 3px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  font-family: inherit;
 }
-.tab-btn:hover { color: var(--ink); }
-.tab-btn--active {
-  background: #fff;
-  color: var(--ink);
-  box-shadow: var(--s-sm);
+.tab-btn:hover { color: var(--ink); border-color: var(--border-2); }
+.tab-btn--active,
+.tab-btn--active:hover {
+  background: var(--em);
+  border-color: var(--em);
+  color: #fff;
 }
-.tab-btn :deep(svg path) { transition: stroke 0.2s; }
+.tab-btn--active :deep(svg path),
+.tab-btn--active :deep(svg circle),
+.tab-btn--active :deep(svg rect) { stroke: #fff; }
 
 .tabs__panel {
   display: grid;
@@ -1009,12 +1178,12 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   padding: clamp(28px, 4vw, 56px);
 }
 .tabs__panel-text > p {
-  font-size: 1rem;
-  line-height: 1.72;
+  font-size: 0.98rem;
+  line-height: 1.75;
   color: var(--slate);
   margin: 16px 0 24px;
 }
-.tabs__panel-text .eyebrow { margin-bottom: 12px; }
+.tabs__panel-text .kicker { margin-bottom: 10px; }
 .check-list {
   list-style: none;
   padding: 0;
@@ -1052,91 +1221,88 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  4. EVERVAULT CARDS                                              ║
+   ║  7. TESTIMONIAL BAND (emerald)                                    ║
    ╚══════════════════════════════════════════════════════════════════╝ */
-.vault {
-  padding: var(--pad-sec) 0;
-  background: var(--bg-soft);
-}
-.vault__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-.evercard {
+.tband {
   position: relative;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 32px 28px;
-  min-height: 260px;
+  background: var(--em);
+  padding: clamp(64px, 8vw, 96px) 0;
   overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
-.evercard:hover { transform: translateY(-3px); box-shadow: var(--s-md); border-color: var(--em-ring); }
-
-/* Animated grid pattern revealed by cursor (evervault effect) */
-.evercard__pattern {
+.tband__pattern {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(0deg, transparent 23%, rgba(5,150,105,0.32) 24%, rgba(5,150,105,0.32) 26%, transparent 27%),
-    linear-gradient(90deg, transparent 23%, rgba(5,150,105,0.32) 24%, rgba(5,150,105,0.32) 26%, transparent 27%);
-  background-size: 24px 24px;
-  opacity: var(--lit, 0);
-  -webkit-mask-image: radial-gradient(circle 160px at var(--x, -100px) var(--y, -100px), #000 0%, rgba(0,0,0,0.4) 30%, transparent 75%);
-          mask-image: radial-gradient(circle 160px at var(--x, -100px) var(--y, -100px), #000 0%, rgba(0,0,0,0.4) 30%, transparent 75%);
-  transition: opacity 0.18s ease;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(180deg, #000, transparent 55%);
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 55%);
   pointer-events: none;
 }
-.evercard__cross {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  pointer-events: none;
+.tband__inner {
+  position: relative;
+  text-align: center;
+  max-width: 820px;
 }
-.evercard__cross::before,
-.evercard__cross::after {
-  content: '';
-  position: absolute;
-  background: var(--em);
-}
-.evercard__cross::before { width: 100%; height: 1px; top: 50%; left: 0; }
-.evercard__cross::after  { width: 1px; height: 100%; top: 0; left: 50%; }
-.evercard__cross--tl { top: -4px; left: -4px; }
-.evercard__cross--tr { top: -4px; right: -4px; }
-.evercard__cross--bl { bottom: -4px; left: -4px; }
-.evercard__cross--br { bottom: -4px; right: -4px; }
+.tband .h2 { margin-bottom: 40px; }
 
-.evercard__content { position: relative; z-index: 1; }
-.evercard__icon {
-  width: 48px;
-  height: 48px;
-  background: var(--em-soft);
-  border-radius: var(--r-sm);
+.tband__quote { margin: 0; }
+.tband__text {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.65;
+  color: #fff;
+  margin: 0 auto 30px;
+  max-width: 720px;
+}
+.tband__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.tband__avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+}
+.tband__foot strong { color: #fff; font-size: 0.98rem; font-weight: 700; }
+.tband__foot span { color: rgba(255, 255, 255, 0.75); font-size: 0.82rem; }
+
+.tband__nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  gap: 18px;
+  margin-top: 34px;
 }
-.evercard h3 {
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--ink);
-  margin: 0 0 10px;
-  letter-spacing: -0.01em;
+.tband__nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px; height: 42px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
-.evercard p {
-  font-size: 0.92rem;
-  line-height: 1.72;
-  color: var(--muted);
-  margin: 0;
+.tband__nav button:hover { background: rgba(255, 255, 255, 0.14); border-color: #fff; }
+.tband__index {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
 }
 
+.qfade-enter-active, .qfade-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
+.qfade-enter-from { opacity: 0; transform: translateY(12px); }
+.qfade-leave-to { opacity: 0; transform: translateY(-8px); }
+
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  5. WORLD MAP                                                    ║
+   ║  8. WORLD MAP                                                     ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 .globe {
   padding: var(--pad-sec) 0;
@@ -1154,15 +1320,10 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
     radial-gradient(ellipse at 70% 70%, rgba(52, 211, 153, 0.14) 0%, transparent 55%);
   pointer-events: none;
 }
-.globe .h2,
-.globe .h2--light { color: #fff; }
-.globe .eyebrow { color: #A7F3D0; }
-.globe .sec-sub { color: rgba(255, 255, 255, 0.65); }
+.globe .mkt-container { position: relative; z-index: 1; }
+.globe .h2 { color: #fff; }
 
-.globe__wrap {
-  position: relative;
-  z-index: 1;
-}
+.globe__wrap { position: relative; z-index: 1; }
 .globe__svg {
   width: 100%;
   height: auto;
@@ -1170,15 +1331,13 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   display: block;
 }
 .globe__dots circle { fill: rgba(255, 255, 255, 0.55); }
-.globe__arcs path {
-  animation: dash-flow 4s linear infinite;
-}
+.globe__arcs path { animation: dash-flow 4s linear infinite; }
 @keyframes dash-flow {
   to { stroke-dashoffset: -16; }
 }
 .globe__labels text {
   fill: rgba(255, 255, 255, 0.7);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--ff, 'Poppins', sans-serif);
   font-size: 12px;
   font-weight: 600;
 }
@@ -1193,9 +1352,8 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 .globe__stat strong {
   display: block;
-  font-family: 'Manrope', sans-serif;
   font-size: clamp(1.8rem, 3vw, 2.4rem);
-  font-weight: 800;
+  font-weight: 700;
   color: #fff;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -1207,94 +1365,7 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  6. TESTIMONIALS COLUMNS                                         ║
-   ╚══════════════════════════════════════════════════════════════════╝ */
-.testi {
-  padding: var(--pad-sec) 0;
-  background: var(--bg);
-  position: relative;
-  overflow: hidden;
-}
-.testi__cols {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-height: 560px;
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
-}
-.testi__col {
-  display: flex;
-  flex-direction: column;
-}
-.testi__col-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  animation: scroll-up 38s linear infinite;
-}
-.testi__col--1 .testi__col-inner { animation: scroll-down 44s linear infinite; }
-.testi__col--2 .testi__col-inner { animation: scroll-up 50s linear infinite; }
-@keyframes scroll-up {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-50%); }
-}
-@keyframes scroll-down {
-  from { transform: translateY(-50%); }
-  to   { transform: translateY(0); }
-}
-
-.tcard {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 24px;
-  box-shadow: var(--s-sm);
-}
-.tcard__stars {
-  color: var(--em);
-  font-size: 0.9rem;
-  letter-spacing: 0.1em;
-  margin-bottom: 14px;
-}
-.tcard__text {
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.92rem;
-  line-height: 1.65;
-  color: var(--ink-2);
-  margin: 0 0 18px;
-  font-weight: 500;
-}
-.tcard__foot {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-}
-.tcard__foot img {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--border);
-}
-.tcard__foot strong {
-  display: block;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ink);
-}
-.tcard__foot span {
-  display: block;
-  font-size: 0.74rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-/* ╔══════════════════════════════════════════════════════════════════╗
-   ║  7. FAQ                                                          ║
+   ║  9. FAQ                                                           ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 .faq {
   padding: var(--pad-sec) 0;
@@ -1311,7 +1382,7 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   font-size: 0.95rem;
   color: var(--muted);
   line-height: 1.7;
-  margin: 0;
+  margin: 12px 0 0;
 }
 .faq__head a {
   color: var(--em);
@@ -1339,14 +1410,14 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   gap: 20px;
   background: transparent;
   border: none;
-  padding: 20px 24px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 1rem;
+  padding: 19px 24px;
+  font-size: 0.98rem;
   font-weight: 600;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
   letter-spacing: -0.01em;
+  font-family: inherit;
 }
 .faq__chev {
   display: inline-flex;
@@ -1354,7 +1425,7 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--bg-soft);
   color: var(--ink);
   flex-shrink: 0;
@@ -1367,13 +1438,13 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 .faq__a {
   padding: 0 24px 22px;
-  font-size: 0.94rem;
+  font-size: 0.93rem;
   line-height: 1.72;
   color: var(--slate);
 }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  8. FINAL CTA                                                    ║
+   ║  10. FINAL CTA                                                    ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 .cta-final {
   padding: var(--pad-sec) 0;
@@ -1382,9 +1453,6 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   position: relative;
   overflow: hidden;
 }
-.cta-final .h2,
-.cta-final .h2--light { color: #fff; }
-.cta-final .eyebrow { color: #A7F3D0; }
 .cta-final::before {
   content: '';
   position: absolute;
@@ -1399,42 +1467,38 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 20px;
+  gap: 18px;
 }
-.cta-final__inner .h2 { margin: 8px 0 8px; }
 .cta-final p {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.65);
-  margin: 0 0 16px;
+  margin: 0 0 14px;
   max-width: 520px;
 }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
-   ║  RESPONSIVE                                                      ║
+   ║  RESPONSIVE                                                       ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 @media (max-width: 1024px) {
   .hero__inner { grid-template-columns: 1fr; gap: 56px; }
   .hero__right { min-height: auto; }
-
+  .scards__grid { grid-template-columns: 1fr; }
+  .igrid__grid { grid-template-columns: 1fr 1fr; }
+  .counters__grid { grid-template-columns: 1fr 1fr; gap: 40px 24px; }
   .tabs__panel { grid-template-columns: 1fr; gap: 36px; }
-  .vault__grid { grid-template-columns: 1fr 1fr; }
-  .testi__cols { grid-template-columns: 1fr 1fr; max-height: 480px; }
   .faq__grid { grid-template-columns: 1fr; gap: 36px; }
 }
 
 @media (max-width: 768px) {
   .hero__metrics { gap: 18px; flex-wrap: wrap; }
-
+  .igrid__grid { grid-template-columns: 1fr; }
   .tabs__nav { flex-wrap: wrap; }
-  .vault__grid { grid-template-columns: 1fr; }
-  .testi__cols { grid-template-columns: 1fr; max-height: 600px; }
-  .testi__col--2 { display: none; }
   .globe__stats { grid-template-columns: 1fr; gap: 18px; }
 }
 
 @media (max-width: 580px) {
-  .tabs__nav { padding: 4px; }
-  .tab-btn { padding: 8px 14px; font-size: 0.8rem; }
+  .tab-btn { padding: 9px 14px; font-size: 0.8rem; }
+  .counters__grid { grid-template-columns: 1fr; gap: 32px; }
   .row-cta { width: 100%; flex-direction: column; align-items: stretch; }
   .row-cta .btn { width: 100%; }
   .row-cta--center { flex-direction: row; }

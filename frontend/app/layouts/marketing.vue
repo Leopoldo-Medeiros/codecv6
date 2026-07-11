@@ -1,7 +1,32 @@
 <template>
   <div class="mkt">
+    <!-- TOP BAR (NorthWest-style contact strip) -->
+    <div class="mkt-topbar">
+      <div class="mkt-container mkt-topbar__inner">
+        <div class="mkt-topbar__contacts">
+          <a href="mailto:codecvinfo@gmail.com" class="mkt-topbar__item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.8"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            codecvinfo@gmail.com
+          </a>
+          <span class="mkt-topbar__item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            Call us: +353 89 405 0730
+          </span>
+        </div>
+        <div class="mkt-topbar__socials">
+          <span>Follow:</span>
+          <a href="https://www.linkedin.com/company/86762280" target="_blank" aria-label="LinkedIn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/codecv_info/" target="_blank" aria-label="Instagram">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <!-- HEADER -->
-    <header :class="['mkt-header', { 'mkt-header--scrolled': scrolled, 'mkt-header--dark': isDarkHero && !scrolled }]">
+    <header :class="['mkt-header', { 'mkt-header--scrolled': scrolled }]">
       <div class="mkt-container mkt-header__inner">
         <NuxtLink to="/" class="mkt-logo">
           <span class="mkt-logo__icon">
@@ -105,7 +130,7 @@
           </div>
 
           <div class="mkt-footer__col">
-            <h6 class="mkt-footer__col-title">Contact</h6>
+            <h6 class="mkt-footer__col-title">Get in Touch</h6>
             <ul class="mkt-footer__links">
               <li><a href="mailto:codecvinfo@gmail.com">codecvinfo@gmail.com</a></li>
               <li><span>+353 89 405 0730</span></li>
@@ -127,10 +152,6 @@
 const { isAuthenticated, logout } = useAuth()
 const mobileOpen = ref(false)
 const scrolled = ref(false)
-// Homepage now uses a light hero — keep the navbar in its light variant,
-// not the dark/transparent variant. Other routes can opt in via this flag
-// in future if needed.
-const isDarkHero = computed(() => false)
 
 // Force light color mode for every marketing page. The global default in
 // nuxt.config.ts is 'dark' (for the authenticated dashboard), which adds
@@ -144,7 +165,7 @@ useHead({
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
     },
   ],
 })
@@ -189,7 +210,9 @@ onMounted(() => {
 
 <style>
 /* ============================================================
-   CODECV MARKETING — Light Design System
+   CODECV MARKETING — Corporate Consulting Design System
+   (NorthWest-inspired: white surfaces, emerald accents, bold
+   geometric sans, kicker + underline section headers)
    ============================================================ */
 
 .mkt, .mkt *, .mkt *::before, .mkt *::after {
@@ -200,73 +223,108 @@ onMounted(() => {
 
 .mkt {
   --bg: #ffffff;
-  --bg-soft: #ECFDF5;
+  --bg-soft: #F8FAFC;
   --bg-card: #ffffff;
-  --border: rgba(0, 0, 0, 0.07);
-  --text: #111827;
-  --text-body: #374151;
-  --muted: #9ca3af;
+  --border: #E9EDF2;
+  --text: #17212B;
+  --text-body: #45505C;
+  --muted: #8B95A1;
+  --ink: #111A22;             /* top bar / dark sections */
   --accent: #059669;
   --accent-hover: #047857;
   --accent-light: rgba(5, 150, 105, 0.08);
   --accent-mid: rgba(5, 150, 105, 0.15);
   --accent-glow: rgba(5, 150, 105, 0.25);
-  --ff: 'Plus Jakarta Sans', sans-serif;
-  --radius-pill: 50px;
-  --radius-card: 16px;
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06);
+  --ff: 'Poppins', sans-serif;
+  --radius-btn: 3px;
+  --radius-card: 6px;
+  --shadow-sm: 0 2px 10px rgba(23, 33, 43, 0.06);
+  --shadow-md: 0 14px 40px rgba(23, 33, 43, 0.10);
 
   background: var(--bg);
   color: var(--text);
   font-family: var(--ff);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 15.5px;
+  line-height: 1.7;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Container */
 .mkt-container {
-  max-width: 1160px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 28px;
 }
 
-/* ===== BUTTONS ===== */
+/* ===== TOP BAR ===== */
+.mkt-topbar {
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12.5px;
+}
+.mkt-topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 38px;
+}
+.mkt-topbar__contacts { display: flex; align-items: center; gap: 24px; }
+.mkt-topbar__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.mkt-topbar__item:hover { color: #fff; }
+.mkt-topbar__item svg { color: var(--accent); }
+.mkt-topbar__socials { display: flex; align-items: center; gap: 12px; }
+.mkt-topbar__socials span { color: rgba(255, 255, 255, 0.5); }
+.mkt-topbar__socials a {
+  color: rgba(255, 255, 255, 0.65);
+  display: inline-flex;
+  transition: color 0.2s;
+}
+.mkt-topbar__socials a:hover { color: #fff; }
+
+/* ===== BUTTONS =====
+   Rectangular, bold, uppercase — consulting style. */
 .mkt-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 11px 24px;
-  border-radius: var(--radius-pill);
+  gap: 8px;
+  padding: 12px 26px;
+  border-radius: var(--radius-btn);
   font-family: var(--ff);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease;
   border: 2px solid transparent;
   white-space: nowrap;
-  letter-spacing: -0.01em;
 }
 .mkt-btn--primary {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
-  box-shadow: 0 4px 16px var(--accent-glow);
 }
 .mkt-btn--primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px var(--accent-glow);
+  box-shadow: 0 8px 20px var(--accent-glow);
 }
 .mkt-btn--outline {
   background: transparent;
   color: var(--accent);
-  border-color: rgba(5, 150, 105, 0.3);
+  border-color: rgba(5, 150, 105, 0.4);
 }
 .mkt-btn--outline:hover {
   background: var(--accent-light);
@@ -277,13 +335,10 @@ onMounted(() => {
   color: var(--text-body);
   border-color: transparent;
 }
-.mkt-btn--ghost:hover {
-  color: var(--accent);
-  background: var(--accent-light);
-}
+.mkt-btn--ghost:hover { color: var(--accent); }
 .mkt-btn--lg {
-  padding: 14px 32px;
-  font-size: 15px;
+  padding: 15px 34px;
+  font-size: 13.5px;
 }
 .mkt-btn--white {
   background: #fff;
@@ -291,46 +346,24 @@ onMounted(() => {
   border-color: #fff;
 }
 .mkt-btn--white:hover {
-  background: #f0edff;
+  background: transparent;
+  color: #fff;
+  border-color: #fff;
 }
 
 /* ===== HEADER ===== */
 .mkt-header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
+  position: sticky;
+  top: 0;
   z-index: 1000;
-  padding: 16px 24px;
-  transition: background 0.3s, box-shadow 0.3s;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 14px 0;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s, padding 0.3s;
 }
 .mkt-header--scrolled {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-  padding: 12px 24px;
-}
-
-/* Dark hero variant (homepage) — white text when transparent */
-.mkt-header--dark .mkt-logo__text { color: #fff; }
-.mkt-header--dark .mkt-nav__link { color: rgba(255,255,255,0.8); }
-.mkt-header--dark .mkt-nav__link:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.12);
-}
-.mkt-header--dark .mkt-nav__link.router-link-active {
-  color: #fff;
-  background: rgba(255,255,255,0.14);
-}
-.mkt-header--dark .mkt-btn--ghost {
-  color: rgba(255,255,255,0.85);
-}
-.mkt-header--dark .mkt-btn--ghost:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.12);
+  box-shadow: 0 6px 24px rgba(23, 33, 43, 0.08);
+  padding: 10px 0;
 }
 .mkt-header__inner {
   display: flex;
@@ -347,39 +380,48 @@ onMounted(() => {
   flex-shrink: 0;
 }
 .mkt-logo__text {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--text);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
-.mkt-logo__cv {
-  color: var(--accent);
-}
-.mkt-header--dark .mkt-logo__cv {
-  color: #a78bfa;
-}
+.mkt-logo__cv { color: var(--accent); }
 .mkt-logo--footer .mkt-logo__text { color: var(--text); }
 
 /* Nav */
 .mkt-nav {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 30px;
   flex: 1;
+  justify-content: center;
 }
 .mkt-nav__link {
-  color: var(--text-body);
+  position: relative;
+  color: var(--text);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 7px 14px;
-  border-radius: 30px;
-  transition: color 0.2s, background 0.2s;
+  font-size: 14.5px;
+  font-weight: 600;
+  padding: 6px 0;
+  transition: color 0.2s;
+}
+.mkt-nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.28s ease;
 }
 .mkt-nav__link:hover,
-.mkt-nav__link.router-link-active {
-  color: var(--accent);
-  background: var(--accent-light);
+.mkt-nav__link.router-link-active { color: var(--accent); }
+.mkt-nav__link:hover::after,
+.mkt-nav__link.router-link-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 .mkt-header__actions {
@@ -419,13 +461,12 @@ onMounted(() => {
 
 /* Mobile Menu */
 .mkt-mobile-menu {
-  position: fixed;
-  top: 60px; left: 0; right: 0;
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(20px);
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: #fff;
   border-bottom: 1px solid var(--border);
-  padding: 16px 24px 24px;
-  z-index: 999;
+  box-shadow: 0 20px 40px rgba(23, 33, 43, 0.10);
+  padding: 14px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -434,85 +475,94 @@ onMounted(() => {
   display: block;
   color: var(--text);
   text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px 16px;
-  border-radius: 10px;
-  transition: background 0.2s;
+  font-size: 15.5px;
+  font-weight: 600;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.2s;
 }
-.mkt-mobile-menu__link:hover { background: var(--accent-light); color: var(--accent); }
+.mkt-mobile-menu__link:hover { color: var(--accent); }
 .mkt-mobile-menu__cta {
   display: block;
-  margin-top: 12px;
+  margin-top: 16px;
   padding: 14px 20px;
   background: var(--accent);
   color: #fff;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 600;
-  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--radius-btn);
   text-align: center;
+  transition: background 0.2s;
 }
+.mkt-mobile-menu__cta:hover { background: var(--accent-hover); }
 
 .slide-down-enter-active, .slide-down-leave-active { transition: opacity .2s, transform .2s; }
 .slide-down-enter-from, .slide-down-leave-to { opacity: 0; transform: translateY(-8px); }
 
-/* ===== FOOTER ===== */
+/* ===== FOOTER (light, corporate) ===== */
 .mkt-footer {
   background: var(--bg-soft);
   border-top: 1px solid var(--border);
-  padding: 80px 0 0;
+  padding: 76px 0 0;
 }
 .mkt-footer__top {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.5fr;
   gap: 56px;
-  padding-bottom: 56px;
+  padding-bottom: 52px;
 }
 .mkt-footer__tagline {
   color: var(--muted);
   font-size: 14px;
-  line-height: 1.6;
-  margin: 14px 0 24px;
+  line-height: 1.7;
+  margin: 14px 0 22px;
 }
-.mkt-footer__socials {
-  display: flex;
-  gap: 8px;
-}
+.mkt-footer__socials { display: flex; gap: 8px; }
 .mkt-footer__social {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 34px; height: 34px;
-  border-radius: 10px;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--border);
   color: var(--muted);
   text-decoration: none;
   transition: all 0.2s;
-  background: var(--bg);
+  background: #fff;
 }
 .mkt-footer__social:hover {
   border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-light);
+  color: #fff;
+  background: var(--accent);
 }
 .mkt-footer__col-title {
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--text);
-  margin-bottom: 18px;
+  margin-bottom: 8px;
+  position: relative;
+  padding-bottom: 12px;
+}
+.mkt-footer__col-title::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 32px; height: 3px;
+  background: var(--accent);
 }
 .mkt-footer__links {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
+  margin-top: 12px;
 }
 .mkt-footer__links li a,
 .mkt-footer__links li span {
-  color: var(--muted);
+  color: var(--text-body);
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s;
@@ -528,44 +578,59 @@ onMounted(() => {
   font-size: 13px;
 }
 
-/* ===== SHARED UTILITIES ===== */
+/* ===== SHARED UTILITIES =====
+   Same class API as before (other marketing pages depend on these).
+   Kicker + bold heading + short green underline — the NorthWest motif. */
 .section-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--accent-light);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  display: inline-block;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  padding: 5px 14px;
-  border-radius: var(--radius-pill);
-  margin-bottom: 18px;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 12px;
 }
 .section-header {
   text-align: center;
-  max-width: 600px;
-  margin: 0 auto 60px;
+  max-width: 640px;
+  margin: 0 auto 56px;
 }
 .section-title {
-  font-size: clamp(28px, 3.5vw, 42px);
-  font-weight: 800;
+  font-size: clamp(26px, 3.4vw, 38px);
+  font-weight: 700;
   color: var(--text);
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  margin-bottom: 14px;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  margin-bottom: 0;
+  position: relative;
+  padding-bottom: 22px;
+}
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: 54px; height: 3px;
+  background: var(--accent);
 }
 .section-sub {
-  font-size: 16px;
+  font-size: 15.5px;
   color: var(--muted);
-  line-height: 1.7;
+  line-height: 1.75;
+  margin-top: 20px;
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 860px) {
+  .mkt-topbar__socials { display: none; }
+}
 @media (max-width: 768px) {
   .mkt-nav, .mkt-header__actions { display: none; }
   .mkt-burger { display: flex; }
+  .mkt-topbar { display: none; }
   .mkt-footer__top { grid-template-columns: 1fr 1fr; gap: 32px; }
   .mkt-footer__brand { grid-column: 1 / -1; }
   .mkt-footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
@@ -573,5 +638,12 @@ onMounted(() => {
 @media (max-width: 480px) {
   .mkt-footer__top { grid-template-columns: 1fr; }
   .mkt-container { padding: 0 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mkt *, .mkt *::before, .mkt *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>
