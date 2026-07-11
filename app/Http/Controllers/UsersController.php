@@ -10,7 +10,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
@@ -32,9 +31,13 @@ class UsersController extends Controller
         return view('users.index', compact('user', 'users'));
     }
 
-    public function show(User $user): View|Factory|Application
+    public function show(int $id): View|Factory|Application
     {
-        $user = $user->load('profile');
+        if ($id !== Auth::id() && ! Auth::user()->hasRole('admin')) {
+            abort(403);
+        }
+
+        $user = User::with('profile')->findOrFail($id);
 
         return view('users.show', compact('user'));
     }
@@ -70,9 +73,6 @@ class UsersController extends Controller
 
     public function update(UserRequest $request, User $user): RedirectResponse
     {
-        \Log::info('Updating user: '.$user->id);
-        \Log::info('Request data: '.json_encode($request->all()));
-
         $validated = $request->validated();
         $user->update($validated);
 
@@ -127,68 +127,42 @@ class UsersController extends Controller
             $user->syncRoles($role->name); // Sync roles to remove old role and add only the last one
         }
 
-        // Debugging statement
-        if ($user->hasRole($role->name)) {
-            Log::info('Role assigned successfully.');
-        } else {
-            Log::error('Role assignment failed.');
-        }
-
         return true;
     }
 
     private function updateCreateProfile(User $user, UserRequest $request): void
     {
-        \Log::info('Updating profile for user: '.$user->id);
         $validated = $request->validated();
 
         // Create profile data array
         $profileData = $validated['profile'] ?? [];
 
         if ($request->hasFile('profile_image')) {
-            \Log::info('Profile image file detected');
             $file = $request->file('profile_image');
 
-            // Log file details
-            \Log::info('File details: '.json_encode([
-                'name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-                'mime' => $file->getMimeType(),
-            ]));
-
             if ($user->profile && $user->profile->profile_image) {
-                \Log::info('Deleting old profile image: '.$user->profile->profile_image);
                 try {
                     Storage::disk('public')->delete($user->profile->profile_image);
                 } catch (\Exception $e) {
-                    \Log::error('Error deleting old profile image: '.$e->getMessage());
+                    // Ignored: a failed delete of the old image must not block
+                    // saving the new one.
                 }
             }
 
             try {
                 $path = $file->store('profile_images', 'public');
-                \Log::info('New profile image stored at: '.$path);
 
-                // Verify the file was actually stored
                 if (Storage::disk('public')->exists($path)) {
-                    \Log::info('File exists at path: '.$path);
-                    \Log::info('Full URL would be: '.Storage::disk('public')->url($path));
                     $profileData['profile_image'] = $path;
-                } else {
-                    \Log::error('File does not exist at expected path: '.$path);
                 }
             } catch (\Exception $e) {
-                \Log::error('Error storing profile image: '.$e->getMessage());
+                // Ignored: profile update proceeds without the new image.
             }
-        } else {
-            \Log::info('No profile image file in request');
         }
 
-        $profile = $user->profile()->updateOrCreate(
+        $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
             $profileData
         );
-
-        \Log::info('Profile updated: '.json_encode($profile));
     }
 }
