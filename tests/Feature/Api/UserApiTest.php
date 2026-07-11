@@ -300,6 +300,73 @@ class UserApiTest extends TestCase
             ])->assertForbidden();
     }
 
+    // ── Role escalation (regression: non-admins must not change roles) ──
+
+    public function test_client_cannot_escalate_own_role_to_consultant(): void
+    {
+        $consultantRoleId = Role::where('name', 'consultant')->first()->id;
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/users/{$this->client->id}", [
+                'fullname' => $this->client->fullname,
+                'email' => $this->client->email,
+                'role' => $consultantRoleId,
+                'profile' => ['profession' => 'Developer'],
+            ])->assertOk();
+
+        $this->client->refresh();
+        $this->assertTrue($this->client->hasRole('client'));
+        $this->assertFalse($this->client->hasRole('consultant'));
+    }
+
+    public function test_client_cannot_escalate_own_role_to_admin(): void
+    {
+        $adminRoleId = Role::where('name', 'admin')->first()->id;
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/users/{$this->client->id}", [
+                'fullname' => $this->client->fullname,
+                'email' => $this->client->email,
+                'role' => $adminRoleId,
+                'profile' => ['profession' => 'Developer'],
+            ])->assertOk();
+
+        $this->client->refresh();
+        $this->assertTrue($this->client->hasRole('client'));
+        $this->assertFalse($this->client->hasRole('admin'));
+    }
+
+    public function test_admin_can_change_a_users_role(): void
+    {
+        $consultantRoleId = Role::where('name', 'consultant')->first()->id;
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->putJson("/api/users/{$this->client->id}", [
+                'fullname' => $this->client->fullname,
+                'email' => $this->client->email,
+                'role' => $consultantRoleId,
+                'profile' => ['profession' => 'Developer'],
+            ])->assertOk();
+
+        $this->client->refresh();
+        $this->assertTrue($this->client->hasRole('consultant'));
+        $this->assertFalse($this->client->hasRole('client'));
+    }
+
+    public function test_self_update_without_role_field_is_allowed(): void
+    {
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/users/{$this->client->id}", [
+                'fullname' => 'No Role Field',
+                'email' => $this->client->email,
+                'profile' => ['profession' => 'Developer'],
+            ])->assertOk();
+
+        $this->client->refresh();
+        $this->assertSame('No Role Field', $this->client->fullname);
+        $this->assertTrue($this->client->hasRole('client'));
+    }
+
     public function test_patch_update_works(): void
     {
         $clientRoleId = Role::where('name', 'client')->first()->id;

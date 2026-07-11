@@ -44,10 +44,14 @@ class UserRequest extends FormRequest
             case 'PUT':
                 $rules['email'] = 'required|email|unique:users,email,'.$userId;
                 $rules['password'] = ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()];
+                // Role changes are admin-only (enforced in UserService); the
+                // field is optional on updates so self-profile edits don't
+                // have to send it.
+                $rules['role'] = 'sometimes|exists:roles,id';
                 break;
 
             case 'POST':
-                // Nada adicional para POST
+                // Nothing extra for POST
                 break;
         }
 

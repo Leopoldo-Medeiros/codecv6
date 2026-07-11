@@ -63,7 +63,10 @@ class UserService
 
         $user->update($updateData);
 
-        if (isset($data['role'])) {
+        // Only admins may change roles. The field is silently ignored (not
+        // rejected) for other callers because self-profile updates legitimately
+        // reuse UserRequest, which may still carry the role along.
+        if (isset($data['role']) && Auth::user()->hasRole(RoleEnum::ADMIN->value)) {
             $this->syncRole($user, $data['role']);
         }
 
