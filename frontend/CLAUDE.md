@@ -10,6 +10,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev        # Dev server at http://localhost:3000 (host — native binaries)
 npm run build      # Production build
 npm run generate   # Static build → frontend/dist/
+
+node scripts/generate-world-map.mjs   # regenerate app/utils/world-map-data.ts
+                                      # (homepage dotted world map + city pins)
 ```
 
 Required env (`frontend/.env`):
@@ -86,9 +89,10 @@ export const useFoo = () => {
 | Layout | Used by |
 |---|---|
 | `admin` | All authenticated pages (dashboard, paths, users, etc.) |
-| `auth` | Login, register, etc. |
+| `auth` | Forgot/reset password |
 | `marketing` | Public pages (`/`, `/about`, `/pricing`, `/faqs`, `/terms`, `/privacy`) |
 | `default` | Fallback |
+| — (none) | Login and register use `layout: false` + the standalone `TerminalShell` component (terminal-style auth with `TerminalPrompt` fields and the `TerminalMascot` reactive robot); shared `.term-*` classes live in `TerminalShell.vue`'s unscoped style block |
 
 Marketing pages declare `definePageMeta({ layout: false })` and wrap with `<NuxtLayout name="marketing">` explicitly. They do not use `@nuxt/ui` components — only `.mkt-*` CSS classes defined in `app/layouts/marketing.vue`.
 

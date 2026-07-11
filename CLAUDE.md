@@ -199,7 +199,8 @@ Beyond standard CRUD pages, these require extra context:
 
 Layouts: `admin`, `auth`, `default`, `marketing`.
 
-- `marketing.vue` — used by `/`, `/about`, `/pricing`, `/faqs`, `/terms`, `/privacy`, plus auth public pages (login/register/etc when wrapped explicitly). Inlines its own header (with SVG `{ }` logo) and footer — does NOT use the `Navbar.vue`/`Footer.vue` components (those serve `default`/`admin` layouts). Defines all `.mkt-*` design tokens at `:root`
+- `marketing.vue` — used by `/`, `/about`, `/pricing`, `/faqs`, `/terms`, `/privacy`. Inlines its own top bar, header (with SVG `{ }` logo) and footer — does NOT use the `Navbar.vue`/`Footer.vue` components (those serve `default`/`admin` layouts). Defines all `.mkt-*` design tokens on the `.mkt` wrapper class (NOT `:root` — components rendered outside `.mkt` can't see them)
+- **Login/register do NOT use any layout** — they declare `definePageMeta({ layout: false })` and render the standalone `TerminalShell` component (terminal-style auth, see Frontend Component Patterns). The `auth` layout serves the remaining auth pages (forgot/reset password)
 - `auth.ts` middleware — redirects unauthenticated users to login
 - `guest.ts` middleware — redirects authenticated users to dashboard
 
@@ -207,11 +208,17 @@ Layouts: `admin`, `auth`, `default`, `marketing`.
 
 Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `terms.vue`, `privacy.vue`) use a **custom CSS design system** rather than Tailwind or `@nuxt/ui`. Tokens live in `app/layouts/marketing.vue` `<style>` block under `.mkt`:
 
-- **Color palette:** emerald — `--accent: #059669` (emerald-600), `--accent-hover: #047857`, `--bg-soft: #ECFDF5`. RGBA helpers: `--accent-light/-mid/-glow`. **Never use purple** (`#6b46e5`, `#7c3aed`) — was deliberately removed to avoid AmigosCode visual collision
-- **Typography:** Plus Jakarta Sans (loaded via Google Fonts in the layout)
-- **Class naming:** BEM-ish prefixed by section (`.hero__bg`, `.feat-card__icon`, `.fitem__num`, `.lh__title`)
+- **Aesthetic:** corporate consulting (NorthWest-style) — white surfaces (`--bg: #ffffff`), dark ink top bar (`--ink: #111A22`), kicker + bold heading + short 54px emerald underline as the section-header motif, white cards with soft shadows (`--shadow-sm/-md`), rectangular buttons (`--radius-btn: 3px`, uppercase bold labels), full-bleed emerald bands (counters, testimonials) with dot patterns
+- **Color palette:** emerald — `--accent: #059669` (emerald-600), `--accent-hover: #047857`. RGBA helpers: `--accent-light/-mid/-glow`. **Never use purple** (`#6b46e5`, `#7c3aed`) — was deliberately removed to avoid AmigosCode visual collision
+- **Typography:** Poppins only (400–800), loaded via Google Fonts in the layout; single token `--ff`
+- **Class naming:** BEM-ish prefixed by section (`.scard__icon`, `.igrid__item`, `.counters__grid`, `.tband__quote`)
 - **Each marketing page** declares `definePageMeta({ layout: false })` and wraps content in `<NuxtLayout name="marketing">` explicitly (so the layout doesn't apply to other pages by accident)
+- **Known drift:** `pages/index.vue` re-declares its own scoped token set (`--em`, `--ink`, `.btn` ≈ `.mkt-btn`) on its section roots — values already diverge slightly from the layout tokens; consolidating onto the `.mkt` tokens is a pending cleanup
 - **Logo:** inline SVG with `{ }` text in monospace inside a folded-paper icon. Brand text is `CODE` + `<span class="mkt-logo__cv">CV</span>`
+
+### Terminal Auth Pages
+
+`login.vue` and `register.vue` render an iTerm-style window (`TerminalShell.vue`, unscoped `.term-*` design system + JetBrains Mono) with prompt-style fields (`TerminalPrompt.vue` — real visible inputs styled as terminal text, so IME/autofill/password managers work) and an animated SVG mascot (`TerminalMascot.vue`) with 3D shading + perspective tilt that follows the cursor with its eyes and reacts to form state via a `mood` prop: watches typing, covers its eyes during password entry, shakes with red X-eyes on auth failure, celebrates on success. Shared spinner logic lives in `composables/useTerminalSpinner.ts`; `useAuth()` exposes `googleAuthUrl` for the OAuth "command" links.
 
 ### Database Seeding Order
 
