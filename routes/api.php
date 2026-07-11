@@ -70,7 +70,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Challenges
     Route::get('/challenges', [ChallengeController::class, 'index']);
     Route::get('/challenges/{challenge:slug}', [ChallengeController::class, 'show']);
-    Route::post('/challenges/{challenge:slug}/run', [ChallengeController::class, 'run']);
+    // Throttled per-user: each run is a Judge0 sandbox submission.
+    Route::post('/challenges/{challenge:slug}/run', [ChallengeController::class, 'run'])->middleware('throttle:20,1');
 
     // Scratch playground — runs arbitrary PHP via Judge0 (no tests). Lightly
     // throttled per-user to keep Judge0 calls bounded; the front-end shows
@@ -82,12 +83,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/jobs', [JobController::class, 'index']);
     Route::get('/jobs/{job}', [JobController::class, 'show']);
 
-    // CV & LinkedIn analysis (all authenticated users)
-    Route::post('/cv/analyze', [CvController::class, 'analyze']);
-    Route::post('/linkedin/analyze', [LinkedInController::class, 'analyze']);
+    // CV & LinkedIn analysis (all authenticated users). Throttled: each call
+    // is a paid Gemini request (plus a Jina fetch for CV job-url analysis).
+    Route::post('/cv/analyze', [CvController::class, 'analyze'])->middleware('throttle:5,1');
+    Route::post('/linkedin/analyze', [LinkedInController::class, 'analyze'])->middleware('throttle:5,1');
 
     // Stripe Checkout (all authenticated users)
-    Route::post('/checkout/session', [CheckoutController::class, 'createSession']);
+    Route::post('/checkout/session', [CheckoutController::class, 'createSession'])->middleware('throttle:10,1');
     Route::get('/checkout/{sessionId}/status', [CheckoutController::class, 'status']);
 
     // Notifications
