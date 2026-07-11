@@ -21,6 +21,7 @@ export const useAuth = () => {
     const user = useState<User | null>('user', () => loadUserFromStorage())
 
     const isAuthenticated = computed(() => Boolean(user.value))
+    const googleAuthUrl = computed(() => `${baseURL}/api/auth/google/redirect`)
     const isAdmin = computed(() => user.value?.role === 'admin')
     const isClient = computed(() => user.value?.role === 'client')
     const isConsultant = computed(() => user.value?.role === 'consultant')
@@ -166,6 +167,7 @@ export const useAuth = () => {
     return {
         user: readonly(user),
         isAuthenticated,
+        googleAuthUrl,
         isAdmin,
         isClient,
         isConsultant,

@@ -1,147 +1,157 @@
 <template>
-  <div class="auth-page">
-    <AuthBackground />
+  <TerminalShell title="guest@codecv: ~/register — zsh — 80×24" :mood="mood" :eye-shift="eyeShift" @body-click="focusCurrent">
+    <p class="term-line term-line--dim term-in-1">Welcome to codecv v6.0.0 — account setup</p>
 
-    <div class="card-wrap">
-      <div class="card">
+    <p class="term-line term-in-2">
+      <span class="term-dollar">$</span><span class="term-cmd">codecv register</span><span class="term-cursor" aria-hidden="true" />
+    </p>
 
-        <NuxtLink to="/" class="logo-link" aria-label="CODECV — back to home">
-          <img src="/images/Logo/codecv.png" alt="CODECV" class="logo" />
-        </NuxtLink>
+    <form class="tui-box term-in-3" novalidate @submit.prevent="submit">
+      <template v-for="(f, i) in FIELDS" :key="f.key">
+        <TerminalPrompt
+          :id="`term-${f.key}`"
+          :ref="(el) => setPromptRef(f.key, el)"
+          :label="f.label"
+          :type="f.type"
+          :placeholder="f.placeholder"
+          :autocomplete="f.autocomplete"
+          :enterkeyhint="f.enterkeyhint"
+          :hint="f.hint"
+          :revealable="f.revealable"
+          :done="fieldValid[f.key]"
+          :disabled="loading || done"
+          :model-value="form[f.modelKey]"
+          @focus="active = f.key"
+          @update:model-value="(v: string) => { form[f.modelKey] = v; onTyped() }"
+          @enter="advance(i)"
+        />
 
-        <div class="card-header">
-          <h1>Create an account</h1>
-          <p>Join CODECV and accelerate your IT career</p>
-        </div>
-
-        <a :href="googleAuthUrl" class="btn-google">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          Continue with Google
-        </a>
-
-        <div class="divider"><span>or</span></div>
-
-        <form @submit.prevent="handleRegister" novalidate>
-
-          <div class="field">
-            <label for="fullname">Full name</label>
-            <div class="field__wrap">
-              <svg class="field__ico" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-              </svg>
-              <input id="fullname" v-model="form.fullname" type="text" placeholder="John Doe"
-                autocomplete="name" :disabled="loading" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="email">Email address</label>
-            <div class="field__wrap">
-              <svg class="field__ico" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-              </svg>
-              <input id="email" v-model="form.email" type="email" placeholder="example@email.com"
-                autocomplete="email" :disabled="loading" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="field__wrap">
-              <svg class="field__ico" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-              </svg>
-              <input id="password" v-model="form.password" :type="showPwd ? 'text' : 'password'"
-                placeholder="min 8 characters" autocomplete="new-password"
-                class="has-eye" :disabled="loading" required />
-              <button type="button" class="eye-btn" @click="showPwd = !showPwd" tabindex="-1" aria-label="Toggle password">
-                <svg v-if="!showPwd" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                <svg v-else viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/><path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/></svg>
-              </button>
-            </div>
-            <div v-if="form.password" class="strength">
-              <div class="strength__bars">
-                <div v-for="i in 4" :key="i" class="strength__bar"
-                  :class="i <= pwdStrength ? `s${pwdStrength}` : ''" />
-              </div>
-              <span class="strength__label" :class="`s${pwdStrength}`">{{ pwdLabel }}</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="confirm">Confirm password</label>
-            <div class="field__wrap">
-              <svg class="field__ico" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <input id="confirm" v-model="form.password_confirmation"
-                :type="showPwd ? 'text' : 'password'"
-                placeholder="Repeat your password" autocomplete="new-password"
-                :class="['has-eye', { mismatch: form.password_confirmation && form.password !== form.password_confirmation }]"
-                :disabled="loading" required />
-            </div>
-          </div>
-
-          <Transition name="err">
-            <div v-if="error" class="alert" role="alert">
-              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-              {{ error }}
-            </div>
-          </Transition>
-
-          <p class="terms">
-            By clicking "Create Account" you agree to our
-            <NuxtLink to="/terms" class="link">Terms</NuxtLink> and
-            <NuxtLink to="/privacy" class="link">Privacy Policy</NuxtLink>.
-          </p>
-
-          <button type="submit" class="btn-primary" :disabled="loading || !canSubmit">
-            <span v-if="!loading">Create Account</span>
-            <span v-else class="spinner-row">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"
-                  stroke-dasharray="40 20" stroke-linecap="round"
-                  style="transform-origin:center;animation:spin .8s linear infinite"/>
-              </svg>
-              Creating account…
-            </span>
-          </button>
-
-        </form>
-
-        <p class="card-footer">
-          Already have an account?
-          <NuxtLink to="/login" class="link">Sign in</NuxtLink>
+        <!-- strength meter rides along under the password field -->
+        <p v-if="f.key === 'password' && form.password" class="term-line">
+          <span class="term-line--dim">strength </span>
+          <span class="term-strength" :class="`term-strength--${pwdStrength}`">{{ '▰'.repeat(pwdStrength) + '▱'.repeat(4 - pwdStrength) }} {{ pwdLabel }}</span>
         </p>
+      </template>
 
-      </div>
-    </div>
-  </div>
+      <button type="submit" class="tui-btn tui-btn--primary" :disabled="loading || done || !canSubmit">
+        <template v-if="loading"><span class="term-spinner">{{ spinner.frame.value }}</span> creating account…</template>
+        <template v-else>Create account <kbd>⏎</kbd></template>
+      </button>
+
+      <div class="tui-sep"># or</div>
+
+      <a :href="googleAuthUrl" class="tui-btn tui-btn--ghost">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Sign up with Google
+      </a>
+    </form>
+
+    <!-- status output -->
+    <Transition name="term-fade">
+      <p v-if="error" class="term-line term-line--error" role="alert">
+        <span class="term-glyph--err">✘</span> {{ error }}
+      </p>
+    </Transition>
+
+    <template v-if="done">
+      <p class="term-line term-line--ok"><span class="term-glyph">✔</span> account created for {{ form.email }}</p>
+      <p class="term-line term-line--dim">→ opening <span class="term-flag">/onboarding</span>…</p>
+    </template>
+
+    <!-- helper "commands" -->
+    <template v-if="!done">
+      <p class="term-line term-in-4">&nbsp;</p>
+      <p class="term-line term-comment term-in-4"># by continuing you agree to our <NuxtLink to="/terms">terms</NuxtLink> and <NuxtLink to="/privacy">privacy policy</NuxtLink></p>
+      <p class="term-line term-comment term-in-5"># already have an account? <NuxtLink to="/login">sign in</NuxtLink></p>
+    </template>
+  </TerminalShell>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: false, middleware: 'guest' })
 useHead({ title: 'Create Account — CODECV' })
 
-const { register } = useAuth()
-const config        = useRuntimeConfig()
-const googleAuthUrl = computed(() => `${config.public.apiBase}/api/auth/google/redirect`)
+const { register, googleAuthUrl } = useAuth()
+const spinner = useTerminalSpinner()
 
-const form = reactive({
+type FieldKey = 'fullname' | 'email' | 'password' | 'confirm'
+type ModelKey = 'fullname' | 'email' | 'password' | 'password_confirmation'
+
+interface FieldConfig {
+  key: FieldKey
+  modelKey: ModelKey
+  label: string
+  type: string
+  placeholder: string
+  autocomplete: string
+  enterkeyhint: 'next' | 'go'
+  hint: string
+  revealable: boolean
+}
+
+const FIELDS: FieldConfig[] = [
+  { key: 'fullname', modelKey: 'fullname', label: 'Full name', type: 'text', placeholder: 'Ada Lovelace', autocomplete: 'name', enterkeyhint: 'next', hint: '', revealable: false },
+  { key: 'email', modelKey: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com', autocomplete: 'email', enterkeyhint: 'next', hint: '', revealable: false },
+  { key: 'password', modelKey: 'password', label: 'Password', type: 'password', placeholder: '••••••••', autocomplete: 'new-password', enterkeyhint: 'next', hint: 'min 8 chars', revealable: true },
+  { key: 'confirm', modelKey: 'password_confirmation', label: 'Confirm password', type: 'password', placeholder: '••••••••', autocomplete: 'new-password', enterkeyhint: 'go', hint: '', revealable: true },
+]
+
+const active = ref<FieldKey>('fullname')
+const error = ref('')
+const loading = ref(false)
+const done = ref(false)
+
+const form = reactive<Record<ModelKey, string>>({
   fullname: '',
   email: '',
   password: '',
   password_confirmation: '',
 })
-const showPwd = ref(false)
-const error   = ref('')
-const loading = ref(false)
+
+const fieldValid = computed<Record<FieldKey, boolean>>(() => ({
+  fullname: form.fullname.trim() !== '',
+  email: form.email.includes('@') && form.email.includes('.'),
+  password: form.password.length >= 8,
+  confirm: form.password_confirmation !== '' && form.password === form.password_confirmation,
+}))
+
+/* Prompt focus plumbing (imperative only — plain object, not reactive) */
+type PromptHandle = { focus: () => void }
+const promptRefs: Partial<Record<FieldKey, PromptHandle>> = {}
+function setPromptRef(key: FieldKey, el: unknown) {
+  promptRefs[key] = (el as PromptHandle) ?? undefined
+}
+function focusField(key: FieldKey) {
+  if (loading.value || done.value) return
+  promptRefs[key]?.focus()
+}
+function focusCurrent() {
+  const firstInvalid = FIELDS.find(f => !fieldValid.value[f.key])
+  focusField(firstInvalid?.key ?? 'fullname')
+}
+
+/* Mascot reactions */
+const mood = computed(() => {
+  if (done.value) return 'happy'
+  if (loading.value) return 'think'
+  if (error.value) return 'error'
+  if (active.value === 'password' || active.value === 'confirm') return 'hide'
+  return 'watch'
+})
+const eyeShift = computed(() => {
+  const v = active.value === 'fullname' ? form.fullname : active.value === 'email' ? form.email : ''
+  if (!v) return 0
+  return Math.min(1, v.length / 28) * 2 - 1
+})
+
+// real keystrokes dismiss the error (and the mascot's X-eyes);
+// programmatic field resets keep the error visible
+function onTyped() { if (error.value) error.value = '' }
 
 const pwdStrength = computed(() => {
   const p = form.password
@@ -153,230 +163,55 @@ const pwdStrength = computed(() => {
   if (/[^A-Za-z0-9]/.test(p)) s++
   return s
 })
-const pwdLabel = computed(() => (['', 'Weak', 'Fair', 'Good', 'Strong'] as const)[pwdStrength.value] ?? '')
+const pwdLabel = computed(() => (['', 'weak', 'fair', 'good', 'strong'] as const)[pwdStrength.value] ?? '')
 
 const canSubmit = computed(() =>
-  form.fullname.trim() &&
-  form.email.trim() &&
-  form.password.length >= 8 &&
-  form.password === form.password_confirmation
+  fieldValid.value.fullname
+  && fieldValid.value.email
+  && fieldValid.value.password
+  && fieldValid.value.confirm,
 )
 
-async function handleRegister() {
-  if (!canSubmit.value) {
-    error.value = form.password !== form.password_confirmation
-      ? 'Passwords do not match.'
-      : 'Please fill in all fields correctly.'
+/* Enter moves through the fields; on the last one it submits */
+function advance(index: number) {
+  if (index === FIELDS.length - 1) { submit(); return }
+  focusField(FIELDS[index + 1]!.key)
+}
+
+let redirectTimer: ReturnType<typeof setTimeout> | null = null
+
+async function submit() {
+  if (loading.value || done.value) return
+  error.value = ''
+  if (!fieldValid.value.fullname) { error.value = 'full name required'; focusField('fullname'); return }
+  if (!fieldValid.value.email) { error.value = `invalid email: "${form.email || ' '}" — expected user@domain`; focusField('email'); return }
+  if (!fieldValid.value.password) { error.value = 'password too short — min 8 characters'; focusField('password'); return }
+  if (form.password !== form.password_confirmation) {
+    error.value = 'passwords do not match — try again'
+    form.password_confirmation = ''
+    nextTick(() => focusField('confirm'))
     return
   }
+
   loading.value = true
-  error.value   = ''
-  const result  = await register({ ...form })
+  spinner.start()
+  const result = await register({ ...form })
+  spinner.stop()
   loading.value = false
+
   if (result.success) {
-    navigateTo('/onboarding')
+    done.value = true
+    redirectTimer = setTimeout(() => navigateTo('/onboarding'), 900)
   } else {
-    error.value                 = result.error || 'Registration failed.'
-    form.password               = ''
-    form.password_confirmation  = ''
+    error.value = `registration failed: ${result.error || 'unknown error'}`
+    form.password = ''
+    form.password_confirmation = ''
+    nextTick(() => focusField('password'))
   }
 }
+
+onMounted(() => focusField('fullname'))
+onUnmounted(() => {
+  if (redirectTimer) clearTimeout(redirectTimer)
+})
 </script>
-
-<style scoped>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-.auth-page {
-  --font: 'Inter', system-ui, sans-serif;
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: var(--font);
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-  background: #030810;
-  position: relative;
-  overflow-x: hidden;
-}
-
-.card-wrap {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.card {
-  width: 100%;
-  max-width: 420px;
-  background: rgba(5, 12, 30, 0.78);
-  backdrop-filter: blur(32px) saturate(1.4);
-  -webkit-backdrop-filter: blur(32px) saturate(1.4);
-  border: 1px solid rgba(52, 211, 153, 0.13);
-  border-radius: 24px;
-  padding: 2.25rem 2.25rem 2rem;
-  box-shadow:
-    0 0 0 1px rgba(52, 211, 153, 0.04),
-    0 40px 100px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  animation: rise .55s var(--ease) both;
-}
-@keyframes rise {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.logo-link {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  text-decoration: none;
-}
-.logo {
-  height: 52px;
-  width: auto;
-  filter: brightness(0) invert(1);
-  opacity: 0.9;
-}
-
-.card-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-.card-header h1 {
-  font-size: 1.65rem;
-  font-weight: 800;
-  color: #f1f5f9;
-  letter-spacing: -0.025em;
-  margin-bottom: 0.3rem;
-}
-.card-header p { font-size: 0.875rem; color: #64748b; }
-
-.btn-google {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-  width: 100%;
-  padding: 0.8rem 1rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1.5px solid rgba(52, 211, 153, 0.15);
-  border-radius: 12px;
-  font-family: var(--font);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  text-decoration: none;
-  cursor: pointer;
-  transition: border-color .15s, box-shadow .15s, background .15s;
-}
-.btn-google:hover {
-  border-color: rgba(52, 211, 153, 0.35);
-  box-shadow: 0 2px 16px rgba(52, 211, 153, 0.1);
-  background: rgba(15, 23, 42, 0.8);
-}
-.btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1.1rem 0;
-  color: #334155;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.divider::before, .divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(52, 211, 153, 0.1);
-}
-
-.field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.9rem; }
-.field label { font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
-.field__wrap { position: relative; display: flex; align-items: center; }
-.field__ico { position: absolute; left: 0.875rem; width: 15px; height: 15px; color: #475569; pointer-events: none; }
-.field__wrap input {
-  width: 100%;
-  background: rgba(10, 18, 40, 0.7);
-  border: 1.5px solid rgba(52, 211, 153, 0.13);
-  border-radius: 11px;
-  padding: 0.78rem 0.9rem 0.78rem 2.55rem;
-  font-family: var(--font);
-  font-size: 0.9375rem;
-  color: #e2e8f0;
-  outline: none;
-  transition: border-color .15s, box-shadow .15s, background .15s;
-}
-.field__wrap input::placeholder { color: #1e293b; }
-.field__wrap input:focus {
-  border-color: rgba(52, 211, 153, 0.55);
-  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.07);
-  background: rgba(10, 18, 40, 0.9);
-}
-.field__wrap input:disabled { opacity: 0.45; cursor: not-allowed; }
-.field__wrap input.has-eye { padding-right: 2.75rem; }
-.field__wrap input.mismatch { border-color: rgba(239, 68, 68, 0.5); }
-
-.eye-btn {
-  position: absolute; right: 0.85rem;
-  background: none; border: none; cursor: pointer; color: #475569;
-  padding: 0; display: flex; align-items: center; transition: color .15s;
-}
-.eye-btn:hover { color: #94a3b8; }
-.eye-btn svg { width: 16px; height: 16px; }
-
-.strength { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; }
-.strength__bars { display: flex; gap: 3px; flex: 1; }
-.strength__bar { flex: 1; height: 3px; border-radius: 9px; background: rgba(52,211,153,0.08); transition: background .3s; }
-.strength__bar.s1 { background: #f87171; }
-.strength__bar.s2 { background: #fbbf24; }
-.strength__bar.s3 { background: #34d399; }
-.strength__bar.s4 { background: #10b981; }
-.strength__label { font-size: 0.68rem; font-weight: 700; min-width: 34px; text-align: right; }
-.strength__label.s1 { color: #f87171; }
-.strength__label.s2 { color: #fbbf24; }
-.strength__label.s3 { color: #34d399; }
-.strength__label.s4 { color: #10b981; }
-
-.alert {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.7rem 0.9rem;
-  background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.28);
-  border-radius: 10px; font-size: 0.86rem; color: #fca5a5; margin-bottom: 0.9rem;
-}
-.alert svg { width: 14px; height: 14px; flex-shrink: 0; }
-.err-enter-active { animation: errIn .3s var(--ease); }
-@keyframes errIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-
-.terms { font-size: 0.75rem; color: #475569; line-height: 1.5; margin-bottom: 0.9rem; }
-
-.btn-primary {
-  width: 100%; padding: 0.875rem;
-  background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
-  color: #fff; font-family: var(--font); font-size: 0.9375rem; font-weight: 700;
-  border: none; border-radius: 12px; cursor: pointer;
-  transition: opacity .2s, transform .15s, box-shadow .2s; letter-spacing: 0.01em;
-}
-.btn-primary:hover:not(:disabled) {
-  opacity: 0.9; transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(5, 150, 105, 0.38);
-}
-.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-.spinner-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-.spinner-row svg { width: 16px; height: 16px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.card-footer { margin-top: 1.4rem; text-align: center; font-size: 0.875rem; color: #475569; }
-.link { color: #34d399; font-weight: 600; text-decoration: none; transition: opacity .15s; }
-.link:hover { opacity: 0.72; }
-
-@media (max-width: 480px) {
-  .card { padding: 1.75rem 1.4rem; border-radius: 20px; }
-  .card-header h1 { font-size: 1.45rem; }
-}
-</style>
