@@ -109,10 +109,10 @@ Uses Spatie Laravel Permission with `RoleEnum` (`app/Enums/RoleEnum.php`):
 
 Routes in `routes/api.php` are grouped by access:
 - **No auth (signature-verified)**: `GET /email/verify/{id}/{hash}` — email verification link from Fortify emails; throttled 6/min; redirects to `APP_FRONTEND_URL/dashboard?verified=1`
-- **No auth (Stripe signature)**: `POST /webhooks/stripe` — Stripe webhook; verified via `STRIPE_WEBHOOK_SECRET`, no CSRF
+- **No auth (Stripe signature)**: `POST /webhooks/stripe` — Stripe webhook; verified via `STRIPE_WEBHOOK_SECRET`, no CSRF. Idempotent: the event id is claimed in a `processed_stripe_events` table before dispatch, so a Stripe-redelivered event is a 200 no-op on the second delivery (see Stripe Payments below)
 - **Public** (rate-limited 5/min): `/login`, `/register`, `/forgot-password`, `/reset-password`
-- **All authenticated**: Read paths (`GET /paths`, `GET /my-paths`), courses, plans, jobs; view/update own user + avatar (`/users/{user}`, ownership enforced in controller/service); `PATCH /me/onboarding`; CV/LinkedIn analysis; Stripe checkout; challenges (`GET /challenges`, `GET /challenges/{slug}`, `POST /challenges/{slug}/run`); playground (`POST /playground/run`, throttled 30/min); step progress (`PUT /path-steps/{step}/progress`); notifications (`GET /notifications`, `PATCH /notifications/{id}/read`, `PATCH /notifications/read-all`); GDPR export (`GET /users/{user}/export` — self or admin, checked in controller)
-- **Admin + Consultant** (`role:admin|consultant`): Create/edit/delete courses, plans, paths, jobs; manage path steps (`POST/PUT/DELETE/reorder /paths/{path}/steps`); `/my-clients` — view clients, assign/remove paths
+- **All authenticated**: Read paths (`GET /paths`, `GET /my-paths`), courses, plans, jobs; view/update own user + avatar (`/users/{user}`, ownership enforced in controller/service — role changes are admin-only, silently ignored for other callers, see Authorization below); `PATCH /me/onboarding`; CV/LinkedIn analysis (`throttle:5,1` — Gemini + optional Jina fetch); Stripe checkout (`POST /checkout/session`, `throttle:10,1`); challenges (`GET /challenges`, `GET /challenges/{slug}`, `POST /challenges/{slug}/run` — `throttle:20,1`, Judge0 sandbox run); playground (`POST /playground/run`, throttled 30/min); step progress (`PUT /path-steps/{step}/progress`); notifications (`GET /notifications`, `PATCH /notifications/{id}/read`, `PATCH /notifications/read-all`); GDPR export (`GET /users/{user}/export` — self or admin, checked in controller)
+- **Admin + Consultant** (`role:admin|consultant`): Create/edit/delete courses, plans, paths, jobs; manage path steps (`POST/PUT/DELETE/reorder /paths/{path}/steps`); `/my-clients` — view clients, assign/remove paths. Mutations (update/delete, plus Plan's attach/detachClient and PathStep's store/update/destroy/reorder) are further gated to the resource's own consultant or an admin — see Authorization below
 - **Admin only** (`role:admin`): User list/create/delete, role management (`GET /roles`), consultant listing + assignment. GDPR erase (`DELETE /users/{user}/erase`) is admin-only too, but enforced in the controller rather than route middleware
 
 ### Core Domain Models
@@ -156,8 +156,8 @@ Resources use `$this->when($this->relationLoaded('relationship'), ...)` to avoid
 
 `prepareForValidation()` auto-injects authenticated user IDs:
 - `CourseRequest` → injects `user_id`
-- `PlanRequest` → injects `consultant_id`
-- `UserRequest` → removes null passwords before validation
+- `PlanRequest`, `PathRequest`, `JobRequest` → use the shared `AssignsConsultant` trait (`app/Http/Requests/Concerns/`): non-admins always have `consultant_id` forced to their own id (ignores any client-supplied value); admins may set it explicitly but the target must have the consultant or admin role (validated via `withValidator`'s after-hook)
+- `UserRequest` → removes null passwords before validation; `role` is `sometimes` on updates (role changes are enforced admin-only in `UserService`, not here)
 
 ### Frontend Stack (Nuxt 4)
 
@@ -236,7 +236,9 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 ## Important Patterns
 
-**Authorization in Services:** Services throw `AuthorizationException` for business rule violations (self-deletion, protecting last admin, accessing another user's data). Controllers catch it and return 403. `AuthenticationException` returns 401.
+**Authorization in Services:** Services throw `AuthorizationException` for business rule violations (self-deletion, protecting last admin, role-escalation attempts, accessing another user's data). `bootstrap/app.php` registers a global render callback for it — any JSON request gets a `{"message": ...}` 403 automatically, so services/controllers just throw instead of each hand-rolling try/catch (this is intentionally the minimal slice of the eventual full error-envelope pass, not a Policy migration). `AuthenticationException` returns 401.
+- **Resource ownership:** `Plan`, `Path`, `Job`, and `PathStep` mutations are guarded by the `EnsuresResourceOwnership` trait (`app/Services/Concerns/`) — `ensureOwnerOrAdmin($ownerId, $resourceName)` throws unless the actor is the resource's consultant or an admin. Used in `PlanService`/`PathService`/`JobService` (update/delete, plus Plan's attach/detachClient) and directly in `PathStepController` (owner = the parent `Path`'s consultant). No Policies yet — this is a temporary Phase 0 guard; Phase 2 of `docs/architecture-review.md` replaces it with proper Policies
+- **Role changes:** only admins may change a user's role (`UserService::update`) — the `role` field is silently ignored (not rejected) for non-admin callers, since self-profile updates legitimately reuse `UserRequest`
 
 **File Uploads:** `FileUploadService` handles image storage/replacement. Profile images in `storage/app/public/profile_images/` (public disk). Max 2048KB, jpeg/jpg/png only. Validation happens in the service layer, not middleware.
 
@@ -246,7 +248,7 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 
 **Search:** `User` model uses Laravel Scout (Algolia) — `toSearchableArray()` indexes `id`, `fullname`, and `email`. Requires `SCOUT_QUEUE=true` in env.
 
-**Stripe Payments:** `StripeService` drives the checkout flow. Tiers and prices are defined in `config/pricing.php` — amounts are in **minor units** (cents for EUR, centavos for BRL). `PaymentTier` enum has `ACCELERATOR`, `BOOTCAMP` (one-time), and `MENTORSHIP` (recurring subscription). Flow: `POST /checkout/session` → `StripeService::createCheckoutSession()` creates a Stripe Checkout Session and records a `PENDING` `Payment` row → user is redirected to Stripe → `POST /webhooks/stripe` receives `checkout.session.completed` and marks the payment `PAID`. The webhook is excluded from CSRF middleware via `bootstrap/app.php`. Required env: `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`. For local testing use the Stripe CLI: `stripe listen --forward-to codecv6.ddev.site/api/webhooks/stripe`.
+**Stripe Payments:** `StripeService` drives the checkout flow. Tiers and prices are defined in `config/pricing.php` — amounts are in **minor units** (cents for EUR, centavos for BRL). `PaymentTier` enum has `ACCELERATOR`, `BOOTCAMP` (one-time), and `MENTORSHIP` (recurring subscription). Flow: `POST /checkout/session` (`throttle:10,1`) → `StripeService::createCheckoutSession()` creates a Stripe Checkout Session and records a `PENDING` `Payment` row → user is redirected to Stripe → `POST /webhooks/stripe` receives `checkout.session.completed` and marks the payment `PAID`. The webhook is excluded from CSRF middleware via `bootstrap/app.php`. **Idempotency:** `StripeWebhookController` claims the event id in `processed_stripe_events` (`insertOrIgnore`) before calling `handleEvent()` — a redelivered event returns `{"received": true, "duplicate": true}` without re-running the handler; if the handler throws, the claim is released so a genuine retry can reprocess it. `markSessionPaid`/`markSessionFailed` additionally no-op via `Payment::isPaid()` so a settled payment is never overwritten either way. Required env: `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`. For local testing use the Stripe CLI: `stripe listen --forward-to codecv6.ddev.site/api/webhooks/stripe`.
 
 **Social Auth (Google OAuth):** `SocialAuthController` handles the provider redirect and callback. The frontend hits `/auth/google/redirect`, then the callback exchanges the code via `AuthService`. The `User` model has a `google_id` column. Requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` in `.env`. The post-OAuth browser redirect uses `config('app.frontend_url')` (set via `APP_FRONTEND_URL` in `.env`) — must be a single canonical URL, NOT the comma-separated `FRONTEND_URL`.
 
