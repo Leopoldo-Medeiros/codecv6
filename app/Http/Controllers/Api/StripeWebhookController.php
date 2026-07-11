@@ -29,9 +29,17 @@ class StripeWebhookController extends Controller
             return response()->json(['message' => 'Invalid signature'], 400);
         }
 
+        if (! $this->stripe->markEventProcessed($event->id)) {
+            // Stripe redelivers events that weren't acknowledged fast enough;
+            // this is a repeat delivery of one we've already handled.
+            return response()->json(['received' => true, 'duplicate' => true]);
+        }
+
         try {
             $this->stripe->handleEvent($event);
         } catch (\Throwable $e) {
+            $this->stripe->unmarkEventProcessed($event->id);
+
             Log::error('Stripe webhook handler failed', [
                 'event_id' => $event->id,
                 'event_type' => $event->type,

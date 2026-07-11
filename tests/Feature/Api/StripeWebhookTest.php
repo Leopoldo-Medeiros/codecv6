@@ -136,6 +136,54 @@ class StripeWebhookTest extends TestCase
         $this->assertEquals($firstPaidAt->timestamp, $payment->paid_at->timestamp);
     }
 
+    public function test_same_event_id_delivered_twice_is_a_no_op_on_second_delivery(): void
+    {
+        $user = User::factory()->create();
+        $this->makePendingPayment($user, 'cs_test_ledger');
+
+        $event = $this->checkoutCompletedEvent('cs_test_ledger');
+
+        $this->postWebhook($event)
+            ->assertOk()
+            ->assertJson(['received' => true]);
+
+        $this->postWebhook($event)
+            ->assertOk()
+            ->assertJson(['received' => true, 'duplicate' => true]);
+    }
+
+    public function test_failed_event_does_not_overwrite_an_already_paid_session(): void
+    {
+        $user = User::factory()->create();
+        $payment = $this->makePendingPayment($user, 'cs_test_paid_then_failed');
+
+        $this->postWebhook($this->checkoutCompletedEvent('cs_test_paid_then_failed', 'pi_won'))
+            ->assertOk();
+        $payment->refresh();
+        $this->assertSame(PaymentStatus::PAID, $payment->status);
+
+        // A late/duplicate failure notification for the same session — a
+        // distinct event id, since real Stripe events are never reused —
+        // must not flip an already-settled payment back to failed.
+        $event = [
+            'id' => 'evt_test_late_failure',
+            'object' => 'event',
+            'type' => 'checkout.session.async_payment_failed',
+            'data' => [
+                'object' => [
+                    'id' => 'cs_test_paid_then_failed',
+                    'object' => 'checkout.session',
+                    'payment_intent' => 'pi_won',
+                ],
+            ],
+        ];
+
+        $this->postWebhook($event)->assertOk();
+
+        $payment->refresh();
+        $this->assertSame(PaymentStatus::PAID, $payment->status);
+    }
+
     public function test_event_for_unknown_session_returns_ok_without_creating_payment(): void
     {
         $event = $this->checkoutCompletedEvent('cs_test_orphan');

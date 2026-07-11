@@ -6,6 +6,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\PaymentTier;
 use App\Models\Payment;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Stripe\Checkout\Session;
@@ -94,6 +95,31 @@ class StripeService
         );
     }
 
+    /**
+     * Atomically claims a Stripe event id so its handler runs at most once.
+     * Stripe redelivers webhooks that aren't acknowledged quickly enough,
+     * so the controller must check this before dispatching to handleEvent().
+     *
+     * @return bool true if this call claimed the event (first delivery),
+     *              false if it was already processed (duplicate delivery).
+     */
+    public function markEventProcessed(string $eventId): bool
+    {
+        return DB::table('processed_stripe_events')->insertOrIgnore([
+            'event_id' => $eventId,
+            'created_at' => now(),
+        ]) > 0;
+    }
+
+    /**
+     * Releases the claim so a genuine retry (handler threw) can reprocess
+     * the event, instead of being silently skipped as "already handled".
+     */
+    public function unmarkEventProcessed(string $eventId): void
+    {
+        DB::table('processed_stripe_events')->where('event_id', $eventId)->delete();
+    }
+
     public function handleEvent(Event $event): void
     {
         match ($event->type) {
@@ -134,7 +160,7 @@ class StripeService
     {
         $payment = Payment::where('stripe_session_id', $session->id)->first();
 
-        if (! $payment) {
+        if (! $payment || $payment->isPaid()) {
             return;
         }
 
