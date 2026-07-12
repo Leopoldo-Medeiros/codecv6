@@ -70,6 +70,9 @@ export default defineNuxtConfig({
     '/reset-password': { prerender: true },
 
     // SPA — depends on auth state and/or runtime API data
+    // /u/** is public but per-slug dynamic (runtime API data), so it can't
+    // be prerendered like the marketing pages; rendered client-side.
+    '/u/**': { ssr: false },
     '/dashboard': { ssr: false },
     '/onboarding': { ssr: false },
     '/payment': { ssr: false },

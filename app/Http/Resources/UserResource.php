@@ -42,6 +42,8 @@ class UserResource extends JsonResource
                     'linkedin' => $this->profile->linkedin,
                     'instagram' => $this->profile->instagram,
                     'facebook' => $this->profile->facebook,
+                    'is_public' => (bool) $this->profile->is_public,
+                    'public_slug' => $this->profile->public_slug,
                 ] : null;
             }),
             'created_at' => $this->created_at,

@@ -90,7 +90,7 @@ export const useFoo = () => {
 |---|---|
 | `admin` | All authenticated pages (dashboard, paths, users, etc.) |
 | `auth` | Forgot/reset password |
-| `marketing` | Public pages (`/`, `/about`, `/pricing`, `/faqs`, `/terms`, `/privacy`) |
+| `marketing` | Public pages (`/`, `/about`, `/pricing`, `/faqs`, `/terms`, `/privacy`) plus the practice-funnel public pages `/try/[slug]` (F2 teaser runner, Monaco editor + public run endpoint) and `/u/[slug]` (F3 public skill profile). These two are `ssr: false` (per-slug runtime data), not prerendered. |
 | `default` | Fallback |
 | — (none) | Login and register use `layout: false` + the standalone `TerminalShell` component (terminal-style auth with `TerminalPrompt` fields and the `TerminalMascot` reactive robot); shared `.term-*` classes live in `TerminalShell.vue`'s unscoped style block |
 
@@ -109,3 +109,11 @@ Step type drives the rendered UI:
 - anything else → fallback card
 
 Progress update calls `updateStepProgress(stepId, status)` which catches `{ data: { blocking_step } }` errors and shows a blocking modal.
+
+## Practice funnel (frontend)
+
+- `renderMarkdown()` lives in `app/utils/markdown.ts` (auto-imported), shared by `MarkdownContent.vue` and the public teaser page.
+- `usePracticeProgress()` — the F1 gamification snapshot (`GET /me/progress`) plus the F3 public-profile visibility toggle (`PATCH /me/public-profile`; reads current state from `/me`).
+- `ProgressWidget.vue` — dashboard right-rail card (clients only) showing XP, streak, badges, and the public-profile toggle with a copy-link control. Slug links resolve to `/u/{slug}`.
+- `/try/[slug].vue` — public teaser runner: fetches the teaser list, loads Monaco with the boilerplate, POSTs to `/public/challenges/{slug}/run`, shows per-test results and a signup CTA on pass. Homepage has a lightweight teaser section (`#try`) that only lists challenges and links here, so Monaco isn't loaded on the prerendered landing page.
+- `/u/[slug].vue` — public skill profile: XP/streak stats, completed challenges, stack, badges, and a signup CTA.

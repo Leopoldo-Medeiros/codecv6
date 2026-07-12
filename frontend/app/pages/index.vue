@@ -168,6 +168,35 @@
     </section>
 
 
+    <!-- ─── 2.5 PRACTICE TEASER ──────────────────────── -->
+    <section id="try" class="teaser">
+      <div class="mkt-container">
+        <header class="sec-head">
+          <span class="kicker">Try before you sign up</span>
+          <h2 class="h2 h2--underline">Solve a real challenge<br>right now, in your browser</h2>
+          <p class="sec-sub">
+            No account, no setup. Write PHP, run it against real tests, see it pass —
+            the same engine our members practice on every day.
+          </p>
+        </header>
+
+        <div v-if="teasers.length" class="teaser__grid">
+          <NuxtLink
+            v-for="t in teasers"
+            :key="t.slug"
+            :to="`/try/${t.slug}`"
+            class="teaser__card"
+          >
+            <span class="teaser__difficulty" :data-level="t.difficulty">{{ t.difficulty }}</span>
+            <h3 class="teaser__title">{{ t.title }}</h3>
+            <span class="teaser__cta">Try it →</span>
+          </NuxtLink>
+        </div>
+        <p v-else class="teaser__loading">Loading challenges…</p>
+      </div>
+    </section>
+
+
     <!-- ─── 3. LOGO CLOUD ────────────────────────────── -->
     <section class="logos">
       <div class="mkt-container">
@@ -631,6 +660,23 @@ const faqs = [
 ]
 const openFaq = ref<number | null>(0)
 function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
+
+/* === Practice teaser (F2) — fetched client-side; the homepage is
+   prerendered, so this hydrates after load with the current teaser set === */
+interface TeaserSummary { title: string, slug: string, difficulty: string }
+const teasers = ref<TeaserSummary[]>([])
+
+onMounted(async () => {
+  try {
+    const response = await $fetch<{ data: TeaserSummary[] }>(
+      '/api/public/challenges/teaser',
+      { baseURL: useRuntimeConfig().public.apiBase as string },
+    )
+    teasers.value = response.data
+  } catch {
+    teasers.value = []
+  }
+})
 </script>
 
 <style scoped>
@@ -1006,6 +1052,54 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
 }
 .scard__more svg { color: var(--em); }
 .scard__more:hover { color: var(--em); gap: 12px; }
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  2.5 PRACTICE TEASER                                             ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+.teaser { padding: var(--pad-sec) 0; background: var(--bg-soft); }
+.teaser__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.teaser__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--s-sm);
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.teaser__card:hover { transform: translateY(-4px); box-shadow: var(--s-md); border-color: var(--em-ring); }
+.teaser__difficulty {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: var(--em-soft);
+  color: var(--em-2);
+}
+.teaser__difficulty[data-level="advanced"],
+.teaser__difficulty[data-level="expert"] {
+  background: rgba(168, 113, 10, 0.1);
+  color: #A8710A;
+}
+.teaser__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  flex: 1;
+}
+.teaser__cta { font-size: 0.9rem; font-weight: 600; color: var(--em); }
+.teaser__loading { text-align: center; color: var(--muted); }
 
 /* ╔══════════════════════════════════════════════════════════════════╗
    ║  3. LOGO CLOUD                                                    ║
@@ -1494,6 +1588,7 @@ function toggleFaq(i: number) { openFaq.value = openFaq.value === i ? null : i }
   .igrid__grid { grid-template-columns: 1fr; }
   .tabs__nav { flex-wrap: wrap; }
   .globe__stats { grid-template-columns: 1fr; gap: 18px; }
+  .teaser__grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 580px) {

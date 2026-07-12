@@ -165,6 +165,9 @@
       <!-- Right: quick links + CTA -->
       <div class="flex flex-col gap-5">
 
+        <!-- Practice progress (XP / streak / badges / public profile) -->
+        <ProgressWidget v-if="!isAdmin" />
+
         <!-- Quick links -->
         <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
