@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\PathStepController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PlaygroundController;
 use App\Http\Controllers\Api\PublicChallengeController;
+use App\Http\Controllers\Api\PublicProfileController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\StripeWebhookController;
@@ -56,6 +57,10 @@ Route::get('/public/challenges/teaser', [PublicChallengeController::class, 'teas
     ->middleware('throttle:30,1');
 Route::post('/public/challenges/{challenge:slug}/run', [PublicChallengeController::class, 'run'])
     ->middleware('throttle:5,1');
+
+// Public skill profile (opt-in, shareable) — practice funnel stage 5 / F3.
+Route::get('/public/profile/{slug}', [PublicProfileController::class, 'show'])
+    ->middleware('throttle:30,1');
 
 // Protected routes (require authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -110,6 +115,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Practice funnel — gamification snapshot (XP, streak, badges)
     Route::get('/me/progress', [UserController::class, 'progress']);
+
+    // Practice funnel — public skill profile visibility (owner only)
+    Route::patch('/me/public-profile', [PublicProfileController::class, 'update']);
 
     // User self-service (admin or resource owner — enforced in controller)
     Route::get('/users/{user}', [UserController::class, 'show']);

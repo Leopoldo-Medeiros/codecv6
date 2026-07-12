@@ -25,10 +25,13 @@ class Profile extends Model
         'linkedin',
         'instagram',
         'facebook',
+        'is_public',
+        'public_slug',
     ];
 
     protected $casts = [
         'stack' => 'array',
+        'is_public' => 'boolean',
     ];
 
     public function user()
