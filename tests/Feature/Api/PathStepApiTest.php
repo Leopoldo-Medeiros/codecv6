@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Path;
 use App\Models\PathStep;
 use App\Models\User;
+use Database\Seeders\BadgesSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,6 +31,7 @@ class PathStepApiTest extends TestCase
     {
         parent::setUp();
         $this->seed(RoleSeeder::class);
+        $this->seed(BadgesSeeder::class);
 
         $this->admin = User::factory()->create();
         $this->admin->assignRole('admin');
@@ -489,6 +491,46 @@ class PathStepApiTest extends TestCase
         $this->assertDatabaseHas('user_step_progress', [
             'user_id' => $otherClient->id, 'status' => 'in_progress',
         ]);
+    }
+
+    // ── Gamification (F1) ─────────────────────────────────────
+
+    public function test_marking_a_step_done_awards_xp(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'difficulty' => 'advanced']);
+
+        $response = $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done'])
+            ->assertOk();
+
+        $response->assertJsonPath('progress.xp_awarded', 25);
+        $response->assertJsonPath('progress.xp_points', 25);
+    }
+
+    public function test_marking_an_already_done_step_done_again_awards_no_xp(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done'])
+            ->assertOk();
+
+        $second = $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done'])
+            ->assertOk();
+
+        $this->assertNull($second->json('progress'));
+    }
+
+    public function test_marking_a_step_in_progress_awards_no_xp(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id]);
+
+        $response = $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'in_progress'])
+            ->assertOk();
+
+        $this->assertNull($response->json('progress'));
     }
 
     #[DataProvider('invalidProgressStatusProvider')]

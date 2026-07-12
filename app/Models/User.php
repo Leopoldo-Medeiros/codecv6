@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -75,6 +76,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function progressStats(): HasOne
+    {
+        return $this->hasOne(UserProgressStats::class);
+    }
+
+    public function challengeCompletions(): HasMany
+    {
+        return $this->hasMany(UserChallengeCompletion::class);
+    }
+
+    public function badges(): BelongsToMany
+    {
+        return $this->belongsToMany(Badge::class, 'user_badges')
+            ->withPivot('earned_at');
     }
 
     /**

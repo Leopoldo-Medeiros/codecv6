@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ChallengeResource;
 use App\Models\Challenge;
 use App\Services\ChallengeExecutionService;
+use App\Services\GamificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,17 +25,26 @@ class ChallengeController extends Controller
         return new ChallengeResource($challenge);
     }
 
-    public function run(Request $request, Challenge $challenge, ChallengeExecutionService $executor): JsonResponse
-    {
+    public function run(
+        Request $request,
+        Challenge $challenge,
+        ChallengeExecutionService $executor,
+        GamificationService $gamification
+    ): JsonResponse {
         $request->validate(['code' => ['required', 'string', 'max:65535']]);
 
         $result = $executor->run($request->input('code'), $challenge->tests_code);
+
+        $progress = $result['passed']
+            ? $gamification->recordChallengeCompletion($request->user(), $challenge)
+            : null;
 
         return response()->json([
             'passed' => $result['passed'],
             'duration' => $result['duration_ms'],
             'failedCount' => collect($result['tests'])->filter(fn ($t) => ! $t['passed'])->count(),
             'tests' => $result['tests'],
+            'progress' => $progress,
         ]);
     }
 }

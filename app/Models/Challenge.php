@@ -6,6 +6,7 @@ use App\Enums\ChallengeDifficulty;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Challenge extends Model
@@ -35,5 +36,10 @@ class Challenge extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function completions(): HasMany
+    {
+        return $this->hasMany(UserChallengeCompletion::class);
     }
 }

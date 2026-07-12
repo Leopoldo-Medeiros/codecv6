@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PathStepSeeder::class,
             ChallengeLinkSeeder::class,
             PlanSeeder::class,
+            BadgesSeeder::class,
         ]);
 
         $fakeClientes = $this->command->askWithCompletion('Do you want add fake clients', ['yes', 'no'], 'no');

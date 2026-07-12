@@ -196,11 +196,11 @@ class UserController extends Controller
         $allPaths = Path::whereHas('plans', function ($q) use ($clientIds) {
             $q->whereHas('clients', fn ($q2) => $q2->whereIn('users.id', $clientIds));
         })
-        ->with([
-            'steps:id,path_id',
-            'plans.clients' => fn ($q) => $q->whereIn('users.id', $clientIds)->select('users.id'),
-        ])
-        ->get();
+            ->with([
+                'steps:id,path_id',
+                'plans.clients' => fn ($q) => $q->whereIn('users.id', $clientIds)->select('users.id'),
+            ])
+            ->get();
 
         // Build client → paths map (keyed by path ID to deduplicate across plans)
         $pathsByClient = [];
@@ -349,6 +349,33 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Onboarding complete',
             'user' => new UserResource($user),
+        ]);
+    }
+
+    /**
+     * The authenticated user's gamification snapshot (practice funnel stage
+     * 3 / F1): cumulative XP, current streak, and earned badges.
+     */
+    public function progress(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $stats = $user->progressStats;
+
+        return response()->json([
+            'xp_points' => $stats->xp_points ?? 0,
+            'current_streak' => $stats->current_streak ?? 0,
+            'longest_streak' => $stats->longest_streak ?? 0,
+            'last_practiced_at' => $stats?->last_practiced_at,
+            'badges' => $user->badges()
+                ->orderBy('user_badges.earned_at')
+                ->get()
+                ->map(fn ($badge) => [
+                    'key' => $badge->key,
+                    'name' => $badge->name,
+                    'description' => $badge->description,
+                    'icon' => $badge->icon,
+                    'earned_at' => $badge->pivot->earned_at,
+                ]),
         ]);
     }
 }

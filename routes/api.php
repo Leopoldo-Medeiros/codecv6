@@ -100,6 +100,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Onboarding (authenticated user completes their own profile)
     Route::patch('/me/onboarding', [UserController::class, 'completeOnboarding']);
 
+    // Practice funnel — gamification snapshot (XP, streak, badges)
+    Route::get('/me/progress', [UserController::class, 'progress']);
+
     // User self-service (admin or resource owner — enforced in controller)
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::put('/users/{user}', [UserController::class, 'update']);

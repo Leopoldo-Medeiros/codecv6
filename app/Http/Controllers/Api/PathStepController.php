@@ -12,6 +12,7 @@ use App\Notifications\ClientPathCompleted;
 use App\Notifications\ClientPathHalfway;
 use App\Notifications\ClientStartedLearning;
 use App\Services\Concerns\EnsuresResourceOwnership;
+use App\Services\GamificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -148,7 +149,7 @@ class PathStepController extends Controller
         return response()->json(['message' => 'Steps reordered']);
     }
 
-    public function updateProgress(Request $request, PathStep $step): JsonResponse
+    public function updateProgress(Request $request, PathStep $step, GamificationService $gamification): JsonResponse
     {
         $request->validate([
             'status' => 'required|in:not_started,in_progress,done',
@@ -157,6 +158,10 @@ class PathStepController extends Controller
         /** @var User $client */
         $client = Auth::user();
         $userId = $client->id;
+
+        $previousStatus = UserStepProgress::where('user_id', $userId)
+            ->where('path_step_id', $step->id)
+            ->value('status');
 
         if ($request->status === 'in_progress') {
             $precedingIds = PathStep::where('path_id', $step->path_id)
@@ -198,7 +203,15 @@ class PathStepController extends Controller
             $client, $step, $request->status, $hadAnyProgress
         );
 
-        return response()->json(['message' => 'Progress updated', 'status' => $request->status]);
+        $progress = ($request->status === 'done' && $previousStatus !== 'done')
+            ? $gamification->recordStepCompletion($client, $step)
+            : null;
+
+        return response()->json([
+            'message' => 'Progress updated',
+            'status' => $request->status,
+            'progress' => $progress,
+        ]);
     }
 
     private function dispatchProgressNotifications(

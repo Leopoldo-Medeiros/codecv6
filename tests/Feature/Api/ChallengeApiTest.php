@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Challenge;
 use App\Models\User;
+use Database\Seeders\BadgesSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -25,6 +26,7 @@ class ChallengeApiTest extends TestCase
     {
         parent::setUp();
         $this->seed(RoleSeeder::class);
+        $this->seed(BadgesSeeder::class);
 
         $this->user = User::factory()->create();
         $this->user->assignRole('client');
@@ -151,6 +153,57 @@ class ChallengeApiTest extends TestCase
             ->assertOk();
 
         $response->assertJson(['passed' => false, 'failedCount' => 1]);
+    }
+
+    // ── Gamification (F1) ─────────────────────────────────────
+
+    public function test_passing_a_challenge_awards_xp_and_a_badge(): void
+    {
+        $challenge = Challenge::factory()->create(['difficulty' => 'intermediate']);
+        $this->fakeJudge0Pass();
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php'])
+            ->assertOk();
+
+        $response->assertJsonPath('progress.xp_awarded', 20);
+        $response->assertJsonPath('progress.xp_points', 20);
+        $badgeKeys = array_column($response->json('progress.new_badges'), 'key');
+        $this->assertContains('first_challenge', $badgeKeys);
+    }
+
+    public function test_failing_a_challenge_awards_no_xp(): void
+    {
+        $challenge = Challenge::factory()->create();
+        $this->fakeJudge0([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $this->b64Tests([['name' => 'It works', 'passed' => false, 'message' => 'nope']]),
+            'stderr' => null,
+            'exit_code' => 0,
+            'time' => '0.02',
+        ]);
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php'])
+            ->assertOk();
+
+        $this->assertNull($response->json('progress'));
+    }
+
+    public function test_passing_the_same_challenge_twice_awards_xp_only_once(): void
+    {
+        $challenge = Challenge::factory()->create(['difficulty' => 'beginner']);
+        $this->fakeJudge0Pass();
+
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php'])
+            ->assertOk();
+
+        $second = $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php'])
+            ->assertOk();
+
+        $this->assertNull($second->json('progress'));
     }
 
     public function test_run_handles_time_limit_exceeded(): void
