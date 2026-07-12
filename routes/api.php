@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\PathController;
 use App\Http\Controllers\Api\PathStepController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PlaygroundController;
+use App\Http\Controllers\Api\PublicChallengeController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\StripeWebhookController;
@@ -48,6 +49,13 @@ Route::middleware('throttle:5,1')->group(function () {
     Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 });
+
+// Public practice teaser (no account) — practice funnel stage 1 / F2.
+// IP-throttled (no user_id to key on): the run endpoint executes real code.
+Route::get('/public/challenges/teaser', [PublicChallengeController::class, 'teaser'])
+    ->middleware('throttle:30,1');
+Route::post('/public/challenges/{challenge:slug}/run', [PublicChallengeController::class, 'run'])
+    ->middleware('throttle:5,1');
 
 // Protected routes (require authentication)
 Route::middleware(['auth:sanctum'])->group(function () {

@@ -70,6 +70,7 @@ function getCity(?User $user): ?string
     // or null if any part of the chain is absent.
 }
 PHP,
+                'is_teaser' => true,
                 'tests_code' => <<<'PHP'
 <?php
 
@@ -190,6 +191,7 @@ class HttpStatusMatchTest extends TestCase
 PHP,
                 'is_premium' => false,
                 'price_eur' => null,
+                'is_teaser' => true,
             ],
 
             // ─────────────────────────────────────────────────────────────

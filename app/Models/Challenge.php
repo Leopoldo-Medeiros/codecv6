@@ -22,6 +22,7 @@ class Challenge extends Model
         'tests_code',
         'is_premium',
         'price_eur',
+        'is_teaser',
         'created_by',
     ];
 
@@ -30,6 +31,7 @@ class Challenge extends Model
         return [
             'difficulty' => ChallengeDifficulty::class,
             'is_premium' => 'boolean',
+            'is_teaser' => 'boolean',
         ];
     }
 
