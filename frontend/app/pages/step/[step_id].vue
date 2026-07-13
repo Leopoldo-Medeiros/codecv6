@@ -121,6 +121,26 @@
           </div>
         </div>
 
+        <div v-else-if="step.type === 'quiz'" class="space-y-4">
+          <div v-if="step.description" class="mx-auto max-w-2xl">
+            <p class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{{ step.description }}</p>
+          </div>
+          <QuizRunner
+            v-if="step.quiz?.length"
+            :step-id="step.id"
+            :questions="step.quiz"
+            @passed="setStatus('done')"
+          />
+          <div v-else class="mx-auto max-w-2xl">
+            <UCard>
+              <div class="py-8 text-center">
+                <UIcon name="i-heroicons-question-mark-circle" class="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">No quiz questions added yet.</p>
+              </div>
+            </UCard>
+          </div>
+        </div>
+
         <div v-else class="mx-auto max-w-3xl">
           <UCard>
             <p v-if="step.description" class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{{ step.description }}</p>

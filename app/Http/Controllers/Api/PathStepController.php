@@ -66,6 +66,54 @@ class PathStepController extends Controller
         ]);
     }
 
+    /**
+     * Grade a quiz submission server-side (practice funnel F5). The answer
+     * key never leaves the API, so grading can't be gamed from the client.
+     * Gated by the same F4 entitlement check as viewing the step.
+     */
+    public function submitQuiz(Request $request, PathStep $step, EntitlementService $entitlements): JsonResponse
+    {
+        if (! $entitlements->canAccessStep(Auth::user(), $step)) {
+            throw new AuthorizationException('This quiz is available on Practice Pro. Upgrade to unlock it.');
+        }
+
+        abort_unless($step->type === 'quiz' && is_array($step->quiz) && $step->quiz !== [], 404);
+
+        $request->validate([
+            // present (not required): submitting with nothing answered is valid.
+            'answers' => 'present|array',
+            'answers.*' => 'nullable|integer|min:0',
+        ]);
+
+        $answers = $request->input('answers');
+        $results = [];
+        $correct = 0;
+
+        foreach ($step->quiz as $question) {
+            $given = $answers[$question['id']] ?? null;
+            $isCorrect = $given !== null && (int) $given === (int) $question['correct_index'];
+            if ($isCorrect) {
+                $correct++;
+            }
+
+            $results[] = [
+                'id' => $question['id'],
+                'correct' => $isCorrect,
+                'correct_index' => $question['correct_index'],
+                'explanation' => $question['explanation'] ?? null,
+            ];
+        }
+
+        $total = count($step->quiz);
+
+        return response()->json([
+            'score' => $correct,
+            'total' => $total,
+            'passed' => $total > 0 && $correct === $total,
+            'results' => $results,
+        ]);
+    }
+
     public function store(Request $request, Path $path): JsonResponse
     {
         $this->ensureOwnerOrAdmin($path->consultant_id, 'path');
@@ -132,6 +180,13 @@ class PathStepController extends Controller
             'instructions.*.starter_code' => 'nullable|string|max:10000',
             'challenge_prompt' => 'nullable|string',
             'challenge_slug' => 'nullable|string|exists:challenges,slug',
+            'quiz' => 'nullable|array|max:50',
+            'quiz.*.id' => 'required|integer',
+            'quiz.*.question' => 'required|string|max:1000',
+            'quiz.*.options' => 'required|array|min:2|max:6',
+            'quiz.*.options.*' => 'required|string|max:500',
+            'quiz.*.correct_index' => 'required|integer|min:0',
+            'quiz.*.explanation' => 'nullable|string|max:1000',
         ];
     }
 

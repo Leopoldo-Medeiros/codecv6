@@ -27,6 +27,17 @@ class PathStepResource extends JsonResource
             'instructions' => $this->instructions ?? [],
             'challenge_prompt' => $this->challenge_prompt,
             'challenge_slug' => $this->challenge_slug,
+            // Quiz questions with the answer key stripped — id/question/
+            // options only. Grading is server-side (PathStepController::
+            // submitQuiz), so correct_index/explanation never reach the client.
+            'quiz' => $this->when(
+                is_array($this->quiz) && $this->quiz !== [],
+                fn () => array_map(fn (array $q) => [
+                    'id' => $q['id'],
+                    'question' => $q['question'],
+                    'options' => $q['options'],
+                ], $this->quiz)
+            ),
             'challenge' => $this->when(
                 $this->relationLoaded('challenge') && $this->challenge,
                 fn () => new ChallengeResource($this->challenge)

@@ -106,6 +106,7 @@ Step type drives the rendered UI:
 - `reading` (or no type) → two-column layout: `MarkdownContent` left, progress/resources sidebar right
 - `challenge` with a linked `Challenge` → `ChallengeEditor` full-screen overlay
 - `challenge`/`lab` with no linked exercise → placeholder card
+- `quiz` with questions → `QuizRunner` (grades server-side, marks the step done on a perfect score)
 - anything else → fallback card
 
 Progress update calls `updateStepProgress(stepId, status)` which catches `{ data: { blocking_step } }` errors and shows a blocking modal.
@@ -117,4 +118,5 @@ Progress update calls `updateStepProgress(stepId, status)` which catches `{ data
 - `ProgressWidget.vue` — dashboard right-rail card (clients only) showing XP, streak, badges, and the public-profile toggle with a copy-link control. Slug links resolve to `/u/{slug}`.
 - `/try/[slug].vue` — public teaser runner: fetches the teaser list, loads Monaco with the boilerplate, POSTs to `/public/challenges/{slug}/run`, shows per-test results and a signup CTA on pass. Homepage has a lightweight teaser section (`#try`) that only lists challenges and links here, so Monaco isn't loaded on the prerendered landing page.
 - `/u/[slug].vue` — public skill profile: XP/streak stats, completed challenges, stack, badges, and a signup CTA.
+- `QuizRunner.vue` (F5) — renders a `quiz`-type step's questions (from `step.quiz`, answer key already stripped by the API), POSTs the answer map to `/path-steps/{stepId}/quiz` for server-side grading, then shows per-question correct/incorrect highlights + explanations. Emits `passed` on a perfect score; the step page marks the step done in response (earning XP through the normal gamification path). "Try again" resets local state without another fetch.
 - `LockedUpsell.vue` — the F4 gate's shared lock/upsell panel (amber lock, "Unlock with Practice Pro" → `/pricing#plans`). The steps list marks gated rows with `step.locked` (from the API); `my-paths.vue` shows a lock icon + "Pro" badge and swaps the drawer body for `<LockedUpsell compact>`, and `/step/[step_id]` catches the API's 403 and renders `<LockedUpsell>` instead of a generic error. NOTE: `/step/**` is in `routeRules` as `ssr: false` — like every other authenticated page, it must render client-side so the localStorage bearer token is available to the `auth` guard (it was missing before F4's lock UI and would SSR-redirect to /login).

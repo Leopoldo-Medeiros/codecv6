@@ -31,6 +31,7 @@ class PathStep extends Model
         'instructions',
         'challenge_prompt',
         'challenge_slug',
+        'quiz',
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class PathStep extends Model
         'instructions' => 'array',
         'prerequisites' => 'array',
         'concepts' => 'array',
+        'quiz' => 'array',
         'has_playground' => 'boolean',
         'estimated_minutes' => 'integer',
         'order' => 'integer',

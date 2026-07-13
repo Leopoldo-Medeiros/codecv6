@@ -22,6 +22,9 @@ export interface PathStep {
   challenge_prompt?: string | null
   challenge_slug?: string | null
   challenge?: import('~/types/models').Challenge | null
+  // Quiz questions (answer key stripped by the API) — practice funnel F5
+  quiz?: Array<{ id: number; question: string; options: string[] }>
+
   resources?: Array<{ label: string; url: string }>
   order: number
   course?: { id: number; name: string; slug: string } | null

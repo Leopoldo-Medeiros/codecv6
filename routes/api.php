@@ -93,6 +93,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Step progress (all authenticated users update their own progress)
     Route::put('/path-steps/{step}/progress', [PathStepController::class, 'updateProgress']);
+    // Quiz grading (server-side; F4-gated) — practice funnel F5
+    Route::post('/path-steps/{step}/quiz', [PathStepController::class, 'submitQuiz']);
     Route::get('/jobs', [JobController::class, 'index']);
     Route::get('/jobs/{job}', [JobController::class, 'show']);
 

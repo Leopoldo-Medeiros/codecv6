@@ -111,6 +111,97 @@ class PathStepApiTest extends TestCase
         $this->assertSame('not_started', $response->json('data.0.user_status'));
     }
 
+    // ── Quiz (F5) ─────────────────────────────────────────────
+
+    private function quizStep(): PathStep
+    {
+        return PathStep::factory()->create([
+            'path_id' => $this->path->id,
+            'order' => 0,
+            'type' => 'quiz',
+            'quiz' => [
+                ['id' => 1, 'question' => '2 + 2?', 'options' => ['3', '4', '5'], 'correct_index' => 1, 'explanation' => 'Basic arithmetic.'],
+                ['id' => 2, 'question' => 'PHP array function?', 'options' => ['map()', 'array_map()'], 'correct_index' => 1, 'explanation' => null],
+            ],
+        ]);
+    }
+
+    public function test_quiz_step_exposes_questions_without_the_answer_key(): void
+    {
+        $step = $this->quizStep();
+
+        $data = $this->actingAs($this->client, 'sanctum')
+            ->getJson("/api/path-steps/{$step->id}")->json('data');
+
+        $this->assertCount(2, $data['quiz']);
+        $this->assertArrayHasKey('question', $data['quiz'][0]);
+        $this->assertArrayHasKey('options', $data['quiz'][0]);
+        $this->assertArrayNotHasKey('correct_index', $data['quiz'][0]);
+        $this->assertArrayNotHasKey('explanation', $data['quiz'][0]);
+        // Whole-payload scan: the answer key must not leak anywhere.
+        $this->assertStringNotContainsString('correct_index', json_encode($data));
+    }
+
+    public function test_quiz_submission_grades_all_correct(): void
+    {
+        $step = $this->quizStep();
+
+        $response = $this->actingAs($this->client, 'sanctum')
+            ->postJson("/api/path-steps/{$step->id}/quiz", ['answers' => [1 => 1, 2 => 1]])
+            ->assertOk();
+
+        $response->assertJson(['score' => 2, 'total' => 2, 'passed' => true]);
+        $this->assertTrue($response->json('results.0.correct'));
+        $this->assertSame('Basic arithmetic.', $response->json('results.0.explanation'));
+    }
+
+    public function test_quiz_submission_grades_partial(): void
+    {
+        $step = $this->quizStep();
+
+        $response = $this->actingAs($this->client, 'sanctum')
+            ->postJson("/api/path-steps/{$step->id}/quiz", ['answers' => [1 => 0, 2 => 1]])
+            ->assertOk();
+
+        $response->assertJson(['score' => 1, 'total' => 2, 'passed' => false]);
+        $this->assertFalse($response->json('results.0.correct'));
+        $this->assertTrue($response->json('results.1.correct'));
+    }
+
+    public function test_quiz_submission_returns_the_correct_index_for_review(): void
+    {
+        $step = $this->quizStep();
+
+        $response = $this->actingAs($this->client, 'sanctum')
+            ->postJson("/api/path-steps/{$step->id}/quiz", ['answers' => []])
+            ->assertOk();
+
+        $this->assertSame(1, $response->json('results.0.correct_index'));
+    }
+
+    public function test_quiz_submission_on_a_non_quiz_step_returns_404(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0, 'type' => 'reading']);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->postJson("/api/path-steps/{$step->id}/quiz", ['answers' => []])
+            ->assertNotFound();
+    }
+
+    public function test_free_user_cannot_submit_a_locked_quiz(): void
+    {
+        $step = PathStep::factory()->create([
+            'path_id' => $this->path->id,
+            'order' => 5,
+            'type' => 'quiz',
+            'quiz' => [['id' => 1, 'question' => 'q', 'options' => ['a', 'b'], 'correct_index' => 0]],
+        ]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->postJson("/api/path-steps/{$step->id}/quiz", ['answers' => [1 => 0]])
+            ->assertForbidden();
+    }
+
     // ── F4 content gate ───────────────────────────────────────
 
     public function test_step_list_marks_later_steps_locked_for_free_users(): void
