@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\AuthorizationException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PathStepResource;
 use App\Models\Path;
@@ -12,6 +13,7 @@ use App\Notifications\ClientPathCompleted;
 use App\Notifications\ClientPathHalfway;
 use App\Notifications\ClientStartedLearning;
 use App\Services\Concerns\EnsuresResourceOwnership;
+use App\Services\EntitlementService;
 use App\Services\GamificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,25 +23,35 @@ class PathStepController extends Controller
 {
     use EnsuresResourceOwnership;
 
-    public function index(Path $path): JsonResponse
+    public function index(Path $path, EntitlementService $entitlements): JsonResponse
     {
         $steps = $path->steps()->with('course')->orderBy('order')->get();
 
-        $userId = Auth::id();
-        $progressMap = UserStepProgress::where('user_id', $userId)
+        $user = Auth::user();
+        $progressMap = UserStepProgress::where('user_id', $user->id)
             ->whereIn('path_step_id', $steps->pluck('id'))
             ->pluck('status', 'path_step_id');
 
+        // Compute practice access once, not per step (it queries payments).
+        $hasAccess = $entitlements->hasPracticeAccess($user);
+
         $data = $steps->map(fn (PathStep $step) => array_merge(
             (new PathStepResource($step))->resolve(),
-            ['user_status' => $progressMap->get($step->id, 'not_started')]
+            [
+                'user_status' => $progressMap->get($step->id, 'not_started'),
+                'locked' => ! $hasAccess && ! $entitlements->stepIsFree($step),
+            ]
         ));
 
         return response()->json(['data' => $data]);
     }
 
-    public function show(PathStep $step): JsonResponse
+    public function show(PathStep $step, EntitlementService $entitlements): JsonResponse
     {
+        if (! $entitlements->canAccessStep(Auth::user(), $step)) {
+            throw new AuthorizationException('This step is available on Practice Pro. Upgrade to unlock it.');
+        }
+
         $step->load('course', 'challenge');
 
         $userStatus = UserStepProgress::where('user_id', Auth::id())

@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\PaymentStatus;
+use App\Enums\PaymentTier;
 use App\Models\Challenge;
+use App\Models\Payment;
 use App\Models\User;
 use Database\Seeders\BadgesSeeder;
 use Database\Seeders\RoleSeeder;
@@ -15,6 +18,11 @@ use Tests\TestCase;
  * user-submitted code via Judge0 (docs/architecture-review.md Phase 1).
  * Every Judge0 call is faked; Http::preventStrayRequests() (tests/TestCase)
  * means a missed fake fails the test instead of hitting the real API.
+ *
+ * $this->user holds Practice Pro access (a paid payment) so the run/show
+ * mechanics tests aren't affected by the F4 content gate regardless of the
+ * factory's random difficulty — the gate itself is covered separately at
+ * the bottom with a dedicated free user.
  */
 class ChallengeApiTest extends TestCase
 {
@@ -30,6 +38,20 @@ class ChallengeApiTest extends TestCase
 
         $this->user = User::factory()->create();
         $this->user->assignRole('client');
+        $this->grantPracticeAccess($this->user);
+    }
+
+    private function grantPracticeAccess(User $user): void
+    {
+        Payment::create([
+            'user_id' => $user->id,
+            'stripe_session_id' => 'cs_test_'.$user->id,
+            'tier' => PaymentTier::PRACTICE,
+            'amount' => 1200,
+            'currency' => 'eur',
+            'status' => PaymentStatus::PAID,
+            'paid_at' => now(),
+        ]);
     }
 
     // ── Index / Show ──────────────────────────────────────────
@@ -255,6 +277,70 @@ class ChallengeApiTest extends TestCase
 
         $response->assertJson(['passed' => false]);
         $this->assertStringContainsString('Judge0 API request failed', $response->json('tests.0.message'));
+    }
+
+    // ── F4 content gate ───────────────────────────────────────
+
+    public function test_free_user_cannot_open_a_premium_challenge(): void
+    {
+        $free = User::factory()->create();
+        $free->assignRole('client');
+        $challenge = Challenge::factory()->create(['difficulty' => 'advanced', 'is_teaser' => false]);
+
+        $this->actingAs($free, 'sanctum')
+            ->getJson("/api/challenges/{$challenge->slug}")
+            ->assertForbidden();
+    }
+
+    public function test_free_user_cannot_run_a_premium_challenge(): void
+    {
+        $free = User::factory()->create();
+        $free->assignRole('client');
+        $challenge = Challenge::factory()->create(['difficulty' => 'advanced', 'is_teaser' => false]);
+
+        $this->actingAs($free, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php'])
+            ->assertForbidden();
+    }
+
+    public function test_free_user_can_open_a_beginner_challenge(): void
+    {
+        $free = User::factory()->create();
+        $free->assignRole('client');
+        $challenge = Challenge::factory()->create(['difficulty' => 'beginner', 'is_teaser' => false]);
+
+        $this->actingAs($free, 'sanctum')
+            ->getJson("/api/challenges/{$challenge->slug}")
+            ->assertOk();
+    }
+
+    public function test_practice_pro_user_can_open_a_premium_challenge(): void
+    {
+        $challenge = Challenge::factory()->create(['difficulty' => 'advanced', 'is_teaser' => false]);
+
+        // $this->user holds Practice Pro access (see setUp)
+        $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/challenges/{$challenge->slug}")
+            ->assertOk();
+    }
+
+    public function test_list_marks_premium_challenges_locked_and_hides_their_code_for_free_users(): void
+    {
+        $free = User::factory()->create();
+        $free->assignRole('client');
+        Challenge::factory()->create(['title' => 'Beginner Free', 'difficulty' => 'beginner', 'is_teaser' => false]);
+        Challenge::factory()->create(['title' => 'Advanced Locked', 'difficulty' => 'advanced', 'is_teaser' => false]);
+
+        $data = collect($this->actingAs($free, 'sanctum')->getJson('/api/challenges')->json('data'));
+
+        $begin = $data->firstWhere('title', 'Beginner Free');
+        $adv = $data->firstWhere('title', 'Advanced Locked');
+
+        $this->assertFalse($begin['locked']);
+        $this->assertNotNull($begin['boilerplate_code']);
+        $this->assertTrue($adv['locked']);
+        $this->assertNull($adv['boilerplate_code']);
+        $this->assertNull($adv['tests_code']);
     }
 
     /** @param array<string, mixed> $overrides */

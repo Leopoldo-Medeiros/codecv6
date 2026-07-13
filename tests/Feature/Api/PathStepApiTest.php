@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\PaymentStatus;
+use App\Enums\PaymentTier;
 use App\Models\Course;
 use App\Models\Path;
 use App\Models\PathStep;
+use App\Models\Payment;
 use App\Models\User;
 use Database\Seeders\BadgesSeeder;
 use Database\Seeders\RoleSeeder;
@@ -106,6 +109,56 @@ class PathStepApiTest extends TestCase
             ->assertOk();
 
         $this->assertSame('not_started', $response->json('data.0.user_status'));
+    }
+
+    // ── F4 content gate ───────────────────────────────────────
+
+    public function test_step_list_marks_later_steps_locked_for_free_users(): void
+    {
+        PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0, 'title' => 'Free 1']);
+        PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 1, 'title' => 'Free 2']);
+        PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 2, 'title' => 'Locked']);
+
+        $data = collect($this->actingAs($this->client, 'sanctum')
+            ->getJson("/api/paths/{$this->path->id}/steps")->json('data'));
+
+        $this->assertFalse($data->firstWhere('title', 'Free 1')['locked']);
+        $this->assertFalse($data->firstWhere('title', 'Free 2')['locked']);
+        $this->assertTrue($data->firstWhere('title', 'Locked')['locked']);
+    }
+
+    public function test_free_user_cannot_open_a_locked_step(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 5]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->getJson("/api/path-steps/{$step->id}")
+            ->assertForbidden();
+    }
+
+    public function test_free_user_can_open_an_early_step(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->getJson("/api/path-steps/{$step->id}")
+            ->assertOk();
+    }
+
+    public function test_practice_pro_user_can_open_a_locked_step(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 5]);
+        Payment::create([
+            'user_id' => $this->client->id,
+            'stripe_session_id' => 'cs_test_gate',
+            'tier' => PaymentTier::PRACTICE,
+            'amount' => 1200, 'currency' => 'eur',
+            'status' => PaymentStatus::PAID, 'paid_at' => now(),
+        ]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->getJson("/api/path-steps/{$step->id}")
+            ->assertOk();
     }
 
     // ── Store ─────────────────────────────────────────────────
