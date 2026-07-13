@@ -17,6 +17,13 @@
       <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
     </div>
 
+    <div v-else-if="locked" class="mx-auto max-w-md py-20">
+      <LockedUpsell subtitle="This step is part of the Practice Pro library. Upgrade to continue this path — €12/month, cancel anytime." />
+      <div class="mt-4 text-center">
+        <UButton color="gray" variant="ghost" size="sm" @click="navigateTo('/my-paths')">Back to My Paths</UButton>
+      </div>
+    </div>
+
     <div v-else-if="error || !step" class="py-20 text-center">
       <p class="text-sm text-gray-500 dark:text-gray-400">Step not found.</p>
       <UButton class="mt-4" color="emerald" variant="ghost" @click="navigateTo('/my-paths')">Back to My Paths</UButton>
@@ -186,6 +193,7 @@ const stepId = Number(route.params.step_id)
 const step = ref<PathStep | null>(null)
 const pending = ref(true)
 const error = ref(false)
+const locked = ref(false)
 const saving = ref(false)
 const showBlockModal = ref(false)
 const blockingStepTitle = ref('')
@@ -193,8 +201,13 @@ const blockingStepTitle = ref('')
 onMounted(async () => {
   try {
     step.value = await fetchStep(stepId)
-  } catch {
-    error.value = true
+  } catch (err: unknown) {
+    // 403 from the F4 content gate → show an upsell, not a generic error
+    if ((err as { response?: { status?: number } })?.response?.status === 403) {
+      locked.value = true
+    } else {
+      error.value = true
+    }
   } finally {
     pending.value = false
   }

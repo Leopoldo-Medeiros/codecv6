@@ -26,6 +26,9 @@ export interface PathStep {
   order: number
   course?: { id: number; name: string; slug: string } | null
   user_status?: 'not_started' | 'in_progress' | 'done'
+  // Practice funnel F4 gate: true when this step needs Practice Pro and the
+  // current user doesn't have access. Set by the steps list endpoint.
+  locked?: boolean
   created_at: string
   updated_at: string
 }

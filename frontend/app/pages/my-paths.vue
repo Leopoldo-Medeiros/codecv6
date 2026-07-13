@@ -137,9 +137,14 @@
                     <span v-else>{{ i + 1 }}</span>
                   </div>
 
-                  <!-- Type icon -->
-                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">
-                    <UIcon :name="stepTypeIcon(step.type)" class="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                  <!-- Type icon (or lock for Practice Pro content) -->
+                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+                    :class="step.locked ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-gray-100 dark:bg-gray-800'">
+                    <UIcon
+                      :name="step.locked ? 'i-heroicons-lock-closed' : stepTypeIcon(step.type)"
+                      class="h-3.5 w-3.5"
+                      :class="step.locked ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'"
+                    />
                   </div>
 
                   <!-- Title + sub-label -->
@@ -156,8 +161,11 @@
                     </p>
                   </div>
 
-                  <!-- Status badge -->
-                  <UBadge :color="statusBadgeColor(step.user_status)" variant="subtle" size="xs" class="shrink-0">
+                  <!-- Status badge (or Pro badge for locked content) -->
+                  <UBadge v-if="step.locked" color="amber" variant="subtle" size="xs" class="shrink-0">
+                    Pro
+                  </UBadge>
+                  <UBadge v-else :color="statusBadgeColor(step.user_status)" variant="subtle" size="xs" class="shrink-0">
                     {{ statusLabel(step.user_status) }}
                   </UBadge>
 
@@ -172,7 +180,10 @@
                   <div v-if="expanded.has(step.id)"
                     class="border-t border-gray-100 bg-gray-50/60 px-5 py-4 dark:border-gray-700/60 dark:bg-gray-800/30">
 
-                    <div class="space-y-4">
+                    <!-- Locked: Practice Pro upsell replaces the step body -->
+                    <LockedUpsell v-if="step.locked" compact />
+
+                    <div v-else class="space-y-4">
 
                       <!-- Overview -->
                       <div v-if="step.description">
