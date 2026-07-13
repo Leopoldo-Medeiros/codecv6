@@ -12,6 +12,7 @@ use App\Models\UserStepProgress;
 use App\Notifications\ClientAssigned;
 use App\Notifications\NewClientOnboarded;
 use App\Notifications\PathAssigned;
+use App\Services\CoachingRecommendationService;
 use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
@@ -376,6 +377,18 @@ class UserController extends Controller
                     'icon' => $badge->icon,
                     'earned_at' => $badge->pivot->earned_at,
                 ]),
+        ]);
+    }
+
+    /**
+     * Practice funnel F6 — the coaching upsell nudge for the current user.
+     * Returns the single most relevant tier they've earned and don't yet own,
+     * or {recommendation: null} when they haven't earned a nudge.
+     */
+    public function coachingRecommendation(Request $request, CoachingRecommendationService $coaching): JsonResponse
+    {
+        return response()->json([
+            'recommendation' => $coaching->recommend($request->user()),
         ]);
     }
 }

@@ -118,6 +118,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Practice funnel — gamification snapshot (XP, streak, badges)
     Route::get('/me/progress', [UserController::class, 'progress']);
 
+    // Practice funnel — coaching upsell recommendation (F6)
+    Route::get('/me/coaching-recommendation', [UserController::class, 'coachingRecommendation']);
+
     // Practice funnel — public skill profile visibility (owner only)
     Route::patch('/me/public-profile', [PublicProfileController::class, 'update']);
 

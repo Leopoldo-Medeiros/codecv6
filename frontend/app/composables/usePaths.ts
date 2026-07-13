@@ -36,6 +36,23 @@ export interface PathStep {
   updated_at: string
 }
 
+// Shape returned by PUT /path-steps/{id}/progress — carries the gamification
+// delta (F1) so the UI can react to freshly-earned XP/badges (e.g. the F6
+// coaching celebration when the path_completed badge lands).
+export interface StepProgressResponse {
+  message: string
+  status: 'not_started' | 'in_progress' | 'done'
+  progress: {
+    xp_awarded: number
+    xp_points: number
+    current_streak: number
+    new_badges: Array<{ key: string; name: string; description: string; icon: string }>
+  } | null
+  // True whenever this action completed the whole path (fires on every path,
+  // not just the first — drives the F6 coaching celebration).
+  path_completed: boolean
+}
+
 export interface Path {
   id: number
   name: string
@@ -188,7 +205,7 @@ export const usePaths = () => {
   }
 
   const updateStepProgress = async (stepId: number, status: PathStep['user_status']) => {
-    return api.put(`/path-steps/${stepId}/progress`, { status })
+    return api.put(`/path-steps/${stepId}/progress`, { status }) as Promise<StepProgressResponse>
   }
 
   return {

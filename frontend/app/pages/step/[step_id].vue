@@ -195,6 +195,31 @@
       </UCard>
     </UModal>
 
+    <!-- Path-completed celebration + coaching nudge (F6) -->
+    <UModal v-model="showCoachingModal">
+      <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-700' }">
+        <template #header>
+          <div class="flex items-center gap-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/60">
+              <UIcon name="i-heroicons-trophy" class="h-5 w-5 text-emerald-500" />
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900 dark:text-white">Path complete! 🎉</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">You've earned the Path Completed badge.</p>
+            </div>
+          </div>
+        </template>
+
+        <CoachingNudge v-if="coaching" :recommendation="coaching" />
+
+        <template #footer>
+          <div class="flex justify-end">
+            <UButton color="gray" variant="ghost" @click="showCoachingModal = false">Maybe later</UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+
   </NuxtLayout>
 </template>
 
@@ -207,6 +232,7 @@ definePageMeta({ layout: false, middleware: 'auth' })
 const route = useRoute()
 const toast = useToast()
 const { fetchStep, updateStepProgress } = usePaths()
+const { recommendation: coaching, fetchRecommendation } = useCoaching()
 
 const stepId = Number(route.params.step_id)
 
@@ -217,6 +243,7 @@ const locked = ref(false)
 const saving = ref(false)
 const showBlockModal = ref(false)
 const blockingStepTitle = ref('')
+const showCoachingModal = ref(false)
 
 onMounted(async () => {
   try {
@@ -239,7 +266,12 @@ async function setStatus(status: NonNullable<PathStep['user_status']>) {
   const prev = step.value.user_status
   step.value = { ...step.value, user_status: status }
   try {
-    await updateStepProgress(stepId, status)
+    const res = await updateStepProgress(stepId, status)
+    // Highest-intent coaching moment: the user just finished the whole path.
+    if (res?.path_completed) {
+      await fetchRecommendation()
+      if (coaching.value) showCoachingModal.value = true
+    }
   } catch (err: unknown) {
     step.value = { ...step.value!, user_status: prev }
     const data = (err as { data?: { blocking_step?: string } })?.data

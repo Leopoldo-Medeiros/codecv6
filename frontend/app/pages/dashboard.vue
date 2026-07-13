@@ -168,6 +168,9 @@
         <!-- Practice progress (XP / streak / badges / public profile) -->
         <ProgressWidget v-if="!isAdmin" />
 
+        <!-- Coaching upsell nudge (F6) — clients only, when they've earned one -->
+        <CoachingNudge v-if="isClient && coaching" :recommendation="coaching" />
+
         <!-- Quick links -->
         <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
@@ -223,12 +226,13 @@ import type { Path } from '~/composables/usePaths'
 
 definePageMeta({ layout: false, middleware: 'auth' })
 
-const { user } = useAuth()
+const { user, isClient } = useAuth()
 const isAdmin  = computed(() => user.value?.role === 'admin')
 
 const { fetchUsers }                           = useUsers()
 const { fetchCourses }                         = useCourses()
 const { fetchPaths, fetchMyPaths, fetchSteps } = usePaths()
+const { recommendation: coaching, fetchRecommendation } = useCoaching()
 
 const statsLoading = ref(false)
 
@@ -316,6 +320,7 @@ onMounted(async () => {
       if (pathsRes?.meta)   totalPaths.value   = pathsRes.meta.total
       recentUsers.value = usersRes?.data ?? []
     } else {
+      fetchRecommendation() // fire-and-forget; the nudge renders once it lands
       const myPaths    = await fetchMyPaths()
       const stepArrays = await Promise.all(myPaths.map((p: Path) => fetchSteps(p.id)))
 

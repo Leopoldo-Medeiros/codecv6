@@ -677,6 +677,55 @@ class PathStepApiTest extends TestCase
         $this->assertNull($response->json('progress'));
     }
 
+    public function test_completing_the_final_step_flags_path_completed(): void
+    {
+        // Two-step path; finish step 1, then step 2 completes the whole path.
+        $first = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0]);
+        $last = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 1]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$first->id}/progress", ['status' => 'done'])
+            ->assertOk()
+            ->assertJsonPath('path_completed', false);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$last->id}/progress", ['status' => 'done'])
+            ->assertOk()
+            ->assertJsonPath('path_completed', true);
+    }
+
+    public function test_path_completed_flag_fires_on_every_path_not_just_the_first(): void
+    {
+        // The one-time path_completed badge only lands once; the response flag
+        // must still be true when a SECOND path is finished (F6 celebration).
+        $pathA = Path::factory()->create(['consultant_id' => $this->consultant->id]);
+        $stepA = PathStep::factory()->create(['path_id' => $pathA->id, 'order' => 0]);
+        $pathB = Path::factory()->create(['consultant_id' => $this->consultant->id]);
+        $stepB = PathStep::factory()->create(['path_id' => $pathB->id, 'order' => 0]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$stepA->id}/progress", ['status' => 'done'])
+            ->assertJsonPath('path_completed', true);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$stepB->id}/progress", ['status' => 'done'])
+            ->assertJsonPath('path_completed', true);
+    }
+
+    public function test_re_marking_the_final_step_done_does_not_reflag_path_completed(): void
+    {
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done'])
+            ->assertJsonPath('path_completed', true);
+
+        // No fresh transition → no repeat celebration.
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done'])
+            ->assertJsonPath('path_completed', false);
+    }
+
     #[DataProvider('invalidProgressStatusProvider')]
     public function test_progress_rejects_invalid_status(string $status): void
     {

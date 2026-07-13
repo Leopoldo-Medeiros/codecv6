@@ -270,7 +270,9 @@ class PathStepController extends Controller
             $client, $step, $request->status, $hadAnyProgress
         );
 
-        $progress = ($request->status === 'done' && $previousStatus !== 'done')
+        $freshlyDone = $request->status === 'done' && $previousStatus !== 'done';
+
+        $progress = $freshlyDone
             ? $gamification->recordStepCompletion($client, $step)
             : null;
 
@@ -278,7 +280,29 @@ class PathStepController extends Controller
             'message' => 'Progress updated',
             'status' => $request->status,
             'progress' => $progress,
+            // A per-completion signal for the client (F6 coaching celebration).
+            // Unlike the one-time `path_completed` badge, this is true every
+            // time an action finishes a path in full, so the nudge can fire on
+            // each path — not just the user's first one.
+            'path_completed' => $freshlyDone && $this->pathIsFullyDone($client->id, $step->path_id),
         ]);
+    }
+
+    /** Whether the user has now marked every step of the path 'done'. */
+    private function pathIsFullyDone(int $userId, int $pathId): bool
+    {
+        $stepIds = PathStep::where('path_id', $pathId)->pluck('id');
+
+        if ($stepIds->isEmpty()) {
+            return false;
+        }
+
+        $doneCount = UserStepProgress::where('user_id', $userId)
+            ->whereIn('path_step_id', $stepIds)
+            ->where('status', 'done')
+            ->count();
+
+        return $doneCount === $stepIds->count();
     }
 
     private function dispatchProgressNotifications(
