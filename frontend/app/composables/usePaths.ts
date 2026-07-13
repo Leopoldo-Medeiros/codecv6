@@ -1,6 +1,26 @@
-export type StepType = 'reading' | 'lab' | 'challenge' | 'quiz'
+export type StepType = 'reading' | 'lab' | 'challenge' | 'quiz' | 'incident'
 
 export type StepDifficulty = 'beginner' | 'intermediate' | 'advanced'
+
+// Curated telemetry for a type=incident step (observability track, Phase A).
+// Display-only — rendered client-side; the graded questions live in `quiz`.
+export interface TraceSpan {
+  id: string
+  parent: string | null
+  name: string
+  service?: string
+  start?: number
+  dur?: number
+  kind?: string
+  repeat?: number
+}
+
+export interface IncidentEvidence {
+  scenario?: string
+  trace?: { root?: string; spans: TraceSpan[] }
+  metrics?: Array<{ title: string; unit?: string; series: Array<[number, number]>; threshold?: number }>
+  logs?: Array<{ t?: string; level?: string; request_id?: string; msg: string }>
+}
 
 export interface PathStep {
   id: number
@@ -24,6 +44,8 @@ export interface PathStep {
   challenge?: import('~/types/models').Challenge | null
   // Quiz questions (answer key stripped by the API) — practice funnel F5
   quiz?: Array<{ id: number; question: string; options: string[] }>
+  // Incident telemetry (observability track, Phase A) — display-only
+  evidence?: IncidentEvidence
 
   resources?: Array<{ label: string; url: string }>
   order: number

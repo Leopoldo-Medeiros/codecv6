@@ -236,6 +236,7 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 4. `ChallengeSeeder` — seeds coding challenges with boilerplate + test code
 5. `LearningPathsSeeder` — seeds `Path` records
 6. `PathStepSeeder` — seeds `PathStep` records (links steps to paths and challenges)
+6b. `IncidentSeeder` — seeds the "Observability 101" path + the N+1 incident-reader step (observability track, Phase A)
 7. Optional: `ClientsSeeder` — interactive prompt for fake clients
 
 `UserFactory` uses `afterCreating()` to auto-create a `Profile` and assign the `client` role.
@@ -253,6 +254,8 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 **Content gating (practice funnel F4):** `EntitlementService` is the single source of truth for what practice content a user may access. Free tier = every teaser + every `beginner`-difficulty challenge, plus the first 2 steps (order 0/1) of any path. Everything else needs practice access, granted by role (admin/consultant always) or a PAID `Payment` in a practice-granting tier (`PRACTICE`, `BOOTCAMP`, `MENTORSHIP` — not `ACCELERATOR`). Enforced in `ChallengeController::show/run` and `PathStepController::show` (403 via `AuthorizationException`); list endpoints stay open but add a `locked` flag (and `ChallengeResource` nulls `boilerplate_code`/`tests_code` when locked so gated content can't be scraped off the list). The public teaser endpoints are unaffected — teasers are free by definition. **KNOWN LIMITATION:** access means "has ever paid for a granting tier" — the webhook doesn't yet handle subscription cancellation/expiry, so lapse handling (needs `customer.subscription.deleted` etc.) is a separate follow-up.
 
 **Coaching upsell nudges (practice funnel F6 — "Get Coached"):** `CoachingRecommendationService` recommends the single most relevant coaching tier for a practicing user, bridging self-serve practice into the high-touch tiers. Philosophy is *earned* nudges — a recommendation only surfaces once the user has proven something (finished a path, built a streak); a brand-new user gets `null` (that stage belongs to F1's ProgressWidget). Signals: `xp_points`, `longest_streak`, challenges completed (`UserChallengeCompletion` count), and paths completed (all steps `done`). The ladder is priority-ordered and fully config-driven in `config/coaching.php` (`priority` + per-tier `thresholds` with OR semantics + copy): mentorship (streak ≥ 7 or XP ≥ 300) → accelerator (≥ 1 path or ≥ 5 challenges) → bootcamp (≥ 3 challenges). The first qualifying tier the user hasn't already PAID for wins (owned-tier suppression reads `Payment` PAID rows, mirroring `EntitlementService`). Exposed at `GET /me/coaching-recommendation` (`{recommendation: {...}|null}`). Frontend: `CoachingNudge.vue` renders on the dashboard right-rail (clients only) and inside a path-completion celebration modal on `/step/[id]` (the highest-intent moment, triggered when the `path_completed` badge lands in the progress response). CTA links to `/pricing#plans`.
+
+**Observability track — incident reader (Phase A):** A `PathStep` of `type = 'incident'` teaches production debugging by making the learner read curated telemetry and diagnose a fault. The telemetry lives in the `evidence` JSON column (`{ scenario, trace: { root, spans[] }, metrics[], logs[] }`) and is rendered entirely client-side — **no live environment, no per-user compute** (that's the deliberate cheap-to-run scope of Phase A). The diagnostic questions reuse the F5 `quiz` column and grading wholesale: `submitQuiz` accepts both `quiz` and `incident` types, so grading, XP, and the F4 gate are unchanged. Frontend renderers: `TraceWaterfall.vue` (span waterfall with per-service colors + `repeat`/N+1 collapsing + click-to-inspect), `MetricChart.vue` (inline-SVG line/area with threshold), `LogStream.vue` (level-colored, correlation-id filter), composed by `IncidentRunner.vue` (scenario + evidence + reused `<QuizRunner>`). Seeded example: the N+1 checkout incident in `IncidentSeeder` ("Observability 101" path). This is the first slice of the larger observability track; live-environment phases (learner instruments a running service) are deliberately deferred until Phase A validates demand.
 
 **Quizzes (practice funnel F5):** A `PathStep` of `type = 'quiz'` stores its questions in the `quiz` JSON column — an array of `{ id, question, options[], correct_index, explanation }`. `PathStepResource` strips `correct_index`/`explanation` before serialising, so the answer key never reaches the client. Grading is server-side only: `POST /path-steps/{step}/quiz` (`PathStepController::submitQuiz`, F4-gated by `EntitlementService::canAccessStep`) validates `answers` (a `present|array` map of `questionId => optionIndex`), compares against the key, and returns `{ score, total, passed, results[] }` where each result carries `correct`/`correct_index`/`explanation` for post-submission review. `passed` is true only on a perfect score. The frontend renderer is `QuizRunner.vue`; on `passed` the step page marks the step `done` (which routes through the normal gamification XP path). Seeded example: the "Checkpoint: Modern PHP Reflexes" step in `PathStepSeeder`.
 
@@ -321,12 +324,13 @@ To embed a new interactive component in step content, add its block type to the 
 | `concept_content` | longText | Main Markdown body (see tiered content below) |
 | `resources` | json | `[{ label, url }]` — sidebar links |
 | `order` | smallint | Display order within the path |
-| `type` | enum | `reading` / `lab` / `challenge` / `quiz` |
+| `type` | string | `reading` / `lab` / `challenge` / `quiz` / `incident` (plain string, not a DB enum — allowed values enforced in `stepRules`) |
 | `lab_url` | string | External lab URL (type=lab) |
 | `instructions` | json | `[{ id, text }]` — lab instructions |
 | `challenge_prompt` | text | (deprecated — use linked Challenge) |
 | `challenge_slug` | string FK | Links to `challenges.slug` (type=challenge) |
-| `quiz` | json | `[{ id, question, options[], correct_index, explanation }]` (type=quiz); answer key stripped by the Resource — see F5 note above |
+| `quiz` | json | `[{ id, question, options[], correct_index, explanation }]` (type=quiz **and** type=incident — incidents reuse the quiz grading); answer key stripped by the Resource — see F5 note above |
+| `evidence` | json | `{ scenario, trace: { root, spans[] }, metrics[], logs[] }` (type=incident) — curated telemetry rendered client-side; display-only, no answer key — see Observability track below |
 | `estimated_minutes` | smallint | Sidebar time estimate |
 | `difficulty` | enum | `beginner` / `intermediate` / `advanced` |
 | `prerequisites` | json | `[{ id, title }]` — prerequisite steps |
@@ -352,6 +356,7 @@ To embed a new interactive component in step content, add its block type to the 
 - `challenge` with linked `Challenge` → `ChallengeEditor` full-screen overlay
 - `challenge`/`lab` with no linked exercise → placeholder card
 - `quiz` with `quiz[]` questions → `QuizRunner` (F5); marks the step `done` on a perfect score
+- `incident` with `evidence` → `IncidentRunner` (observability track): renders the telemetry + reuses `QuizRunner` for diagnosis; marks `done` on a perfect score
 - anything else → fallback card
 
 Progress update calls `updateStepProgress(stepId, status)` which catches `{ data: { blocking_step } }` errors and shows a blocking modal.

@@ -121,6 +121,24 @@
           </div>
         </div>
 
+        <div v-else-if="step.type === 'incident'" class="space-y-4">
+          <IncidentRunner
+            v-if="step.evidence"
+            :step-id="step.id"
+            :evidence="step.evidence"
+            :questions="step.quiz ?? []"
+            @passed="setStatus('done')"
+          />
+          <div v-else class="mx-auto max-w-2xl">
+            <UCard>
+              <div class="py-8 text-center">
+                <UIcon name="i-heroicons-signal" class="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">No incident telemetry attached yet.</p>
+              </div>
+            </UCard>
+          </div>
+        </div>
+
         <div v-else-if="step.type === 'quiz'" class="space-y-4">
           <div v-if="step.description" class="mx-auto max-w-2xl">
             <p class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{{ step.description }}</p>
@@ -294,6 +312,7 @@ function stepTypeIcon(type?: string) {
   if (type === 'lab') return 'i-heroicons-command-line'
   if (type === 'challenge') return 'i-heroicons-trophy'
   if (type === 'quiz') return 'i-heroicons-question-mark-circle'
+  if (type === 'incident') return 'i-heroicons-signal'
   return 'i-heroicons-book-open'
 }
 
