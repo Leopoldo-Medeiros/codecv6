@@ -10,6 +10,16 @@
 
 return [
     'tiers' => [
+        'practice' => [
+            'name' => 'Practice Pro',
+            'description' => 'Unlimited access to the full coding challenge and learning-path library, plus the unlimited playground.',
+            'recurring' => true,
+            'interval' => 'month',
+            'prices' => [
+                'eur' => 1200,
+                'brl' => 4900,
+            ],
+        ],
         'accelerator' => [
             'name' => 'Career Accelerator',
             'description' => 'CV writing, LinkedIn optimisation, and cover letter for IT professionals.',

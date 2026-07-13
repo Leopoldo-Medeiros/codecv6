@@ -90,6 +90,43 @@ class CheckoutApiTest extends TestCase
             ]);
     }
 
+    public function test_practice_pro_tier_is_accepted_for_checkout(): void
+    {
+        $user = User::factory()->create();
+
+        $fakeSession = Session::constructFrom([
+            'id' => 'cs_test_practice',
+            'object' => 'checkout.session',
+            'url' => 'https://checkout.stripe.com/c/pay/cs_test_practice',
+        ]);
+
+        $this->mock(StripeService::class, function (MockInterface $mock) use ($fakeSession) {
+            $mock->shouldReceive('createCheckoutSession')
+                ->once()
+                ->withArgs(fn ($u, $tier, $currency) => $tier === PaymentTier::PRACTICE && $currency === 'eur')
+                ->andReturn($fakeSession);
+        });
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/checkout/session', [
+                'tier' => 'practice',
+                'currency' => 'eur',
+            ])
+            ->assertOk()
+            ->assertJsonPath('session_id', 'cs_test_practice');
+    }
+
+    public function test_practice_pro_tier_is_a_recurring_subscription(): void
+    {
+        $this->assertTrue(PaymentTier::PRACTICE->isRecurring());
+
+        $config = config('pricing.tiers.practice');
+        $this->assertTrue($config['recurring']);
+        $this->assertSame('month', $config['interval']);
+        $this->assertArrayHasKey('eur', $config['prices']);
+        $this->assertArrayHasKey('brl', $config['prices']);
+    }
+
     public function test_status_returns_payment_for_owner(): void
     {
         $user = User::factory()->create();

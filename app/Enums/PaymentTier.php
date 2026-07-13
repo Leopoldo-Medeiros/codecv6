@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum PaymentTier: string
 {
+    case PRACTICE = 'practice';
     case ACCELERATOR = 'accelerator';
     case BOOTCAMP = 'bootcamp';
     case MENTORSHIP = 'mentorship';
@@ -15,6 +16,6 @@ enum PaymentTier: string
 
     public function isRecurring(): bool
     {
-        return $this === self::MENTORSHIP;
+        return in_array($this, [self::PRACTICE, self::MENTORSHIP], true);
     }
 }

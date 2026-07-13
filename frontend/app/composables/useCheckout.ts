@@ -1,4 +1,4 @@
-export type CheckoutTier = 'accelerator' | 'bootcamp' | 'mentorship'
+export type CheckoutTier = 'practice' | 'accelerator' | 'bootcamp' | 'mentorship'
 export type CheckoutCurrency = 'eur' | 'brl'
 export type CheckoutStatus = 'pending' | 'paid' | 'failed' | 'refunded'
 

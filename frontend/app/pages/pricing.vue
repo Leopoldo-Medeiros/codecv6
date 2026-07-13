@@ -22,6 +22,25 @@
       <div class="mkt-container">
         <div class="plans-grid">
 
+          <!-- Practice Pro — entry-level subscription -->
+          <div class="pcard">
+            <div class="pcard__tier">Self-paced</div>
+            <h2 class="pcard__name">Practice Pro</h2>
+            <p class="pcard__desc">Learn by doing, at your own pace</p>
+            <div class="pcard__price-row">
+              <span class="pcard__currency">€</span>
+              <span class="pcard__amount">12</span>
+            </div>
+            <p class="pcard__billing">per month · cancel anytime</p>
+            <ul class="pcard__features">
+              <li v-for="f in practiceFeatures" :key="f.text" :class="['pcard__feat', { 'pcard__feat--off': !f.ok }]">
+                <span :class="['pcard__check', { 'pcard__check--off': !f.ok }]">{{ f.ok ? '✓' : '✗' }}</span>
+                {{ f.text }}
+              </li>
+            </ul>
+            <button type="button" :disabled="loadingTier === 'practice'" class="mkt-btn mkt-btn--outline mkt-btn--lg pcard__cta" @click="handleCta('practice')">{{ loadingTier === 'practice' ? 'Redirecting…' : 'Start Practising' }}</button>
+          </div>
+
           <!-- Career Accelerator -->
           <div class="pcard">
             <div class="pcard__tier">Starter</div>
@@ -98,6 +117,10 @@
               <tr>
                 <th class="ctable__lh">Feature</th>
                 <th>
+                  <div class="ctable__pname">Practice Pro</div>
+                  <div class="ctable__pprice">€12/month</div>
+                </th>
+                <th>
                   <div class="ctable__pname">Career Accelerator</div>
                   <div class="ctable__pprice">€99 one-time</div>
                 </th>
@@ -114,6 +137,9 @@
             <tbody>
               <tr v-for="(row, i) in compareRows" :key="row.feature" :class="{ 'ctable__row--alt': i % 2 !== 0 }">
                 <td class="ctable__feat">{{ row.feature }}</td>
+                <td class="ctable__cell">
+                  <span :class="row.practice ? 'ctable__yes' : 'ctable__no'">{{ row.practice ? '✓' : '–' }}</span>
+                </td>
                 <td class="ctable__cell">
                   <span :class="row.accelerator ? 'ctable__yes' : 'ctable__no'">{{ row.accelerator ? '✓' : '–' }}</span>
                 </td>
@@ -233,7 +259,7 @@ const handleCta = async (tier: CheckoutTier): Promise<void> => {
 
 onMounted(() => {
   const tier = route.query.tier as CheckoutTier | undefined
-  if (tier && isAuthenticated.value && ['accelerator', 'bootcamp', 'mentorship'].includes(tier)) {
+  if (tier && isAuthenticated.value && ['practice', 'accelerator', 'bootcamp', 'mentorship'].includes(tier)) {
     handleCta(tier)
   }
 })
@@ -250,6 +276,13 @@ useSeoMeta({
 // (price, availability, plan name) for queries about CV writing services.
 // Explicit @id required because @nuxtjs/seo dedupes Products without one.
 useSchemaOrg([
+  defineProduct({
+    '@id': 'https://codecv.ie/pricing#practice-pro',
+    name: 'Practice Pro',
+    description: 'Unlimited access to the full coding challenge and learning-path library, plus the unlimited playground. Cancel anytime.',
+    offers: [{ '@type': 'Offer', price: 12, priceCurrency: 'EUR', availability: 'https://schema.org/InStock', url: 'https://codecv.ie/pricing' }],
+    brand: { '@type': 'Brand', name: 'CODECV' },
+  }),
   defineProduct({
     '@id': 'https://codecv.ie/pricing#career-accelerator',
     name: 'Career Accelerator',
@@ -275,6 +308,15 @@ useSchemaOrg([
 
 const open = ref(0)
 
+const practiceFeatures = [
+  { text: 'Full coding challenge library', ok: true },
+  { text: 'All structured learning paths', ok: true },
+  { text: 'Unlimited playground', ok: true },
+  { text: 'XP, streaks & badges', ok: true },
+  { text: 'Public skill profile', ok: true },
+  { text: 'CV & LinkedIn Review', ok: false },
+  { text: '1-on-1 Mentorship', ok: false },
+]
 const acceleratorFeatures = [
   { text: 'CV Writing (PT/EN)', ok: true },
   { text: 'Cover Letter Writing', ok: true },
@@ -309,16 +351,18 @@ const mentorshipFeatures = [
   'Access to Bootcamp Materials',
 ]
 const compareRows = [
-  { feature: 'CV Writing (PT/EN)', accelerator: true, bootcamp: true, mentorship: true },
-  { feature: 'LinkedIn Profile', accelerator: true, bootcamp: true, mentorship: true },
-  { feature: 'WhatsApp Support', accelerator: true, bootcamp: true, mentorship: true },
-  { feature: 'Interview Preparation', accelerator: false, bootcamp: true, mentorship: true },
-  { feature: 'Laravel Stack Training', accelerator: false, bootcamp: true, mentorship: false },
-  { feature: 'New Relic Observability', accelerator: false, bootcamp: true, mentorship: true },
-  { feature: 'Certificate of Completion', accelerator: false, bootcamp: true, mentorship: false },
-  { feature: '1-on-1 Sessions', accelerator: false, bootcamp: false, mentorship: true },
-  { feature: 'Personalised Roadmap', accelerator: false, bootcamp: false, mentorship: true },
-  { feature: 'Support Until Hired', accelerator: false, bootcamp: false, mentorship: true },
+  { feature: 'Coding challenges & paths', practice: true, accelerator: false, bootcamp: true, mentorship: true },
+  { feature: 'XP, streaks & public profile', practice: true, accelerator: false, bootcamp: false, mentorship: false },
+  { feature: 'CV Writing (PT/EN)', practice: false, accelerator: true, bootcamp: true, mentorship: true },
+  { feature: 'LinkedIn Profile', practice: false, accelerator: true, bootcamp: true, mentorship: true },
+  { feature: 'WhatsApp Support', practice: false, accelerator: true, bootcamp: true, mentorship: true },
+  { feature: 'Interview Preparation', practice: false, accelerator: false, bootcamp: true, mentorship: true },
+  { feature: 'Laravel Stack Training', practice: false, accelerator: false, bootcamp: true, mentorship: false },
+  { feature: 'New Relic Observability', practice: false, accelerator: false, bootcamp: true, mentorship: true },
+  { feature: 'Certificate of Completion', practice: false, accelerator: false, bootcamp: true, mentorship: false },
+  { feature: '1-on-1 Sessions', practice: false, accelerator: false, bootcamp: false, mentorship: true },
+  { feature: 'Personalised Roadmap', practice: false, accelerator: false, bootcamp: false, mentorship: true },
+  { feature: 'Support Until Hired', practice: false, accelerator: false, bootcamp: false, mentorship: true },
 ]
 const faqs = [
   { q: 'What is included in the Career Accelerator?', a: 'The Career Accelerator delivers a complete CV rewrite in English and/or Portuguese, LinkedIn profile optimization, and a tailored cover letter — everything you need to start landing more interviews.' },
@@ -384,9 +428,12 @@ const faqs = [
 .plans-section { padding: 20px 0 100px; }
 .plans-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   align-items: start;
+}
+@media (max-width: 1000px) {
+  .plans-grid { grid-template-columns: repeat(2, 1fr); max-width: 640px; margin: 0 auto; }
 }
 .pcard {
   background: #fff;
