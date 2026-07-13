@@ -70,14 +70,21 @@ class PathStepController extends Controller
      * Grade a quiz submission server-side (practice funnel F5). The answer
      * key never leaves the API, so grading can't be gamed from the client.
      * Gated by the same F4 entitlement check as viewing the step.
+     *
+     * Also grades `incident` steps (observability track, Phase A): an incident
+     * carries its diagnostic questions in the same `quiz` column, so the whole
+     * grading path is reused — only the evidence (rendered client-side) differs.
      */
     public function submitQuiz(Request $request, PathStep $step, EntitlementService $entitlements): JsonResponse
     {
         if (! $entitlements->canAccessStep(Auth::user(), $step)) {
-            throw new AuthorizationException('This quiz is available on Practice Pro. Upgrade to unlock it.');
+            throw new AuthorizationException('This content is available on Practice Pro. Upgrade to unlock it.');
         }
 
-        abort_unless($step->type === 'quiz' && is_array($step->quiz) && $step->quiz !== [], 404);
+        abort_unless(
+            in_array($step->type, ['quiz', 'incident'], true) && is_array($step->quiz) && $step->quiz !== [],
+            404
+        );
 
         $request->validate([
             // present (not required): submitting with nothing answered is valid.
@@ -172,7 +179,7 @@ class PathStepController extends Controller
             'resources.*.label' => 'required|string|max:100',
             'resources.*.url' => 'required|url|max:500',
             'order' => 'nullable|integer|min:0',
-            'type' => 'nullable|in:reading,lab,challenge,quiz',
+            'type' => 'nullable|in:reading,lab,challenge,quiz,incident',
             'lab_url' => 'nullable|url|max:1000',
             'instructions' => 'nullable|array',
             'instructions.*.id' => 'required|integer',
@@ -187,6 +194,31 @@ class PathStepController extends Controller
             'quiz.*.options.*' => 'required|string|max:500',
             'quiz.*.correct_index' => 'required|integer|min:0',
             'quiz.*.explanation' => 'nullable|string|max:1000',
+            // Incident evidence (observability track, Phase A) — display-only
+            // telemetry. Validated loosely: authored server-side, not by end users.
+            'evidence' => 'nullable|array',
+            'evidence.scenario' => 'nullable|string|max:2000',
+            'evidence.trace' => 'nullable|array',
+            'evidence.trace.root' => 'nullable|string|max:255',
+            'evidence.trace.spans' => 'nullable|array|max:200',
+            'evidence.trace.spans.*.id' => 'required_with:evidence.trace.spans|string|max:64',
+            'evidence.trace.spans.*.parent' => 'nullable|string|max:64',
+            'evidence.trace.spans.*.name' => 'required_with:evidence.trace.spans|string|max:255',
+            'evidence.trace.spans.*.service' => 'nullable|string|max:64',
+            'evidence.trace.spans.*.start' => 'nullable|numeric',
+            'evidence.trace.spans.*.dur' => 'nullable|numeric',
+            'evidence.trace.spans.*.kind' => 'nullable|string|max:32',
+            'evidence.trace.spans.*.repeat' => 'nullable|integer|min:1|max:100000',
+            'evidence.metrics' => 'nullable|array|max:10',
+            'evidence.metrics.*.title' => 'required_with:evidence.metrics|string|max:120',
+            'evidence.metrics.*.unit' => 'nullable|string|max:20',
+            'evidence.metrics.*.series' => 'required_with:evidence.metrics|array',
+            'evidence.metrics.*.threshold' => 'nullable|numeric',
+            'evidence.logs' => 'nullable|array|max:100',
+            'evidence.logs.*.t' => 'nullable|string|max:32',
+            'evidence.logs.*.level' => 'nullable|string|max:16',
+            'evidence.logs.*.request_id' => 'nullable|string|max:64',
+            'evidence.logs.*.msg' => 'required_with:evidence.logs|string|max:500',
         ];
     }
 

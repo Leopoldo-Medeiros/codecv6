@@ -38,6 +38,13 @@ class PathStepResource extends JsonResource
                     'options' => $q['options'],
                 ], $this->quiz)
             ),
+            // Curated telemetry for a type=incident step (observability track,
+            // Phase A). Display-only data (trace/metrics/logs) — the graded
+            // questions live in `quiz` above, so no answer key is exposed here.
+            'evidence' => $this->when(
+                is_array($this->evidence) && $this->evidence !== [],
+                fn () => $this->evidence
+            ),
             'challenge' => $this->when(
                 $this->relationLoaded('challenge') && $this->challenge,
                 fn () => new ChallengeResource($this->challenge)
