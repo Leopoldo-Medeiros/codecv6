@@ -17,6 +17,13 @@
         :x1="0" :x2="W" :y1="thresholdY" :y2="thresholdY"
         stroke="#ef4444" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"
       />
+      <!-- annotations (e.g. a deploy marker) -->
+      <line
+        v-for="(a, i) in annotationLines"
+        :key="'ann' + i"
+        :x1="a.px" :x2="a.px" :y1="0" :y2="H"
+        stroke="#6366f1" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"
+      />
       <!-- endpoint dot -->
       <circle :cx="lastPoint.x" :cy="lastPoint.y" r="3" fill="#10b981" />
       <defs>
@@ -31,12 +38,21 @@
       <span v-if="metric.threshold != null" class="text-red-500">threshold {{ metric.threshold }}{{ metric.unit ? ' ' + metric.unit : '' }}</span>
       <span>t={{ series[series.length - 1]?.[0] }}</span>
     </div>
+    <div v-if="metric.annotations?.length" class="mt-1 flex flex-wrap gap-x-3 font-mono text-[10px] text-indigo-500 dark:text-indigo-400">
+      <span v-for="(a, i) in metric.annotations" :key="i">▏ {{ a.label ?? 'marker' }} @ t={{ a.x }}</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-  metric: { title: string; unit?: string; series: Array<[number, number]>; threshold?: number }
+  metric: {
+    title: string
+    unit?: string
+    series: Array<[number, number]>
+    threshold?: number
+    annotations?: Array<{ x: number; label?: string }>
+  }
 }>()
 
 const W = 400
@@ -77,6 +93,9 @@ const areaPath = computed(() => {
   const last = points.value[points.value.length - 1]!
   return `${linePath.value} L${last.x.toFixed(1)},${H} L${first.x.toFixed(1)},${H} Z`
 })
+const annotationLines = computed(() =>
+  (props.metric.annotations ?? []).map(a => ({ ...a, px: px(a.x) })),
+)
 const lastPoint = computed(() => points.value[points.value.length - 1] ?? { x: 0, y: 0 })
 const lastValue = computed(() => series.value[series.value.length - 1]?.[1] ?? '—')
 const thresholdY = computed(() => (props.metric.threshold != null ? py(props.metric.threshold) : null))

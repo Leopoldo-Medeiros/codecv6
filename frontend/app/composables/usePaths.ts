@@ -18,7 +18,7 @@ export interface TraceSpan {
 export interface IncidentEvidence {
   scenario?: string
   trace?: { root?: string; spans: TraceSpan[] }
-  metrics?: Array<{ title: string; unit?: string; series: Array<[number, number]>; threshold?: number }>
+  metrics?: Array<{ title: string; unit?: string; series: Array<[number, number]>; threshold?: number; annotations?: Array<{ x: number; label?: string }> }>
   logs?: Array<{ t?: string; level?: string; request_id?: string; msg: string }>
 }
 
