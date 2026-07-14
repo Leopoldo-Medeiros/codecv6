@@ -759,6 +759,40 @@ class PathStepApiTest extends TestCase
         );
     }
 
+    public function test_solving_an_incident_awards_the_first_responder_badge(): void
+    {
+        $incident = PathStep::factory()->create([
+            'path_id' => $this->path->id,
+            'order' => 0,
+            'type' => 'incident',
+        ]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$incident->id}/progress", ['status' => 'done'])
+            ->assertOk();
+
+        $this->assertTrue(
+            $this->client->fresh()->badges()->where('key', 'incident_solved')->exists()
+        );
+    }
+
+    public function test_completing_a_non_incident_step_awards_no_incident_badge(): void
+    {
+        $reading = PathStep::factory()->create([
+            'path_id' => $this->path->id,
+            'order' => 0,
+            'type' => 'reading',
+        ]);
+
+        $this->actingAs($this->client, 'sanctum')
+            ->putJson("/api/path-steps/{$reading->id}/progress", ['status' => 'done'])
+            ->assertOk();
+
+        $this->assertFalse(
+            $this->client->fresh()->badges()->where('key', 'incident_solved')->exists()
+        );
+    }
+
     #[DataProvider('invalidProgressStatusProvider')]
     public function test_progress_rejects_invalid_status(string $status): void
     {

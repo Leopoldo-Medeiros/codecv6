@@ -151,6 +151,12 @@ class GamificationService
             $newBadges[] = $badge;
         }
 
+        // First production incident diagnosed (observability track). awardBadge
+        // is idempotent, so this fires once — on the first solved incident.
+        if ($step->type === 'incident' && ($badge = $this->awardBadge($user, 'incident_solved'))) {
+            $newBadges[] = $badge;
+        }
+
         $stepIds = PathStep::where('path_id', $step->path_id)->pluck('id');
         $totalSteps = $stepIds->count();
 

@@ -35,6 +35,13 @@ class BadgesSeeder extends Seeder
                 'description' => 'Completed every step of a learning path.',
                 'icon' => '🏁',
             ],
+            [
+                'key' => 'incident_solved',
+                'category' => 'achievement',
+                'name' => 'First Responder',
+                'description' => 'Diagnosed your first production incident from telemetry.',
+                'icon' => '🚨',
+            ],
             // Certification — a credential employers can trust, earned by
             // completing the Observability track (see IncidentSeeder's
             // Path->badge_key). Rendered as a prominent seal on the profile.
