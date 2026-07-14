@@ -726,6 +726,39 @@ class PathStepApiTest extends TestCase
             ->assertJsonPath('path_completed', false);
     }
 
+    public function test_completing_a_certification_path_awards_the_seal(): void
+    {
+        $path = Path::factory()->create([
+            'consultant_id' => $this->consultant->id,
+            'badge_key' => 'observability_certified',
+        ]);
+        $first = PathStep::factory()->create(['path_id' => $path->id, 'order' => 0]);
+        $last = PathStep::factory()->create(['path_id' => $path->id, 'order' => 1]);
+
+        $this->actingAs($this->client, 'sanctum')->putJson("/api/path-steps/{$first->id}/progress", ['status' => 'done'])->assertOk();
+        $this->actingAs($this->client, 'sanctum')->putJson("/api/path-steps/{$last->id}/progress", ['status' => 'done'])->assertOk();
+
+        $this->assertTrue(
+            $this->client->fresh()->badges()->where('key', 'observability_certified')->exists(),
+            'Completing every step of a badge_key path should award the certification seal.'
+        );
+    }
+
+    public function test_completing_a_normal_path_awards_no_certification_seal(): void
+    {
+        // $this->path has no badge_key → only the generic path_completed badge.
+        $step = PathStep::factory()->create(['path_id' => $this->path->id, 'order' => 0]);
+
+        $this->actingAs($this->client, 'sanctum')->putJson("/api/path-steps/{$step->id}/progress", ['status' => 'done'])->assertOk();
+
+        $this->assertFalse(
+            $this->client->fresh()->badges()->where('key', 'observability_certified')->exists()
+        );
+        $this->assertTrue(
+            $this->client->fresh()->badges()->where('key', 'path_completed')->exists()
+        );
+    }
+
     #[DataProvider('invalidProgressStatusProvider')]
     public function test_progress_rejects_invalid_status(string $status): void
     {

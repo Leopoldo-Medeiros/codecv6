@@ -129,6 +129,11 @@ class PublicProfileApiTest extends TestCase
         $response->assertJsonPath('data.completed_challenges.0.difficulty', 'intermediate');
         $badgeKeys = array_column($response->json('data.badges'), 'key');
         $this->assertContains('first_challenge', $badgeKeys);
+
+        // Badges carry a category so the profile can render certifications
+        // (the seal) distinctly from achievements.
+        $firstChallenge = collect($response->json('data.badges'))->firstWhere('key', 'first_challenge');
+        $this->assertSame('achievement', $firstChallenge['category']);
     }
 
     public function test_payload_never_exposes_private_fields(): void

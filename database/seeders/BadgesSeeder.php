@@ -16,21 +16,34 @@ class BadgesSeeder extends Seeder
         $badges = [
             [
                 'key' => 'first_challenge',
+                'category' => 'achievement',
                 'name' => 'First Steps',
                 'description' => 'Completed your first coding challenge.',
                 'icon' => '🎉',
             ],
             [
                 'key' => 'streak_7',
+                'category' => 'achievement',
                 'name' => 'On a Roll',
                 'description' => 'Practiced 7 days in a row.',
                 'icon' => '🔥',
             ],
             [
                 'key' => 'path_completed',
+                'category' => 'achievement',
                 'name' => 'Path Finisher',
                 'description' => 'Completed every step of a learning path.',
                 'icon' => '🏁',
+            ],
+            // Certification — a credential employers can trust, earned by
+            // completing the Observability track (see IncidentSeeder's
+            // Path->badge_key). Rendered as a prominent seal on the profile.
+            [
+                'key' => 'observability_certified',
+                'category' => 'certification',
+                'name' => 'Observability Engineer',
+                'description' => 'Completed the Observability track — can read traces, metrics, and logs to diagnose production incidents.',
+                'icon' => '📡',
             ],
         ];
 

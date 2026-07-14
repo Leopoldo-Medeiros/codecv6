@@ -32,8 +32,18 @@ class IncidentSeeder extends Seeder
 
         $path = Path::firstOrCreate(
             ['name' => 'Observability 101', 'consultant_id' => $consultant->id],
-            ['description' => 'Learn to operate what you build. Read production telemetry — traces, metrics, and logs — and diagnose real failures the way an on-call engineer does.'],
+            [
+                'description' => 'Learn to operate what you build. Read production telemetry — traces, metrics, and logs — and diagnose real failures the way an on-call engineer does.',
+                // Completing every incident earns the Observability Engineer seal.
+                'badge_key' => 'observability_certified',
+            ],
         );
+
+        // firstOrCreate won't update an existing row — ensure the seal is set
+        // even if the path was seeded before this column existed.
+        if ($path->badge_key !== 'observability_certified') {
+            $path->update(['badge_key' => 'observability_certified']);
+        }
 
         foreach ($this->incidents() as $incident) {
             PathStep::updateOrCreate(

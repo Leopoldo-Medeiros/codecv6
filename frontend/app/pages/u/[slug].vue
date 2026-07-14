@@ -58,6 +58,18 @@
             </div>
           </div>
 
+          <!-- Certifications — the employer-facing seal -->
+          <section v-if="certifications.length" class="skillp__certs">
+            <div v-for="cert in certifications" :key="cert.key" class="skillp__cert">
+              <div class="skillp__cert-icon">{{ cert.icon }}</div>
+              <div class="skillp__cert-body">
+                <p class="skillp__cert-kicker">✓ Certified by CODECV</p>
+                <strong class="skillp__cert-name">{{ cert.name }}</strong>
+                <p class="skillp__cert-desc">{{ cert.description }}</p>
+              </div>
+            </div>
+          </section>
+
           <div class="skillp__cols">
             <!-- Left: challenges -->
             <section>
@@ -81,10 +93,10 @@
                 </div>
               </section>
 
-              <section v-if="profile.badges.length" class="skillp__badges-section">
+              <section v-if="achievements.length" class="skillp__badges-section">
                 <h2 class="skillp__h2">Badges</h2>
                 <ul class="skillp__badges">
-                  <li v-for="badge in profile.badges" :key="badge.key">
+                  <li v-for="badge in achievements" :key="badge.key">
                     <span class="skillp__badge-icon">{{ badge.icon }}</span>
                     <div>
                       <strong>{{ badge.name }}</strong>
@@ -120,7 +132,7 @@ interface PublicSkillProfile {
   links: { github?: string, linkedin?: string, website?: string }
   member_since: string | null
   stats: { xp_points: number, current_streak: number, longest_streak: number }
-  badges: { key: string, name: string, description: string, icon: string, earned_at: string }[]
+  badges: { key: string, category: string, name: string, description: string, icon: string, earned_at: string }[]
   completed_challenges: { title: string, difficulty: string, completed_at: string }[]
 }
 
@@ -132,6 +144,14 @@ const pending = ref(true)
 
 const hasLinks = computed(() =>
   Boolean(profile.value && Object.keys(profile.value.links).length),
+)
+
+// Certifications are shown as a prominent seal; other badges stay as chips.
+const certifications = computed(() =>
+  profile.value?.badges.filter(b => b.category === 'certification') ?? [],
+)
+const achievements = computed(() =>
+  profile.value?.badges.filter(b => b.category !== 'certification') ?? [],
 )
 
 useSeoMeta({
@@ -262,6 +282,46 @@ onMounted(async () => {
   line-height: 1.1;
 }
 .skillp__stat span { font-size: 12.5px; color: var(--muted, #8B95A1); }
+
+/* ── Certifications (the seal) ──────────────────────── */
+.skillp__certs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.skillp__cert {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border: 1.5px solid var(--accent, #059669);
+  border-radius: 8px;
+  background: var(--accent-light, rgba(5, 150, 105, 0.08));
+  box-shadow: var(--shadow-sm, 0 2px 10px rgba(23, 33, 43, 0.06));
+}
+.skillp__cert-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  background: #fff;
+  border: 1.5px solid var(--accent, #059669);
+  border-radius: 50%;
+}
+.skillp__cert-kicker {
+  margin: 0 0 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent, #059669);
+}
+.skillp__cert-name { font-size: 18px; font-weight: 700; line-height: 1.2; display: block; }
+.skillp__cert-desc { margin: 6px 0 0; font-size: 13.5px; color: var(--text-body, #45505C); max-width: 46ch; }
 
 /* ── Columns ────────────────────────────────────────── */
 .skillp__cols {

@@ -62,6 +62,7 @@ class PublicProfileService
                 ->get()
                 ->map(fn ($badge) => [
                     'key' => $badge->key,
+                    'category' => $badge->category,
                     'name' => $badge->name,
                     'description' => $badge->description,
                     'icon' => $badge->icon,

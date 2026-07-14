@@ -9,6 +9,7 @@ class Badge extends Model
 {
     protected $fillable = [
         'key',
+        'category',
         'name',
         'description',
         'icon',

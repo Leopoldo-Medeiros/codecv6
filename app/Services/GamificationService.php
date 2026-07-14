@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Badge;
 use App\Models\Challenge;
+use App\Models\Path;
 use App\Models\PathStep;
 use App\Models\User;
 use App\Models\UserChallengeCompletion;
@@ -159,8 +160,18 @@ class GamificationService
                 ->where('status', 'done')
                 ->count();
 
-            if ($doneSteps === $totalSteps && ($badge = $this->awardBadge($user, 'path_completed'))) {
-                $newBadges[] = $badge;
+            if ($doneSteps === $totalSteps) {
+                if ($badge = $this->awardBadge($user, 'path_completed')) {
+                    $newBadges[] = $badge;
+                }
+
+                // A path may confer a certification seal on full completion
+                // (e.g. the Observability track). Award it on top of the
+                // generic path_completed milestone.
+                $badgeKey = Path::where('id', $step->path_id)->value('badge_key');
+                if ($badgeKey && ($badge = $this->awardBadge($user, $badgeKey))) {
+                    $newBadges[] = $badge;
+                }
             }
         }
 
@@ -196,6 +207,7 @@ class GamificationService
 
         return [
             'key' => $badge->key,
+            'category' => $badge->category,
             'name' => $badge->name,
             'description' => $badge->description,
             'icon' => $badge->icon,

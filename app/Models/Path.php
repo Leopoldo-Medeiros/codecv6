@@ -15,6 +15,8 @@ class Path extends Model
         'name',
         'description',
         'consultant_id',
+        // Completing every step of this path awards this badge key (nullable).
+        'badge_key',
     ];
 
     /**
