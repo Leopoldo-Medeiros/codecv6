@@ -238,6 +238,7 @@ Marketing pages (`pages/index.vue`, `about.vue`, `pricing.vue`, `faqs.vue`, `ter
 5. `LearningPathsSeeder` — seeds `Path` records
 6. `PathStepSeeder` — seeds `PathStep` records (links steps to paths and challenges)
 6b. `IncidentSeeder` — seeds the "Observability 101" path + the N+1 incident-reader step (observability track, Phase A)
+6c. `RestApiTrackSeeder` — seeds the "REST APIs & Auth" path (9 steps) + 2 Judge0 challenges (`api-paginated-resource`, `api-validate-order`); first of the Option-A full-stack-credibility tracks. Challenge solutions validated locally against the runner's supported assertions
 7. Optional: `ClientsSeeder` — interactive prompt for fake clients
 
 `UserFactory` uses `afterCreating()` to auto-create a `Profile` and assign the `client` role.

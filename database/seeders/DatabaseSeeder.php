@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             LearningPathsSeeder::class,
             PathStepSeeder::class,
             IncidentSeeder::class,
+            RestApiTrackSeeder::class,
             ChallengeLinkSeeder::class,
             PlanSeeder::class,
             BadgesSeeder::class,
