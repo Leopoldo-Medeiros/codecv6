@@ -242,16 +242,16 @@
           </div>
         </div>
 
-        <!-- CTA -->
-        <div class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#059669,#047857)">
+        <!-- CTA — learner upsell, clients only (not for admin/consultant) -->
+        <div v-if="isClient" class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#059669,#047857)">
           <p class="text-xs font-semibold uppercase tracking-widest text-emerald-100/90">IT Career Coaching</p>
           <h3 class="mt-2 text-base font-bold">Ready to accelerate your career?</h3>
           <p class="mt-1 text-sm leading-relaxed text-emerald-50/90">
             Courses, learning paths, and job opportunities tailored for Irish tech roles.
           </p>
           <button class="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition-opacity hover:opacity-90"
-            @click="navigateTo(isAdmin ? '/courses' : '/my-paths')">
-            {{ isAdmin ? 'Explore Courses' : 'View My Paths' }}
+            @click="navigateTo('/my-paths')">
+            View My Paths
           </button>
         </div>
       </div>
