@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-slate-950" style="font-family:'Inter',system-ui,sans-serif">
+  <div class="min-h-screen bg-gray-50 dark:bg-neutral-950" style="font-family:'Inter',system-ui,sans-serif">
 
     <!-- Mobile backdrop -->
     <Transition enter-from-class="opacity-0" enter-active-class="transition-opacity duration-200"
@@ -9,15 +9,15 @@
 
     <!-- ═══════════════════════════════════════ SIDEBAR ═══ -->
     <aside :class="[
-      'fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900 transition-transform duration-200',
-      sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      'fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 transition-transform duration-200',
+      sidebarOpen ? 'tranneutral-x-0' : '-tranneutral-x-full lg:tranneutral-x-0'
     ]">
 
       <!-- Accent stripe -->
       <div class="h-0.5 w-full shrink-0" style="background:linear-gradient(90deg,#00AC69,#00d97e,#007D4A)"></div>
 
       <!-- Brand -->
-      <div class="flex h-[60px] shrink-0 items-center justify-center border-b border-gray-100 px-5 dark:border-slate-800">
+      <div class="flex h-[60px] shrink-0 items-center justify-center border-b border-gray-100 px-5 dark:border-neutral-800">
         <NuxtLink to="/dashboard" class="flex items-center gap-2.5">
           <!-- Light mode: real logo (mix-blend hides white bg) -->
           <img src="/images/codecv.png" alt="CODECV"
@@ -32,11 +32,11 @@
       </div>
 
       <!-- User card -->
-      <div class="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-slate-800">
+      <div class="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-neutral-800">
         <UAvatar :src="user?.profile?.profile_image_url || '/images/team-13.jpg'" :alt="user?.fullname" size="sm" />
         <div class="min-w-0 flex-1">
-          <p class="truncate text-[13px] font-semibold text-gray-800 dark:text-slate-200">{{ user?.fullname }}</p>
-          <p class="text-[11px] capitalize text-gray-400 dark:text-slate-500">{{ user?.role }}</p>
+          <p class="truncate text-[13px] font-semibold text-gray-800 dark:text-neutral-200">{{ user?.fullname }}</p>
+          <p class="text-[11px] capitalize text-gray-400 dark:text-neutral-500">{{ user?.role }}</p>
         </div>
       </div>
 
@@ -57,7 +57,7 @@
             <span v-if="isActive(item.to)" class="nav-glow" aria-hidden="true"></span>
             <!-- left indicator -->
             <span
-              class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r transition-all"
+              class="absolute left-0 top-1/2 h-5 w-0.5 -tranneutral-y-1/2 rounded-r transition-all"
               :class="isActive(item.to) ? 'nav-bar--active' : 'bg-transparent'"
             ></span>
             <UIcon :name="item.icon" class="nav-icon h-[18px] w-[18px] shrink-0"
@@ -70,11 +70,11 @@
       </nav>
 
       <!-- Footer logout -->
-      <div class="shrink-0 border-t border-gray-100 p-3 dark:border-slate-800">
+      <div class="shrink-0 border-t border-gray-100 p-3 dark:border-neutral-800">
         <button
           class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
                  text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600
-                 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                 dark:text-neutral-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
           @click="handleLogout"
         >
           <UIcon name="i-heroicons-arrow-right-on-rectangle" class="h-[18px] w-[18px] shrink-0" />
@@ -89,11 +89,11 @@
       <!-- Topbar -->
       <header class="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between
                      border-b border-gray-200 bg-white px-4 lg:px-6
-                     dark:border-slate-800 dark:bg-slate-900">
+                     dark:border-neutral-800 dark:bg-neutral-900">
         <div class="flex items-center gap-3">
           <!-- Hamburger — mobile only -->
           <button class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500
-                         hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
+                         hover:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-800 lg:hidden"
             @click="sidebarOpen = !sidebarOpen">
             <UIcon name="i-heroicons-bars-3" class="h-5 w-5" />
           </button>
@@ -115,7 +115,7 @@
             </div>
             <template #panel="{ close }">
               <div class="w-80">
-                <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-slate-700">
+                <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-neutral-700">
                   <p class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
                   <button
                     v-if="unreadCount > 0"
@@ -124,14 +124,14 @@
                   >Mark all read</button>
                 </div>
                 <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-400">Loading…</div>
-                <div v-else-if="notifications.length === 0" class="px-4 py-6 text-center text-sm text-gray-400 dark:text-slate-500">
+                <div v-else-if="notifications.length === 0" class="px-4 py-6 text-center text-sm text-gray-400 dark:text-neutral-500">
                   Nothing new
                 </div>
-                <ul v-else class="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800">
+                <ul v-else class="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-neutral-800">
                   <li
                     v-for="n in notifications"
                     :key="n.id"
-                    class="flex cursor-pointer gap-3 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/60"
+                    class="flex cursor-pointer gap-3 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800/60"
                     :class="n.read ? 'opacity-60' : ''"
                     @click="handleNotificationClick(n, close)"
                   >
@@ -140,13 +140,13 @@
                       <UIcon :name="notifIcon(String(n.data.type ?? ''))" class="h-4 w-4" :class="notifIconColor(String(n.data.type ?? ''))" />
                     </span>
                     <div class="min-w-0 flex-1">
-                      <p class="text-[13px] font-medium text-gray-800 dark:text-slate-200 leading-snug">
+                      <p class="text-[13px] font-medium text-gray-800 dark:text-neutral-200 leading-snug">
                         {{ notifTitle(n.data) }}
                       </p>
-                      <p class="mt-0.5 text-[11px] text-gray-400 dark:text-slate-500">
+                      <p class="mt-0.5 text-[11px] text-gray-400 dark:text-neutral-500">
                         {{ notifSubtitle(n.data) }}
                       </p>
-                      <p class="mt-0.5 text-[10px] text-gray-300 dark:text-slate-600">
+                      <p class="mt-0.5 text-[10px] text-gray-300 dark:text-neutral-600">
                         {{ timeAgo(n.created_at) }}
                       </p>
                     </div>
@@ -159,23 +159,31 @@
           <UDropdown :items="userMenuItems" :popper="{ placement: 'bottom-end' }">
             <button class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5
                            text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50
-                           dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                           dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
               <UAvatar :src="user?.profile?.profile_image_url || '/images/team-13.jpg'" :alt="user?.fullname" size="xs" />
               <span class="max-w-[120px] truncate">{{ user?.fullname }}</span>
-              <UIcon name="i-heroicons-chevron-down" class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
+              <UIcon name="i-heroicons-chevron-down" class="h-3.5 w-3.5 text-gray-400 dark:text-neutral-500" />
             </button>
           </UDropdown>
         </div>
       </header>
 
-      <main class="flex-1 p-4 lg:p-6">
-        <slot />
+      <main class="relative flex-1 p-4 lg:p-6">
+        <!-- Ambient green glow (dark mode only) — premium bloom, top-right -->
+        <div
+          class="pointer-events-none absolute right-0 top-0 -z-0 hidden h-[420px] w-[620px] dark:block"
+          style="background:radial-gradient(60% 60% at 80% 0%, rgba(0,172,105,0.16), rgba(0,172,105,0.05) 40%, transparent 70%)"
+          aria-hidden="true"
+        />
+        <div class="relative z-10">
+          <slot />
+        </div>
       </main>
 
       <footer class="border-t border-gray-200 px-6 py-4 text-center text-xs
-                     text-gray-400 dark:border-slate-800 dark:text-slate-600">
+                     text-gray-400 dark:border-neutral-800 dark:text-neutral-600">
         &copy; {{ new Date().getFullYear() }}
-        <strong class="text-gray-500 dark:text-slate-400">CODECV</strong>.
+        <strong class="text-gray-500 dark:text-neutral-400">CODECV</strong>.
         All rights reserved.
       </footer>
     </div>

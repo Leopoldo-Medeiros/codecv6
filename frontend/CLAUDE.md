@@ -36,7 +36,7 @@ NUXT_PUBLIC_API_BASE=http://codecv6.ddev.site
 
 | Block type | Renders as |
 |---|---|
-| ` ```mermaid ` | `<MermaidDiagram>` |
+| ` ```mermaid ` | `<FlowDiagram>` (modern pipeline renderer — parses the mermaid flowchart subset; replaced the raw-mermaid box) |
 | ` ```lifecycle-diagram ` | `<LaravelLifecycleDiagramCard>` |
 | Everything else | custom `renderMarkdown()` → `v-html` |
 

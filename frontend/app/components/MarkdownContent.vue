@@ -14,7 +14,7 @@
            prose-li:text-gray-700 dark:prose-li:text-gray-300"
   >
     <template v-for="(segment, i) in segments" :key="i">
-      <MermaidDiagram v-if="segment.type === 'mermaid'" :code="segment.content" class="not-prose my-4" />
+      <FlowDiagram v-if="segment.type === 'mermaid'" :code="segment.content" class="not-prose" />
       <LaravelLifecycleDiagramCard v-else-if="segment.type === 'lifecycle-diagram'" class="not-prose my-6" />
       <!-- eslint-disable-next-line vue/no-v-html -->
       <div v-else v-html="segment.content" />

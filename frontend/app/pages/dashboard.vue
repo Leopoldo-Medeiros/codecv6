@@ -2,77 +2,113 @@
   <NuxtLayout name="admin">
 
     <!-- Welcome header -->
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Welcome back, {{ user?.fullname }} 👋
+        <h1 class="text-[1.7rem] font-bold tracking-tight text-gray-900 dark:text-white">
+          Welcome back, {{ user?.fullname?.split(' ')[0] }} 👋
         </h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {{ isAdmin ? "Here's what's happening on your platform today." : 'Continue where you left off.' }}
+        <p class="mt-1 text-sm text-gray-500 dark:text-neutral-400">
+          {{ isAdmin ? "Here's what's happening on your platform today." : 'Here’s your practice at a glance.' }}
         </p>
       </div>
-      <UButton v-if="isAdmin" icon="i-heroicons-plus" size="sm" @click="navigateTo('/courses')">
+      <UButton v-if="isAdmin" icon="i-heroicons-plus" color="emerald" size="sm" @click="navigateTo('/courses')">
         New Course
       </UButton>
     </div>
 
-    <!-- Stat cards -->
+    <!-- KPI row -->
     <div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
       <div
         v-for="stat in displayStats"
         :key="stat.label"
-        class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5
-               dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <div
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg"
-          :style="`background:${stat.color}18; color:${stat.color}`"
-        >
-          <UIcon :name="stat.icon" />
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-9 w-9 items-center justify-center rounded-xl text-lg"
+            :style="`background:${stat.color}1a;color:${stat.color}`"
+          >
+            <UIcon :name="stat.icon" />
+          </span>
+          <p class="text-[13px] font-medium text-gray-500 dark:text-neutral-400">{{ stat.label }}</p>
         </div>
-        <div>
-          <p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
-            <span v-if="statsLoading" class="inline-block h-7 w-12 animate-pulse rounded-md bg-gray-200 dark:bg-gray-700" />
-            <span v-else>{{ stat.value }}</span>
-          </p>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ stat.label }}</p>
+
+        <p class="mt-3 text-[1.9rem] font-bold leading-none tracking-tight text-gray-900 dark:text-white">
+          <span v-if="statsLoading" class="inline-block h-8 w-14 animate-pulse rounded-md bg-gray-200 dark:bg-neutral-800" />
+          <span v-else>{{ stat.value }}</span>
+        </p>
+
+        <!-- Per-KPI mini viz -->
+        <div v-if="stat.viz" class="mt-3 h-[38px]">
+          <AreaChart v-if="stat.viz === 'area' && cumulative.length >= 2" :values="cumulative" :aria-label="stat.label" />
+          <MiniBars v-else-if="stat.viz === 'bars'" :values="recentDaily" :color="stat.color" :height="38" />
+          <div v-else-if="stat.viz === 'progress'" class="flex h-full items-end">
+            <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-neutral-800">
+              <div class="h-full rounded-full" :style="`width:${stat.ratio ?? 0}%;background:${stat.color}`" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Main grid -->
     <div class="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
 
-      <!-- Left: main content -->
-      <div class="lg:col-span-2">
-        <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+      <!-- ══ Left / main column ══ -->
+      <div class="flex flex-col gap-5 lg:col-span-2">
 
-          <!-- Card header -->
-          <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+        <!-- Client: practice activity heatmap -->
+        <section v-if="!isAdmin" class="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="mb-4 flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Practice activity</h2>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Challenges & incidents solved, last 26 weeks</p>
+            </div>
+            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
+              🔥 {{ progress?.current_streak ?? 0 }} day streak
+            </span>
+          </div>
+          <ActivityHeatmap :activity="activity" />
+        </section>
+
+        <!-- Client: practice over time -->
+        <section v-if="!isAdmin" class="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="mb-1 flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Practice over time</h2>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Cumulative challenges & incidents solved</p>
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ totalSolved }}</span>
+          </div>
+          <div v-if="cumulative.length >= 2" class="-mx-1 h-[160px]">
+            <AreaChart :values="cumulative" aria-label="Practice over time" />
+          </div>
+          <div v-else class="flex h-[140px] flex-col items-center justify-center text-center">
+            <UIcon name="i-heroicons-chart-bar" class="mb-2 h-8 w-8 text-gray-300 dark:text-neutral-700" />
+            <p class="text-sm text-gray-400 dark:text-neutral-500">Solve a few challenges to see your progress curve.</p>
+          </div>
+        </section>
+
+        <!-- Main list card (recent users / learning paths) -->
+        <section class="rounded-2xl border border-gray-200/80 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-neutral-800">
             <div>
               <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-                {{ isAdmin ? 'Recent Users' : 'My Learning Paths' }}
+                {{ isAdmin ? 'Recent Users' : 'Continue learning' }}
               </h2>
-              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                {{ isAdmin ? 'Latest registrations on the platform' : 'Your progress across all assigned paths' }}
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                {{ isAdmin ? 'Latest registrations on the platform' : 'Pick up where you left off' }}
               </p>
             </div>
-            <UButton
-              variant="ghost" color="gray" size="xs"
-              trailing-icon="i-heroicons-arrow-right"
-              @click="navigateTo(isAdmin ? '/users' : '/my-paths')"
-            >
-              View all
-            </UButton>
+            <UButton variant="ghost" color="gray" size="xs" trailing-icon="i-heroicons-arrow-right"
+              @click="navigateTo(isAdmin ? '/users' : '/my-paths')">View all</UButton>
           </div>
 
-          <!-- Card body -->
           <div class="px-5 py-4">
             <div v-if="statsLoading" class="flex justify-center py-8 text-emerald-500">
               <UIcon name="i-heroicons-arrow-path" class="animate-spin text-xl" />
             </div>
 
-            <!-- Admin: recent users table -->
+            <!-- Admin: recent users -->
             <template v-else-if="isAdmin">
               <UTable v-if="recentUsers.length" :rows="recentUsers" :columns="userColumns">
                 <template #fullname-data="{ row }">
@@ -80,7 +116,7 @@
                     <UAvatar :src="row.profile?.profile_image_url || '/images/team-13.jpg'" :alt="row.fullname" size="xs" />
                     <div>
                       <p class="text-sm font-medium text-gray-900 dark:text-white">{{ row.fullname }}</p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ row.email }}</p>
+                      <p class="text-xs text-gray-500 dark:text-neutral-400">{{ row.email }}</p>
                     </div>
                   </div>
                 </template>
@@ -88,7 +124,7 @@
                   <UBadge :color="roleBadgeColor(row.role)" variant="subtle" size="xs">{{ row.role }}</UBadge>
                 </template>
                 <template #created_at-data="{ row }">
-                  <span class="text-xs text-gray-400 dark:text-gray-500">{{ formatDate(row.created_at) }}</span>
+                  <span class="text-xs text-gray-400 dark:text-neutral-500">{{ formatDate(row.created_at) }}</span>
                 </template>
                 <template #actions-data="{ row }">
                   <UDropdown :items="getUserActions(row)" :popper="{ placement: 'bottom-end' }">
@@ -96,125 +132,101 @@
                   </UDropdown>
                 </template>
               </UTable>
-              <p v-else class="py-8 text-center text-sm text-gray-400 dark:text-gray-500">No users yet.</p>
+              <p v-else class="py-8 text-center text-sm text-gray-400 dark:text-neutral-500">No users yet.</p>
             </template>
 
-            <!-- Client: learning paths with progress -->
+            <!-- Client: learning paths -->
             <template v-else>
-              <div v-if="clientPaths.length" class="flex flex-col gap-4">
-                <div
+              <div v-if="clientPaths.length" class="flex flex-col gap-3">
+                <button
                   v-for="path in clientPaths"
                   :key="path.id"
-                  class="cursor-pointer rounded-xl border border-gray-100 p-4 transition-colors
-                         hover:border-emerald-200 hover:bg-emerald-50/30
-                         dark:border-gray-700 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/20"
+                  class="rounded-xl border border-gray-100 p-4 text-left transition-colors
+                         hover:border-emerald-200 hover:bg-emerald-50/40
+                         dark:border-neutral-800 dark:hover:border-emerald-800/70 dark:hover:bg-emerald-950/20"
                   @click="navigateTo('/my-paths')"
                 >
                   <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950">
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60">
                         <UIcon name="i-heroicons-map" class="h-5 w-5 text-emerald-500" />
                       </div>
                       <div>
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ path.name }}</p>
-                        <p class="text-xs text-gray-400 dark:text-gray-500">
-                          {{ path.doneCount }}/{{ path.totalSteps }} steps completed
-                        </p>
+                        <p class="text-xs text-gray-400 dark:text-neutral-500">{{ path.doneCount }}/{{ path.totalSteps }} steps completed</p>
                       </div>
                     </div>
-                    <span class="shrink-0 text-sm font-bold" :class="progressColor(path.pct)">
-                      {{ path.pct }}%
-                    </span>
+                    <span class="shrink-0 text-sm font-bold" :class="progressColor(path.pct)">{{ path.pct }}%</span>
                   </div>
-
-                  <!-- Progress bar -->
                   <UProgress :value="path.pct" size="xs" color="emerald" class="mt-3" />
-
-                  <!-- Next step -->
                   <div v-if="path.nextStep" class="mt-3 flex items-center gap-2">
                     <UIcon name="i-heroicons-arrow-right-circle" class="h-4 w-4 shrink-0 text-emerald-400" />
-                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                      Next: <span class="font-medium text-gray-700 dark:text-gray-300">{{ path.nextStep }}</span>
+                    <span class="text-xs text-gray-500 dark:text-neutral-400">
+                      Next: <span class="font-medium text-gray-700 dark:text-neutral-300">{{ path.nextStep }}</span>
                     </span>
                   </div>
                   <div v-else-if="path.totalSteps > 0" class="mt-3 flex items-center gap-2">
                     <UIcon name="i-heroicons-check-circle" class="h-4 w-4 shrink-0 text-green-500" />
                     <span class="text-xs font-medium text-green-600 dark:text-green-400">All steps completed!</span>
                   </div>
-                </div>
+                </button>
               </div>
-
-              <!-- Empty state -->
               <div v-else class="flex flex-col items-center py-10 text-center">
-                <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
+                <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/60">
                   <UIcon name="i-heroicons-map" class="h-8 w-8 text-emerald-400" />
                 </div>
-                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">No learning paths yet</p>
-                <p class="mt-1 max-w-xs text-xs text-gray-400 dark:text-gray-500">
+                <p class="text-sm font-medium text-gray-700 dark:text-neutral-300">No learning paths yet</p>
+                <p class="mt-1 max-w-xs text-xs text-gray-400 dark:text-neutral-500">
                   Your consultant will assign a personalised learning path based on your goals.
                 </p>
-                <UButton size="xs" color="emerald" variant="soft" class="mt-4" @click="navigateTo('/my-paths')">
-                  Learn more
-                </UButton>
+                <UButton size="xs" color="emerald" variant="soft" class="mt-4" @click="navigateTo('/my-paths')">Learn more</UButton>
               </div>
             </template>
           </div>
-        </div>
+        </section>
       </div>
 
-      <!-- Right: quick links + CTA -->
+      <!-- ══ Right rail ══ -->
       <div class="flex flex-col gap-5">
-
-        <!-- Practice progress (XP / streak / badges / public profile) -->
         <ProgressWidget v-if="!isAdmin" />
-
-        <!-- Coaching upsell nudge (F6) — clients only, when they've earned one -->
         <CoachingNudge v-if="isClient && coaching" :recommendation="coaching" />
 
-        <!-- Quick links -->
-        <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-          <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-              {{ isAdmin ? 'Quick Links' : 'Quick Actions' }}
-            </h2>
+        <!-- Quick actions -->
+        <div class="rounded-2xl border border-gray-200/80 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="border-b border-gray-100 px-5 py-4 dark:border-neutral-800">
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ isAdmin ? 'Quick Links' : 'Quick Actions' }}</h2>
           </div>
           <div class="flex flex-col gap-1 p-3">
             <button
               v-for="link in quickLinks"
               :key="link.label"
-              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium
+              class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium
                      text-gray-700 transition-colors hover:bg-gray-50
-                     dark:text-gray-300 dark:hover:bg-gray-700"
+                     dark:text-neutral-300 dark:hover:bg-neutral-800"
               @click="navigateTo(link.to)"
             >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-base"
-                :style="`background:${link.color}18;color:${link.color}`"
-              >
+              <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-base"
+                :style="`background:${link.color}1a;color:${link.color}`">
                 <UIcon :name="link.icon" />
               </span>
               <span class="flex-1">{{ link.label }}</span>
-              <UIcon name="i-heroicons-chevron-right" class="h-4 w-4 text-gray-400 dark:text-gray-600" />
+              <UIcon name="i-heroicons-chevron-right" class="h-4 w-4 text-gray-400 dark:text-neutral-600" />
             </button>
           </div>
         </div>
 
-        <!-- CTA card -->
-        <div class="rounded-xl p-5 text-white" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
-          <p class="text-xs font-semibold uppercase tracking-widest text-sky-200">IT Career Coaching</p>
+        <!-- CTA -->
+        <div class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#059669,#047857)">
+          <p class="text-xs font-semibold uppercase tracking-widest text-emerald-100/90">IT Career Coaching</p>
           <h3 class="mt-2 text-base font-bold">Ready to accelerate your career?</h3>
-          <p class="mt-1 text-sm text-sky-100 leading-relaxed">
+          <p class="mt-1 text-sm leading-relaxed text-emerald-50/90">
             Courses, learning paths, and job opportunities tailored for Irish tech roles.
           </p>
-          <button
-            class="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700
-                   transition-opacity hover:opacity-90"
-            @click="navigateTo(isAdmin ? '/courses' : '/my-paths')"
-          >
+          <button class="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition-opacity hover:opacity-90"
+            @click="navigateTo(isAdmin ? '/courses' : '/my-paths')">
             {{ isAdmin ? 'Explore Courses' : 'View My Paths' }}
           </button>
         </div>
-
       </div>
     </div>
 
@@ -233,6 +245,7 @@ const { fetchUsers }                           = useUsers()
 const { fetchCourses }                         = useCourses()
 const { fetchPaths, fetchMyPaths, fetchSteps } = usePaths()
 const { recommendation: coaching, fetchRecommendation } = useCoaching()
+const { progress, fetchProgress } = usePracticeProgress()
 
 const statsLoading = ref(false)
 
@@ -243,30 +256,48 @@ const totalPaths   = ref(0)
 const recentUsers  = ref<any[]>([])
 
 // Client state
-interface EnrichedPath {
-  id: number; name: string; pct: number
-  doneCount: number; totalSteps: number; nextStep: string | null
-}
+interface EnrichedPath { id: number; name: string; pct: number; doneCount: number; totalSteps: number; nextStep: string | null }
 const clientPaths = ref<EnrichedPath[]>([])
 const totalDone   = ref(0)
 const totalSteps  = ref(0)
+const activity    = ref<Array<{ date: string, count: number }>>([])
 
-const overallPct = computed(() =>
-  totalSteps.value ? Math.round((totalDone.value / totalSteps.value) * 100) : 0
-)
+const overallPct = computed(() => totalSteps.value ? Math.round((totalDone.value / totalSteps.value) * 100) : 0)
+const totalSolved = computed(() => activity.value.reduce((s, a) => s + a.count, 0))
+const cumulative = computed(() => {
+  const sorted = [...activity.value].sort((a, b) => a.date.localeCompare(b.date))
+  let sum = 0
+  return sorted.map((a) => { sum += a.count; return sum })
+})
+
+// Last 14 days as a dense daily-count series (zeros included) for KPI mini-bars.
+const recentDaily = computed(() => {
+  const map: Record<string, number> = {}
+  for (const a of activity.value) map[a.date] = a.count
+  const out: number[] = []
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  for (let i = 13; i >= 0; i--) {
+    const day = new Date(d)
+    day.setDate(day.getDate() - i)
+    const k = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
+    out.push(map[k] ?? 0)
+  }
+  return out
+})
 
 const displayStats = computed(() => isAdmin.value
   ? [
-      { label: 'Total Users',    value: totalUsers.value,   icon: 'i-heroicons-users',            color: '#6366f1' },
-      { label: 'Active Courses', value: totalCourses.value, icon: 'i-heroicons-book-open',         color: '#0ea5e9' },
-      { label: 'Learning Paths', value: totalPaths.value,   icon: 'i-heroicons-map',               color: '#10b981' },
-      { label: 'Revenue',        value: '—',                icon: 'i-heroicons-currency-dollar',   color: '#f59e0b' },
+      { label: 'Total Users',    value: totalUsers.value,   icon: 'i-heroicons-users',           color: '#6366f1' },
+      { label: 'Active Courses', value: totalCourses.value, icon: 'i-heroicons-book-open',        color: '#0ea5e9' },
+      { label: 'Learning Paths', value: totalPaths.value,   icon: 'i-heroicons-map',              color: '#10b981' },
+      { label: 'Revenue',        value: '—',                icon: 'i-heroicons-currency-dollar',  color: '#f59e0b' },
     ]
   : [
-      { label: 'My Paths',    value: clientPaths.value.length, icon: 'i-heroicons-map',            color: '#10b981' },
-      { label: 'Steps Done',  value: totalDone.value,          icon: 'i-heroicons-check-circle',   color: '#0ea5e9' },
-      { label: 'Total Steps', value: totalSteps.value,         icon: 'i-heroicons-list-bullet',    color: '#6366f1' },
-      { label: 'Progress',    value: `${overallPct.value}%`,   icon: 'i-heroicons-chart-bar',      color: '#f59e0b' },
+      { label: 'XP earned',        value: progress.value?.xp_points ?? 0,      icon: 'i-heroicons-bolt',         color: '#10b981', viz: 'area' },
+      { label: 'Day streak',       value: progress.value?.current_streak ?? 0, icon: 'i-heroicons-fire',         color: '#f59e0b', viz: 'bars' },
+      { label: 'Steps completed',  value: totalDone.value,                     icon: 'i-heroicons-check-circle', color: '#38bdf8', viz: 'bars' },
+      { label: 'Overall progress', value: `${overallPct.value}%`,              icon: 'i-heroicons-chart-bar',    color: '#8b5cf6', viz: 'progress', ratio: overallPct.value },
     ]
 )
 
@@ -278,23 +309,23 @@ const quickLinks = computed(() => isAdmin.value
       { label: 'Job Listings',   icon: 'i-heroicons-briefcase', to: '/jobs',    color: '#f59e0b' },
     ]
   : [
-      { label: 'My Learning Paths', icon: 'i-heroicons-map',                       to: '/my-paths',  color: '#6366f1' },
+      { label: 'My Learning Paths', icon: 'i-heroicons-map',                       to: '/my-paths',   color: '#6366f1' },
       { label: 'My Courses',        icon: 'i-heroicons-book-open',                 to: '/my-courses', color: '#0ea5e9' },
-      { label: 'My CV',             icon: 'i-heroicons-document-magnifying-glass', to: '/my-cv',     color: '#10b981' },
-      { label: 'Edit Profile',      icon: 'i-heroicons-user',                      to: '/profile',   color: '#10b981' },
+      { label: 'My CV',             icon: 'i-heroicons-document-magnifying-glass', to: '/my-cv',      color: '#10b981' },
+      { label: 'Edit Profile',      icon: 'i-heroicons-user',                      to: '/profile',    color: '#8b5cf6' },
     ]
 )
 
 const userColumns = [
-  { key: 'fullname',   label: 'User' },
-  { key: 'role',       label: 'Role' },
+  { key: 'fullname', label: 'User' },
+  { key: 'role', label: 'Role' },
   { key: 'created_at', label: 'Joined' },
-  { key: 'actions',    label: '' },
+  { key: 'actions', label: '' },
 ]
 
 const roleBadgeColor = (r?: string): 'red' | 'purple' | 'blue' =>
   ({ admin: 'red', consultant: 'purple' } as Record<string, 'red' | 'purple'>)[r ?? ''] ?? 'blue'
-const formatDate     = (d: string)  => new Date(d).toLocaleDateString()
+const formatDate = (d: string) => new Date(d).toLocaleDateString()
 const getUserActions = (u: any) => [[
   { label: 'View', icon: 'i-heroicons-user',   click: () => navigateTo(`/users/${u.id}`) },
   { label: 'Edit', icon: 'i-heroicons-pencil', click: () => navigateTo(`/users/${u.id}-edit`) },
@@ -303,7 +334,7 @@ const getUserActions = (u: any) => [[
 function progressColor(pct: number) {
   if (pct >= 75) return 'text-green-600 dark:text-green-400'
   if (pct >= 40) return 'text-emerald-600 dark:text-emerald-400'
-  return 'text-gray-500 dark:text-gray-400'
+  return 'text-gray-500 dark:text-neutral-400'
 }
 
 onMounted(async () => {
@@ -320,12 +351,15 @@ onMounted(async () => {
       if (pathsRes?.meta)   totalPaths.value   = pathsRes.meta.total
       recentUsers.value = usersRes?.data ?? []
     } else {
-      fetchRecommendation() // fire-and-forget; the nudge renders once it lands
+      fetchRecommendation()
+      fetchProgress()
+      useApi().get<{ activity: Array<{ date: string, count: number }> }>('/me/activity')
+        .then((r) => { activity.value = r.activity })
+        .catch(() => {})
+
       const myPaths    = await fetchMyPaths()
       const stepArrays = await Promise.all(myPaths.map((p: Path) => fetchSteps(p.id)))
-
       let done = 0, total = 0
-
       clientPaths.value = myPaths.map((p: Path, i: number) => {
         const steps     = stepArrays[i] ?? []
         const doneCount = steps.filter((s: any) => s.user_status === 'done').length
@@ -335,7 +369,6 @@ onMounted(async () => {
         total += steps.length
         return { id: p.id, name: p.name, pct, doneCount, totalSteps: steps.length, nextStep }
       })
-
       totalDone.value  = done
       totalSteps.value = total
     }

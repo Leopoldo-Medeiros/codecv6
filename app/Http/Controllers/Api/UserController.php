@@ -382,6 +382,45 @@ class UserController extends Controller
     }
 
     /**
+     * Daily practice activity for the GitHub-style contribution heatmap.
+     * Counts, per day, solved challenges (UserChallengeCompletion.completed_at)
+     * plus completed incident steps (approximated by UserStepProgress.updated_at
+     * for type=incident). Derived from existing timestamps — no activity log.
+     */
+    public function activity(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $byDay = [];
+
+        $user->challengeCompletions()
+            ->selectRaw('DATE(completed_at) as d, COUNT(*) as c')
+            ->groupBy('d')
+            ->pluck('c', 'd')
+            ->each(function ($c, $d) use (&$byDay) {
+                $byDay[$d] = ($byDay[$d] ?? 0) + (int) $c;
+            });
+
+        UserStepProgress::query()
+            ->join('path_steps', 'path_steps.id', '=', 'user_step_progress.path_step_id')
+            ->where('user_step_progress.user_id', $user->id)
+            ->where('user_step_progress.status', 'done')
+            ->where('path_steps.type', 'incident')
+            ->selectRaw('DATE(user_step_progress.updated_at) as d, COUNT(*) as c')
+            ->groupBy('d')
+            ->pluck('c', 'd')
+            ->each(function ($c, $d) use (&$byDay) {
+                $byDay[$d] = ($byDay[$d] ?? 0) + (int) $c;
+            });
+
+        $activity = collect($byDay)
+            ->map(fn ($count, $date) => ['date' => $date, 'count' => $count])
+            ->values();
+
+        return response()->json(['activity' => $activity]);
+    }
+
+    /**
      * Practice funnel F6 — the coaching upsell nudge for the current user.
      * Returns the single most relevant tier they've earned and don't yet own,
      * or {recommendation: null} when they haven't earned a nudge.

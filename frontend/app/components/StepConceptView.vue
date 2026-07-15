@@ -198,13 +198,21 @@
                 :data-tier="t.tier"
                 class="step-concept__tier"
               >
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-html="t.html" />
+                <template v-for="(seg, si) in t.segments" :key="si">
+                  <FlowDiagram v-if="seg.type === 'flow'" :code="seg.content" />
+                  <!-- eslint-disable-next-line vue/no-v-html -->
+                  <div v-else v-html="seg.content" />
+                </template>
               </section>
             </template>
             <!-- Untiered fallback (legacy steps without tier markers). -->
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <div v-else v-html="renderedConcept" />
+            <template v-else>
+              <template v-for="(seg, si) in renderedSegments" :key="si">
+                <FlowDiagram v-if="seg.type === 'flow'" :code="seg.content" />
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-else v-html="seg.content" />
+              </template>
+            </template>
           </article>
         </UCard>
 
@@ -481,6 +489,24 @@ function renderMarkdown(md: string): string {
     .replace(/(^|\n)([^<\n][^\n]+)(?=\n|$)/g, (_, prefix: string, line: string) => `${prefix}<p>${line}</p>`)
 }
 
+// Split content so ```mermaid``` flow blocks render as the modern FlowDiagram
+// component (not a raw code box), while everything else stays HTML.
+interface ContentSegment { type: 'html' | 'flow', content: string }
+
+function toSegments(md: string): ContentSegment[] {
+  const segs: ContentSegment[] = []
+  const re = /```mermaid\n([\s\S]*?)```/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(md)) !== null) {
+    if (m.index > last) segs.push({ type: 'html', content: renderMarkdown(md.slice(last, m.index)) })
+    segs.push({ type: 'flow', content: (m[1] ?? '').trim() })
+    last = m.index + m[0].length
+  }
+  if (last < md.length) segs.push({ type: 'html', content: renderMarkdown(md.slice(last)) })
+  return segs
+}
+
 // ─── Seniority tier parsing ───────────────────────────────────────────
 // Convention: a step's concept_content is structured as up to three
 // top-level H2 sections whose heading text begins with "Core",
@@ -505,7 +531,7 @@ interface TocEntry {
 interface TierSection {
   tier: Tier
   markdown: string
-  html: string
+  segments: ContentSegment[]
   headings: TocEntry[]
 }
 
@@ -539,7 +565,7 @@ const tierSections = computed<TierSection[]>(() => {
     // The first section absorbs any prelude so untiered intro prose
     // stays visible.
     const markdown = prelude && sections.length === 0 ? prelude + chunk : chunk
-    sections.push({ tier, markdown, html: renderMarkdown(markdown), headings })
+    sections.push({ tier, markdown, segments: toSegments(markdown), headings })
   }
 
   return sections
@@ -556,7 +582,7 @@ const hasTiers = computed(() => {
 })
 
 // Untiered fallback render.
-const renderedConcept = computed(() => renderMarkdown(props.step.concept_content ?? ''))
+const renderedSegments = computed(() => toSegments(props.step.concept_content ?? ''))
 
 const toc = computed<TocEntry[]>(() => {
   if (hasTiers.value) {
@@ -714,15 +740,45 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
 </script>
 
 <style scoped>
+/* Content colours are driven by CSS variables so a single high-specificity
+   selector (:global(.dark) .step-concept) flips the whole theme. This avoids
+   the Vue scoped-style gotcha where per-element ":global(.dark) …:deep()"
+   overrides tie on specificity with their light counterparts and lose on
+   source order (which left dark text unreadable and code blocks white). */
+.step-concept {
+  --sc-h2: rgb(17 24 39);
+  --sc-h3: rgb(31 41 55);
+  --sc-p: rgb(55 65 81);
+  --sc-strong: rgb(17 24 39);
+  --sc-code-bg: rgb(241 245 249);
+  --sc-code-fg: rgb(4 120 87);
+  --sc-pre-bg: rgb(248 250 252);
+  --sc-pre-border: rgb(226 232 240);
+  --sc-pre-fg: rgb(15 23 42);
+  --sc-td-fg: rgb(55 65 81);
+  --sc-td-border: rgb(226 232 240);
+  --sc-th-bg: rgb(248 250 252);
+  --sc-th-fg: rgb(15 23 42);
+  --sc-divider: rgb(226 232 240);
+  --sc-lang: rgb(148 163 184);
+  --sc-tier-core: rgb(6 95 70);
+  --sc-tier-mid: rgb(146 64 14);
+  --sc-tier-senior: rgb(91 33 182);
+  --t-kw: #a626a4; --t-ty: #c18401; --t-st: #50a14f; --t-co: #a0a1a7; --t-vr: #e45649;
+  --t-fn: #4078f2; --t-cl: #c18401; --t-nu: #986801; --t-op: #383a42; --t-tg: #a626a4;
+}
+/* Dark overrides live in a NON-scoped <style> block below (html.dark …) so
+   they out-specify the scoped light defaults — a scoped :global(.dark) rule
+   ties on specificity and loses on source order. */
+
 .step-concept :deep(h2) {
   scroll-margin-top: 80px;
   margin: 32px 0 12px;
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.015em;
-  color: rgb(17 24 39);
+  color: var(--sc-h2);
 }
-:global(.dark) .step-concept :deep(h2) { color: rgb(243 244 246); }
 .step-concept :deep(h2:first-child) { margin-top: 0; }
 
 /* ── Tier sections ─────────────────────────────────────────────── */
@@ -736,10 +792,7 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
 .step-concept__tier + .step-concept__tier {
   margin-top: 48px;
   padding-top: 32px;
-  border-top: 1px dashed rgb(226 232 240);
-}
-:global(.dark) .step-concept__tier + .step-concept__tier {
-  border-color: rgb(51 65 85);
+  border-top: 1px dashed var(--sc-divider);
 }
 
 .step-concept__tier :deep(h2) {
@@ -770,64 +823,50 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
   content: 'Senior insights — interview & architecture';
   color: rgb(124 58 237);
 }
-.step-concept__tier[data-tier="core"]   :deep(h2) { color: rgb(6 95 70); }
-.step-concept__tier[data-tier="mid"]    :deep(h2) { color: rgb(146 64 14); }
-.step-concept__tier[data-tier="senior"] :deep(h2) { color: rgb(91 33 182); }
-:global(.dark) .step-concept__tier[data-tier="core"]   :deep(h2) { color: rgb(110 231 183); }
-:global(.dark) .step-concept__tier[data-tier="mid"]    :deep(h2) { color: rgb(252 211 77); }
-:global(.dark) .step-concept__tier[data-tier="senior"] :deep(h2) { color: rgb(196 181 253); }
+.step-concept__tier[data-tier="core"]   :deep(h2) { color: var(--sc-tier-core); }
+.step-concept__tier[data-tier="mid"]    :deep(h2) { color: var(--sc-tier-mid); }
+.step-concept__tier[data-tier="senior"] :deep(h2) { color: var(--sc-tier-senior); }
 
 .step-concept :deep(h3) {
   scroll-margin-top: 80px;
   margin: 24px 0 8px;
   font-size: 1rem;
   font-weight: 600;
-  color: rgb(31 41 55);
+  color: var(--sc-h3);
 }
-:global(.dark) .step-concept :deep(h3) { color: rgb(229 231 235); }
 
 .step-concept :deep(p) {
   margin: 0 0 14px;
   font-size: 0.9rem;
   line-height: 1.7;
-  color: rgb(55 65 81);
+  color: var(--sc-p);
 }
-:global(.dark) .step-concept :deep(p) { color: rgb(209 213 219); }
 
 .step-concept :deep(strong) {
   font-weight: 600;
-  color: rgb(17 24 39);
+  color: var(--sc-strong);
 }
-:global(.dark) .step-concept :deep(strong) { color: rgb(243 244 246); }
 
 .step-concept :deep(:not(pre) > code) {
   padding: 1px 6px;
   border-radius: 4px;
-  background: rgb(241 245 249);
-  color: rgb(4 120 87);
+  background: var(--sc-code-bg);
+  color: var(--sc-code-fg);
   font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
   font-size: 0.82em;
   font-weight: 500;
-}
-:global(.dark) .step-concept :deep(:not(pre) > code) {
-  background: rgb(30 41 59);
-  color: rgb(110 231 183);
 }
 
 .step-concept :deep(pre) {
   position: relative;
   margin: 16px 0;
   padding: 16px 18px;
-  border: 1px solid rgb(226 232 240);
+  border: 1px solid var(--sc-pre-border);
   border-radius: 10px;
-  background: rgb(248 250 252);
+  background: var(--sc-pre-bg);
   overflow-x: auto;
   font-size: 0.82rem;
   line-height: 1.6;
-}
-:global(.dark) .step-concept :deep(pre) {
-  border-color: rgb(30 41 59);
-  background: rgb(15 23 42);
 }
 .step-concept :deep(pre)::before {
   content: attr(data-lang);
@@ -838,13 +877,12 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: rgb(148 163 184);
+  color: var(--sc-lang);
 }
 .step-concept :deep(pre code) {
   font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-  color: rgb(15 23 42);
+  color: var(--sc-pre-fg);
 }
-:global(.dark) .step-concept :deep(pre code) { color: rgb(226 232 240); }
 
 .step-concept :deep(ul) {
   margin: 0 0 14px;
@@ -855,9 +893,8 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
   margin-bottom: 6px;
   font-size: 0.9rem;
   line-height: 1.65;
-  color: rgb(55 65 81);
+  color: var(--sc-p);
 }
-:global(.dark) .step-concept :deep(li) { color: rgb(209 213 219); }
 
 .step-concept :deep(table) {
   width: 100%;
@@ -867,46 +904,26 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
 }
 .step-concept :deep(td) {
   padding: 8px 12px;
-  border: 1px solid rgb(226 232 240);
-  color: rgb(55 65 81);
-}
-:global(.dark) .step-concept :deep(td) {
-  border-color: rgb(51 65 85);
-  color: rgb(203 213 225);
+  border: 1px solid var(--sc-td-border);
+  color: var(--sc-td-fg);
 }
 .step-concept :deep(tr:first-child td) {
-  background: rgb(248 250 252);
+  background: var(--sc-th-bg);
   font-weight: 600;
-  color: rgb(15 23 42);
-}
-:global(.dark) .step-concept :deep(tr:first-child td) {
-  background: rgb(30 41 59);
-  color: rgb(241 245 249);
+  color: var(--sc-th-fg);
 }
 
-/* Syntax highlighting — light */
-.step-concept :deep(.t-kw) { color: #a626a4; }
-.step-concept :deep(.t-ty) { color: #c18401; font-weight: 500; }
-.step-concept :deep(.t-st) { color: #50a14f; }
-.step-concept :deep(.t-co) { color: #a0a1a7; font-style: italic; }
-.step-concept :deep(.t-vr) { color: #e45649; }
-.step-concept :deep(.t-fn) { color: #4078f2; }
-.step-concept :deep(.t-cl) { color: #c18401; }
-.step-concept :deep(.t-nu) { color: #986801; }
-.step-concept :deep(.t-op) { color: #383a42; }
-.step-concept :deep(.t-tg) { color: #a626a4; font-weight: 600; }
-
-/* Syntax highlighting — dark (VS Code Dark+) */
-:global(.dark) .step-concept :deep(.t-kw) { color: #c586c0; }
-:global(.dark) .step-concept :deep(.t-ty) { color: #4ec9b0; font-weight: 500; }
-:global(.dark) .step-concept :deep(.t-st) { color: #ce9178; }
-:global(.dark) .step-concept :deep(.t-co) { color: #6a9955; }
-:global(.dark) .step-concept :deep(.t-vr) { color: #9cdcfe; }
-:global(.dark) .step-concept :deep(.t-fn) { color: #dcdcaa; }
-:global(.dark) .step-concept :deep(.t-cl) { color: #4ec9b0; }
-:global(.dark) .step-concept :deep(.t-nu) { color: #b5cea8; }
-:global(.dark) .step-concept :deep(.t-op) { color: #d4d4d4; }
-:global(.dark) .step-concept :deep(.t-tg) { color: #569cd6; font-weight: 600; }
+/* Syntax highlighting — colours flip via the CSS vars above (light / dark) */
+.step-concept :deep(.t-kw) { color: var(--t-kw); font-weight: 600; }
+.step-concept :deep(.t-ty) { color: var(--t-ty); font-weight: 500; }
+.step-concept :deep(.t-st) { color: var(--t-st); }
+.step-concept :deep(.t-co) { color: var(--t-co); font-style: italic; }
+.step-concept :deep(.t-vr) { color: var(--t-vr); }
+.step-concept :deep(.t-fn) { color: var(--t-fn); }
+.step-concept :deep(.t-cl) { color: var(--t-cl); }
+.step-concept :deep(.t-nu) { color: var(--t-nu); }
+.step-concept :deep(.t-op) { color: var(--t-op); }
+.step-concept :deep(.t-tg) { color: var(--t-tg); font-weight: 600; }
 
 /* Code playground (Monaco-backed editor) */
 .playground-editor {
@@ -934,5 +951,32 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
 }
 :global(.dark) .playground-output--err {
   color: rgb(252 165 165);
+}
+</style>
+
+<!-- Non-scoped: dark theme flips the step-content CSS variables. `html.dark`
+     out-specifies the scoped light defaults regardless of source order. -->
+<style>
+html.dark .step-concept {
+  --sc-h2: rgb(244 244 245);
+  --sc-h3: rgb(228 228 231);
+  --sc-p: rgb(212 212 216);
+  --sc-strong: rgb(250 250 250);
+  --sc-code-bg: rgb(38 38 38);
+  --sc-code-fg: rgb(110 231 183);
+  --sc-pre-bg: rgb(23 23 23);
+  --sc-pre-border: rgb(45 45 45);
+  --sc-pre-fg: rgb(228 228 231);
+  --sc-td-fg: rgb(212 212 216);
+  --sc-td-border: rgb(64 64 64);
+  --sc-th-bg: rgb(38 38 38);
+  --sc-th-fg: rgb(244 244 245);
+  --sc-divider: rgb(64 64 64);
+  --sc-lang: rgb(115 115 115);
+  --sc-tier-core: rgb(110 231 183);
+  --sc-tier-mid: rgb(252 211 77);
+  --sc-tier-senior: rgb(196 181 253);
+  --t-kw: #c586c0; --t-ty: #4ec9b0; --t-st: #ce9178; --t-co: #6a9955; --t-vr: #9cdcfe;
+  --t-fn: #dcdcaa; --t-cl: #4ec9b0; --t-nu: #b5cea8; --t-op: #d4d4d4; --t-tg: #569cd6;
 }
 </style>
