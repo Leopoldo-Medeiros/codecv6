@@ -16,8 +16,8 @@ return [
             'recurring' => true,
             'interval' => 'month',
             'prices' => [
-                'eur' => 1200,
-                'brl' => 4900,
+                'eur' => 2900,
+                'brl' => 11900,
             ],
         ],
         'accelerator' => [

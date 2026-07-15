@@ -29,7 +29,7 @@
             <p class="pcard__desc">Learn by doing, at your own pace</p>
             <div class="pcard__price-row">
               <span class="pcard__currency">€</span>
-              <span class="pcard__amount">12</span>
+              <span class="pcard__amount">29</span>
             </div>
             <p class="pcard__billing">per month · cancel anytime</p>
             <ul class="pcard__features">
@@ -118,7 +118,7 @@
                 <th class="ctable__lh">Feature</th>
                 <th>
                   <div class="ctable__pname">Practice Pro</div>
-                  <div class="ctable__pprice">€12/month</div>
+                  <div class="ctable__pprice">€29/month</div>
                 </th>
                 <th>
                   <div class="ctable__pname">Career Accelerator</div>
@@ -280,7 +280,7 @@ useSchemaOrg([
     '@id': 'https://codecv.ie/pricing#practice-pro',
     name: 'Practice Pro',
     description: 'Unlimited access to the full coding challenge and learning-path library, plus the unlimited playground. Cancel anytime.',
-    offers: [{ '@type': 'Offer', price: 12, priceCurrency: 'EUR', availability: 'https://schema.org/InStock', url: 'https://codecv.ie/pricing' }],
+    offers: [{ '@type': 'Offer', price: 29, priceCurrency: 'EUR', availability: 'https://schema.org/InStock', url: 'https://codecv.ie/pricing' }],
     brand: { '@type': 'Brand', name: 'CODECV' },
   }),
   defineProduct({

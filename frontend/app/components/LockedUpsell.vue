@@ -32,7 +32,7 @@ withDefaults(defineProps<{
   compact?: boolean
 }>(), {
   title: 'This is a Practice Pro exercise',
-  subtitle: 'Upgrade to unlock the full challenge and learning-path library — €12/month, cancel anytime.',
+  subtitle: 'Upgrade to unlock the full challenge and learning-path library — €29/month, cancel anytime.',
   compact: false,
 })
 </script>

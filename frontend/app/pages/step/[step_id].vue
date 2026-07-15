@@ -18,7 +18,7 @@
     </div>
 
     <div v-else-if="locked" class="mx-auto max-w-md py-20">
-      <LockedUpsell subtitle="This step is part of the Practice Pro library. Upgrade to continue this path — €12/month, cancel anytime." />
+      <LockedUpsell subtitle="This step is part of the Practice Pro library. Upgrade to continue this path — €29/month, cancel anytime." />
       <div class="mt-4 text-center">
         <UButton color="gray" variant="ghost" size="sm" @click="navigateTo('/my-paths')">Back to My Paths</UButton>
       </div>
