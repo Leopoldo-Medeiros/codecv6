@@ -251,8 +251,12 @@ const route = useRoute()
 const toast = useToast()
 const { fetchStep, updateStepProgress } = usePaths()
 const { recommendation: coaching, fetchRecommendation } = useCoaching()
+const focus = useFocusMode()
 
 const stepId = Number(route.params.step_id)
+
+// Always restore the layout chrome when leaving the step page.
+onBeforeUnmount(() => { focus.value = false })
 
 const step = ref<PathStep | null>(null)
 const pending = ref(true)
@@ -266,6 +270,8 @@ const showCoachingModal = ref(false)
 onMounted(async () => {
   try {
     step.value = await fetchStep(stepId)
+    // Challenge steps use the full-screen editor overlay — hide layout chrome.
+    focus.value = !!step.value?.challenge
   } catch (err: unknown) {
     // 403 from the F4 content gate → show an upsell, not a generic error
     if ((err as { response?: { status?: number } })?.response?.status === 403) {

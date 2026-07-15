@@ -8,9 +8,9 @@
     </Transition>
 
     <!-- ═══════════════════════════════════════ SIDEBAR ═══ -->
-    <aside :class="[
+    <aside v-show="!focus" :class="[
       'fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 transition-transform duration-200',
-      sidebarOpen ? 'tranneutral-x-0' : '-tranneutral-x-full lg:tranneutral-x-0'
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
     ]">
 
       <!-- Accent stripe -->
@@ -57,7 +57,7 @@
             <span v-if="isActive(item.to)" class="nav-glow" aria-hidden="true"></span>
             <!-- left indicator -->
             <span
-              class="absolute left-0 top-1/2 h-5 w-0.5 -tranneutral-y-1/2 rounded-r transition-all"
+              class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r transition-all"
               :class="isActive(item.to) ? 'nav-bar--active' : 'bg-transparent'"
             ></span>
             <UIcon :name="item.icon" class="nav-icon h-[18px] w-[18px] shrink-0"
@@ -84,10 +84,10 @@
     </aside>
 
     <!-- ═══════════════════════════════════════ MAIN ═══════ -->
-    <div class="flex min-h-screen flex-col lg:pl-60">
+    <div class="flex min-h-screen flex-col" :class="{ 'lg:pl-60': !focus }">
 
       <!-- Topbar -->
-      <header class="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between
+      <header v-show="!focus" class="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between
                      border-b border-gray-200 bg-white px-4 lg:px-6
                      dark:border-neutral-800 dark:bg-neutral-900">
         <div class="flex items-center gap-3">
@@ -180,7 +180,7 @@
         </div>
       </main>
 
-      <footer class="border-t border-gray-200 px-6 py-4 text-center text-xs
+      <footer v-show="!focus" class="border-t border-gray-200 px-6 py-4 text-center text-xs
                      text-gray-400 dark:border-neutral-800 dark:text-neutral-600">
         &copy; {{ new Date().getFullYear() }}
         <strong class="text-gray-500 dark:text-neutral-400">CODECV</strong>.
@@ -201,6 +201,7 @@ useHead({
   ]
 })
 
+const focus = useFocusMode()
 const { user, logout } = useAuth()
 const route            = useRoute()
 const colorMode        = useColorMode()
