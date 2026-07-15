@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\PaymentStatus;
 use App\Exceptions\AuthorizationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Path;
+use App\Models\Payment;
 use App\Models\User;
+use App\Models\UserChallengeCompletion;
 use App\Models\UserStepProgress;
 use App\Notifications\ClientAssigned;
 use App\Notifications\NewClientOnboarded;
@@ -418,6 +421,51 @@ class UserController extends Controller
             ->values();
 
         return response()->json(['activity' => $activity]);
+    }
+
+    /**
+     * Platform-wide aggregates for the admin dashboard: practice activity
+     * (all users) for the heatmap, daily signups, and PAID revenue — each as
+     * a daily series derived from existing timestamps. Admin-only (route).
+     */
+    public function adminDashboard(Request $request): JsonResponse
+    {
+        // Platform practice activity: challenge + incident completions per day.
+        $byDay = [];
+        UserChallengeCompletion::selectRaw('DATE(completed_at) as d, COUNT(*) as c')
+            ->groupBy('d')->pluck('c', 'd')
+            ->each(function ($c, $d) use (&$byDay) {
+                $byDay[$d] = ($byDay[$d] ?? 0) + (int) $c;
+            });
+        UserStepProgress::query()
+            ->join('path_steps', 'path_steps.id', '=', 'user_step_progress.path_step_id')
+            ->where('user_step_progress.status', 'done')
+            ->where('path_steps.type', 'incident')
+            ->selectRaw('DATE(user_step_progress.updated_at) as d, COUNT(*) as c')
+            ->groupBy('d')->pluck('c', 'd')
+            ->each(function ($c, $d) use (&$byDay) {
+                $byDay[$d] = ($byDay[$d] ?? 0) + (int) $c;
+            });
+
+        $signups = User::selectRaw('DATE(created_at) as d, COUNT(*) as c')
+            ->groupBy('d')->orderBy('d')->get()
+            ->map(fn ($r) => ['date' => $r->d, 'count' => (int) $r->c]);
+
+        // Revenue in EUR only (avoids mixing currencies in one sum).
+        $revenueRows = Payment::where('status', PaymentStatus::PAID)
+            ->where('currency', 'eur')
+            ->selectRaw('DATE(paid_at) as d, SUM(amount) as a')
+            ->groupBy('d')->orderBy('d')->get();
+
+        return response()->json([
+            'activity' => collect($byDay)->map(fn ($count, $date) => ['date' => $date, 'count' => $count])->values(),
+            'signups' => $signups,
+            'revenue' => [
+                'total' => (int) $revenueRows->sum('a'),
+                'currency' => 'eur',
+                'series' => $revenueRows->map(fn ($r) => ['date' => $r->d, 'amount' => (int) $r->a])->values(),
+            ],
+        ]);
     }
 
     /**

@@ -178,6 +178,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Admin only
     Route::middleware(['role:admin'])->group(function () {
+        Route::get('/admin/dashboard', [UserController::class, 'adminDashboard']);
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);

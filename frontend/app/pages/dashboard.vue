@@ -40,8 +40,8 @@
 
         <!-- Per-KPI mini viz -->
         <div v-if="stat.viz" class="mt-3 h-[38px]">
-          <AreaChart v-if="stat.viz === 'area' && cumulative.length >= 2" :values="cumulative" :aria-label="stat.label" />
-          <MiniBars v-else-if="stat.viz === 'bars'" :values="recentDaily" :color="stat.color" :height="38" />
+          <AreaChart v-if="stat.viz === 'area' && (stat.series?.length ?? 0) >= 2" :values="stat.series!" :aria-label="stat.label" />
+          <MiniBars v-else-if="stat.viz === 'bars'" :values="stat.bars ?? []" :color="stat.color" :height="38" />
           <div v-else-if="stat.viz === 'progress'" class="flex h-full items-end">
             <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-neutral-800">
               <div class="h-full rounded-full" :style="`width:${stat.ratio ?? 0}%;background:${stat.color}`" />
@@ -55,6 +55,33 @@
 
       <!-- ══ Left / main column ══ -->
       <div class="flex flex-col gap-5 lg:col-span-2">
+
+        <!-- Admin: platform-wide practice activity -->
+        <section v-if="isAdmin" class="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="mb-4">
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Platform activity</h2>
+            <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">All learners' challenges & incidents solved, last 26 weeks</p>
+          </div>
+          <ActivityHeatmap :activity="adminActivity" />
+        </section>
+
+        <!-- Admin: revenue over time -->
+        <section v-if="isAdmin" class="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="mb-1 flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Revenue over time</h2>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Cumulative PAID payments (EUR)</p>
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">€{{ revenueEur.toLocaleString() }}</span>
+          </div>
+          <div v-if="revenueCumulative.length >= 2" class="-mx-1 h-[160px]">
+            <AreaChart :values="revenueCumulative" aria-label="Revenue over time" />
+          </div>
+          <div v-else class="flex h-[140px] flex-col items-center justify-center text-center">
+            <UIcon name="i-heroicons-currency-euro" class="mb-2 h-8 w-8 text-gray-300 dark:text-neutral-700" />
+            <p class="text-sm text-gray-400 dark:text-neutral-500">Revenue will chart here as payments come in.</p>
+          </div>
+        </section>
 
         <!-- Client: practice activity heatmap -->
         <section v-if="!isAdmin" class="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
@@ -254,6 +281,10 @@ const totalUsers   = ref(0)
 const totalCourses = ref(0)
 const totalPaths   = ref(0)
 const recentUsers  = ref<any[]>([])
+const adminActivity   = ref<Array<{ date: string, count: number }>>([])
+const signups         = ref<Array<{ date: string, count: number }>>([])
+const revenueSeries   = ref<Array<{ date: string, amount: number }>>([])
+const revenueTotal    = ref(0)
 
 // Client state
 interface EnrichedPath { id: number; name: string; pct: number; doneCount: number; totalSteps: number; nextStep: string | null }
@@ -269,6 +300,14 @@ const cumulative = computed(() => {
   let sum = 0
   return sorted.map((a) => { sum += a.count; return sum })
 })
+
+function cumulativeOf<T>(rows: T[], key: (r: T) => number, dateOf: (r: T) => string): number[] {
+  let sum = 0
+  return [...rows].sort((a, b) => dateOf(a).localeCompare(dateOf(b))).map((r) => { sum += key(r); return sum })
+}
+const signupsCumulative = computed(() => cumulativeOf(signups.value, r => r.count, r => r.date))
+const revenueCumulative = computed(() => cumulativeOf(revenueSeries.value, r => r.amount / 100, r => r.date))
+const revenueEur = computed(() => Math.round(revenueTotal.value / 100))
 
 // Last 14 days as a dense daily-count series (zeros included) for KPI mini-bars.
 const recentDaily = computed(() => {
@@ -286,17 +325,22 @@ const recentDaily = computed(() => {
   return out
 })
 
-const displayStats = computed(() => isAdmin.value
+interface StatCard {
+  label: string; value: string | number; icon: string; color: string
+  viz?: 'area' | 'bars' | 'progress'; series?: number[]; bars?: number[]; ratio?: number
+}
+
+const displayStats = computed<StatCard[]>(() => isAdmin.value
   ? [
-      { label: 'Total Users',    value: totalUsers.value,   icon: 'i-heroicons-users',           color: '#6366f1' },
-      { label: 'Active Courses', value: totalCourses.value, icon: 'i-heroicons-book-open',        color: '#0ea5e9' },
-      { label: 'Learning Paths', value: totalPaths.value,   icon: 'i-heroicons-map',              color: '#10b981' },
-      { label: 'Revenue',        value: '—',                icon: 'i-heroicons-currency-dollar',  color: '#f59e0b' },
+      { label: 'Total Users',    value: totalUsers.value,   icon: 'i-heroicons-users',        color: '#6366f1', viz: 'area', series: signupsCumulative.value },
+      { label: 'Active Courses', value: totalCourses.value, icon: 'i-heroicons-book-open',     color: '#0ea5e9' },
+      { label: 'Learning Paths', value: totalPaths.value,   icon: 'i-heroicons-map',           color: '#10b981' },
+      { label: 'Revenue (EUR)',  value: `€${revenueEur.value.toLocaleString()}`, icon: 'i-heroicons-currency-euro', color: '#f59e0b', viz: 'area', series: revenueCumulative.value },
     ]
   : [
-      { label: 'XP earned',        value: progress.value?.xp_points ?? 0,      icon: 'i-heroicons-bolt',         color: '#10b981', viz: 'area' },
-      { label: 'Day streak',       value: progress.value?.current_streak ?? 0, icon: 'i-heroicons-fire',         color: '#f59e0b', viz: 'bars' },
-      { label: 'Steps completed',  value: totalDone.value,                     icon: 'i-heroicons-check-circle', color: '#38bdf8', viz: 'bars' },
+      { label: 'XP earned',        value: progress.value?.xp_points ?? 0,      icon: 'i-heroicons-bolt',         color: '#10b981', viz: 'area', series: cumulative.value },
+      { label: 'Day streak',       value: progress.value?.current_streak ?? 0, icon: 'i-heroicons-fire',         color: '#f59e0b', viz: 'bars', bars: recentDaily.value },
+      { label: 'Steps completed',  value: totalDone.value,                     icon: 'i-heroicons-check-circle', color: '#38bdf8', viz: 'bars', bars: recentDaily.value },
       { label: 'Overall progress', value: `${overallPct.value}%`,              icon: 'i-heroicons-chart-bar',    color: '#8b5cf6', viz: 'progress', ratio: overallPct.value },
     ]
 )
@@ -350,6 +394,19 @@ onMounted(async () => {
       if (coursesRes?.meta) totalCourses.value = coursesRes.meta.total
       if (pathsRes?.meta)   totalPaths.value   = pathsRes.meta.total
       recentUsers.value = usersRes?.data ?? []
+
+      useApi().get<{
+        activity: Array<{ date: string, count: number }>
+        signups: Array<{ date: string, count: number }>
+        revenue: { total: number, currency: string, series: Array<{ date: string, amount: number }> }
+      }>('/admin/dashboard')
+        .then((r) => {
+          adminActivity.value = r.activity
+          signups.value = r.signups
+          revenueSeries.value = r.revenue.series
+          revenueTotal.value = r.revenue.total
+        })
+        .catch(() => {})
     } else {
       fetchRecommendation()
       fetchProgress()
