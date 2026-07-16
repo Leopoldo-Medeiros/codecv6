@@ -346,7 +346,7 @@ PHP,
                             ],
                             [
                                 'id' => 4,
-                                'text' => "Convert magic strings to an enum — find any model in your project that has a status column stored as a raw string. Define a backed enum, cast the property, and update one match() that checks the status to be exhaustive.",
+                                'text' => 'Convert magic strings to an enum — find any model in your project that has a status column stored as a raw string. Define a backed enum, cast the property, and update one match() that checks the status to be exhaustive.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -664,7 +664,7 @@ EOT,
                             ],
                             [
                                 'id' => 2,
-                                'text' => "Write a request-duration middleware — implement RequestTimer that logs request method/path/status/duration_ms via Log::info. Register it as global middleware. Confirm it fires for every route by hitting two endpoints and reading storage/logs/laravel.log.",
+                                'text' => 'Write a request-duration middleware — implement RequestTimer that logs request method/path/status/duration_ms via Log::info. Register it as global middleware. Confirm it fires for every route by hitting two endpoints and reading storage/logs/laravel.log.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -689,7 +689,7 @@ PHP,
                             ],
                             [
                                 'id' => 3,
-                                'text' => "Spot the register vs boot bug — given the snippet below, explain why putting Gate::define in register() can crash on certain Laravel versions, then fix it by moving the call to boot().",
+                                'text' => 'Spot the register vs boot bug — given the snippet below, explain why putting Gate::define in register() can crash on certain Laravel versions, then fix it by moving the call to boot().',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -718,7 +718,7 @@ PHP,
                             ],
                             [
                                 'id' => 4,
-                                'text' => "Container singleton vs bind — given an InvoiceClock that returns now(), explain what changes if you register it as singleton vs bind. Then think about Octane: which one is the footgun and why? Senior interview territory.",
+                                'text' => 'Container singleton vs bind — given an InvoiceClock that returns now(), explain what changes if you register it as singleton vs bind. Then think about Octane: which one is the footgun and why? Senior interview territory.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1031,7 +1031,7 @@ EOT,
                         'instructions' => [
                             [
                                 'id' => 1,
-                                'text' => "Extract a scope — find a controller where the same Eloquent where() is repeated across two or more actions. Move it to a scope on the model and refactor the call sites. Confirm `Model::yourScope()` produces the same SQL via toSql().",
+                                'text' => 'Extract a scope — find a controller where the same Eloquent where() is repeated across two or more actions. Move it to a scope on the model and refactor the call sites. Confirm `Model::yourScope()` produces the same SQL via toSql().',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1058,7 +1058,7 @@ PHP,
                             ],
                             [
                                 'id' => 2,
-                                'text' => "Spot the N+1 — given the snippet below, identify how many DB queries it issues. Fix it with the right with() call so it issues exactly two queries regardless of the number of orders.",
+                                'text' => 'Spot the N+1 — given the snippet below, identify how many DB queries it issues. Fix it with the right with() call so it issues exactly two queries regardless of the number of orders.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1077,7 +1077,7 @@ PHP,
                             ],
                             [
                                 'id' => 3,
-                                'text' => "Build a backed-enum cast — define an OrderStatus enum (pending/paid/refunded) and cast it on the Order model. Then prove with a tinker session that \$order->status === OrderStatus::Paid works (not a string compare).",
+                                'text' => 'Build a backed-enum cast — define an OrderStatus enum (pending/paid/refunded) and cast it on the Order model. Then prove with a tinker session that $order->status === OrderStatus::Paid works (not a string compare).',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1493,12 +1493,12 @@ PHP,
                             ],
                             [
                                 'id' => 2,
-                                'text' => "Slim down a fat controller — refactor the UserController::process() in the playground above. Extract at least three smaller methods, name them for their behaviour, and rewrite process() as a thin orchestrator. Note in a comment which of those new methods could be reused outside this controller.",
+                                'text' => 'Slim down a fat controller — refactor the UserController::process() in the playground above. Extract at least three smaller methods, name them for their behaviour, and rewrite process() as a thin orchestrator. Note in a comment which of those new methods could be reused outside this controller.',
                                 'starter_code' => null,
                             ],
                             [
                                 'id' => 3,
-                                'text' => "Cyclomatic complexity hunt — pick the most-branchy function in your current project (or use the discount example below). Count the ifs/&&/?:/match arms. If you go past 5, refactor with a match() table the way the Deeper dive section does.",
+                                'text' => 'Cyclomatic complexity hunt — pick the most-branchy function in your current project (or use the discount example below). Count the ifs/&&/?:/match arms. If you go past 5, refactor with a match() table the way the Deeper dive section does.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1541,7 +1541,7 @@ PHP,
                             ],
                             [
                                 'id' => 5,
-                                'text' => "Surface a reversibility question — find a PR you opened in the last month. Write one paragraph answering: \"What did this change make harder to undo?\". This is the question that distinguishes senior reviewers from mid-level — train yourself to ask it before the merge button, not after.",
+                                'text' => 'Surface a reversibility question — find a PR you opened in the last month. Write one paragraph answering: "What did this change make harder to undo?". This is the question that distinguishes senior reviewers from mid-level — train yourself to ask it before the merge button, not after.',
                                 'starter_code' => null,
                             ],
                         ],
@@ -1853,7 +1853,7 @@ EOT,
                             ],
                             [
                                 'id' => 2,
-                                'text' => "Build factories with states — implement TaskFactory with pending() and overdue() states (overdue = due_at < now AND status != done). Use the states in a feature test that asserts the /api/tasks/overdue endpoint returns exactly the overdue rows.",
+                                'text' => 'Build factories with states — implement TaskFactory with pending() and overdue() states (overdue = due_at < now AND status != done). Use the states in a feature test that asserts the /api/tasks/overdue endpoint returns exactly the overdue rows.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1892,7 +1892,7 @@ PHP,
                             ],
                             [
                                 'id' => 3,
-                                'text' => "Write the three feature tests that protect login: success, wrong password (returns 422), and throttled after five failed attempts (returns 429). Junior tests cover (1); the bugs that ship are (2) and (3).",
+                                'text' => 'Write the three feature tests that protect login: success, wrong password (returns 422), and throttled after five failed attempts (returns 429). Junior tests cover (1); the bugs that ship are (2) and (3).',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -1929,7 +1929,7 @@ PHP,
                             ],
                             [
                                 'id' => 4,
-                                'text' => "Add an N+1 detector — implement the AssertsQueryCount trait from the Deeper dive section. Use it in a feature test for /api/orders that creates 20 orders and asserts the index endpoint runs at most 3 queries. The 4th query that future-you adds for a relation will fail the test instead of fail in prod.",
+                                'text' => 'Add an N+1 detector — implement the AssertsQueryCount trait from the Deeper dive section. Use it in a feature test for /api/orders that creates 20 orders and asserts the index endpoint runs at most 3 queries. The 4th query that future-you adds for a relation will fail the test instead of fail in prod.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -2622,7 +2622,7 @@ EOT,
                         'instructions' => [
                             [
                                 'id' => 1,
-                                'text' => "Build a trace by hand — extend the playground Span class so it carries a status (`ok`/`error`) and records an error message when one is set. Print it alongside the duration. This is exactly the shape OTel sends over the wire.",
+                                'text' => 'Build a trace by hand — extend the playground Span class so it carries a status (`ok`/`error`) and records an error message when one is set. Print it alongside the duration. This is exactly the shape OTel sends over the wire.',
                                 'starter_code' => null,
                             ],
                             [
@@ -3005,7 +3005,7 @@ EOT,
                         'instructions' => [
                             [
                                 'id' => 1,
-                                'text' => "Wrap a real method — pick any service method in your current project that takes >100ms (a checkout, a CSV import, an API integration). Add the four-step manual-span recipe around it: tracer, start, activate, end in finally. Run the request and confirm the span appears in your backend with the right name.",
+                                'text' => 'Wrap a real method — pick any service method in your current project that takes >100ms (a checkout, a CSV import, an API integration). Add the four-step manual-span recipe around it: tracer, start, activate, end in finally. Run the request and confirm the span appears in your backend with the right name.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -3053,7 +3053,7 @@ PHP,
                             ],
                             [
                                 'id' => 3,
-                                'text' => "Refactor span attributes — the snippet below has three antipatterns: a vendor-specific attribute name, an unbounded-cardinality attribute, and a missing semantic-convention name. Fix all three.",
+                                'text' => 'Refactor span attributes — the snippet below has three antipatterns: a vendor-specific attribute name, an unbounded-cardinality attribute, and a missing semantic-convention name. Fix all three.',
                                 'starter_code' => <<<'PHP'
 <?php
 declare(strict_types=1);

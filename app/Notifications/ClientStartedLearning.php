@@ -21,11 +21,11 @@ class ClientStartedLearning extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'type'       => 'client_started_learning',
-            'client_id'  => $this->client->id,
-            'fullname'   => $this->client->fullname,
-            'path_id'    => $this->path->id,
-            'path_name'  => $this->path->name,
+            'type' => 'client_started_learning',
+            'client_id' => $this->client->id,
+            'fullname' => $this->client->fullname,
+            'path_id' => $this->path->id,
+            'path_name' => $this->path->name,
         ];
     }
 }

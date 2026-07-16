@@ -11,49 +11,49 @@ class ChallengeLinkSeeder extends Seeder
     {
         $links = [
             [
-                'path'  => 'PHP for the Real World',
+                'path' => 'PHP for the Real World',
                 'title' => 'Challenge: Find and Fix the Bugs in This Laravel API',
-                'slug'  => 'find-fix-laravel-api-bugs',
+                'slug' => 'find-fix-laravel-api-bugs',
             ],
             [
-                'path'  => 'Debugging Like a Pro',
+                'path' => 'Debugging Like a Pro',
                 'title' => 'Challenge: Resolve the Incident Using Only Logs',
-                'slug'  => 'resolve-incident-from-logs',
+                'slug' => 'resolve-incident-from-logs',
             ],
             [
-                'path'  => 'Debugging Like a Pro',
+                'path' => 'Debugging Like a Pro',
                 'title' => 'Final Challenge: Debug Session — 3 Bugs, 60 Minutes',
-                'slug'  => 'final-debug-session-3-bugs',
+                'slug' => 'final-debug-session-3-bugs',
             ],
             [
-                'path'  => 'APM with New Relic',
+                'path' => 'APM with New Relic',
                 'title' => 'Challenge: Your App is Slow — Find the Bottleneck in 30 Minutes',
-                'slug'  => 'find-api-bottleneck',
+                'slug' => 'find-api-bottleneck',
             ],
             [
-                'path'  => 'OpenTelemetry in Practice',
+                'path' => 'OpenTelemetry in Practice',
                 'title' => 'Challenge: Instrument This API End-to-End',
-                'slug'  => 'instrument-api-end-to-end',
+                'slug' => 'instrument-api-end-to-end',
             ],
             [
-                'path'  => 'Full Stack Observability',
+                'path' => 'Full Stack Observability',
                 'title' => 'Challenge: Trace a Bug from Frontend to Database',
-                'slug'  => 'trace-frontend-to-database',
+                'slug' => 'trace-frontend-to-database',
             ],
             [
-                'path'  => 'Full Stack Observability',
+                'path' => 'Full Stack Observability',
                 'title' => 'Final Challenge: Simulate a Complete Incident Response',
-                'slug'  => 'simulate-incident-response',
+                'slug' => 'simulate-incident-response',
             ],
             [
-                'path'  => 'Database Performance',
+                'path' => 'Database Performance',
                 'title' => 'Challenge: Optimize This API Endpoint',
-                'slug'  => 'optimize-api-endpoint',
+                'slug' => 'optimize-api-endpoint',
             ],
             [
-                'path'  => 'Git & Professional Workflow',
+                'path' => 'Git & Professional Workflow',
                 'title' => 'Challenge: Untangle This Git History',
-                'slug'  => 'untangle-git-history',
+                'slug' => 'untangle-git-history',
             ],
         ];
 
