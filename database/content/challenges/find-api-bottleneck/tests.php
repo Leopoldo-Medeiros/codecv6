@@ -2,32 +2,30 @@
 
 use PHPUnit\Framework\TestCase;
 
-class BottleneckTest extends TestCase
+class FindApiBottleneckTest extends TestCase
 {
-    public function test_returns_correct_products_with_categories(): void
+    public function test_returns_every_product_with_its_category(): void
     {
-        $result = getProductsWithCategories();
+        ProductDatabase::$queries = 0;
+        $result = listProductsWithCategories(new ProductDatabase());
 
-        $this->assertCount(4, $result);
+        $this->assertCount(60, $result);
+        // Products 1/2/3 map to categories 1/2/3, then the pattern repeats.
+        $this->assertSame('Product 1', $result[0]['name']);
         $this->assertSame('Electronics', $result[0]['category']);
-        $this->assertSame('Books', $result[2]['category']);
-        $this->assertSame('Clothing', $result[3]['category']);
+        $this->assertSame('Books', $result[1]['category']);
+        $this->assertSame('Clothing', $result[2]['category']);
+        // ...and it holds after the cycle repeats.
+        $this->assertSame('Electronics', $result[3]['category']);
     }
 
-    public function test_batched_lookups_reduces_queries(): void
+    public function test_hits_the_database_a_small_constant_number_of_times(): void
     {
-        resetQueryCount();
-        getProductsWithCategories();
+        ProductDatabase::$queries = 0;
+        listProductsWithCategories(new ProductDatabase());
 
-        $this->assertLessThanOrEqual(1, getQueryCount());
-    }
-
-    public function test_product_names_are_correct(): void
-    {
-        $result = getProductsWithCategories();
-
-        $names = array_map(fn($p) => $p['name'], $result);
-        $this->assertContains('Laptop', $names);
-        $this->assertContains('PHP Book', $names);
+        // The N+1 version fires 60 queries (one per product). A batched version
+        // fires a small constant — 1 or 2 — no matter how many products there are.
+        $this->assertLessThan(3, ProductDatabase::$queries);
     }
 }

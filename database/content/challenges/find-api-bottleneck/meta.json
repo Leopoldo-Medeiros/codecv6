@@ -1,8 +1,8 @@
 {
-    "title": "Your App is Slow — Find the Bottleneck in 30 Minutes",
+    "title": "Your API is Slow — Find the Bottleneck",
     "slug": "find-api-bottleneck",
     "difficulty": "intermediate",
-    "is_teaser": false,
+    "is_teaser": true,
     "is_premium": false,
     "price_eur": null
 }
