@@ -1,0 +1,5 @@
+{
+    "name": "Git & Professional Workflow",
+    "description": "Git is not just version control — it is the shared history of a team. A clean, readable commit history documents every architectural decision. An unreadable history with \"fix\", \"update\", \"wip\" commits is technical debt before the code is even reviewed. This path covers Git internals, branching strategies, PR workflows, automated quality gates, and the professional habits that distinguish senior developers.",
+    "badge_key": null
+}

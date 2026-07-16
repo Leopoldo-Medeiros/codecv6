@@ -1,0 +1,5 @@
+{
+    "name": "Debugging Like a Pro",
+    "description": "The skill that most differentiates a junior from a senior is not writing code — it is finding where the code is wrong. This path teaches the scientific method applied to debugging: hypothesis, evidence, isolation, correction. Using Xdebug, structured logs and stack trace analysis as the main tools.",
+    "badge_key": null
+}

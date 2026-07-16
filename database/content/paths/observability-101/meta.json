@@ -1,0 +1,5 @@
+{
+    "name": "Observability 101",
+    "description": "Learn to operate what you build. Read production telemetry — traces, metrics, and logs — and diagnose real failures the way an on-call engineer does.",
+    "badge_key": "observability_certified"
+}

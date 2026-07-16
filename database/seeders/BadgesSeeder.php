@@ -43,8 +43,8 @@ class BadgesSeeder extends Seeder
                 'icon' => '🚨',
             ],
             // Certification — a credential employers can trust, earned by
-            // completing the Observability track (see IncidentSeeder's
-            // Path->badge_key). Rendered as a prominent seal on the profile.
+            // completing the Observability track (the "Observability 101" path's
+            // badge_key in database/content). Rendered as a prominent seal.
             [
                 'key' => 'observability_certified',
                 'category' => 'certification',
