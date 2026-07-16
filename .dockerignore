@@ -1,0 +1,24 @@
+# Keep the build context (and image) lean and secret-free.
+.git
+.github
+.ddev
+.env
+.env.*
+!.env.example
+
+# Pulled in a dedicated stage / rebuilt in-image.
+vendor
+node_modules
+
+# The frontend ships as its own image (frontend/Dockerfile).
+frontend
+
+# Local-only.
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+docs
+tests
+*.md
+!README.md
