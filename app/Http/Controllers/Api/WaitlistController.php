@@ -23,8 +23,12 @@ class WaitlistController extends Controller
     {
         $data = $request->validated();
 
+        // A logged-in vote is always tied to that user's own email — never a
+        // client-supplied one — and links the signup back to the user.
+        $email = Auth::user()?->email ?? $data['email'];
+
         WaitlistEntry::updateOrCreate(
-            ['email' => $data['email'], 'topic' => $data['topic']],
+            ['email' => $email, 'topic' => $data['topic']],
             ['source' => $data['source'] ?? null, 'user_id' => Auth::id()],
         );
 

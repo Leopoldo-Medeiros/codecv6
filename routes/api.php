@@ -126,6 +126,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Practice funnel — coaching upsell recommendation (F6)
     Route::get('/me/coaching-recommendation', [UserController::class, 'coachingRecommendation']);
 
+    // "Coming soon" waitlist vote from a logged-in user — links the signup to
+    // the account (the public endpoint can't). Same controller/store logic.
+    Route::post('/waitlist', [WaitlistController::class, 'store'])->middleware('throttle:20,1');
+
     // Daily practice activity for the contribution heatmap
     Route::get('/me/activity', [UserController::class, 'activity']);
 
