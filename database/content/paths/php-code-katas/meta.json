@@ -1,0 +1,5 @@
+{
+    "name": "PHP Code Katas",
+    "description": "Deliberate practice through short, focused coding exercises. Each kata targets a specific PHP language feature — null safety, enums, value objects, generators, and design patterns. The goal is not just to pass the tests; it is to internalise the concept deeply enough to apply it instinctively under pressure.",
+    "badge_key": null
+}

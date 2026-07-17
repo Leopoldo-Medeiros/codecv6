@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VerifyEmailController;
+use App\Http\Controllers\Api\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -61,6 +62,10 @@ Route::post('/public/challenges/{challenge:slug}/run', [PublicChallengeControlle
 // Public skill profile (opt-in, shareable) — practice funnel stage 5 / F3.
 Route::get('/public/profile/{slug}', [PublicProfileController::class, 'show'])
     ->middleware('throttle:30,1');
+
+// Public "coming soon" waitlist — demand-sensing for unbuilt tracks. IP-throttled.
+Route::post('/public/waitlist', [WaitlistController::class, 'store'])
+    ->middleware('throttle:5,1');
 
 // Protected routes (require authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -185,5 +190,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/consultants', [UserController::class, 'consultants']);
         Route::patch('/users/{user}/consultant', [UserController::class, 'assignConsultant']);
         Route::get('/roles', [RoleController::class, 'index']);
+        // Demand-sensing readout: signups per "coming soon" track.
+        Route::get('/admin/waitlist', [WaitlistController::class, 'index']);
     });
 });

@@ -1,0 +1,5 @@
+{
+    "name": "Debug Katas: Find the Bug",
+    "description": "Every tutorial shows you code that already works. This path does the opposite: every kata below hands you a function that compiles, runs, and looks completely reasonable — and is wrong. The tests are already written and already failing. Your job is not to build; it is to read someone else's code, form a hypothesis from a bug report, and fix exactly what is broken. This is the skill that separates \"I followed the tutorial\" from \"I can be dropped into a real codebase.\"",
+    "badge_key": null
+}
