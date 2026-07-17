@@ -15,12 +15,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             CoursesTableSeeder::class,
-            ChallengeSeeder::class,
-            LearningPathsSeeder::class,
-            PathStepSeeder::class,
-            IncidentSeeder::class,
-            RestApiTrackSeeder::class,
-            ChallengeLinkSeeder::class,
+            // Challenges + learning paths + steps, imported from database/content
+            // via content:sync (idempotent). Replaces the old heredoc seeders.
+            ContentSeeder::class,
             PlanSeeder::class,
             BadgesSeeder::class,
         ]);

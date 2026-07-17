@@ -1,0 +1,5 @@
+{
+    "name": "Database Performance",
+    "description": "Most PHP applications are slow because of the database, not the PHP code. A query that returns in 2ms on the developer's laptop with 500 rows returns in 8 seconds on production with 3 million rows. This path gives you the mental model and practical skills to write queries that scale: from understanding the query planner to Eloquent optimization patterns you can apply immediately.",
+    "badge_key": null
+}
