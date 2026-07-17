@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Sentry\Laravel\Integration;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -31,4 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 403);
             }
         });
+
+        // Report unhandled exceptions to Sentry. No-op when SENTRY_LARAVEL_DSN
+        // is unset (local/CI), so this is safe to ship disabled.
+        Integration::handles($exceptions);
     })->create();

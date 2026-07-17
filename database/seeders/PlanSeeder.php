@@ -15,8 +15,8 @@ class PlanSeeder extends Seeder
         $client = User::where('email', 'client@client.com')->firstOrFail();
 
         $plan = Plan::create([
-            'name'          => 'PHP Developer Track',
-            'description'   => 'Full track covering modern PHP, debugging, observability, database performance, and Git workflow.',
+            'name' => 'PHP Developer Track',
+            'description' => 'Full track covering modern PHP, debugging, observability, database performance, and Git workflow.',
             'consultant_id' => $consultant->id,
         ]);
 

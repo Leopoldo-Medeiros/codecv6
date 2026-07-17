@@ -16,7 +16,13 @@ export default defineNuxtConfig({
 
   compatibilityDate: "2025-04-15",
 
-  modules: ['@nuxt/ui', '@nuxtjs/seo'],
+  modules: ['@nuxt/ui', '@nuxtjs/seo', '@sentry/nuxt/module'],
+
+  // Error monitoring. Client-side only (browser errors) to keep the Nitro
+  // build simple; disabled when NUXT_PUBLIC_SENTRY_DSN is unset (no-op).
+  sentry: {
+    autoInjectServerSentry: false,
+  },
 
   // @nuxtjs/seo — site-wide config consumed by sitemap, robots,
   // schema.org, and canonical URLs.
@@ -119,6 +125,10 @@ export default defineNuxtConfig({
     public: {
       // Override with NUXT_PUBLIC_API_BASE env var (loaded via --dotenv from root .env).
       apiBase: `https://${ddevHostname}`,
+      // Error monitoring DSN — set NUXT_PUBLIC_SENTRY_DSN to enable; empty = disabled.
+      sentry: {
+        dsn: '',
+      },
     },
   },
 
