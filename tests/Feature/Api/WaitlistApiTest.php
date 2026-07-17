@@ -116,4 +116,33 @@ class WaitlistApiTest extends TestCase
             ->getJson('/api/admin/waitlist')
             ->assertForbidden();
     }
+
+    public function test_authenticated_vote_links_the_user_and_uses_account_email(): void
+    {
+        $user = User::factory()->create(['email' => 'member@example.com']);
+
+        // No email in the body — a logged-in vote uses the account's email.
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/waitlist', ['topic' => 'observability', 'source' => 'dashboard'])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('waitlist_entries', [
+            'email' => 'member@example.com',
+            'topic' => 'observability',
+            'user_id' => $user->id,
+            'source' => 'dashboard',
+        ]);
+    }
+
+    public function test_authenticated_vote_ignores_a_client_supplied_email(): void
+    {
+        $user = User::factory()->create(['email' => 'real@example.com']);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/waitlist', ['topic' => 'ai-for-devs', 'email' => 'spoofed@example.com'])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('waitlist_entries', ['email' => 'real@example.com', 'user_id' => $user->id]);
+        $this->assertDatabaseMissing('waitlist_entries', ['email' => 'spoofed@example.com']);
+    }
 }

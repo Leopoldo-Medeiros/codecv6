@@ -215,8 +215,10 @@
 
       <!-- ══ Right rail ══ -->
       <div class="flex flex-col gap-5">
+        <WaitlistAdminCard v-if="isAdmin" />
         <ProgressWidget v-if="!isAdmin" />
         <CoachingNudge v-if="isClient && coaching" :recommendation="coaching" />
+        <WaitlistVote v-if="isClient" />
 
         <!-- Quick actions -->
         <div class="rounded-2xl border border-gray-200/80 bg-white dark:border-neutral-800 dark:bg-neutral-900">
