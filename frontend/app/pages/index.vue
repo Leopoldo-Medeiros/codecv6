@@ -197,6 +197,10 @@
     </section>
 
 
+    <!-- ─── 2b. ROADMAP / WAITLIST (demand-sensing) ──── -->
+    <WaitlistSection />
+
+
     <!-- ─── 3. LOGO CLOUD ────────────────────────────── -->
     <section class="logos">
       <div class="mkt-container">
