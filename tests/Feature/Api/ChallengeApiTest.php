@@ -7,6 +7,7 @@ use App\Enums\PaymentTier;
 use App\Models\Challenge;
 use App\Models\Payment;
 use App\Models\User;
+use App\Models\UserChallengeCompletion;
 use Database\Seeders\BadgesSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -69,6 +70,48 @@ class ChallengeApiTest extends TestCase
     public function test_unauthenticated_cannot_list_challenges(): void
     {
         $this->getJson('/api/challenges')->assertUnauthorized();
+    }
+
+    public function test_list_marks_the_users_solved_challenges(): void
+    {
+        $solved = Challenge::factory()->create();
+        $unsolved = Challenge::factory()->create();
+        UserChallengeCompletion::create([
+            'user_id' => $this->user->id,
+            'challenge_id' => $solved->id,
+            'completed_at' => now(),
+        ]);
+
+        $rows = collect(
+            $this->actingAs($this->user, 'sanctum')
+                ->getJson('/api/challenges')
+                ->assertOk()
+                ->json('data')
+        );
+
+        $this->assertTrue($rows->firstWhere('id', $solved->id)['solved']);
+        $this->assertFalse($rows->firstWhere('id', $unsolved->id)['solved']);
+    }
+
+    public function test_solved_flag_is_per_user(): void
+    {
+        $challenge = Challenge::factory()->create();
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('client');
+        UserChallengeCompletion::create([
+            'user_id' => $otherUser->id,
+            'challenge_id' => $challenge->id,
+            'completed_at' => now(),
+        ]);
+
+        $rows = collect(
+            $this->actingAs($this->user, 'sanctum')
+                ->getJson('/api/challenges')
+                ->assertOk()
+                ->json('data')
+        );
+
+        $this->assertFalse($rows->firstWhere('id', $challenge->id)['solved']);
     }
 
     public function test_authenticated_user_can_view_challenge_by_slug(): void

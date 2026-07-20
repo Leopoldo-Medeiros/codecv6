@@ -28,6 +28,9 @@ class ChallengeResource extends JsonResource
             'is_premium' => $this->is_premium,
             'price_eur' => $this->price_eur,
             'locked' => $locked,
+            // Set by ChallengeController::index (transient attribute) — false
+            // on single-challenge responses, where it isn't needed.
+            'solved' => (bool) ($this->solved ?? false),
             'created_by' => $this->created_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -6,6 +6,7 @@ use App\Exceptions\AuthorizationException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ChallengeResource;
 use App\Models\Challenge;
+use App\Models\UserChallengeCompletion;
 use App\Services\ChallengeExecutionService;
 use App\Services\EntitlementService;
 use App\Services\GamificationService;
@@ -19,9 +20,16 @@ class ChallengeController extends Controller
         private readonly EntitlementService $entitlements
     ) {}
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $challenges = Challenge::orderBy('difficulty')->orderBy('title')->get();
+
+        // One query for the user's completions; each model carries a transient
+        // `solved` attribute for the resource (no per-row lookups).
+        $solvedIds = UserChallengeCompletion::where('user_id', $request->user()->id)
+            ->pluck('challenge_id')
+            ->flip();
+        $challenges->each(fn (Challenge $c) => $c->setAttribute('solved', $solvedIds->has($c->id)));
 
         // The resource reads the current user to compute `locked` and to
         // blank the code fields of locked challenges (see ChallengeResource).
