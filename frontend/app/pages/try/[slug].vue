@@ -225,6 +225,7 @@ onMounted(async () => {
 .try__free { font-size: 12.5px; color: var(--muted, #8B95A1); }
 .try__title { font-size: clamp(22px, 3vw, 30px); font-weight: 700; margin: 0 0 16px; line-height: 1.2; }
 .try__desc { font-size: 15px; line-height: 1.7; color: var(--text-body, #45505C); }
+.try__desc :deep(p) { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
 .try__desc :deep(h2) { font-size: 18px; margin: 20px 0 8px; }
 .try__desc :deep(pre) { background: #0B1215; color: #C9D1D9; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
 .try__desc :deep(code) { font-family: ui-monospace, Menlo, monospace; }

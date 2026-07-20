@@ -58,27 +58,68 @@
               class="h-1.5 w-1.5 rounded-full"
               :class="lastResult.passed ? 'bg-emerald-400' : 'bg-rose-400'"
             />
+            <span
+              v-if="tab === 'Iterations' && iterations?.length"
+              class="rounded-full bg-neutral-800 px-1.5 text-[10px] font-bold normal-case text-neutral-400"
+            >{{ iterations.length }}</span>
           </button>
         </div>
 
-        <!-- Instructions -->
+        <!-- Instructions (structured sections, LabEx-style reading panel) -->
         <div v-show="activeTab === 'Instructions'" class="flex-1 overflow-y-auto p-5">
-          <div class="workspace-prose prose prose-sm prose-invert max-w-none
-                      prose-headings:font-semibold prose-headings:text-neutral-200
-                      prose-p:text-neutral-400 prose-p:leading-relaxed
-                      prose-code:rounded prose-code:bg-neutral-800 prose-code:px-1 prose-code:py-0.5 prose-code:text-emerald-300 prose-code:text-xs
-                      prose-pre:border prose-pre:border-neutral-700 prose-pre:bg-neutral-900
-                      prose-strong:text-neutral-300 prose-em:text-neutral-400
-                      prose-li:text-neutral-400
-                      prose-a:text-emerald-400">
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <div v-html="renderMarkdown(parsed.instructions)" />
-          </div>
+          <InstructionsPanel :markdown="parsed.instructions" />
         </div>
 
         <!-- Hints (progressive disclosure) -->
         <div v-show="activeTab === 'Hints'" class="flex-1 overflow-y-auto p-5">
           <ProgressiveHints :hints="hints" />
+        </div>
+
+        <!-- Iterations (submission history) -->
+        <div v-show="activeTab === 'Iterations'" class="flex-1 overflow-y-auto p-4">
+          <div v-if="loadingIterations" class="space-y-2 py-2">
+            <div v-for="i in 3" :key="i" class="h-9 animate-pulse rounded-lg bg-neutral-900" />
+          </div>
+
+          <div v-else-if="!iterations?.length" class="py-12 text-center">
+            <History :size="26" class="mx-auto mb-3 text-neutral-700" />
+            <p class="text-xs text-neutral-600">No iterations yet.</p>
+            <p class="mt-1 text-[11px] text-neutral-700">Every run is saved here — compare attempts, restore old code.</p>
+          </div>
+
+          <div v-else class="space-y-2">
+            <div
+              v-for="(it, i) in iterations"
+              :key="it.id"
+              class="overflow-hidden rounded-lg border transition-colors"
+              :class="it.passed ? 'border-emerald-800/40' : 'border-neutral-800'"
+            >
+              <button
+                class="flex w-full items-center gap-2.5 px-3 py-2.5 text-left hover:bg-neutral-900/60"
+                @click="expandedIteration = expandedIteration === it.id ? null : it.id"
+              >
+                <CheckCircle v-if="it.passed" :size="13" class="shrink-0 text-emerald-500" />
+                <XCircle v-else :size="13" class="shrink-0 text-rose-500" />
+                <span class="text-xs font-semibold text-neutral-300">Iteration {{ iterations.length - i }}</span>
+                <span class="text-[11px] text-neutral-600">
+                  {{ it.passed ? 'passed' : `${it.failed_count} failed` }} · {{ it.duration_ms }}ms
+                </span>
+                <span class="ml-auto text-[11px] text-neutral-600">{{ timeAgo(it.created_at) }}</span>
+                <ChevronDown :size="13" class="shrink-0 text-neutral-600 transition-transform" :class="expandedIteration === it.id ? 'rotate-180' : ''" />
+              </button>
+
+              <div v-if="expandedIteration === it.id" class="border-t border-neutral-800 p-3">
+                <CopyableCode :code="it.code" />
+                <button
+                  class="mt-1 flex items-center gap-1.5 rounded-md border border-neutral-700 px-3 py-1.5 text-xs text-neutral-300 transition-colors hover:border-emerald-600 hover:text-emerald-400"
+                  @click="restoreIteration(it)"
+                >
+                  <RotateCcw :size="12" />
+                  Restore this code into the editor
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Results -->
@@ -212,7 +253,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowLeft, CheckCircle, XCircle, Play, Loader2, SquareCode, PartyPopper } from 'lucide-vue-next'
+import { ArrowLeft, CheckCircle, XCircle, Play, Loader2, SquareCode, PartyPopper, History, ChevronDown, RotateCcw } from 'lucide-vue-next'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import type { Challenge } from '~/types/models'
 
@@ -227,9 +268,9 @@ const emit = defineEmits<{
   completed: [challenge: Challenge, progress: TestResult['progress']]
 }>()
 
-const { post } = useApi()
+const { post, get } = useApi()
 
-type WorkspaceTab = 'Instructions' | 'Hints' | 'Results'
+type WorkspaceTab = 'Instructions' | 'Hints' | 'Results' | 'Iterations'
 
 const code = ref(props.challenge.boilerplate_code)
 const activeTab = ref<WorkspaceTab>('Instructions')
@@ -255,8 +296,54 @@ const parsed = computed(() => parseChallengeDescription(props.challenge.descript
 const hints = computed(() => parsed.value.hints)
 
 const visibleTabs = computed<WorkspaceTab[]>(() =>
-  hints.value.length ? ['Instructions', 'Hints', 'Results'] : ['Instructions', 'Results'],
+  hints.value.length
+    ? ['Instructions', 'Hints', 'Results', 'Iterations']
+    : ['Instructions', 'Results', 'Iterations'],
 )
+
+// ── Iterations (submission history) ─────────────────────────
+interface Iteration {
+  id: number
+  code: string
+  passed: boolean
+  failed_count: number
+  duration_ms: number
+  created_at: string
+}
+
+const iterations = ref<Iteration[] | null>(null)
+const loadingIterations = ref(false)
+const expandedIteration = ref<number | null>(null)
+
+async function fetchIterations() {
+  loadingIterations.value = true
+  try {
+    const res = await get(`/challenges/${props.challenge.slug}/submissions`) as { data: Iteration[] }
+    iterations.value = res.data
+  } catch {
+    iterations.value = iterations.value ?? []
+  } finally {
+    loadingIterations.value = false
+  }
+}
+
+// Lazy-load on first open; runs refresh it only if already loaded.
+watch(activeTab, (tab) => {
+  if (tab === 'Iterations' && iterations.value === null && !loadingIterations.value) fetchIterations()
+})
+
+function restoreIteration(it: Iteration) {
+  code.value = it.code
+  expandedIteration.value = null
+}
+
+function timeAgo(iso: string): string {
+  const s = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 1000))
+  if (s < 60) return `${s}s ago`
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`
+  return `${Math.floor(s / 86400)}d ago`
+}
 
 const passedCount = computed(() => lastResult.value?.tests.filter(t => t.passed).length ?? 0)
 
@@ -297,6 +384,8 @@ async function runTests() {
     })
     runId.value++
     lastResult.value = result
+    // Keep the iterations list live if the user has already opened it.
+    if (iterations.value !== null) fetchIterations()
     if (result.passed) emit('completed', props.challenge, result.progress ?? null)
   } catch {
     runId.value++
@@ -366,16 +455,5 @@ function parseDiff(message: string): AssertionDiff | null {
 .test-card-enter-from {
   opacity: 0;
   transform: translateY(8px);
-}
-
-/* renderMarkdown() emits table cells with light-theme border classes; the
-   workspace is always dark, so pin them to the neutral palette here. */
-.workspace-prose :deep(td) {
-  border-color: rgb(64 64 64) !important;
-  padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
-}
-.workspace-prose :deep(table) {
-  margin: 0.75rem 0;
 }
 </style>

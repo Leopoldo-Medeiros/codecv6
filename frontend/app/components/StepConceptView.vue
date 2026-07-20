@@ -840,6 +840,9 @@ function loadTaskIntoPlayground(task: { id: number; starter_code?: string | null
   font-size: 0.9rem;
   line-height: 1.7;
   color: var(--sc-p);
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 .step-concept :deep(strong) {
