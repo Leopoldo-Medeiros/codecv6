@@ -213,6 +213,16 @@
       </UCard>
     </UModal>
 
+    <!-- Step-completion celebration: XP, streak, fresh badges, next-up CTA -->
+    <CompletionCelebration
+      v-if="celebration"
+      :progress="celebration.progress"
+      :next-step="celebration.nextStep"
+      @close="celebration = null"
+      @next="goToNextStep"
+      @exit="celebration = null; navigateTo('/my-paths')"
+    />
+
     <!-- Path-completed celebration + coaching nudge (F6) -->
     <UModal v-model="showCoachingModal">
       <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-700' }">
@@ -243,13 +253,14 @@
 
 <script setup lang="ts">
 import type { Challenge } from '~/types/models'
-import type { PathStep } from '~/composables/usePaths'
+import type { PathStep, StepProgressResponse } from '~/composables/usePaths'
 
-definePageMeta({ layout: false, middleware: 'auth' })
+// key: navigating celebration → next step remounts the page with fresh state.
+definePageMeta({ layout: false, middleware: 'auth', key: route => route.fullPath })
 
 const route = useRoute()
 const toast = useToast()
-const { fetchStep, updateStepProgress } = usePaths()
+const { fetchStep, updateStepProgress, fetchSteps } = usePaths()
 const { recommendation: coaching, fetchRecommendation } = useCoaching()
 const focus = useFocusMode()
 
@@ -266,6 +277,10 @@ const saving = ref(false)
 const showBlockModal = ref(false)
 const blockingStepTitle = ref('')
 const showCoachingModal = ref(false)
+const celebration = ref<{
+  progress: NonNullable<StepProgressResponse['progress']>
+  nextStep: PathStep | null
+} | null>(null)
 
 onMounted(async () => {
   try {
@@ -295,6 +310,10 @@ async function setStatus(status: NonNullable<PathStep['user_status']>) {
     if (res?.path_completed) {
       await fetchRecommendation()
       if (coaching.value) showCoachingModal.value = true
+    } else if (res?.progress && status === 'done') {
+      // Fresh completion (progress is null on repeats) — celebrate and offer
+      // the next step so the loop continues.
+      celebration.value = { progress: res.progress, nextStep: await findNextStep() }
     }
   } catch (err: unknown) {
     step.value = { ...step.value!, user_status: prev }
@@ -312,6 +331,24 @@ async function setStatus(status: NonNullable<PathStep['user_status']>) {
 
 async function onChallengeCompleted() {
   await setStatus('done')
+}
+
+async function findNextStep(): Promise<PathStep | null> {
+  if (!step.value) return null
+  try {
+    const steps = await fetchSteps(step.value.path_id)
+    return steps
+      .filter(s => s.order > step.value!.order && !s.locked)
+      .sort((a, b) => a.order - b.order)[0] ?? null
+  } catch {
+    return null
+  }
+}
+
+function goToNextStep() {
+  const id = celebration.value?.nextStep?.id
+  celebration.value = null
+  if (id) navigateTo(`/step/${id}`)
 }
 
 function stepTypeIcon(type?: string) {
