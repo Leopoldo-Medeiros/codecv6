@@ -86,6 +86,7 @@ export default defineNuxtConfig({
     '/settings': { ssr: false },
     '/my-cv': { ssr: false },
     '/my-paths': { ssr: false },
+    '/challenges/**': { ssr: false },
     '/step/**': { ssr: false },
     '/my-courses': { ssr: false },
     '/linkedin-analyser': { ssr: false },

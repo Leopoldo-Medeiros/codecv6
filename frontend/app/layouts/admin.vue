@@ -337,6 +337,7 @@ const mainItems = computed(() => {
     { label: 'Dashboard',  icon: 'i-heroicons-home',                              to: '/dashboard' },
     { label: 'My Courses', icon: 'i-heroicons-book-open',                       to: '/my-courses' },
     { label: 'My Paths',   icon: 'i-heroicons-map',                             to: '/my-paths' },
+    { label: 'Challenges', icon: 'i-heroicons-trophy',                          to: '/challenges' },
     { label: 'My CV',      icon: 'i-heroicons-document-magnifying-glass',       to: '/my-cv' },
     { label: 'LinkedIn',   icon: 'i-heroicons-identification',                  to: '/linkedin-analyser' },
   ]
