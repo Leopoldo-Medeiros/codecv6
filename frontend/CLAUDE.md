@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev        # Dev server at http://localhost:3000 (host — native binaries)
+npm run dev        # Dev server at http://localhost:3001 (host — native binaries; port set in nuxt.config.ts devServer)
 npm run build      # Production build
 npm run generate   # Static build → frontend/dist/
 
@@ -42,9 +42,17 @@ NUXT_PUBLIC_API_BASE=http://codecv6.ddev.site
 
 To embed a new interactive component in step content, add its block type to the `blockPattern` regex and the segment type union in `MarkdownContent.vue`, then handle it in the template.
 
-### ChallengeEditor
+### ChallengeEditor (Exercism-style workspace)
 
-Full-screen coding challenge interface (`app/components/ChallengeEditor.vue`) rendered as a fixed overlay on top of the admin layout (see `pages/step/[step_id].vue`). The admin layout stays mounted underneath so navigation is preserved.
+Full-screen coding challenge interface (`app/components/ChallengeEditor.vue`) rendered as a fixed overlay on top of the admin layout — mounted by `pages/step/[step_id].vue` (path context) and `pages/challenges/[slug].vue` (standalone play). The admin layout stays mounted underneath so navigation is preserved.
+
+Layout: instructions panel LEFT (tabs: Instructions / Hints / Results), Monaco RIGHT. `utils/challenge-content.ts` (`parseChallengeDescription`) splits the description's `## Hints` section out of the instructions; `ProgressiveHints.vue` renders them behind one-at-a-time reveal. Results tab: per-test cards with staggered entrance, pass-ratio bar, running skeleton, celebration banner. ⌘/Ctrl+Enter runs tests. `completed` emits `(challenge, progress)` — `progress` is the gamification delta from the run response (null on repeat solves).
+
+### Challenge catalog + completion flow
+
+- `pages/challenges/index.vue` — learner catalog: search, difficulty + solved/unsolved filter pills, cards with `solved`/`locked` state (both flags from `GET /challenges`). In the learner sidebar nav.
+- `pages/challenges/[slug].vue` — standalone workspace (no path step needed); 403 → `LockedUpsell`; on a fresh solve shows `CompletionCelebration` fed by the run response's `progress`.
+- `CompletionCelebration.vue` — teleported overlay (`z-[70]`, above the editor's `z-50`): XP count-up, CSS confetti (deterministic, no `Math.random`), streak, fresh badges, "Next up" CTA. On `/step/[id]` it fires for any fresh step completion (`progress !== null`) except path completion, which keeps the F6 coaching modal. `/step/[id]` sets `key: route => route.fullPath` so the next-step navigation remounts the page.
 
 ### DiagramCanvas / RoadmapFlow
 
@@ -122,4 +130,5 @@ Progress update calls `updateStepProgress(stepId, status)` which catches `{ data
 - `useCoaching()` + `CoachingNudge.vue` (F6) — the coaching upsell. `useCoaching().fetchRecommendation()` hits `GET /me/coaching-recommendation`; the backend decides whether a nudge is earned and which tier. `CoachingNudge.vue` renders it (emerald card, tier icon, price in the viewer's currency, CTA → `/pricing#plans`). Shown on the dashboard right-rail (clients only, below `ProgressWidget`) and inside a path-completion celebration `UModal` on `/step/[id]` — that modal fires when `updateStepProgress`'s response carries a freshly-earned `path_completed` badge (see the `StepProgressResponse` type in `usePaths.ts`).
 - **Observability track — incident reader** (`IncidentRunner.vue` + `TraceWaterfall.vue`, `MetricChart.vue`, `LogStream.vue`) — a `type=incident` step renders curated telemetry from `step.evidence` (`{ scenario, trace, metrics, logs }`), all client-side from static JSON (no live backend). `TraceWaterfall` is the hero: a span waterfall with per-service colors, `repeat`/N+1 collapsing (effective duration = `dur × repeat`), and click-to-inspect. `IncidentRunner` composes the evidence + reuses `<QuizRunner>` for the graded diagnosis, emitting `passed` so the step page marks it done. Types live in `usePaths.ts` (`IncidentEvidence`, `TraceSpan`).
 - `QuizRunner.vue` (F5) — renders a `quiz`-type step's questions (from `step.quiz`, answer key already stripped by the API), POSTs the answer map to `/path-steps/{stepId}/quiz` for server-side grading, then shows per-question correct/incorrect highlights + explanations. Emits `passed` on a perfect score; the step page marks the step done in response (earning XP through the normal gamification path). "Try again" resets local state without another fetch.
+- **Waitlist (demand-sensing)** — `WaitlistSection.vue` (homepage "coming soon" cards, inline email capture → `POST /public/waitlist`), `WaitlistVote.vue` (client dashboard right rail, one-tap vote → authenticated `POST /waitlist`), `WaitlistAdminCard.vue` (admin dashboard right rail, per-track signup counts from `GET /admin/waitlist`). Candidate tracks come from `config/waitlist.php` on the backend.
 - `LockedUpsell.vue` — the F4 gate's shared lock/upsell panel (amber lock, "Unlock with Practice Pro" → `/pricing#plans`). The steps list marks gated rows with `step.locked` (from the API); `my-paths.vue` shows a lock icon + "Pro" badge and swaps the drawer body for `<LockedUpsell compact>`, and `/step/[step_id]` catches the API's 403 and renders `<LockedUpsell>` instead of a generic error. NOTE: `/step/**` is in `routeRules` as `ssr: false` — like every other authenticated page, it must render client-side so the localStorage bearer token is available to the `auth` guard (it was missing before F4's lock UI and would SSR-redirect to /login).

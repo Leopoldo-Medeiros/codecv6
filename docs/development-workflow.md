@@ -39,7 +39,7 @@ npm run dev
 
 You'll have:
 - Backend API: `http://codecv6.ddev.site` (HTTPS works too but the dev TLS cert is self-signed — see `docs/troubleshooting.md`)
-- Frontend: `http://localhost:3000` (or `http://<LAN-IP>:3000`)
+- Frontend: `http://localhost:3001` (or `http://<LAN-IP>:3001`)
 - Mailpit: shown by `ddev describe`
 
 ## Default Seeded Users
@@ -168,7 +168,7 @@ ddev artisan test --compact --filter=test_admin_can_create_course
 ```bash
 cd frontend
 npm install                                       # Install deps
-npm run dev                                       # Dev server on localhost:3000
+npm run dev                                       # Dev server on localhost:3001
 npm run build                                     # Production build
 npm run generate                                  # Static export to dist/
 ```

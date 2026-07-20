@@ -1,84 +1,82 @@
 # CODECV
 
-A SaaS platform for career development that helps users track their learning paths, manage training roadmaps, and discover job opportunities.
+A career-development SaaS for developers: practice with real-world coding
+challenges, work through learning paths, earn XP / streaks / badges /
+certifications, publish a public skill profile — and get coached by a consultant
+when you're ready.
 
-## Overview
+> **New here (human or AI)? Start with [`ONBOARDING.md`](ONBOARDING.md)** — it is
+> the orientation layer: state of the project, the traps, and what to build next.
 
-CODECV connects consultants with clients to provide structured career development through:
+## What's in the product
 
-- **Learning Paths** - Curated sequences of courses to achieve career goals
-- **Training Plans** - Personalized roadmaps created by consultants for their clients
-- **Job Board** - Career opportunities posted by consultants for their network
-- **Progress Tracking** - Visual tracking of course completion and learning milestones
+- **Coding challenges** — real-world PHP exercises executed in a Judge0 sandbox,
+  with anonymous "teaser" challenges as the public funnel entry
+- **Learning paths** — ordered steps: reading (tiered junior/mid/senior content),
+  labs, challenges, server-graded quizzes, and *incident readers* (read curated
+  traces/metrics/logs and diagnose the fault — the observability track)
+- **Gamification** — XP, daily streaks, achievement badges, certification seals,
+  a GitHub-style activity heatmap
+- **Public skill profile** — opt-in `/u/{slug}` page with stats, badges and
+  completed challenges
+- **Monetization** — Stripe: a self-serve Practice subscription (content gating)
+  plus one-time/recurring coaching tiers, with earned in-app upsell nudges
+- **AI features** — CV analysis and LinkedIn profile scoring via Google Gemini
+- **Consultant tooling** — training plans, client management, progress
+  notifications; admin demand dashboard + a "coming soon" waitlist that measures
+  which track to build next
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Backend | Laravel 13 (PHP 8.4) |
-| Frontend | Nuxt 4 (Vue 3, TypeScript) |
-| Database | MySQL 8.0 |
-| Auth | Laravel Sanctum |
-| Search | Algolia (Laravel Scout) |
-| Dev Environment | DDEV |
+| Backend | Laravel 13 (PHP 8.4), Sanctum, Spatie permissions |
+| Frontend | Nuxt 4 (Vue 3, TypeScript), @nuxt/ui v2, Tailwind v3 |
+| Database | MySQL 8.0 (Redis provisioned for the async phase) |
+| Code execution | Judge0 (sandboxed PHP) |
+| AI | Google Gemini |
+| Payments | Stripe (Checkout + webhooks) |
+| Search | Algolia via Laravel Scout (optional, off by default) |
+| Monitoring | Sentry (backend + frontend, dormant until DSN set) |
+| CI | GitHub Actions (Pint + PHPUnit + frontend build) |
+| Dev environment | DDEV · Production: Docker images (see `DEPLOYMENT.md`) |
 
 ## Getting Started
 
 ### Prerequisites
 
 - Docker Desktop or [OrbStack](https://orbstack.dev/) (recommended for macOS)
-- [DDEV](https://ddev.readthedocs.io/en/stable/) — install with:
-
-```bash
-# macOS (Homebrew)
-brew install ddev/ddev/ddev
-
-# Linux (install script)
-curl -fsSL https://ddev.com/install.sh | bash
-
-# Windows (Chocolatey)
-choco install ddev
-```
-
-After installing, verify with `ddev version`.
+- [DDEV](https://ddev.readthedocs.io/en/stable/) — `brew install ddev/ddev/ddev`
+  (macOS) · `curl -fsSL https://ddev.com/install.sh | bash` (Linux)
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/Leopoldo-Medeiros/codecv6.git
 cd codecv6
 
-# Start the development environment
-ddev start
-
-# Install PHP dependencies
+ddev start                          # PHP 8.4, MySQL, Redis, nginx
 ddev composer install
-
-# Copy environment file and generate key
 cp .env.example .env
 ddev artisan key:generate
+ddev artisan migrate --seed         # schema + users + curriculum (content:sync) + badges
 
-# Run migrations and seed the database
-ddev artisan migrate --seed
-
-# Install frontend dependencies (host — default)
-cd frontend && npm install && cd ..
+cd frontend && npm install          # frontend deps on the HOST (not in DDEV)
 ```
 
-### Running the Application
+### Running
 
 ```bash
-# Backend runs automatically via DDEV
-# Access at: http://codecv6.ddev.site
+# Backend runs automatically via DDEV → http://codecv6.ddev.site
 
-# Start frontend development server on the host
 cd frontend
-npm run dev
-# Access at: http://localhost:3000 (or your LAN IP — see frontend/CLAUDE.md)
+npm run dev                         # → http://localhost:3001  (port 3001, not 3000)
 ```
 
-The default frontend workflow runs on the **host** (native macOS/Linux node), loading `frontend/.env` automatically. `ddev nuxt` is also supported as an alternative for running inside the container — see `CLAUDE.md` for details.
+The frontend dev server runs **on the host** and listens on **port 3001**
+(`frontend/nuxt.config.ts` `devServer`); CORS and Sanctum config in
+`.env.example` already allow the 3001 origins. `frontend/.env` needs at minimum
+`NUXT_PUBLIC_API_BASE=http://codecv6.ddev.site`.
 
 ### Default Users
 
@@ -88,101 +86,43 @@ The default frontend workflow runs on the **host** (native macOS/Linux node), lo
 | Consultant | consultant@consultant.com | password |
 | Client | client@client.com | password |
 
-## Development
-
-### Backend Commands
+## Everyday Commands
 
 ```bash
-ddev artisan migrate              # Run migrations
-ddev artisan db:seed              # Seed database
-ddev artisan test --compact       # Run tests
-ddev exec vendor/bin/pint --dirty # Format changed PHP files
-ddev artisan route:list           # List routes
-ddev artisan config:clear         # Clear config cache
+# Backend
+ddev artisan test --compact         # run the test suite (must be green before commit)
+ddev exec vendor/bin/pint --dirty   # format changed PHP files (CI enforces style)
+ddev artisan content:sync           # sync curriculum from database/content/ (--dry-run supported)
+ddev artisan migrate                # run migrations
+
+# Frontend (from frontend/)
+npm run dev                         # dev server (port 3001)
+npm run build                       # production build → .output/
 ```
 
-### Frontend Commands
+## The Curriculum Is Data
 
-```bash
-# Host (default)
-cd frontend
-npm run dev        # Development server
-npm run build      # Server build → frontend/.output/
-npm run generate   # Static build → frontend/dist/
-npm run preview    # Preview a built app locally
-```
+All challenges and learning paths live as versioned files in
+**`database/content/`** (34 challenges, 8 paths). Editing a lesson = editing a
+content file + `ddev artisan content:sync` (idempotent — safe to re-run, safe in
+production). Never author curriculum in seeders and never use `migrate:fresh` to
+update content in production. Product rule: every challenge must be a
+**real-world dev scenario**, never a fictional puzzle.
 
-## Architecture
+## Documentation Map
 
-### Backend (Laravel)
-
-```
-app/
-├── Http/Controllers/Api/    # API controllers (JSON responses)
-├── Http/Controllers/        # Web controllers (Blade views)
-├── Http/Requests/           # Form validation
-├── Http/Resources/          # API response transformers
-├── Models/                  # Eloquent models
-├── Services/                # Business logic layer
-└── Enums/                   # Role definitions
-```
-
-### Frontend (Nuxt 4)
-
-```
-frontend/
-├── app/                     # Application source (Nuxt 4 convention)
-│   ├── pages/               # File-based routing
-│   ├── composables/         # Reusable API logic (useAuth, useUsers, etc.)
-│   ├── components/          # Vue components
-│   ├── layouts/             # Page layouts (default, admin, auth, marketing)
-│   ├── middleware/          # Route guards (auth, guest)
-│   ├── types/               # TypeScript definitions
-│   └── assets/              # CSS and static assets processed by Vite
-├── public/                  # Static files served directly
-├── server/                  # Nitro server configuration
-├── nuxt.config.ts           # Nuxt configuration
-├── tailwind.config.js       # Tailwind CSS configuration
-└── package.json             # Dependencies
-```
-
-### User Roles
-
-| Role | Permissions |
-|------|-------------|
-| **Admin** | Full system access, user management |
-| **Consultant** | Create plans, paths, courses, job postings; manage clients |
-| **Client** | View assigned plans, track progress, browse jobs |
-
-## API Endpoints
-
-### Authentication
-- `POST /api/login` - Login
-- `POST /api/register` - Register
-- `POST /api/logout` - Logout
-- `GET /api/me` - Current user
-
-### Resources (CRUD)
-- `/api/users` - User management
-- `/api/courses` - Course management
-- `/api/plans` - Training plans
-- `/api/paths` - Learning paths
-- `/api/jobs` - Job listings
-- `/api/roles` - Available roles
-
-## Testing
-
-```bash
-# Run all tests
-ddev artisan test --compact
-
-# Run specific test file
-ddev artisan test --compact tests/Feature/Api/UserApiTest.php
-
-# Filter by test name
-ddev artisan test --compact --filter=testName
-```
+| Document | Purpose |
+|----------|---------|
+| [`ONBOARDING.md`](ONBOARDING.md) | **Start here** — state of the world, traps, what's next |
+| [`CLAUDE.md`](CLAUDE.md) | Architecture, conventions, domain model, feature-by-feature notes |
+| [`frontend/CLAUDE.md`](frontend/CLAUDE.md) | Frontend patterns in compact form |
+| [`docs/roadmap.md`](docs/roadmap.md) | Prioritized next steps (product + technical) |
+| [`docs/architecture-review.md`](docs/architecture-review.md) | Technical-debt review + phased plan with acceptance criteria |
+| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Production runbook (Docker images, env, rollback) |
+| [`docs/`](docs/) | Topic deep-dives: auth, testing, env vars, troubleshooting, workflows |
 
 ## License
 
-This project is proprietary software.
+Proprietary — all rights reserved. (Note: the `LICENSE` file currently says MIT;
+this contradiction is tracked in `docs/roadmap.md` item 0.6 — do not assume
+open-source licensing until resolved.)

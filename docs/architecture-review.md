@@ -1,7 +1,10 @@
 # Architecture Review & Implementation Plan
 
 > **Re-audit produced 2026-07-15** from a full-codebase pass (backend, data layer,
-> frontend, infra) — supersedes the original 2026-07-08 review. This document is
+> frontend, infra) — supersedes the original 2026-07-08 review; §0 updated
+> 2026-07-19 with the Sprint-0 ops work and the waitlist. For the prioritized
+> product + technical view, read **`docs/roadmap.md`** first — this document is
+> the technical detail behind its phases. This document is
 > written so another model (or developer) can execute each step independently.
 > **No step rewrites the project** — every phase is an incremental change with its
 > own acceptance criteria.
@@ -47,9 +50,31 @@ tree. **Do not re-plan these:**
   **removed all three** (kept the vendor-neutral "Observability 101"); observability
   content to be rebuilt vendor-neutral later. Two incidental name-drops neutralized.
 
-Everything below (the prior review's Phases 2, 4–8) remains untouched: no `app/Policies`,
-no `app/Jobs` / zero `ShouldQueue`, no `.github` CI, zero `Cache::`, all 5 legacy web
-controllers still present.
+**Sprint 0 — ops (DONE 2026-07-17, PR #62):**
+
+- **CI pipeline** (`.github/workflows/ci.yml`): backend job (PHP 8.4, `pint --test`
+  + `php artisan test` on sqlite in-memory) + frontend job (Node 24, `npm ci` +
+  build), per-ref concurrency cancellation. This lands most of C.5/C.6 below —
+  what remains of C.6 is `nuxt typecheck` + Vitest.
+- **Sentry** wired backend (`sentry/sentry-laravel`, `config/sentry.php`) and
+  frontend (`frontend/sentry.client.config.ts`); dormant until a DSN is set.
+- **Production deploy story**: root `Dockerfile` (php-fpm + nginx, entrypoint runs
+  migrations), `frontend/Dockerfile` (Nitro), `docker/` configs, `DEPLOYMENT.md`
+  runbook. No production deploy has happened yet — host not chosen.
+
+**Also landed 2026-07-17:** the coming-soon **waitlist** (demand-sensing for the
+next track — `waitlist_entries`, `POST /public/waitlist` + authenticated
+`POST /waitlist` + `GET /admin/waitlist`, config-driven topics, dashboard cards)
+and the `find-api-bottleneck` challenge repaired + promoted to a teaser.
+
+**2026-07-19:** dev-port drift resolved by standardizing on **3001** — docs,
+`.env.example` CORS/Sanctum lines and local `.env` now all agree with
+`nuxt.config.ts` `devServer.port` (E.6's "fix env port drift" is done; the
+legacy-stack deletion in E.6 is not).
+
+Everything below (the prior review's Phases 2, 4–8) otherwise remains untouched:
+no `app/Policies`, no `app/Jobs` / zero `ShouldQueue`, zero `Cache::`, all legacy
+web controllers still present.
 
 ---
 
@@ -164,17 +189,16 @@ UserController inline hasRole() at lines 45,70,102,114,129,155,165,260,301,319
 temp trait + inline checks with `$this->authorize()`. The global
 `AuthorizationException`→403 handler already gives the uniform envelope.
 
-### P5 — CI gate (High)
+### P5 — CI gate (High) — largely DONE 2026-07-17
 
-**Why:** ~500 backend tests never run on push; the Nuxt SPA is untested.
+**Was:** ~500 backend tests never ran on push; the Nuxt SPA untested.
 
-```
-.github = (does not exist)   tests/Unit = ExampleTest.php only (stub)
-frontend: no *.test.* / *.spec.*, no vitest/playwright config
-```
+`.github/workflows/ci.yml` now runs `pint --test` + `php artisan test` (sqlite
+in-memory) and an `npm ci` + build on every push/PR.
 
-**Fix:** GitHub Actions — job 1: `pint --test` + `php artisan test` (sqlite in-memory);
-job 2: `npm ci` + `nuxt typecheck` + build. Block merge on red. Seed Vitest with one test.
+**Remaining:** `nuxt typecheck` in the frontend job; Vitest with a first
+composable test (frontend still has zero tests: no `*.test.*`/`*.spec.*`, no
+vitest/playwright config).
 
 ### P6 — Frontend design tokens (Medium)
 
@@ -210,7 +234,7 @@ composable-local model interfaces shadowing `types/models.ts`; move domain compo
 
 **Fix:** delete `AdminController`, `UsersController`, root `CourseController`,
 `RegisterController` + their `routes/web.php` entries + orphaned Blade (the SPA replaced
-all of it); fix env port drift (`.env.example` :3000 vs `.env` :3001); add the first real
+all of it); ~~fix env port drift~~ (done 2026-07-19 — everything standardized on dev port 3001); add the first real
 caches — challenge index (invalidate on save) + dashboard aggregates only.
 
 ---
@@ -245,8 +269,8 @@ caches — challenge index (invalidate on save) + dashboard aggregates only.
 - **C.2** Replace the temp ownership trait + all inline `hasRole` checks with `$this->authorize()`. Delete the bespoke throw/catch choreography.
 - **C.3** Sweep magic strings → `RoleEnum`; align `ChallengeDifficulty` with `path_steps.difficulty` or document the difference.
 - **C.4** Move remaining inline `$request->validate()` into FormRequests (`PathStepRequest`, analyze/run/checkout requests).
-- **C.5** GitHub Actions job 1: pint `--test` + `php artisan test`.
-- **C.6** GitHub Actions job 2: `npm ci` + `nuxt typecheck` + build. Add Vitest + one composable test.
+- **C.5** ~~GitHub Actions job 1: pint `--test` + `php artisan test`.~~ **DONE 2026-07-17** (`.github/workflows/ci.yml`).
+- **C.6** GitHub Actions job 2: ~~`npm ci` + build~~ **DONE 2026-07-17**; still to do: add `nuxt typecheck` to the job + Vitest with one composable test.
 
 ### Phase D — Frontend tokens + backend consistency (P6 + P7) · ~7 steps
 
@@ -269,7 +293,7 @@ caches — challenge index (invalidate on save) + dashboard aggregates only.
 - **E.3** Collapse the two `renderMarkdown` into one util; delete dead `MermaidDiagram.vue`.
 - **E.4** Split `index.vue` and `StepConceptView.vue` into section components.
 - **E.5** Move domain composables to `useState` (shared, not per-component refetch).
-- **E.6** Delete the 5 legacy web controllers + their routes + orphaned Blade; fix env port drift.
+- **E.6** Delete the legacy web controllers + their routes + orphaned Blade. (The env port drift half of this step was resolved 2026-07-19 — everything standardized on dev port 3001.)
 
 ---
 

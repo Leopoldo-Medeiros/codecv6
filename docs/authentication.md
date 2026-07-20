@@ -81,7 +81,7 @@ The Stripe webhook is excluded from CSRF in `bootstrap/app.php`:
 ```php
 'stateful' => explode(',', env(
     'SANCTUM_STATEFUL_DOMAINS',
-    'localhost:3000,codecv6.ddev.site'
+    'localhost:3001,codecv6.ddev.site'
 )),
 
 'guard' => ['web'],
@@ -92,13 +92,13 @@ The Stripe webhook is excluded from CSRF in `bootstrap/app.php`:
 
 ```env
 # Sanctum
-SANCTUM_STATEFUL_DOMAINS=localhost:3000,codecv6.ddev.site,192.168.1.39:3000
+SANCTUM_STATEFUL_DOMAINS=localhost:3001,codecv6.ddev.site,192.168.1.39:3001
 
 # CORS (comma-separated allow-list, read by config/cors.php)
-FRONTEND_URL=http://localhost:3000,http://192.168.1.39:3000,http://codecv6.ddev.site
+FRONTEND_URL=http://localhost:3001,http://192.168.1.39:3001,http://codecv6.ddev.site
 
 # Backend redirects (OAuth callback, password reset emails) — single canonical URL
-APP_FRONTEND_URL=http://localhost:3000
+APP_FRONTEND_URL=http://localhost:3001
 
 # Sessions — used by Sanctum for the CSRF cookie flow
 SESSION_DRIVER=redis
@@ -331,15 +331,15 @@ For `403`, surface the message in the UI (toast or alert). Don't auto-logout.
 
 ### CORS error in browser console
 ```
-Access to fetch at 'http://codecv6.ddev.site/api/...' from origin 'http://localhost:3000'
+Access to fetch at 'http://codecv6.ddev.site/api/...' from origin 'http://localhost:3001'
 has been blocked by CORS policy
 ```
-- `FRONTEND_URL` must include `http://localhost:3000` (comma-separated list)
+- `FRONTEND_URL` must include `http://localhost:3001` (comma-separated list)
 - `ddev artisan config:clear`
 
 ### OAuth callback redirects to wrong URL
 - Backend uses `config('app.frontend_url')` — read from `APP_FRONTEND_URL`, NOT `FRONTEND_URL`
-- Verify `APP_FRONTEND_URL` is a single canonical URL (e.g. `http://localhost:3000`), not a list
+- Verify `APP_FRONTEND_URL` is a single canonical URL (e.g. `http://localhost:3001`), not a list
 
 ## Additional Resources
 

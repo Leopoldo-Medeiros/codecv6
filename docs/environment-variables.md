@@ -13,7 +13,7 @@ Reference for all environment variables used by the codecv6 backend (`/.env`) an
 | `APP_KEY` | — | Set via `ddev artisan key:generate` |
 | `APP_DEBUG` | `true` | Set to `false` in production |
 | `APP_URL` | `http://codecv6.ddev.site` | Backend URL (used by route helpers, queue jobs) |
-| `APP_FRONTEND_URL` | `http://localhost:3000` | **Single canonical URL** used by backend redirects (OAuth callback, password reset emails). Must NOT be confused with `FRONTEND_URL` |
+| `APP_FRONTEND_URL` | `http://localhost:3001` | **Single canonical URL** used by backend redirects (OAuth callback, password reset emails). Must NOT be confused with `FRONTEND_URL` |
 
 ### Localisation
 
@@ -50,8 +50,8 @@ Reference for all environment variables used by the codecv6 backend (`/.env`) an
 
 | Variable | Example | Purpose |
 |---|---|---|
-| `SANCTUM_STATEFUL_DOMAINS` | `localhost:3000,codecv6.ddev.site,192.168.1.39:3000` | Comma-separated stateful origins for the CSRF cookie flow |
-| `FRONTEND_URL` | `http://localhost:3000,http://192.168.1.39:3000,http://codecv6.ddev.site` | **Comma-separated CORS allow-list** read by `config/cors.php` |
+| `SANCTUM_STATEFUL_DOMAINS` | `localhost:3001,codecv6.ddev.site,192.168.1.39:3001` | Comma-separated stateful origins for the CSRF cookie flow |
+| `FRONTEND_URL` | `http://localhost:3001,http://192.168.1.39:3001,http://codecv6.ddev.site` | **Comma-separated CORS allow-list** read by `config/cors.php` |
 
 > WARNING: `FRONTEND_URL` is plural (multi-origin allow-list). `APP_FRONTEND_URL` is singular (one canonical URL for redirects). Don't confuse them.
 

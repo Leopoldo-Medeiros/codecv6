@@ -26,13 +26,13 @@ Common issues and fixes for the codecv6 (Laravel 12 + Nuxt 4 + DDEV) stack.
 
 ### CORS error in browser console
 ```
-Access to fetch at 'http://codecv6.ddev.site/api/...' from origin 'http://localhost:3000'
+Access to fetch at 'http://codecv6.ddev.site/api/...' from origin 'http://localhost:3001'
 has been blocked by CORS policy
 ```
 **Cause**: `FRONTEND_URL` env (comma-separated CORS allow-list) doesn't include the frontend origin.
 **Fix**:
 ```env
-FRONTEND_URL=http://localhost:3000,http://192.168.1.39:3000,http://codecv6.ddev.site
+FRONTEND_URL=http://localhost:3001,http://192.168.1.39:3001,http://codecv6.ddev.site
 ```
 Then `ddev artisan config:clear`.
 
@@ -217,7 +217,7 @@ return CourseResource::collection($query->paginate(20))->response();
 - Open Mailpit web UI: `ddev describe` shows the URL
 
 ### Frontend dev server uses the wrong port
-- Default is `localhost:3000`, but Nuxt also listens on `0.0.0.0:3000` (LAN access)
+- Default is `localhost:3001`, but Nuxt also listens on `0.0.0.0:3001` (LAN access)
 - Check what port `npm run dev` prints
 
 ## Where to Look First
