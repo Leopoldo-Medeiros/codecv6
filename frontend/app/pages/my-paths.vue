@@ -29,6 +29,30 @@
       </div>
     </div>
 
+    <!-- Continue where you left off -->
+    <div
+      v-if="!loading && continueTarget"
+      class="mb-6 overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-5 dark:border-emerald-900/50 dark:from-emerald-950/40 dark:to-gray-900"
+    >
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600/10">
+          <UIcon :name="stepTypeIcon(continueTarget.step.type)" class="h-5 w-5 text-emerald-500" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            {{ continueTarget.step.user_status === 'in_progress' ? 'Continue where you left off' : 'Up next for you' }}
+          </p>
+          <p class="truncate text-base font-bold text-gray-900 dark:text-white">{{ continueTarget.step.title }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ continueTarget.path.name }} · {{ continueTarget.path.doneCount }}/{{ continueTarget.path.steps.length }} steps done
+          </p>
+        </div>
+        <UButton color="emerald" trailing-icon="i-heroicons-arrow-right" @click="navigateTo(`/step/${continueTarget.step.id}`)">
+          Continue
+        </UButton>
+      </div>
+    </div>
+
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-20">
       <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-emerald-500" />
@@ -90,6 +114,16 @@
                 </span>
                 <UProgress :value="path.progressPct" size="sm" color="emerald" class="w-28" />
                 <span class="text-xs text-gray-400">{{ path.doneCount }} / {{ path.steps.length }} done</span>
+                <UButton
+                  v-if="currentStepOf(path.steps)"
+                  size="xs" color="emerald" variant="soft" trailing-icon="i-heroicons-arrow-right"
+                  @click="navigateTo(`/step/${currentStepOf(path.steps)!.id}`)"
+                >
+                  Continue
+                </UButton>
+                <span v-else-if="path.steps.length && path.progressPct === 100" class="flex items-center gap-1 text-xs font-semibold text-emerald-500">
+                  <UIcon name="i-heroicons-trophy" class="h-3.5 w-3.5" /> Complete
+                </span>
               </div>
             </div>
           </div>
@@ -123,7 +157,10 @@
                 <button
                   class="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors
                          hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                  :class="expanded.has(step.id) ? 'bg-gray-50 dark:bg-gray-800/40' : 'bg-white dark:bg-gray-900'"
+                  :class="[
+                    expanded.has(step.id) ? 'bg-gray-50 dark:bg-gray-800/40' : 'bg-white dark:bg-gray-900',
+                    isCurrent(path, step) ? 'ring-1 ring-inset ring-emerald-400/50' : '',
+                  ]"
                   @click="toggleExpanded(step.id)"
                 >
                   <!-- Done/number indicator -->
@@ -164,6 +201,9 @@
                   <!-- Status badge (or Pro badge for locked content) -->
                   <UBadge v-if="step.locked" color="amber" variant="subtle" size="xs" class="shrink-0">
                     Pro
+                  </UBadge>
+                  <UBadge v-else-if="isCurrent(path, step) && step.user_status !== 'in_progress'" color="emerald" variant="solid" size="xs" class="shrink-0">
+                    Up next
                   </UBadge>
                   <UBadge v-else :color="statusBadgeColor(step.user_status)" variant="subtle" size="xs" class="shrink-0">
                     {{ statusLabel(step.user_status) }}
@@ -226,12 +266,12 @@
                       </div>
 
                       <!-- Step CTA -->
-                      <div v-if="step.type === 'reading' || step.type === 'lab' || step.type === 'challenge'">
+                      <div>
                         <UButton
                           size="sm" color="emerald" variant="solid" :icon="stepTypeIcon(step.type)"
                           @click.stop="navigateTo(`/step/${step.id}`)"
                         >
-                          {{ step.type === 'challenge' || step.type === 'lab' ? 'Start Exercise' : 'Read' }}
+                          {{ stepCtaLabel(step.type) }}
                         </UButton>
                       </div>
 
@@ -382,12 +422,12 @@
         </div>
 
         <!-- Step CTA -->
-        <div v-if="modalStep.type === 'reading' || modalStep.type === 'lab' || modalStep.type === 'challenge'">
+        <div>
           <UButton
             size="sm" color="emerald" variant="solid" :icon="stepTypeIcon(modalStep.type)"
             @click="navigateTo(`/step/${modalStep.id}`)"
           >
-            {{ modalStep.type === 'challenge' || modalStep.type === 'lab' ? 'Start Exercise' : 'Read' }}
+            {{ stepCtaLabel(modalStep.type) }}
           </UButton>
         </div>
 
@@ -502,6 +542,31 @@ const enrichedPaths = computed<EnrichedPath[]>(() =>
   })
 )
 
+// The step the learner should act on in a path: the one in progress, else the
+// first unlocked step not yet done. Null when the path is finished (or fully locked).
+function currentStepOf(steps: PathStep[]): PathStep | null {
+  return steps.find(s => s.user_status === 'in_progress')
+    ?? [...steps].filter(s => !s.locked && s.user_status !== 'done').sort((a, b) => a.order - b.order)[0]
+    ?? null
+}
+
+function isCurrent(path: EnrichedPath, step: PathStep) {
+  return currentStepOf(path.steps)?.id === step.id
+}
+
+// Global "continue where you left off": prefer any in-progress step across
+// paths; otherwise the first path with something left to do.
+const continueTarget = computed<{ path: EnrichedPath; step: PathStep } | null>(() => {
+  let fallback: { path: EnrichedPath; step: PathStep } | null = null
+  for (const p of enrichedPaths.value) {
+    const step = currentStepOf(p.steps)
+    if (!step) continue
+    if (step.user_status === 'in_progress') return { path: p, step }
+    if (!fallback) fallback = { path: p, step }
+  }
+  return fallback
+})
+
 function toggleExpanded(id: number) {
   if (expanded.value.has(id)) {
     expanded.value.delete(id)
@@ -591,11 +656,13 @@ function pathIncludes(path: Path & { steps: PathStep[] }) {
   const labs      = steps.filter(s => s.type === 'lab').length
   const challenges = steps.filter(s => s.type === 'challenge').length
   const quizzes   = steps.filter(s => s.type === 'quiz').length
+  const incidents = steps.filter(s => s.type === 'incident').length
   const resources = steps.reduce((n: number, s: PathStep) => n + (s.resources?.length ?? 0), 0)
   if (reading)    items.push({ icon: 'i-heroicons-book-open',      label: `${reading} reading step${reading !== 1 ? 's' : ''}` })
   if (labs)       items.push({ icon: 'i-heroicons-command-line',   label: `${labs} hands-on lab${labs !== 1 ? 's' : ''}` })
   if (challenges) items.push({ icon: 'i-heroicons-trophy',         label: `${challenges} challenge${challenges !== 1 ? 's' : ''}` })
   if (quizzes)    items.push({ icon: 'i-heroicons-question-mark-circle', label: `${quizzes} quiz${quizzes !== 1 ? 'zes' : ''}` })
+  if (incidents)  items.push({ icon: 'i-heroicons-signal',         label: `${incidents} incident${incidents !== 1 ? 's' : ''}` })
   if (resources)  items.push({ icon: 'i-heroicons-link',           label: `${resources} resource${resources !== 1 ? 's' : ''}` })
   return items
 }
@@ -608,6 +675,7 @@ function stepTypeIcon(type?: string) {
   if (type === 'lab')       return 'i-heroicons-command-line'
   if (type === 'challenge') return 'i-heroicons-trophy'
   if (type === 'quiz')      return 'i-heroicons-question-mark-circle'
+  if (type === 'incident')  return 'i-heroicons-signal'
   return 'i-heroicons-book-open'
 }
 
@@ -615,7 +683,15 @@ function stepTypeLabel(type?: string) {
   if (type === 'lab')       return 'Hands-on Lab'
   if (type === 'challenge') return 'Challenge'
   if (type === 'quiz')      return 'Quiz'
+  if (type === 'incident')  return 'Incident'
   return 'Reading'
+}
+
+function stepCtaLabel(type?: string) {
+  if (type === 'challenge' || type === 'lab') return 'Start Exercise'
+  if (type === 'quiz')      return 'Take the Quiz'
+  if (type === 'incident')  return 'Investigate Incident'
+  return 'Read'
 }
 
 const statusOptions = [
