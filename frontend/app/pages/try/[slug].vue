@@ -23,6 +23,24 @@
               </div>
               <h1 class="try__title">{{ challenge.title }}</h1>
               <div class="try__desc" v-html="renderedDescription" />
+
+              <!-- Progressive hints — revealed one at a time, no inline spoilers -->
+              <div v-if="hints.length" class="try__hints">
+                <p class="try__hints-title">💡 Hints</p>
+                <TransitionGroup name="try-fade" tag="div" class="try__hints-list">
+                  <div v-for="(hint, i) in hints.slice(0, revealedHints)" :key="i" class="try__hint">
+                    <span class="try__hint-num">{{ i + 1 }}</span>
+                    <span class="try__hint-body" v-html="renderMarkdown(hint)" />
+                  </div>
+                </TransitionGroup>
+                <button
+                  v-if="revealedHints < hints.length"
+                  class="try__hint-reveal"
+                  @click="revealedHints++"
+                >
+                  Reveal hint {{ revealedHints + 1 }} of {{ hints.length }}
+                </button>
+              </div>
             </section>
 
             <!-- Editor -->
@@ -112,9 +130,14 @@ const running = ref(false)
 const result = ref<TestResult | null>(null)
 const error = ref('')
 
-const renderedDescription = computed(() =>
-  challenge.value ? renderMarkdown(challenge.value.description) : '',
+const parsed = computed(() =>
+  challenge.value
+    ? parseChallengeDescription(challenge.value.description)
+    : { instructions: '', hints: [] },
 )
+const renderedDescription = computed(() => renderMarkdown(parsed.value.instructions))
+const hints = computed(() => parsed.value.hints)
+const revealedHints = ref(0)
 
 useSeoMeta({
   title: () => challenge.value ? `Try: ${challenge.value.title} — CODECV` : 'Try a challenge — CODECV',
@@ -245,6 +268,29 @@ onMounted(async () => {
 
 .try-fade-enter-active { transition: opacity 0.3s ease; }
 .try-fade-enter-from { opacity: 0; }
+
+/* Progressive hints */
+.try__hints { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border, #E9EDF2); }
+.try__hints-title { font-size: 14px; font-weight: 700; margin: 0 0 10px; color: var(--text, #17212B); }
+.try__hints-list { display: flex; flex-direction: column; gap: 8px; }
+.try__hint {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; border: 1px solid #F0E4C8; border-radius: 6px; background: #FDF9EE;
+}
+.try__hint-num {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(168, 113, 10, 0.12); color: #A8710A; font-size: 11px; font-weight: 700;
+}
+.try__hint-body { font-size: 13.5px; line-height: 1.6; color: var(--text-body, #45505C); min-width: 0; }
+.try__hint-body :deep(code) { background: rgba(5, 150, 105, 0.08); color: #047857; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+.try__hint-reveal {
+  margin-top: 8px; width: 100%; padding: 9px 0;
+  background: none; border: 1px dashed var(--border, #D5DCE3); border-radius: 6px;
+  color: var(--muted, #8B95A1); font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.try__hint-reveal:hover { color: #A8710A; border-color: #E3CD96; }
 
 @media (max-width: 860px) {
   .try__grid { grid-template-columns: 1fr; }

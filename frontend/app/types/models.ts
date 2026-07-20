@@ -132,11 +132,16 @@ export interface Challenge {
   title: string
   slug: string
   description: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert'
   boilerplate_code: string
   tests_code: string
   is_premium: boolean
   price_eur?: number | null
+  // F4 content gate: true when the challenge needs Practice Pro and this user
+  // doesn't have it (code fields come back null). Set by the API resource.
+  locked?: boolean
+  // Whether the current user has ever passed this challenge (list endpoint only).
+  solved?: boolean
   created_by: number
   creator?: User
   created_at?: string
