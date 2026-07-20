@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentTier;
 use App\Models\Challenge;
+use App\Models\ChallengeSubmission;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\UserChallengeCompletion;
@@ -218,6 +219,111 @@ class ChallengeApiTest extends TestCase
             ->assertOk();
 
         $response->assertJson(['passed' => false, 'failedCount' => 1]);
+    }
+
+    // ── Iterations (submission history) ───────────────────────
+
+    public function test_a_run_records_a_submission(): void
+    {
+        $challenge = Challenge::factory()->create();
+        $this->fakeJudge0([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $this->b64Tests([
+                ['name' => 'It works', 'passed' => true, 'message' => null],
+            ]),
+            'stderr' => null,
+            'exit_code' => 0,
+            'time' => '0.05',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php echo 1;'])
+            ->assertOk();
+
+        $this->assertDatabaseHas('challenge_submissions', [
+            'user_id' => $this->user->id,
+            'challenge_id' => $challenge->id,
+            'code' => '<?php echo 1;',
+            'passed' => true,
+            'failed_count' => 0,
+        ]);
+    }
+
+    public function test_a_failing_run_is_also_recorded_as_an_iteration(): void
+    {
+        $challenge = Challenge::factory()->create();
+        $this->fakeJudge0([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $this->b64Tests([
+                ['name' => 'It works', 'passed' => false, 'message' => 'nope'],
+            ]),
+            'stderr' => null,
+            'exit_code' => 0,
+            'time' => '0.05',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => '<?php broken']);
+
+        $this->assertDatabaseHas('challenge_submissions', [
+            'user_id' => $this->user->id,
+            'challenge_id' => $challenge->id,
+            'passed' => false,
+            'failed_count' => 1,
+        ]);
+    }
+
+    public function test_submissions_returns_only_the_callers_history_newest_first(): void
+    {
+        $challenge = Challenge::factory()->create();
+        $other = User::factory()->create();
+        $other->assignRole('client');
+
+        ChallengeSubmission::create(['user_id' => $this->user->id, 'challenge_id' => $challenge->id, 'code' => 'v1', 'passed' => false, 'failed_count' => 1, 'duration_ms' => 40]);
+        ChallengeSubmission::create(['user_id' => $this->user->id, 'challenge_id' => $challenge->id, 'code' => 'v2', 'passed' => true, 'failed_count' => 0, 'duration_ms' => 35]);
+        ChallengeSubmission::create(['user_id' => $other->id, 'challenge_id' => $challenge->id, 'code' => 'not mine', 'passed' => true, 'failed_count' => 0, 'duration_ms' => 10]);
+
+        $data = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/challenges/{$challenge->slug}/submissions")
+            ->assertOk()
+            ->json('data');
+
+        $this->assertCount(2, $data);
+        $this->assertSame('v2', $data[0]['code']);
+        $this->assertSame('v1', $data[1]['code']);
+    }
+
+    public function test_submission_history_is_capped_at_twenty(): void
+    {
+        $challenge = Challenge::factory()->create();
+        for ($i = 1; $i <= 20; $i++) {
+            ChallengeSubmission::create(['user_id' => $this->user->id, 'challenge_id' => $challenge->id, 'code' => "v$i", 'passed' => false, 'failed_count' => 1, 'duration_ms' => 5]);
+        }
+
+        $this->fakeJudge0([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $this->b64Tests([
+                ['name' => 'It works', 'passed' => true, 'message' => null],
+            ]),
+            'stderr' => null,
+            'exit_code' => 0,
+            'time' => '0.05',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/challenges/{$challenge->slug}/run", ['code' => 'v21'])
+            ->assertOk();
+
+        $this->assertSame(20, ChallengeSubmission::where('user_id', $this->user->id)->where('challenge_id', $challenge->id)->count());
+        $this->assertDatabaseMissing('challenge_submissions', ['user_id' => $this->user->id, 'code' => 'v1']);
+        $this->assertDatabaseHas('challenge_submissions', ['user_id' => $this->user->id, 'code' => 'v21']);
+    }
+
+    public function test_unauthenticated_cannot_list_submissions(): void
+    {
+        $challenge = Challenge::factory()->create();
+
+        $this->getJson("/api/challenges/{$challenge->slug}/submissions")->assertUnauthorized();
     }
 
     // ── Gamification (F1) ─────────────────────────────────────

@@ -6,6 +6,7 @@ use App\Exceptions\AuthorizationException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ChallengeResource;
 use App\Models\Challenge;
+use App\Models\ChallengeSubmission;
 use App\Models\UserChallengeCompletion;
 use App\Services\ChallengeExecutionService;
 use App\Services\EntitlementService;
@@ -55,6 +56,15 @@ class ChallengeController extends Controller
 
         $result = $executor->run($request->input('code'), $challenge->tests_code);
 
+        $failedCount = collect($result['tests'])->filter(fn ($t) => ! $t['passed'])->count();
+
+        $this->recordSubmission($request->user()->id, $challenge->id, [
+            'code' => $request->input('code'),
+            'passed' => $result['passed'],
+            'failed_count' => $failedCount,
+            'duration_ms' => (int) $result['duration_ms'],
+        ]);
+
         $progress = $result['passed']
             ? $gamification->recordChallengeCompletion($request->user(), $challenge)
             : null;
@@ -62,10 +72,51 @@ class ChallengeController extends Controller
         return response()->json([
             'passed' => $result['passed'],
             'duration' => $result['duration_ms'],
-            'failedCount' => collect($result['tests'])->filter(fn ($t) => ! $t['passed'])->count(),
+            'failedCount' => $failedCount,
             'tests' => $result['tests'],
             'progress' => $progress,
         ]);
+    }
+
+    /**
+     * The user's own iteration history for a challenge, newest first.
+     * Only ever returns the caller's submissions — no entitlement gate:
+     * this is their code, not gated content.
+     */
+    public function submissions(Request $request, Challenge $challenge): JsonResponse
+    {
+        $submissions = ChallengeSubmission::where('user_id', $request->user()->id)
+            ->where('challenge_id', $challenge->id)
+            ->orderByDesc('id')
+            ->get(['id', 'code', 'passed', 'failed_count', 'duration_ms', 'created_at']);
+
+        return response()->json(['data' => $submissions]);
+    }
+
+    /**
+     * Every run is an iteration; keep only the most recent per (user,
+     * challenge) so 64KB code blobs can't grow the table unbounded.
+     */
+    private const MAX_SUBMISSIONS_KEPT = 20;
+
+    private function recordSubmission(int $userId, int $challengeId, array $attributes): void
+    {
+        ChallengeSubmission::create([
+            'user_id' => $userId,
+            'challenge_id' => $challengeId,
+            ...$attributes,
+        ]);
+
+        $stale = ChallengeSubmission::where('user_id', $userId)
+            ->where('challenge_id', $challengeId)
+            ->orderByDesc('id')
+            ->skip(self::MAX_SUBMISSIONS_KEPT)
+            ->take(self::MAX_SUBMISSIONS_KEPT)
+            ->pluck('id');
+
+        if ($stale->isNotEmpty()) {
+            ChallengeSubmission::whereIn('id', $stale)->delete();
+        }
     }
 
     private function authorizeAccess(Request $request, Challenge $challenge): void

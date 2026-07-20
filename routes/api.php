@@ -88,6 +88,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Challenges
     Route::get('/challenges', [ChallengeController::class, 'index']);
     Route::get('/challenges/{challenge:slug}', [ChallengeController::class, 'show']);
+    // Iterations: the caller's own submission history for this challenge.
+    Route::get('/challenges/{challenge:slug}/submissions', [ChallengeController::class, 'submissions']);
     // Throttled per-user: each run is a Judge0 sandbox submission.
     Route::post('/challenges/{challenge:slug}/run', [ChallengeController::class, 'run'])->middleware('throttle:20,1');
 
